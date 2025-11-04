@@ -1,13 +1,111 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { ShoppingCart, User, Menu, Factory } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useState } from "react"
-import Image from "next/image"
+import Link from "next/link";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  ShoppingCart,
+  User,
+  Menu,
+  LogOut,
+  UserCircle,
+  Package,
+  Settings,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuthStore, getUser, setUser } from "@/lib/auth-store";
 
 export function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const router = useRouter();
+  const user = useAuthStore(); // user từ store (useSyncExternalStore)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [hydrated, setHydrated] = useState(false); // tránh nhấp nháy UI
+
+  
+  useEffect(() => {
+    let alive = true;
+
+    async function hydrate() {
+      try {
+        
+        if (getUser()) {
+          setHydrated(true);
+          return;
+        }
+
+        
+        const rCookie = await fetch("/api/auth/me", {
+         
+          credentials: "include",
+          cache: "no-store",
+        });
+
+        if (!alive) return;
+
+        if (rCookie.ok) {
+          const { user: me } = await rCookie.json();
+          setUser({
+            id: me.id,
+            email: me.email,
+            fullName: me.fullName,
+            avatarUrl: me.avatarUrl ?? "/logo.png",
+            role: me.role,
+          });
+          setHydrated(true);
+          return;
+        }
+
+        
+        const token = localStorage.getItem("token");
+        if (token) {
+          const rBearer = await fetch("/api/auth/me", {
+            headers: { Authorization: `Bearer ${token}` },
+            cache: "no-store",
+          });
+          if (!alive) return;
+
+          if (rBearer.ok) {
+            const { user: me } = await rBearer.json();
+            setUser({
+              id: me.id,
+              email: me.email,
+              fullName: me.fullName,
+              avatarUrl: me.avatarUrl ?? "/logo.png",
+              role: me.role,
+            });
+          } else if (rBearer.status === 401) {
+            
+            localStorage.removeItem("token");
+            setUser(null);
+          }
+        }
+      } catch {
+        
+      } finally {
+        if (alive) setHydrated(true);
+      }
+    }
+
+    hydrate();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+ 
+  const handleLogout = async () => {
+    try {
+     
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" }).catch(() => {});
+    } catch {}
+    localStorage.removeItem("token");
+    setUser(null);
+    setIsUserMenuOpen(false);
+    setIsMenuOpen(false);
+    router.push("/");
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
@@ -15,7 +113,7 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 font-bold text-xl text-gray-900">
-             <Image
+            <Image
               src="/logo.png"
               alt="AHSO Logo"
               width={32}
@@ -26,7 +124,7 @@ export function Navbar() {
             <span>AHSO</span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6">
             <Link href="/" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
               Trang chủ
@@ -42,26 +140,107 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Right Actions */}
+          {/* Right */}
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" aria-label="Giỏ hàng">
               <ShoppingCart className="h-5 w-5" />
             </Button>
-            <Link href="/profile">
-              <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
-              </Button>
-            </Link>
-            <Button className="hidden md:inline-flex" size="sm">
-              Đăng nhập
-            </Button>
-            
-            {/* Mobile Menu Button */}
-            <Button 
-              variant="ghost" 
+
+            {/* Trạng thái user */}
+            {hydrated ? (
+              user ? (
+                <div className="relative">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsUserMenuOpen((v) => !v)}
+                    className="hidden md:flex"
+                    aria-label="Mở menu người dùng"
+                  >
+                    {user.avatarUrl && user.avatarUrl !== "/logo.png" ? (
+                     
+                      <img
+                        src={user.avatarUrl!}
+                        alt={user.fullName || "User"}
+                        className="h-8 w-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <User className="h-5 w-5" />
+                    )}
+                  </Button>
+
+                  {isUserMenuOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setIsUserMenuOpen(false)}
+                        aria-hidden
+                      />
+                      <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <p className="text-sm font-semibold text-gray-900">{user.fullName}</p>
+                          <p className="text-xs text-gray-500">{user.email}</p>
+                          {user.role && user.role !== "USER" && (
+                            <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                              {user.role}
+                            </span>
+                          )}
+                        </div>
+                        <div className="py-1">
+                          <Link
+                            href="/profile"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            <UserCircle className="h-4 w-4" /> Tài khoản của tôi
+                          </Link>
+                          <Link
+                            href="/orders"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            <Package className="h-4 w-4" /> Đơn hàng
+                          </Link>
+                          {user.role === "ADMIN" && (
+                            <Link
+                              href="/admin"
+                              onClick={() => setIsUserMenuOpen(false)}
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            >
+                              <Settings className="h-4 w-4" /> Quản trị
+                            </Link>
+                          )}
+                        </div>
+                        <div className="border-t border-gray-100 py-1">
+                          <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            <LogOut className="h-4 w-4" /> Đăng xuất
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <Link href="/login">
+                  <Button className="hidden md:inline-flex" size="sm">
+                    Đăng nhập
+                  </Button>
+                </Link>
+              )
+            ) : (
+              // Skeleton nhỏ khi chưa hydrate
+              <div className="hidden md:inline-flex h-9 w-9 animate-pulse rounded-full bg-gray-200" />
+            )}
+
+            <Button
+              variant="ghost"
               size="icon"
               className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={() => setIsMenuOpen((v) => !v)}
+              aria-label="Mở menu"
             >
               <Menu className="h-5 w-5" />
             </Button>
@@ -71,26 +250,85 @@ export function Navbar() {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 space-y-2 border-t border-gray-200">
-            <Link href="/" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md">
+            <Link
+              href="/"
+              className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Trang chủ
             </Link>
-            <Link href="/shop" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md">
+            <Link
+              href="/shop"
+              className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Sản phẩm
             </Link>
-            <Link href="#" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md">
+            <Link
+              href="#"
+              className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Về chúng tôi
             </Link>
-            <Link href="#" className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md">
+            <Link
+              href="#"
+              className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Liên hệ
             </Link>
-            <div className="px-4 pt-2">
-              <Button className="w-full" size="sm">
-                Đăng nhập
-              </Button>
-            </div>
+
+            {hydrated && user ? (
+              <>
+                <div className="border-t border-gray-200 pt-2 mt-2">
+                  <div className="px-4 py-2">
+                    <p className="text-sm font-semibold text-gray-900">{user.fullName}</p>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                  </div>
+                  <Link
+                    href="/profile"
+                    className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Tài khoản
+                  </Link>
+                  <Link
+                    href="/orders"
+                    className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Đơn hàng
+                  </Link>
+                  {user.role === "ADMIN" && (
+                    <Link
+                      href="/admin"
+                      className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Quản trị
+                    </Link>
+                  )}
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-md"
+                  >
+                    Đăng xuất
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="px-4 pt-2">
+                <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                  <Button className="w-full" size="sm">
+                    Đăng nhập
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>
     </nav>
-  )
+  );
 }

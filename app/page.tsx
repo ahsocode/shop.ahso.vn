@@ -15,7 +15,7 @@ export default function Home() {
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      // === HERO ===
+     
       gsap.from(".hero-title", {
         y: 50,
         opacity: 0,
@@ -37,9 +37,6 @@ export default function Home() {
         ease: "power3.out",
       });
 
-      // === FEATURES (hiệu ứng đẹp & mượt) ===
-      // Mỗi card có 1 timeline: vào khung hình thì fade-up + scale + xoay nhẹ,
-      // sau đó icon trong card "pop" lên.
       gsap.utils.toArray<HTMLElement>(".feature-card").forEach((card, i) => {
         const icon = card.querySelector(".feature-icon");
 
@@ -65,12 +62,9 @@ export default function Home() {
             "-=0.2"
           );
 
-        // Wave stagger nhẹ theo index
         tl.delay(i * 0.05);
       });
 
-      // (Tuỳ chọn) Hover micro-interaction: nhẹ nhàng
-      // Chỉ áp dụng trên client, không ảnh hưởng SSR
       const cards = gsap.utils.toArray<HTMLElement>(".feature-card");
       cards.forEach((el) => {
         el.addEventListener("mouseenter", () => {
@@ -184,7 +178,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
+     
       <section className="bg-blue-600 text-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Sẵn sàng nâng cấp dây chuyền sản xuất?</h2>
@@ -195,7 +189,7 @@ export default function Home() {
             <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
               Liên hệ ngay
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+            <Button size="lg" variant="outline" className="bg-white text-blue-600 hover:bg-gray-100">
               Xem thêm
             </Button>
           </div>
