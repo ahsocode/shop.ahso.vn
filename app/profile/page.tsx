@@ -1,32 +1,128 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { User, Mail, Phone, MapPin, Building, Edit, Package, Heart, ShoppingBag } from "lucide-react"
-import Link from "next/link"
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import {
+  Card, CardContent, CardDescription, CardHeader, CardTitle
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  User, Mail, Phone, MapPin, Edit, Package, Heart, ShoppingBag, Loader2
+} from "lucide-react";
+
+type Address = {
+  id: string;
+  line1: string;
+  line2: string | null;
+  city: string;
+  state: string | null;
+  postalCode: string | null;
+  country: string; // ISO-2
+};
+
+type Profile = {
+  id: string;
+  username: string | null;
+  fullName: string | null;
+  email: string;
+  phoneE164: string | null;
+  taxCode: string | null;
+  emailVerified: boolean;
+  role: string;
+  avatarUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+  shippingAddress: Address | null;
+  billingAddress: Address | null;
+};
+
+type ApiResponse =
+  | { profile: Profile }
+  | { error: string; details?: unknown };
+
+function formatPhoneHuman(e164?: string | null) {
+  if (!e164) return "";
+  const m = e164.match(/^\+?(\d{2})(\d{2})(\d{3})(\d{4})$/);
+  if (m) return `+${m[1]} ${m[2]} ${m[3]} ${m[4]}`;
+  return e164;
+}
+
+function addressToLine(a?: Address | null) {
+  if (!a) return "—";
+  const parts = [
+    a.line1,
+    a.line2 || undefined,
+    a.city,
+    a.state || undefined,
+    a.postalCode || undefined,
+    a.country,
+  ].filter(Boolean);
+  return parts.join(", ");
+}
 
 export default function ProfilePage() {
-  // Mock user data
-  const user = {
-    name: "Nguyễn Văn A",
-    email: "nguyenvana@email.com",
-    phone: "+84 123 456 789",
-    company: "Công ty TNHH ABC",
-    address: "123 Đường ABC, Biên Hòa, Đồng Nai",
-    avatar: null
-  }
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const stats = [
-    { label: "Đơn hàng", value: "12", icon: Package },
-    { label: "Yêu thích", value: "8", icon: Heart },
-    { label: "Giỏ hàng", value: "3", icon: ShoppingBag }
-  ]
+  const stats = useMemo(
+    () => [
+      { label: "Đơn hàng", value: "—", icon: Package },
+      { label: "Yêu thích", value: "—", icon: Heart },
+      { label: "Giỏ hàng", value: "—", icon: ShoppingBag },
+    ],
+    []
+  );
 
-  const recentOrders = [
-    { id: "ORD-001", date: "15/11/2024", status: "Đang giao", total: "15.000.000đ" },
-    { id: "ORD-002", date: "10/11/2024", status: "Hoàn thành", total: "8.500.000đ" },
-    { id: "ORD-003", date: "05/11/2024", status: "Hoàn thành", total: "12.200.000đ" }
-  ]
+  useEffect(() => {
+    let isMounted = true;
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        const res = await fetch("/api/profile", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          cache: "no-store",
+        });
+
+        if (res.status === 401) {
+          if (isMounted) {
+            setError("UNAUTHORIZED");
+            setLoading(false);
+            router.push("/login");
+          }
+          return;
+        }
+
+        if (!res.ok) {
+          const t: ApiResponse = await res.json();
+          throw new Error((t as any)?.error || "REQUEST_FAILED");
+        }
+
+        const data: ApiResponse = await res.json();
+        if ("profile" in data) {
+          if (isMounted) setProfile(data.profile);
+        } else {
+          throw new Error(data.error || "UNKNOWN_ERROR");
+        }
+      } catch (e: any) {
+        if (isMounted) setError(e?.message || "ERROR");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    load();
+    return () => { isMounted = false; };
+  }, [router]);
+
+  const displayName = profile?.fullName || profile?.username || "Người dùng";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -35,16 +131,34 @@ export default function ProfilePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col md:flex-row items-center gap-6">
             {/* Avatar */}
-            <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-4 border-white/30">
-              <User className="h-12 w-12" />
+            <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-4 border-white/30 overflow-hidden">
+              {loading ? (
+                <Loader2 className="h-10 w-10 animate-spin" />
+              ) : profile?.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profile.avatarUrl || "/logo.png"}
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-2xl font-bold">
+                  {displayName?.charAt(0)?.toUpperCase() ?? <User className="h-10 w-10" />}
+                </span>
+              )}
             </div>
-            
-            {/* User Info */}
+
             <div className="text-center md:text-left flex-1">
-              <h1 className="text-3xl font-bold mb-2">{user.name}</h1>
-              <p className="text-blue-100 mb-4">{user.company}</p>
-              <Link href="/profile/edit">
-                <Button variant="outline" className="border-white text-white hover:bg-white/10">
+              <h1 className="text-3xl font-bold mb-2">
+                {loading ? "Đang tải..." : displayName}
+              </h1>
+
+              {/* CHANGED: bỏ phần “công ty/vai trò” */}
+              <div className="mb-4 h-5" />
+
+              {/* Nút chỉnh sửa */}
+              <Link href="/profile/edit">{/* CHANGED: bọc Link bên ngoài, không dùng asChild */}
+                <Button variant="outline" className="border-white text-blue-600 hover:bg-white/10">
                   <Edit className="h-4 w-4 mr-2" />
                   Chỉnh sửa hồ sơ
                 </Button>
@@ -55,10 +169,17 @@ export default function ProfilePage() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        {/* Error bar */}
+        {error && (
+          <div className="mb-6 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-red-800">
+            Không tải được hồ sơ: {error}
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 -mt-8 mb-8">
           {stats.map((stat) => {
-            const Icon = stat.icon
+            const Icon = stat.icon;
             return (
               <Card key={stat.label} className="shadow-lg">
                 <CardContent className="p-6 flex items-center gap-4">
@@ -66,12 +187,14 @@ export default function ProfilePage() {
                     <Icon className="h-6 w-6 text-blue-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {stat.value}
+                    </p>
                     <p className="text-sm text-gray-600">{stat.label}</p>
                   </div>
                 </CardContent>
               </Card>
-            )
+            );
           })}
         </div>
 
@@ -88,46 +211,57 @@ export default function ProfilePage() {
                   <User className="h-5 w-5 text-gray-400 mt-0.5" />
                   <div>
                     <p className="text-sm text-gray-500">Họ và tên</p>
-                    <p className="font-medium">{user.name}</p>
+                    <p className="font-medium">
+                      {loading ? "—" : displayName}
+                    </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
                   <Mail className="h-5 w-5 text-gray-400 mt-0.5" />
                   <div>
                     <p className="text-sm text-gray-500">Email</p>
-                    <p className="font-medium">{user.email}</p>
+                    <p className="font-medium">
+                      {loading ? "—" : profile?.email ?? "—"}
+                    </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
                   <Phone className="h-5 w-5 text-gray-400 mt-0.5" />
                   <div>
                     <p className="text-sm text-gray-500">Số điện thoại</p>
-                    <p className="font-medium">{user.phone}</p>
+                    <p className="font-medium">
+                      {loading ? "—" : formatPhoneHuman(profile?.phoneE164)}
+                    </p>
                   </div>
                 </div>
-                
-                <div className="flex items-start gap-3">
-                  <Building className="h-5 w-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-gray-500">Công ty</p>
-                    <p className="font-medium">{user.company}</p>
-                  </div>
-                </div>
-                
+
+                {/* CHANGED: chỉ hiển thị 2 địa chỉ theo đúng nhãn */}
                 <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
                   <div>
-                    <p className="text-sm text-gray-500">Địa chỉ</p>
-                    <p className="font-medium">{user.address}</p>
+                    <p className="text-sm text-gray-500">Địa chỉ giao hàng</p>
+                    <p className="font-medium">
+                      {loading ? "—" : addressToLine(profile?.shippingAddress)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
+                  <div>
+                    <p className="text-sm text-gray-500">Địa chỉ nhận hóa đơn</p>
+                    <p className="font-medium">
+                      {loading ? "—" : addressToLine(profile?.billingAddress)}
+                    </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Recent Orders */}
+          {/* Recent Orders (placeholder) */}
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
@@ -135,34 +269,16 @@ export default function ProfilePage() {
                 <CardDescription>Theo dõi trạng thái đơn hàng của bạn</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {recentOrders.map((order) => (
-                    <div key={order.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <Package className="h-6 w-6 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-gray-900">{order.id}</p>
-                          <p className="text-sm text-gray-500">{order.date}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-900">{order.total}</p>
-                        <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
-                          order.status === "Hoàn thành" 
-                            ? "bg-green-100 text-green-800" 
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}>
-                          {order.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex items-center justify-center py-8 text-sm text-gray-500">
+                  (Chưa kết nối endpoint đơn hàng — thêm sau)
                 </div>
-                <Button variant="outline" className="w-full mt-6">
-                  Xem tất cả đơn hàng
-                </Button>
+
+                {/* CHANGED: bọc Link bên ngoài, không dùng asChild */}
+                <Link href="/orders">
+                  <Button variant="outline" className="w-full mt-2">
+                    Xem tất cả đơn hàng
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
@@ -173,14 +289,21 @@ export default function ProfilePage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" className="h-20 flex-col">
-                    <Heart className="h-6 w-6 mb-2" />
-                    Danh sách yêu thích
-                  </Button>
-                  <Button variant="outline" className="h-20 flex-col">
-                    <ShoppingBag className="h-6 w-6 mb-2" />
-                    Giỏ hàng
-                  </Button>
+                  {/* CHANGED: bọc Link bên ngoài, không dùng asChild */}
+                  <Link href="/wishlist">
+                    <Button variant="outline" className="h-20 w-full flex-col">
+                      <Heart className="h-6 w-6 mb-2" />
+                      Danh sách yêu thích
+                    </Button>
+                  </Link>
+
+                  <Link href="/cart">
+                    <Button variant="outline" className="h-20 w-full flex-col">
+                      <ShoppingBag className="h-6 w-6 mb-2" />
+                      Giỏ hàng
+                    </Button>
+                  </Link>
+
                   <Link href="/shop" className="col-span-2">
                     <Button className="w-full h-12">
                       Tiếp tục mua sắm
@@ -193,5 +316,5 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
