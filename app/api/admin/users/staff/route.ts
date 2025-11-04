@@ -1,9 +1,10 @@
 // app/api/admin/users/staff/route.ts
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import { prisma } from "../../../../../lib/prisma";
-import { verifyBearerAuth, requireRole } from "../../../../../lib/auth";
+import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../../lib/auth";
 
 // Có thể tái sử dụng addressSchema từ file register, copy sang đây cho gọn:
 const addressSchema = z.object({
@@ -42,95 +43,100 @@ const addressesEqual = (a: z.infer<typeof addressSchema>, b: z.infer<typeof addr
   (a.postalCode ?? "") === (b.postalCode ?? "") &&
   normCountry2(a.country) === normCountry2(b.country);
 
-export async function POST(req: Request) {
-  const me = await verifyBearerAuth(req);
-  if (!requireRole(me, ["ADMIN"])) {
-    return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
-  }
+export async function POST(req: NextRequest) {
+  try {
+    const me = await verifyBearerAuth(req);          // ném 401 nếu sai
+    requireRole(me, ["ADMIN"]);                      // ném 403 nếu không phải ADMIN
 
-  const body = await req.json();
-  const parsed = createStaffSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: "VALIDATION_ERROR", details: parsed.error.flatten() },
-      { status: 400 }
-    );
-  }
-
-  const data = parsed.data;
-  const username = data.username.toLowerCase();
-  const email = data.email.toLowerCase();
-  const phoneE164 = toE164VN(data.phone);
-  const shipping = { ...data.shippingAddress, country: normCountry2(data.shippingAddress.country) };
-  const billingInput = data.billingAddress
-    ? { ...data.billingAddress, country: normCountry2(data.billingAddress.country) }
-    : undefined;
-
-  // Ngăn tạo thêm ADMIN qua route này (chỉ STAFF)
-  // (nếu sau này bạn cần promote role, tạo route riêng có kiểm soát)
-  const conflict = await prisma.user.findFirst({
-    where: { OR: [{ email }, { username }, { phoneE164 }] },
-    select: { id: true },
-  });
-  if (conflict) {
-    return NextResponse.json(
-      { error: "CONFLICT", message: "email/username/phone đã tồn tại" },
-      { status: 409 }
-    );
-  }
-
-  const passwordHash = await bcrypt.hash(data.password, 12);
-
-  const user = await prisma.$transaction(async (tx) => {
-    const shipAddr = await tx.address.create({
-      data: {
-        line1: shipping.line1,
-        line2: shipping.line2 ?? null,
-        city: shipping.city,
-        state: shipping.state ?? null,
-        postalCode: shipping.postalCode ?? null,
-        country: shipping.country,
-      },
-    });
-
-    let billingAddrId = shipAddr.id;
-    if (billingInput && !addressesEqual(shipping, billingInput)) {
-      const billAddr = await tx.address.create({
-        data: {
-          line1: billingInput.line1,
-          line2: billingInput.line2 ?? null,
-          city: billingInput.city,
-          state: billingInput.state ?? null,
-          postalCode: billingInput.postalCode ?? null,
-          country: billingInput.country,
-        },
-      });
-      billingAddrId = billAddr.id;
+    const body = await req.json();
+    const parsed = createStaffSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "VALIDATION_ERROR", details: parsed.error.flatten() },
+        { status: 400 }
+      );
     }
 
-    return tx.user.create({
-      data: {
-        username,
-        passwordHash,
-        fullName: data.fullName,
-        email,
-        phoneE164,
-        taxCode: data.taxCode ?? null,
-        shippingAddressId: shipAddr.id,
-        billingAddressId: billingAddrId,
-        role: "STAFF", // <— STAFF
-      },
-      select: {
-        id: true,
-        username: true,
-        fullName: true,
-        email: true,
-        phoneE164: true,
-        role: true,
-        createdAt: true,
-      },
-    });
-  });
+    const data = parsed.data;
+    const username = data.username.toLowerCase();
+    const email = data.email.toLowerCase();
+    const phoneE164 = toE164VN(data.phone);
+    const shipping = { ...data.shippingAddress, country: normCountry2(data.shippingAddress.country) };
+    const billingInput = data.billingAddress
+      ? { ...data.billingAddress, country: normCountry2(data.billingAddress.country) }
+      : undefined;
 
-  return NextResponse.json({ user }, { status: 201 });
+    // Tránh trùng email/username/phone
+    const conflict = await prisma.user.findFirst({
+      where: { OR: [{ email }, { username }, { phoneE164 }] },
+      select: { id: true },
+    });
+    if (conflict) {
+      return NextResponse.json(
+        { error: "CONFLICT", message: "email/username/phone đã tồn tại" },
+        { status: 409 }
+      );
+    }
+
+    const passwordHash = await bcrypt.hash(data.password, 12);
+
+    const user = await prisma.$transaction(async (tx) => {
+      const shipAddr = await tx.address.create({
+        data: {
+          line1: shipping.line1,
+          line2: shipping.line2 ?? null,
+          city: shipping.city,
+          state: shipping.state ?? null,
+          postalCode: shipping.postalCode ?? null,
+          country: shipping.country,
+        },
+      });
+
+      let billingAddrId = shipAddr.id;
+      if (billingInput && !addressesEqual(shipping, billingInput)) {
+        const billAddr = await tx.address.create({
+          data: {
+            line1: billingInput.line1,
+            line2: billingInput.line2 ?? null,
+            city: billingInput.city,
+            state: billingInput.state ?? null,
+            postalCode: billingInput.postalCode ?? null,
+            country: billingInput.country,
+          },
+        });
+        billingAddrId = billAddr.id;
+      }
+
+      return tx.user.create({
+        data: {
+          username,
+          passwordHash,
+          fullName: data.fullName,
+          email,
+          phoneE164,
+          taxCode: data.taxCode ?? null,
+          shippingAddressId: shipAddr.id,
+          billingAddressId: billingAddrId,
+          role: "STAFF", // chỉ tạo STAFF ở route này
+        },
+        select: {
+          id: true,
+          username: true,
+          fullName: true,
+          email: true,
+          phoneE164: true,
+          role: true,
+          createdAt: true,
+        },
+      });
+    });
+
+    return NextResponse.json({ user }, { status: 201 });
+  } catch (e) {
+    if (e instanceof UnauthorizedError || e instanceof ForbiddenError) {
+      return NextResponse.json({ error: e.message }, { status: e.status });
+    }
+    console.error("Create staff error:", e);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }

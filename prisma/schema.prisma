@@ -14,27 +14,39 @@ enum Role {
   ADMIN
 }
 
+enum OrderStatus {
+  pending
+  paid
+  processing
+  shipped
+  delivered
+  cancelled
+}
+
 model User {
-  id               String   @id @default(cuid())
-  username         String   @unique
-  passwordHash     String
-  fullName         String
-  email            String   @unique
-  phoneE164        String   @unique
-  taxCode          String?  @db.VarChar(13)
-  emailVerified    Boolean  @default(false)
-  role             Role     @default(USER)
-  avatarUrl        String?  @default("/logo.png")  
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id            String   @id @default(cuid())
+  username      String   @unique
+  passwordHash  String
+  fullName      String
+  email         String   @unique
+  phoneE164     String   @unique
+  taxCode       String?  @db.VarChar(13)
+  emailVerified Boolean  @default(false)
+  role          Role     @default(USER)
+  avatarUrl     String?  @default("/logo.png")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   shippingAddressId String  @unique
   billingAddressId  String? @unique
 
+  // Quan hệ User <-> Address đã có
   shippingAddress Address  @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
   billingAddress  Address? @relation("BillingAddress", fields: [billingAddressId], references: [id])
-}
 
+  // 🔹 Back-relation cho User <-> Order (một user có thể có nhiều order)
+  orders Order[] @relation("UserOrders")
+}
 
 model Address {
   id         String   @id @default(cuid())
@@ -47,6 +59,66 @@ model Address {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  // Quan hệ có sẵn với User
   usersShipping User[] @relation("ShippingAddress")
   usersBilling  User[] @relation("BillingAddress")
+
+  // 🔹 Back-relation cho Order <-> Address
+  orders Order[] @relation("OrderAddress")
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  code           String      @unique
+  status         OrderStatus @default(pending)
+  customerName   String
+  shippingMethod String?
+  shippingFee    Int?
+  note           String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 🔹 Quan hệ Order <-> OrderItem (1 - n)
+  items OrderItem[]
+
+  // 🔹 Quan hệ Order <-> Payment (1 - 1). `orderId` phải UNIQUE để Prisma hiểu 1-1
+  payment Payment?
+
+  // 🔹 Quan hệ Order <-> Address (n - 1) với tên "OrderAddress"
+  address   Address? @relation("OrderAddress", fields: [addressId], references: [id])
+  addressId String?
+
+  // 🔹 Quan hệ Order <-> User (n - 1) với tên "UserOrders"
+  user   User?   @relation("UserOrders", fields: [userId], references: [id])
+  userId String?
+
+  @@index([addressId])
+  @@index([userId])
+}
+
+model OrderItem {
+  id String @id @default(cuid())
+
+  // 🔹 Nhiều item thuộc 1 order
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId String
+
+  sku      String
+  name     String
+  quantity Int
+  price    Int
+  image    String?
+}
+
+model Payment {
+  id String @id @default(cuid())
+
+  // 🔹 1-1 với Order: orderId phải UNIQUE để không thành 1-n
+  order   Order  @relation(fields: [orderId], references: [id])
+  orderId String @unique
+
+  method String // "cod" | "vnpay" | "credit" | "bank" (string để linh hoạt)
+  amount Int
+  paidAt DateTime? @default(now())
 }

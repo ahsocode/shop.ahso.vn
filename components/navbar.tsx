@@ -18,10 +18,10 @@ import { useAuthStore, getUser, setUser } from "@/lib/auth-store";
 
 export function Navbar() {
   const router = useRouter();
-  const user = useAuthStore(); // user từ store (useSyncExternalStore)
+  const user = useAuthStore(); 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [hydrated, setHydrated] = useState(false); // tránh nhấp nháy UI
+  const [hydrated, setHydrated] = useState(false);
 
   
   useEffect(() => {
@@ -121,7 +121,11 @@ export function Navbar() {
               className="h-8 w-8 object-contain"
               priority
             />
-            <span>AHSO</span>
+            <div>
+              <span>AHSO Industrial</span>
+            </div>
+            
+
           </Link>
 
           {/* Desktop nav */}
@@ -132,19 +136,24 @@ export function Navbar() {
             <Link href="/shop" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
               Sản phẩm
             </Link>
-            <Link href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+            <Link href="/about" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
               Về chúng tôi
             </Link>
-            <Link href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+             <Link href="/policy" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+              Chính sách
+            </Link>
+            <Link href="/contact" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
               Liên hệ
             </Link>
           </div>
 
           {/* Right */}
           <div className="flex items-center gap-3">
+            <Link href="/cart">
             <Button variant="ghost" size="icon" aria-label="Giỏ hàng">
               <ShoppingCart className="h-5 w-5" />
             </Button>
+            </Link>
 
             {/* Trạng thái user */}
             {hydrated ? (
@@ -195,7 +204,7 @@ export function Navbar() {
                             <UserCircle className="h-4 w-4" /> Tài khoản của tôi
                           </Link>
                           <Link
-                            href="/orders"
+                            href="/profile/orders"
                             onClick={() => setIsUserMenuOpen(false)}
                             className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                           >
@@ -294,7 +303,7 @@ export function Navbar() {
                     Tài khoản
                   </Link>
                   <Link
-                    href="/orders"
+                    href="/profile/orders"
                     className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
                     onClick={() => setIsMenuOpen(false)}
                   >

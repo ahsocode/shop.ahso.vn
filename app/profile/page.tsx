@@ -274,7 +274,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* CHANGED: bọc Link bên ngoài, không dùng asChild */}
-                <Link href="/orders">
+                <Link href="/order">
                   <Button variant="outline" className="w-full mt-2">
                     Xem tất cả đơn hàng
                   </Button>
