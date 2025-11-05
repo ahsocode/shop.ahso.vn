@@ -1,0 +1,152 @@
+[
+  {
+    "category": "Robot Palletizer",
+    "title": "Hệ Cấp Pallet và Robot Bốc Xếp Thùng Tự Động (M2232)",
+    "slug": "he-cap-pallet-robot-boc-xep-thung-tu-dong-m2232",
+    "summary": "Giải pháp robot công nghiệp giúp bốc xếp thùng tự động, nâng cao năng suất và giảm chi phí vận hành.",
+    "coverImage": "/uploads/solutions/m2232-cover.jpg",
+    "bodyHtml": "<p>Hệ thống robot palletizer M2232 cho phép tự động hóa hoàn toàn quá trình cấp pallet và xếp thùng lên pallet. Thiết kế phù hợp cho các dây chuyền đóng gói quy mô lớn trong ngành thực phẩm và đồ uống.</p>",
+    "industry": "food",
+    "usecase": "palletizing",
+    "status": "PUBLISHED",
+    "images": [
+      { "url": "/uploads/solutions/m2232-1.jpg", "alt": "Toàn cảnh dây chuyền" },
+      { "url": "/uploads/solutions/m2232-2.jpg", "alt": "Cánh tay robot hoạt động" }
+    ]
+  },
+  {
+    "category": "Robot Palletizer",
+    "title": "Hệ Cấp Pallet và Robot Xếp Thùng Lên Tự Động (M24053)",
+    "slug": "he-cap-pallet-robot-xep-thung-len-tu-dong-m24053",
+    "summary": "Tích hợp robot xếp thùng tự động, phù hợp cho dây chuyền đóng gói hàng hóa công nghiệp.",
+    "coverImage": "/uploads/solutions/m24053-cover.jpg",
+    "bodyHtml": "<p>Robot M24053 giúp doanh nghiệp tiết kiệm nhân công, đảm bảo năng suất cao và vận hành ổn định trong môi trường nhà máy tự động hóa.</p>",
+    "industry": "logistics",
+    "usecase": "palletizing",
+    "status": "PUBLISHED",
+    "images": [
+      { "url": "/uploads/solutions/m24053-1.jpg" },
+      { "url": "/uploads/solutions/m24053-2.jpg" }
+    ]
+  },
+  {
+    "category": "Case Packer System",
+    "title": "Giải Pháp Đóng Gói Thùng Tự Động (C2301)",
+    "slug": "giai-phap-dong-goi-thung-tu-dong-c2301",
+    "summary": "Hệ thống đóng gói thùng hoàn toàn tự động với cảm biến nhận dạng sản phẩm.",
+    "coverImage": "/uploads/solutions/c2301-cover.jpg",
+    "bodyHtml": "<p>Case Packer C2301 được thiết kế nhằm tối ưu hóa quy trình đóng gói sản phẩm dạng hộp hoặc chai lọ, phù hợp cho các nhà máy sản xuất thực phẩm, mỹ phẩm.</p>",
+    "industry": "food",
+    "usecase": "packaging",
+    "status": "PUBLISHED",
+    "images": [
+      { "url": "/uploads/solutions/c2301-1.jpg" },
+      { "url": "/uploads/solutions/c2301-2.jpg" }
+    ]
+  },
+  {
+    "category": "Filling System",
+    "title": "Dây Chuyền Chiết Rót Tự Động Dành Cho Nước Giải Khát (F1102)",
+    "slug": "day-chuyen-chiet-rot-nuoc-giai-khat-f1102",
+    "summary": "Giải pháp chiết rót tự động độ chính xác cao, giảm thất thoát nguyên liệu.",
+    "coverImage": "/uploads/solutions/f1102-cover.jpg",
+    "bodyHtml": "<p>Dây chuyền F1102 sử dụng cảm biến lưu lượng và điều khiển servo nhằm đạt độ chính xác ±0.2% khi chiết rót, giúp doanh nghiệp nâng cao hiệu suất đóng chai.</p>",
+    "industry": "beverage",
+    "usecase": "filling",
+    "status": "PUBLISHED",
+    "images": [
+      { "url": "/uploads/solutions/f1102-1.jpg" },
+      { "url": "/uploads/solutions/f1102-2.jpg" }
+    ]
+  },
+  {
+    "category": "Robot Welding",
+    "title": "Giải Pháp Robot Hàn Tự Động (W4105)",
+    "slug": "robot-han-tu-dong-w4105",
+    "summary": "Robot hàn tự động cho ngành cơ khí chính xác và khung xe ô tô.",
+    "coverImage": "/uploads/solutions/w4105-cover.jpg",
+    "bodyHtml": "<p>Robot Welding W4105 hỗ trợ các bài hàn phức tạp với tốc độ cao, đảm bảo mối hàn chính xác và giảm tối đa sai lệch.</p>",
+    "industry": "automotive",
+    "usecase": "welding",
+    "status": "PUBLISHED",
+    "images": [
+      { "url": "/uploads/solutions/w4105-1.jpg" },
+      { "url": "/uploads/solutions/w4105-2.jpg" }
+    ]
+  },
+  {
+    "category": "Belt Conveyor System",
+    "title": "Hệ Thống Băng Tải Dây Đai Trong Dây Chuyền Sản Xuất (B1203)",
+    "slug": "he-thong-bang-tai-day-dai-b1203",
+    "summary": "Băng tải dây đai tốc độ cao, linh hoạt trong lắp đặt và bảo trì.",
+    "coverImage": "/uploads/solutions/b1203-cover.jpg",
+    "bodyHtml": "<p>Hệ thống băng tải dây đai B1203 có thể tùy chỉnh chiều dài, độ nghiêng và tốc độ. Thiết kế đạt chuẩn an toàn công nghiệp.</p>",
+    "industry": "manufacturing",
+    "usecase": "conveying",
+    "status": "PUBLISHED",
+    "images": [
+      { "url": "/uploads/solutions/b1203-1.jpg" },
+      { "url": "/uploads/solutions/b1203-2.jpg" }
+    ]
+  },
+  {
+    "category": "Roller Conveyor System",
+    "title": "Hệ Thống Băng Tải Con Lăn Tự Động (R3002)",
+    "slug": "he-thong-bang-tai-con-lan-tu-dong-r3002",
+    "summary": "Tối ưu vận chuyển hàng hóa trong kho và nhà máy với hệ thống con lăn tự động.",
+    "coverImage": "/uploads/solutions/r3002-cover.jpg",
+    "bodyHtml": "<p>Hệ thống R3002 hỗ trợ tự động hóa khâu vận chuyển giữa các công đoạn. Tích hợp cảm biến phát hiện vật thể giúp điều phối thông minh.</p>",
+    "industry": "logistics",
+    "usecase": "material-handling",
+    "status": "PUBLISHED",
+    "images": [
+      { "url": "/uploads/solutions/r3002-1.jpg" },
+      { "url": "/uploads/solutions/r3002-2.jpg" }
+    ]
+  },
+  {
+    "category": "Dosing System",
+    "title": "Hệ Thống Định Lượng Tự Động (D2108)",
+    "slug": "he-thong-dinh-luong-tu-dong-d2108",
+    "summary": "Công nghệ định lượng chính xác cao cho ngành thực phẩm và hóa chất.",
+    "coverImage": "/uploads/solutions/d2108-cover.jpg",
+    "bodyHtml": "<p>Dosing System D2108 cho phép định lượng nguyên liệu dạng lỏng và bột với sai số nhỏ hơn 0.5%. Hệ thống hỗ trợ kết nối IoT để giám sát dữ liệu thời gian thực.</p>",
+    "industry": "chemical",
+    "usecase": "dosing",
+    "status": "PUBLISHED",
+    "images": [
+      { "url": "/uploads/solutions/d2108-1.jpg" },
+      { "url": "/uploads/solutions/d2108-2.jpg" }
+    ]
+  },
+  {
+    "category": "Robot Pick and Place",
+    "title": "Hệ Thống Robot Pick and Place Tốc Độ Cao (P5001)",
+    "slug": "he-thong-robot-pick-and-place-p5001",
+    "summary": "Robot pick and place hiệu năng cao, tối ưu dây chuyền đóng gói tự động.",
+    "coverImage": "/uploads/solutions/p5001-cover.jpg",
+    "bodyHtml": "<p>Robot Pick and Place P5001 có thể xử lý đến 120 chu kỳ/phút, thích hợp cho ngành thực phẩm đóng gói và linh kiện điện tử.</p>",
+    "industry": "electronics",
+    "usecase": "pick-and-place",
+    "status": "PUBLISHED",
+    "images": [
+      { "url": "/uploads/solutions/p5001-1.jpg" },
+      { "url": "/uploads/solutions/p5001-2.jpg" }
+    ]
+  },
+  {
+    "category": "Filling System",
+    "title": "Hệ Thống Chiết Rót Dầu Nhớt Tự Động (F2207)",
+    "slug": "he-thong-chiet-rot-dau-nhot-tu-dong-f2207",
+    "summary": "Giải pháp chiết rót chất lỏng nhớt độ chính xác cao, phù hợp cho ngành công nghiệp dầu nhờn.",
+    "coverImage": "/uploads/solutions/f2207-cover.jpg",
+    "bodyHtml": "<p>Hệ thống F2207 ứng dụng công nghệ định lượng servo và cảm biến áp suất cao để đảm bảo độ chính xác tuyệt đối trong quy trình chiết rót dầu nhớt và hóa chất.</p>",
+    "industry": "chemical",
+    "usecase": "filling",
+    "status": "PUBLISHED",
+    "images": [
+      { "url": "/uploads/solutions/f2207-1.jpg" },
+      { "url": "/uploads/solutions/f2207-2.jpg" }
+    ]
+  }
+]

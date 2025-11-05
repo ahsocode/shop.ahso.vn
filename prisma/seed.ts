@@ -1,44 +1,42 @@
+import { PrismaClient } from '@prisma/client';
+import data from './solutions-seed.json' assert { type: 'json' };
 
-import { prisma } from "../lib/prisma";
-import bcrypt from "bcrypt";
+const prisma = new PrismaClient();
 
 async function main() {
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@local.test";
-  const ADMIN_USER  = process.env.ADMIN_USERNAME || "adminahso";
-  const ADMIN_PASS  = process.env.ADMIN_PASSWORD || "Adminshopahsovn2025";
+  for (const s of data as any[]) {
+    const slugCat = s.category.toLowerCase().replace(/\s+/g, '-');
 
+    const category = await prisma.solutionCategory.upsert({
+      where: { slug: slugCat },
+      update: {},
+      create: { name: s.category, slug: slugCat },
+    });
 
-  const adminCount = await prisma.user.count({ where: { role: "ADMIN" } });
-  if (adminCount > 0) {
-    console.log("Admin already exists, skipping create.");
-    return;
+    await prisma.solution.create({
+      data: {
+        title: s.title,
+        slug: s.slug,
+        summary: s.summary,
+        coverImage: s.coverImage,
+        bodyHtml: s.bodyHtml,
+        industry: s.industry,
+        usecase: s.usecase,
+        status: 'PUBLISHED',
+        publishedAt: new Date(),
+        categoryId: category.id,
+        images: { create: s.images ?? [] },
+      },
+    });
   }
-
-  const passwordHash = await bcrypt.hash(ADMIN_PASS, 12);
-  const ship = await prisma.address.create({
-    data: { line1: "Admin HQ", city: "HN", country: "VN" },
-  });
-
-  const user = await prisma.user.create({
-    data: {
-      username: ADMIN_USER.toLowerCase(),
-      fullName: "System Administrator",
-      email: ADMIN_EMAIL.toLowerCase(),
-      phoneE164: "+84000000000",
-      passwordHash,
-      role: "ADMIN",
-      shippingAddressId: ship.id,
-      billingAddressId: ship.id,
-    },
-    select: { id: true, email: true, role: true },
-  });
-
-  console.log("Admin created:", user);
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-}).finally(async () => {
-  await prisma.$disconnect();
-});
+main()
+  .then(() => console.log('✅ Seed xong solutions'))
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

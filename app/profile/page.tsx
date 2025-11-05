@@ -185,7 +185,7 @@ export default function ProfilePage() {
               </p>
 
               <Link href="/profile/edit">
-                <Button variant="outline" className="border-white text-white hover:bg-white/10">
+                <Button variant="outline" className="border-black text-blue-600 hover:bg-white/10 hover:text-white hover:stroke-zinc-500">
                   <Edit className="h-4 w-4 mr-2" />
                   Chỉnh sửa hồ sơ
                 </Button>

@@ -241,7 +241,7 @@ export default function EditProfilePage() {
         city: "",
         state: "",
         postalCode: "",
-        country: "VN",
+        country: "",
       },
       billingAddress: {
         line1: "",
@@ -249,7 +249,7 @@ export default function EditProfilePage() {
         city: "",
         state: "",
         postalCode: "",
-        country: "VN",
+        country: "",
       },
     },
     mode: "onChange",
@@ -419,7 +419,7 @@ export default function EditProfilePage() {
                   </div>
                   <div className="flex gap-2">
                     <Button type="button" onClick={openUpload}>
-                      Tải ảnh lên Cloudinary
+                      Tải ảnh 
                     </Button>
                     <Button
                       type="button"

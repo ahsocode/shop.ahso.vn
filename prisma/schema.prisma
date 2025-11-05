@@ -1,13 +1,18 @@
-generator client {
+generator client_types {
   provider = "prisma-client"
   output   = "../generated"
+}
+
+// THÊM generator CHUẨN để seed/API dùng @prisma/client
+generator client {
+  provider = "prisma-client-js"
+  // để trống output -> Prisma build vào node_modules/@prisma/client
 }
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-
 enum Role {
   USER
   STAFF
@@ -121,4 +126,87 @@ model Payment {
   method String // "cod" | "vnpay" | "credit" | "bank" (string để linh hoạt)
   amount Int
   paidAt DateTime? @default(now())
+}
+// ===============================
+// SOLUTION CATALOG
+// ===============================
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model SolutionCategory {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  image       String?            // ảnh biểu trưng category (nếu cần)
+
+  // Phân cấp (tùy chọn). Nếu không dùng phân cấp: giữ parentId = null
+  parentId    String?
+  parent      SolutionCategory?  @relation("SolutionCategoryToParent", fields: [parentId], references: [id])
+  children    SolutionCategory[] @relation("SolutionCategoryToParent")
+
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+
+  // Quan hệ
+  solutions   Solution[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([parentId, sortOrder])
+}
+
+model Solution {
+  id            String         @id @default(cuid())
+  title         String
+  slug          String         @unique
+  summary       String?        // mô tả ngắn để hiển thị ở card
+  coverImage    String?        // ảnh chính (URL)
+  bodyHtml      String         @db.LongText // nội dung HTML chi tiết (copy từ editor/CMS)
+
+  // Lọc/hiển thị theo UI tìm kiếm hiện tại (tùy chọn)
+  industry      String?        // ví dụ: "food", "auto", "electronics"…
+  usecase       String?        // ví dụ: "palletizing", "packaging"…
+
+  // Trạng thái hiển thị
+  status        PublishStatus  @default(DRAFT)
+  publishedAt   DateTime?
+
+  // SEO cơ bản (tùy chọn)
+  metaTitle       String?
+  metaDescription String?
+  canonicalUrl    String?
+
+  // Quan hệ Category
+  categoryId    String
+  category      SolutionCategory @relation(fields: [categoryId], references: [id])
+
+  // Thư viện ảnh n-ảnh
+  images        SolutionImage[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Chỉ mục phục vụ search/list nhanh
+  @@index([categoryId, status])
+  @@fulltext([title, bodyHtml, usecase]) // MySQL 8+ (InnoDB) hỗ trợ FULLTEXT
+}
+
+model SolutionImage {
+  id         String   @id @default(cuid())
+  solutionId String
+  solution   Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+
+  url        String   // chỉ lưu link ảnh
+  alt        String?  // mô tả ảnh cho SEO/a11y
+  sortOrder  Int      @default(0)
+
+  createdAt  DateTime @default(now())
+
+  @@index([solutionId, sortOrder])
 }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   ShoppingCart,
@@ -18,11 +18,16 @@ import { useAuthStore, getUser, setUser } from "@/lib/auth-store";
 
 export function Navbar() {
   const router = useRouter();
-  const pathname = usePathname(); // Lấy đường dẫn hiện tại
+  const pathname = usePathname();
   const user = useAuthStore();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+
+  // Refs để đóng menu khi click ra ngoài
+  const userBtnRef = useRef<HTMLButtonElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let alive = true;
@@ -89,6 +94,34 @@ export function Navbar() {
     };
   }, []);
 
+  // Đóng menu user khi click ra ngoài hoặc nhấn Escape
+  useEffect(() => {
+    function handleDown(e: MouseEvent) {
+      if (!isUserMenuOpen) return;
+      const btn = userBtnRef.current;
+      const menu = userMenuRef.current;
+      const target = e.target as Node;
+      if (menu && !menu.contains(target) && btn && !btn.contains(target)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+    function handleEsc(e: KeyboardEvent) {
+      if (e.key === "Escape") setIsUserMenuOpen(false);
+    }
+    document.addEventListener("mousedown", handleDown);
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("mousedown", handleDown);
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [isUserMenuOpen]);
+
+  // Đổi route thì đóng menu user & mobile
+  useEffect(() => {
+    setIsUserMenuOpen(false);
+    setIsMenuOpen(false);
+  }, [pathname]);
+
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST", credentials: "include" }).catch(() => {});
@@ -100,8 +133,20 @@ export function Navbar() {
     router.push("/");
   };
 
-  // Hàm kiểm tra active
-  const isActive = (path: string) => pathname === path;
+  const isActive = (path: string) => {
+    if (path === "/") {
+      return pathname === "/";
+    }
+    return pathname.startsWith(path);
+  };
+
+  const navItems = [
+    { href: "/", label: "Trang chủ" },
+    { href: "/shop", label: "Sản phẩm" },
+    { href: "/about", label: "Về chúng tôi" },
+    { href: "/policy", label: "Chính sách" },
+    { href: "/contact", label: "Liên hệ" },
+  ];
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
@@ -122,13 +167,7 @@ export function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
-            {[
-              { href: "/", label: "Trang chủ" },
-              { href: "/shop", label: "Sản phẩm" },
-              { href: "/about", label: "Về chúng tôi" },
-              { href: "/policy", label: "Chính sách" },
-              { href: "/contact", label: "Liên hệ" },
-            ].map((item) => (
+            {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -164,6 +203,7 @@ export function Navbar() {
                     onClick={() => setIsUserMenuOpen((v) => !v)}
                     className="hidden md:flex"
                     aria-label="Mở menu người dùng"
+                    ref={userBtnRef}
                   >
                     {user.avatarUrl && user.avatarUrl !== "/logo.png" ? (
                       <img
@@ -178,12 +218,16 @@ export function Navbar() {
 
                   {isUserMenuOpen && (
                     <>
+                      {/* Backdrop (có thể bỏ, đã có click-outside; giữ lại cho UX) */}
                       <div
                         className="fixed inset-0 z-40"
                         onClick={() => setIsUserMenuOpen(false)}
                         aria-hidden
                       />
-                      <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                      <div
+                        className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50"
+                        ref={userMenuRef}
+                      >
                         <div className="px-4 py-3 border-b border-gray-100">
                           <p className="text-sm font-semibold text-gray-900">{user.fullName}</p>
                           <p className="text-xs text-gray-500">{user.email}</p>
@@ -257,13 +301,7 @@ export function Navbar() {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 space-y-1 border-t border-gray-200">
-            {[
-              { href: "/", label: "Trang chủ" },
-              { href: "/shop", label: "Sản phẩm" },
-              { href: "/about", label: "Về chúng tôi" },
-              { href: "/policy", label: "Chính sách" },
-              { href: "/contact", label: "Liên hệ" },
-            ].map((item) => (
+            {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -280,7 +318,7 @@ export function Navbar() {
 
             {hydrated && user ? (
               <>
-                <div className="border-t border-gray-200 pt-3 mt-2 px-4">
+                <div className="border-top border-gray-200 pt-3 mt-2 px-4">
                   <p className="text-sm font-semibold text-gray-900">{user.fullName}</p>
                   <p className="text-xs text-gray-500">{user.email}</p>
                 </div>
