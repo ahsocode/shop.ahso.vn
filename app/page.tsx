@@ -7,19 +7,28 @@ export default function Home() {
   const rootRef = useRef(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   
-  const heroImages = [
-    "/factory1.jpg",
-    "/factory2.jpg", 
-    "/factory3.jpg",
-    "/factory4.jpg"
+  const heroSlides = [
+    {
+      image: "/factory1.jpg",
+      title: "Giải pháp công nghiệp toàn diện",
+      subtitle: "Cung cấp thiết bị, máy móc và linh kiện công nghiệp chất lượng cao với giá cạnh tranh nhất thị trường",
+    },
+    {
+      image: "/factory2.jpg",
+      title: "Giải pháp phần mềm ứng dụng trong công nghiệp",
+      subtitle: "Tối ưu hóa quy trình sản xuất với phần mềm thông minh và hệ thống quản lý hiện đại",
+    },
+    {
+      image: "/factory3.jpg",
+      title: "Sản phẩm công nghiệp chính hãng",
+      subtitle: "Phân phối thiết bị và phụ tùng chính hãng, đảm bảo chất lượng và bảo hành toàn diện",
+    },
   ];
 
-  // Auto-play carousel
-  useEffect(() => {
+   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, 4000);
-    
     return () => clearInterval(interval);
   }, []);
 
@@ -95,43 +104,41 @@ export default function Home() {
 
   return (
     <div ref={rootRef} className="min-h-screen bg-gray-50">
-      {/* Hero Section with Image Carousel */}
       <section className="relative h-[600px] md:h-[700px] overflow-hidden">
         {/* Image Carousel */}
         <div className="absolute inset-0">
-          {heroImages.map((img, index) => (
+          {heroSlides.map((slide, index) => (
             <div
               key={index}
               className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
               style={{
                 opacity: currentSlide === index ? 1 : 0,
-                backgroundImage: `url(${img})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
+                backgroundImage: `url(${slide.image})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
               }}
             >
-              {/* Overlay */}
               <div className="absolute inset-0 bg-linear-to-r from-blue-900/90 via-blue-800/70 to-transparent"></div>
             </div>
           ))}
         </div>
 
-        {/* Content */}
+        {/* Text Content */}
         <div className="relative z-10 h-full flex items-center">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
             <div className="max-w-3xl">
               <div className="inline-block mb-4 px-4 py-2 bg-blue-500/20 backdrop-blur-sm rounded-full border border-blue-400/30">
                 <span className="text-blue-200 text-sm font-medium">🏭 Giải pháp công nghiệp hàng đầu</span>
               </div>
-              
+
               <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight text-white animate-fade-in">
-                Giải pháp máy móc công nghiệp toàn diện
+                {heroSlides[currentSlide].title}
               </h1>
-              
+
               <p className="text-xl md:text-2xl mb-8 text-blue-100 animate-fade-in-delay">
-                Cung cấp thiết bị, máy móc và linh kiện công nghiệp chất lượng cao với giá cạnh tranh nhất thị trường
+                {heroSlides[currentSlide].subtitle}
               </p>
-              
+
               <div className="flex flex-wrap gap-4 animate-fade-in-delay-2">
                 <button className="group px-8 py-4 bg-white text-blue-600 rounded-lg font-semibold shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-2">
                   Khám phá sản phẩm
@@ -148,12 +155,12 @@ export default function Home() {
 
         {/* Carousel Indicators */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
-          {heroImages.map((_, index) => (
+          {heroSlides.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
               className={`h-2 rounded-full transition-all duration-300 ${
-                currentSlide === index ? 'w-8 bg-white' : 'w-2 bg-white/50'
+                currentSlide === index ? "w-8 bg-white" : "w-2 bg-white/50"
               }`}
             />
           ))}
@@ -161,7 +168,10 @@ export default function Home() {
 
         {/* Decorative Elements */}
         <div className="absolute top-20 right-10 w-72 h-72 bg-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 left-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div
+          className="absolute bottom-20 left-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
       </section>
 
       {/* Categories Section */}
@@ -308,7 +318,7 @@ export default function Home() {
             opacity: 1;
             transform: translateY(0);
           }
-        }
+        } 
 
         .animate-fade-in {
           animation: fade-in 0.8s ease-out;

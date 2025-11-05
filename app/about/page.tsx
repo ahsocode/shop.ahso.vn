@@ -16,83 +16,74 @@ import {
   BadgeCheck,
   Clock,
   Truck,
-  Handshake, // ✅ lucide có Truck, không có TruckFast
+  Handshake,
+  Brain,
+  Cpu,
+  Globe,
+  Lightbulb,
+  Mail,
+  MapPin,
+  Link as LinkIcon,
 } from "lucide-react";
 import Link from "next/link";
 
 export default function AboutPage() {
-  // ✅ Khai kiểu để tránh mảng never[]
   const sectionsRef = useRef<HTMLElement[]>([]);
 
   useEffect(() => {
-    const observerOptions: IntersectionObserverInit = {
-      threshold: 0.2,
-      rootMargin: "0px 0px -100px 0px",
-    };
+    const observer = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("animate-in");
+          }
+        }),
+      { threshold: 0.2, rootMargin: "0px 0px -100px 0px" }
+    );
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("animate-in");
-        }
-      });
-    }, observerOptions);
-
-    sectionsRef.current.forEach((section) => {
-      if (section) observer.observe(section);
-    });
-
+    sectionsRef.current.forEach((section) => section && observer.observe(section));
     return () => observer.disconnect();
   }, []);
 
-  // ✅ Khai kiểu tham số el
   const addToRefs = (el: HTMLElement | null) => {
     if (el && !sectionsRef.current.includes(el)) {
       sectionsRef.current.push(el);
     }
   };
 
+  const coreValues = [
+    { icon: Target, title: "Hiệu quả", desc: "Luôn đặt giá trị thực tiễn và hiệu suất lên hàng đầu" },
+    { icon: Lightbulb, title: "Đổi mới", desc: "Không ngừng sáng tạo, cập nhật công nghệ tiên tiến" },
+    { icon: Users, title: "Đồng hành", desc: "Hợp tác lâu dài, lắng nghe và hỗ trợ khách hàng sát sao" },
+    { icon: Globe, title: "Bền vững", desc: "Tối ưu không chỉ trong ngắn hạn mà hướng đến tương lai" },
+  ];
+
   return (
     <div className="min-h-screen bg-linear-to-b from-white to-gray-50">
-      {/* Hero Section - Giới thiệu công ty */}
-      <section
-        ref={addToRefs}
-        className="relative min-h-screen flex items-center justify-center overflow-hidden section-reveal"
-      >
-        {/* Background Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: 'url(/factory1.jpg)',
-          }}
-        >
+      {/* Hero Section */}
+      <section ref={addToRefs} className="relative min-h-screen flex items-center justify-center overflow-hidden reveal">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: 'url(/factory1.jpg)' }}>
           <div className="absolute inset-0 bg-linear-to-br from-blue-900/95 via-blue-800/90 to-purple-900/95"></div>
         </div>
 
-        {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white py-20">
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-8">
             <Sparkles className="w-5 h-5 text-yellow-300" />
-            <span className="text-sm font-semibold">
-              Đối tác tin cậy của hàng nghìn doanh nghiệp
-            </span>
+            <span className="text-sm font-semibold">Đối tác tin cậy của hàng nghìn doanh nghiệp</span>
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold mb-8 leading-tight">
-            Về{" "}
-            <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-300 to-purple-300">
-              AHSO
-            </span>
+            Về <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-300 to-purple-300">AHSO</span>
           </h1>
 
           <p className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto mb-12 leading-relaxed">
-            Chúng tôi là nhà cung cấp hàng đầu về thiết bị, máy móc và linh kiện công nghiệp tại Việt Nam.
-            Với hơn 15 năm kinh nghiệm, AHSO cam kết mang đến giải pháp tối ưu cho mọi nhu cầu sản xuất.
+            AHSO – viết tắt của Automation - High Solution - Optimization – là doanh nghiệp tiên phong cung cấp các 
+            giải pháp công nghệ toàn diện trong lĩnh vực tự động hóa, chuyển đổi số, phần mềm doanh nghiệp và trí tuệ nhân tạo (AI).
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
             {[
-              { icon: Factory, number: "15+", label: "Năm kinh nghiệm" },
+              { icon: Factory, number: "5+", label: "Năm kinh nghiệm" },
               { icon: Users, number: "5000+", label: "Khách hàng tin dùng" },
               { icon: Package, number: "10000+", label: "Sản phẩm đa dạng" },
               { icon: Award, number: "99%", label: "Hài lòng" },
@@ -111,33 +102,97 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Decorative */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-white to-transparent"></div>
       </section>
 
-      {/* Section 2 - Đa dạng linh kiện (Left align) */}
-      <section ref={addToRefs} className="relative py-24 section-reveal">
+      {/* AHSO Introduction - NEW SECTION */}
+      <section ref={addToRefs} className="py-20 bg-white reveal">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600/10 rounded-full mb-6">
+              <Brain className="w-6 h-6 text-blue-700" />
+              <span className="text-lg font-bold text-blue-900">Giới Thiệu Về AHSO</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Automation – High Solution – Optimization
+            </h2>
+            <p className="text-xl text-gray-700 max-w-4xl mx-auto">
+              AHSO là doanh nghiệp tiên phong cung cấp <strong>giải pháp công nghệ toàn diện</strong> trong lĩnh vực tự động hóa, chuyển đổi số, phần mềm doanh nghiệp và trí tuệ nhân tạo (AI).
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            <div className="bg-linear-to-br from-blue-50 to-blue-100 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center mb-5">
+                <Cpu className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Tự Động Hóa Công Nghiệp</h3>
+              <p className="text-gray-700">Thiết kế, tích hợp hệ thống tự động hóa dây chuyền, giám sát thông minh, tăng năng suất, giảm chi phí.</p>
+            </div>
+            <div className="bg-linear-to-br from-purple-50 to-purple-100 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-14 h-14 bg-purple-600 rounded-xl flex items-center justify-center mb-5">
+                <Globe className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Chuyển Đổi Số Doanh Nghiệp</h3>
+              <p className="text-gray-700">Tư vấn và triển khai ERP, MES, quản trị nội bộ, sản xuất, phân phối – minh bạch và hiệu quả.</p>
+            </div>
+            <div className="bg-linear-to-br from-emerald-50 to-emerald-100 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="w-14 h-14 bg-emerald-600 rounded-xl flex items-center justify-center mb-5">
+                <Brain className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">Phần Mềm & AI</h3>
+              <p className="text-gray-700">Phát triển phần mềm quản lý, AI Vision, dữ liệu lớn, phân tích dự đoán – tối ưu hóa vận hành.</p>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
+            <div className="bg-linear-to-br from-indigo-600 to-purple-700 rounded-2xl p-8 text-white">
+              <Target className="w-12 h-12 mb-5" />
+              <h3 className="text-2xl font-bold mb-3">Tầm nhìn</h3>
+              <p className="text-lg">Trở thành đơn vị công nghệ hàng đầu khu vực trong lĩnh vực tự động hóa & trí tuệ nhân tạo ứng dụng, đồng hành cùng doanh nghiệp Việt trên hành trình chuyển mình số hóa.</p>
+            </div>
+            <div className="bg-linear-to-br from-teal-600 to-emerald-700 rounded-2xl p-8 text-white">
+              <Lightbulb className="w-12 h-12 mb-5" />
+              <h3 className="text-2xl font-bold mb-3">Sứ mệnh</h3>
+              <p className="text-lg">Mang đến các giải pháp công nghệ tối ưu, dễ triển khai và linh hoạt, giúp khách hàng tăng hiệu quả, giảm rủi ro và phát triển bền vững.</p>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 rounded-3xl p-10 shadow-xl">
+            <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Giá Trị Cốt Lõi</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {coreValues.map((value, i) => {
+                const Icon = value.icon;
+                return (
+                  <div key={i} className="text-center group">
+                    <div className="w-16 h-16 mx-auto bg-blue-600/10 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                      <Icon className="w-8 h-8 text-blue-700 group-hover:text-white" />
+                    </div>
+                    <h4 className="font-bold text-gray-900 mb-2">{value.title}</h4>
+                    <p className="text-sm text-gray-600">{value.desc}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Đa dạng linh kiện */}
+      <section ref={addToRefs} className="py-24 reveal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Content Left */}
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 rounded-full">
                 <Package className="w-5 h-5 text-purple-600" />
                 <span className="text-sm font-semibold text-purple-600">Đa dạng sản phẩm</span>
               </div>
-
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
-                Hàng nghìn linh kiện{" "}
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-purple-600 to-pink-600">
-                  chất lượng cao
-                </span>
+                Hàng nghìn linh kiện <span className="text-transparent bg-clip-text bg-linear-to-r from-purple-600 to-pink-600">chất lượng cao</span>
               </h2>
-
               <p className="text-lg text-gray-600 leading-relaxed">
                 Chúng tôi tự hào sở hữu kho linh kiện phong phú với hơn 10,000 sản phẩm từ các thương hiệu uy tín trên thế giới.
-                Từ linh kiện điện tử nhỏ nhất đến thiết bị công nghiệp lớn, chúng tôi đáp ứng mọi nhu cầu của bạn.
               </p>
-
               <div className="grid grid-cols-2 gap-4">
                 {[
                   { icon: Zap, title: "Linh kiện điện", count: "3000+" },
@@ -147,10 +202,7 @@ export default function AboutPage() {
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div
-                      key={idx}
-                      className="flex items-start gap-3 p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300"
-                    >
+                    <div key={idx} className="flex items-start gap-3 p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300">
                       <div className="w-12 h-12 bg-linear-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shrink-0">
                         <Icon className="w-6 h-6 text-white" />
                       </div>
@@ -163,61 +215,37 @@ export default function AboutPage() {
                 })}
               </div>
             </div>
-
-            {/* Image Right */}
             <div className="relative">
               <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl">
-                <div
-                  className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-700"
-                  style={{ backgroundImage: 'url(/linhkien1.jpg)' }}
-                ></div>
+                <div className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-700" style={{ backgroundImage: 'url(/linhkien1.jpg)' }}></div>
               </div>
-              {/* Decorative */}
               <div className="absolute -bottom-6 -right-6 w-72 h-72 bg-linear-to-br from-purple-400 to-pink-400 rounded-3xl opacity-20 blur-3xl -z-10"></div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Section 3 - Đa dạng máy móc (Right align) */}
-      <section
-        ref={addToRefs}
-        className="relative py-24 bg-linear-to-br from-blue-50 to-purple-50 section-reveal"
-      >
+      {/* Đa dạng máy móc */}
+      <section ref={addToRefs} className="py-24 bg-linear-to-br from-blue-50 to-purple-50 reveal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Image Left */}
             <div className="relative order-2 md:order-1">
               <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl">
-                <div
-                  className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-700"
-                  style={{ backgroundImage: 'url(/factory2.jpg)' }}
-                ></div>
+                <div className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-700" style={{ backgroundImage: 'url(/factory2.jpg)' }}></div>
               </div>
-              {/* Decorative */}
               <div className="absolute -top-6 -left-6 w-72 h-72 bg-linear-to-br from-blue-400 to-cyan-400 rounded-3xl opacity-20 blur-3xl -z-10"></div>
             </div>
-
-            {/* Content Right */}
             <div className="space-y-6 order-1 md:order-2">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full">
                 <Settings className="w-5 h-5 text-blue-600" />
                 <span className="text-sm font-semibold text-blue-600">Máy móc hiện đại</span>
               </div>
-
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
-                Thiết bị công nghiệp
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-600">
-                  {" "}
-                  hàng đầu
-                </span>
+                Thiết bị công nghiệp <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-600">hàng đầu</span>
               </h2>
-
               <p className="text-lg text-gray-600 leading-relaxed">
-                Từ máy CNC, máy tiện, máy phay đến dây chuyền sản xuất tự động hoàn chỉnh.
-                Chúng tôi cung cấp giải pháp máy móc toàn diện cho mọi quy mô nhà máy với công nghệ tiên tiến nhất.
+                Từ máy CNC, máy tiện, dây chuyền tự động đến thiết bị đo kiểm – giải pháp toàn diện cho mọi nhà máy.
               </p>
-
               <div className="space-y-4">
                 {[
                   { icon: Factory, title: "Máy CNC & Máy tiện", desc: "Độ chính xác cao, hiệu suất vượt trội" },
@@ -226,10 +254,7 @@ export default function AboutPage() {
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div
-                      key={idx}
-                      className="flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-                    >
+                    <div key={idx} className="flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                       <div className="w-14 h-14 bg-linear-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shrink-0">
                         <Icon className="w-7 h-7 text-white" />
                       </div>
@@ -246,30 +271,21 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Section 4 - Phục vụ tốt cho nhà máy (Left align) */}
-      <section ref={addToRefs} className="relative py-24 section-reveal">
+      {/* Dịch vụ tận tâm */}
+      <section ref={addToRefs} className="py-24 reveal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Content Left */}
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 rounded-full">
                 <Handshake className="w-5 h-5 text-green-600" />
                 <span className="text-sm font-semibold text-green-600">Dịch vụ tận tâm</span>
               </div>
-
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
-                Đồng hành cùng
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-green-600 to-emerald-600">
-                  {" "}
-                  sự phát triển
-                </span>
+                Đồng hành cùng <span className="text-transparent bg-clip-text bg-linear-to-r from-green-600 to-emerald-600">sự phát triển</span>
               </h2>
-
               <p className="text-lg text-gray-600 leading-relaxed">
-                Đội ngũ kỹ sư và chuyên gia của chúng tôi luôn sẵn sàng hỗ trợ 24/7.
-                Từ tư vấn lựa chọn thiết bị, lắp đặt, vận hành đến bảo trì bảo dưỡng - chúng tôi đồng hành trọn vẹn.
+                Đội ngũ kỹ sư và chuyên gia của chúng tôi luôn sẵn sàng hỗ trợ 24/7. Từ tư vấn, lắp đặt đến bảo trì – chúng tôi đồng hành trọn vẹn.
               </p>
-
               <div className="bg-linear-to-br from-green-50 to-emerald-50 rounded-2xl p-6 space-y-4">
                 {[
                   { icon: Users, title: "Đội ngũ chuyên nghiệp", desc: "Kỹ sư giàu kinh nghiệm, tư vấn tận tình" },
@@ -292,91 +308,47 @@ export default function AboutPage() {
                 })}
               </div>
             </div>
-
-            {/* Image Right */}
             <div className="relative">
               <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl">
-                <div
-                  className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-700"
-                  style={{ backgroundImage: 'url(/factory3.jpg)' }}
-                ></div>
+                <div className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-700" style={{ backgroundImage: 'url(/factory3.jpg)' }}></div>
               </div>
-              {/* Decorative */}
               <div className="absolute -bottom-6 -right-6 w-72 h-72 bg-linear-to-br from-green-400 to-emerald-400 rounded-3xl opacity-20 blur-3xl -z-10"></div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Section 5 - Đảm bảo chất lượng & Cam kết chính hãng (Right align) */}
-      <section
-        ref={addToRefs}
-        className="relative py-24 bg-linear-to-br from-orange-50 to-red-50 section-reveal"
-      >
+      {/* Chất lượng chính hãng */}
+      <section ref={addToRefs} className="py-24 bg-linear-to-br from-orange-50 to-red-50 reveal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Image Left */}
             <div className="relative order-2 md:order-1">
               <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl">
-                <div
-                  className="w-full h-full bg-cover bg-right transform hover:scale-105 transition-transform duration-700"
-                  style={{ backgroundImage: 'url(/quality1.png)' }}
-                ></div>
+                <div className="w-full h-full bg-cover bg-right transform hover:scale-105 transition-transform duration-700" style={{ backgroundImage: 'url(/quality1.png)' }}></div>
               </div>
-              {/* Decorative */}
               <div className="absolute -top-6 -left-6 w-72 h-72 bg-linear-to-br from-orange-400 to-red-400 rounded-3xl opacity-20 blur-3xl -z-10"></div>
             </div>
-
-            {/* Content Right */}
             <div className="space-y-6 order-1 md:order-2">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 rounded-full">
                 <BadgeCheck className="w-5 h-5 text-orange-600" />
                 <span className="text-sm font-semibold text-orange-600">Chất lượng đảm bảo</span>
               </div>
-
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
-                100% chính hãng,
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-600 to-red-600">
-                  {" "}
-                  chất lượng vượt trội
-                </span>
+                100% chính hãng, <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-600 to-red-600">chất lượng vượt trội</span>
               </h2>
-
               <p className="text-lg text-gray-600 leading-relaxed">
-                Mọi sản phẩm đều được nhập khẩu chính hãng từ các nhà sản xuất uy tín.
-                Chúng tôi cam kết 100% về nguồn gốc và chất lượng, kèm theo chứng nhận đầy đủ.
+                Mọi sản phẩm đều được nhập khẩu chính hãng từ các nhà sản xuất uy tín. Chúng tôi cam kết 100% về nguồn gốc và chất lượng.
               </p>
-
               <div className="grid gap-4">
                 {[
-                  {
-                    icon: BadgeCheck,
-                    title: "Chứng nhận chính hãng",
-                    desc: "CO, CQ đầy đủ từ nhà sản xuất",
-                    color: "from-orange-500 to-red-500",
-                  },
-                  {
-                    icon: Shield,
-                    title: "Kiểm định chất lượng",
-                    desc: "Quy trình kiểm tra nghiêm ngặt",
-                    color: "from-red-500 to-pink-500",
-                  },
-                  {
-                    icon: Award,
-                    title: "Bảo hành toàn diện",
-                    desc: "Từ 12-36 tháng tùy sản phẩm",
-                    color: "from-pink-500 to-purple-500",
-                  },
+                  { icon: BadgeCheck, title: "Chứng nhận chính hãng", desc: "CO, CQ đầy đủ từ nhà sản xuất", color: "from-orange-500 to-red-500" },
+                  { icon: Shield, title: "Kiểm định chất lượng", desc: "Quy trình kiểm tra nghiêm ngặt", color: "from-red-500 to-pink-500" },
+                  { icon: Award, title: "Bảo hành toàn diện", desc: "Từ 12-36 tháng tùy sản phẩm", color: "from-pink-500 to-purple-500" },
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div
-                      key={idx}
-                      className="group flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
-                    >
-                      <div
-                        className={`w-14 h-14 bg-linear-to-br ${item.color} rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}
-                      >
+                    <div key={idx} className="group flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                      <div className={`w-14 h-14 bg-linear-to-br ${item.color} rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
                         <Icon className="w-7 h-7 text-white" />
                       </div>
                       <div>
@@ -387,7 +359,6 @@ export default function AboutPage() {
                   );
                 })}
               </div>
-
               <div className="flex items-center gap-3 p-5 bg-linear-to-r from-orange-500 to-red-500 rounded-xl text-white">
                 <Shield className="w-8 h-8 shrink-0" />
                 <div>
@@ -400,30 +371,21 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Section 6 - Giao hàng nhanh chóng (Left align) */}
-      <section ref={addToRefs} className="relative py-24 section-reveal">
+      {/* Giao hàng nhanh */}
+      <section ref={addToRefs} className="py-24 reveal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Content Left */}
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full">
                 <Truck className="w-5 h-5 text-blue-600" />
                 <span className="text-sm font-semibold text-blue-600">Vận chuyển toàn quốc</span>
               </div>
-
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
-                Giao hàng nhanh,
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-600">
-                  {" "}
-                  an toàn tuyệt đối
-                </span>
+                Giao hàng nhanh, <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-600">an toàn tuyệt đối</span>
               </h2>
-
               <p className="text-lg text-gray-600 leading-relaxed">
                 Hệ thống kho bãi và vận chuyển hiện đại đảm bảo giao hàng nhanh chóng đến mọi miền đất nước.
-                Đóng gói cẩn thận, bảo hiểm toàn bộ giá trị hàng hóa.
               </p>
-
               <div className="space-y-4">
                 <div className="flex items-start gap-4 p-5 bg-linear-to-r from-blue-500 to-cyan-500 text-white rounded-xl shadow-lg">
                   <Clock className="w-8 h-8 shrink-0 mt-1" />
@@ -432,7 +394,6 @@ export default function AboutPage() {
                     <div className="text-blue-100">Đối với khu vực nội thành và các tỉnh lân cận</div>
                   </div>
                 </div>
-
                 {[
                   { icon: Truck, title: "Vận chuyển chuyên nghiệp", desc: "Đội xe chuyên dụng, tài xế dày dặn kinh nghiệm" },
                   { icon: Shield, title: "Bảo hiểm 100%", desc: "Đảm bảo bồi thường nếu hư hỏng trong vận chuyển" },
@@ -453,55 +414,50 @@ export default function AboutPage() {
                 })}
               </div>
             </div>
-
-            {/* Image Right */}
             <div className="relative">
               <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl">
-                <div
-                  className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-700"
-                  style={{ backgroundImage: 'url(/time1.webp)' }}
-                ></div>
+                <div className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-700" style={{ backgroundImage: 'url(/time1.webp)' }}></div>
               </div>
-              {/* Decorative */}
               <div className="absolute -bottom-6 -right-6 w-72 h-72 bg-linear-to-br from-blue-400 to-cyan-400 rounded-3xl opacity-20 blur-3xl -z-10"></div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA */}
       <section className="relative py-24 bg-linear-to-br from-gray-900 via-blue-900 to-purple-900 text-white overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage:
-              'url("data:image/svg+xml,%3Csvg width=\\"60\\" height=\\"60\\" viewBox=\\"0 0 60 60\\" xmlns=\\"http://www.w3.org/2000/svg%22%3E%3Cg fill=\\"none\\" fill-rule=\\"evenodd\\"%3E%3Cg fill=\\"%23ffffff\\" fill-opacity=\\"1\\"%3E%3Cpath d=\\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-          }}
-        ></div>
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"1\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}></div>
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-6">
             <Sparkles className="w-5 h-5 text-yellow-300" />
             <span className="text-sm font-semibold">Bắt đầu hợp tác ngay hôm nay</span>
           </div>
-
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">Sẵn sàng nâng tầm sản xuất của bạn?</h2>
-
+          <h2 className="text-4xl md:text-4xl font-bold mb-6">Sẵn sàng nâng tầm sản xuất của bạn?</h2>
           <p className="text-xl text-blue-200 mb-10 max-w-2xl mx-auto">
-            Liên hệ ngay để được tư vấn miễn phí và nhận báo giá tốt nhất cho dự án của bạn
+            Liên hệ ngay để được tư vấn miễn phí và nhận báo giá tốt nhất
           </p>
-
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link
-                href="/contact"
-                className="group px-8 py-4 bg-white text-blue-600 rounded-xl font-bold shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
-            >
-                Liên hệ ngay
-                <Truck className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <Link href="/contact" className="group px-8 py-4 bg-white text-blue-600 rounded-xl font-bold shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 flex items-center gap-2">
+              Liên hệ ngay
+              <Truck className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <button className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-xl font-bold border-2 border-white/30 hover:bg-white/20 hover:scale-105 transition-all duration-300">
-              Xem catalogue
-            </button>
+            
+          </div>
+
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+            <div className="flex items-center justify-center gap-2">
+              <Mail className="w-5 h-5" />
+              <span>sales@ahso.vn</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <LinkIcon className="w-5 h-5" />
+              <span>www.ahso.vn</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <MapPin className="w-5 h-5" />
+              <span>39/15 Đ. Cao Bá Quát, Dĩ An, TP.HCM</span>
+            </div>
           </div>
         </div>
 
@@ -510,12 +466,12 @@ export default function AboutPage() {
       </section>
 
       <style jsx>{`
-        .section-reveal {
+        .reveal {
           opacity: 0;
           transform: translateY(50px);
           transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .section-reveal.animate-in {
+        .reveal.animate-in {
           opacity: 1;
           transform: translateY(0);
         }

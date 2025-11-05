@@ -1,26 +1,62 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Lock, Mail, User, AlertCircle, Eye, EyeOff } from "lucide-react"
 import Image from "next/image"
-import { setUser } from "@/lib/auth-store"
+import { setUser, useAuthStore } from "@/lib/auth-store"
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const currentUser = useAuthStore()
+  
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loginMethod, setLoginMethod] = useState<"username" | "email">("username")
+  const [redirecting, setRedirecting] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false) // ✅ Track hydration
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
   })
+
+  // ✅ Đợi client hydrate
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
+  // ✅ Nếu đã đăng nhập → redirect về trang đích
+  useEffect(() => {
+    // Chỉ redirect khi: đã hydrate VÀ có user VÀ không đang login
+    if (!isHydrated || !currentUser || isLoading || redirecting) return
+    
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+    if (!token) return
+    const hasAuthCookie = typeof document !== 'undefined' && document.cookie.includes('auth_token=')
+    if (!hasAuthCookie) return
+    const redirectTo = searchParams.get("redirect") || "/"
+    
+    // ✅ Validate redirect URL - chỉ cho phép internal paths
+    const isValidRedirect = redirectTo.startsWith('/') && !redirectTo.startsWith('/login')
+    const finalRedirect = isValidRedirect ? redirectTo : '/'
+    
+    console.log("✅ Already logged in, redirecting to:", finalRedirect)
+    setRedirecting(true)
+    
+    // Delay nhỏ để đảm bảo UI update
+    const timer = setTimeout(() => {
+      router.push(finalRedirect)
+    }, 200)
+    
+    return () => clearTimeout(timer)
+  }, [isHydrated, currentUser, isLoading, redirecting, router, searchParams])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -40,6 +76,8 @@ export default function LoginPage() {
         ? { username: formData.username, password: formData.password }
         : { email: formData.email, password: formData.password }
 
+      console.log("🔍 Logging in with:", loginMethod)
+
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
@@ -51,6 +89,7 @@ export default function LoginPage() {
       const data = await response.json()
 
       if (!response.ok) {
+        console.error("❌ Login failed:", data.error)
         if (data.error === "INVALID_CREDENTIALS") {
           setError("Tên đăng nhập/email hoặc mật khẩu không đúng")
         } else if (data.error === "VALIDATION_ERROR") {
@@ -61,28 +100,56 @@ export default function LoginPage() {
         return
       }
 
+      console.log("✅ Login successful:", data.user.email)
+
       // Lưu token vào localStorage
       localStorage.setItem("token", data.token)
-      localStorage.setItem("user", JSON.stringify(data.user))
 
-      // Cập nhật store để navbar re-render ngay lập tức
-      setUser({
+      // Cập nhật store ngay lập tức
+      const userData = {
         id: data.user.id,
         email: data.user.email,
         fullName: data.user.fullName,
-        avatarUrl: data.user.avatarUrl,
+        avatarUrl: data.user.avatarUrl || "/logo.png",
         role: data.user.role,
-      })
+      }
+      
+      setUser(userData)
+      console.log("📦 Store updated with user:", userData)
 
-      // Chuyển hướng về trang chủ hoặc trang profile
-      router.push("/profile")
-      router.refresh()
+      // ✅ Đợi store broadcast xong
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // Redirect
+      const redirectTo = searchParams.get("redirect") || "/"
+      
+      // ✅ Validate redirect URL
+      const isValidRedirect = redirectTo.startsWith('/') && !redirectTo.startsWith('/login')
+      const finalRedirect = isValidRedirect ? redirectTo : '/'
+      
+      console.log("🚀 Redirecting to:", finalRedirect)
+      
+      setRedirecting(true)
+      router.push(finalRedirect)
+      
     } catch (err) {
-      console.error("Login error:", err)
+      console.error("❌ Login error:", err)
       setError("Không thể kết nối đến máy chủ. Vui lòng thử lại!")
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // ✅ Show loading khi đang redirect
+  if (redirecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Đang chuyển hướng...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

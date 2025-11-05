@@ -3,42 +3,45 @@ import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { prisma } from "../../../../lib/prisma";
 
-export const runtime = "nodejs";
-
-// tiny cookie parser (đủ dùng cho trường hợp này)
-function getCookieFromHeader(req: Request, name: string): string | null {
-  const cookie = req.headers.get("cookie") || "";
-  const escaped = name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-  const m = cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
-  return m ? decodeURIComponent(m[1]) : null;
-}
-
 function getTokenFromRequest(req: Request): string | null {
-  // 1) Ưu tiên cookie HttpOnly cho web
-  const cookieToken = getCookieFromHeader(req, "auth_token");
-  if (cookieToken) return cookieToken;
-
-  // 2) Fallback: Authorization Bearer (mobile/SPA)
+  // 1. Check Authorization header
   const auth = req.headers.get("authorization") || "";
   const m = auth.match(/^Bearer\s+(.+)$/i);
-  return m ? m[1] : null;
+  if (m) return m[1];
+
+  // 2. Check cookie (fallback)
+  const cookie = req.headers.get("cookie") || "";
+  const cookieMatch = cookie.match(/(?:^|;\s*)auth_token=([^;]*)/);
+  return cookieMatch ? decodeURIComponent(cookieMatch[1]) : null;
 }
 
 export async function GET(req: Request) {
   try {
     const token = getTokenFromRequest(req);
+    
     if (!token) {
+      console.error("❌ No token in request");
       return NextResponse.json({ error: "MISSING_TOKEN" }, { status: 401 });
     }
 
     const secret = process.env.JWT_SECRET;
     if (!secret) {
+      console.error("❌ Missing JWT_SECRET");
       return NextResponse.json({ error: "SERVER_MISCONFIGURED" }, { status: 500 });
     }
 
-    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
+    let payload;
+    try {
+      const result = await jwtVerify(token, new TextEncoder().encode(secret));
+      payload = result.payload;
+    } catch (err) {
+      console.error("❌ JWT verification failed:", err);
+      return NextResponse.json({ error: "INVALID_TOKEN" }, { status: 401 });
+    }
+
     const userId = payload.sub as string | undefined;
     if (!userId) {
+      console.error("❌ No user ID in token payload");
       return NextResponse.json({ error: "INVALID_TOKEN" }, { status: 401 });
     }
 
@@ -57,19 +60,21 @@ export async function GET(req: Request) {
     });
 
     if (!user) {
+      console.error("❌ User not found:", userId);
       return NextResponse.json({ error: "USER_NOT_FOUND" }, { status: 404 });
     }
 
-    // Chuẩn hoá đầu ra cho FE
-    const result = {
-      ...user,
-      phone: user.phoneE164,
-      avatarUrl: user.avatarUrl ?? "/logo.png",
-    };
+    console.log("✅ User verified:", user.email);
 
-    return NextResponse.json({ user: result }, { status: 200 });
+    return NextResponse.json({
+      user: {
+        ...user,
+        phone: user.phoneE164,
+        avatarUrl: user.avatarUrl ?? "/logo.png",
+      },
+    });
   } catch (err) {
-    console.error("ME ERROR:", err);
-    return NextResponse.json({ error: "INVALID_TOKEN" }, { status: 401 });
+    console.error("❌ ME ERROR:", err);
+    return NextResponse.json({ error: "INTERNAL_ERROR" }, { status: 500 });
   }
 }

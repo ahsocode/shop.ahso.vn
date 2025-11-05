@@ -63,19 +63,30 @@ export async function POST(req: Request) {
       "7d"
     );
 
-    return NextResponse.json({
-        tokenType: "Bearer",
-        token,
-        expiresIn: 7 * 24 * 3600,
-        user: {
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            role: user.role,
-            fullName: user.fullName,
-            avatarUrl: user.avatarUrl ?? "/logo.png", 
-        },
-        });
+    const res = NextResponse.json({
+      tokenType: "Bearer",
+      token,
+      expiresIn: 7 * 24 * 3600,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        fullName: user.fullName,
+        avatarUrl: user.avatarUrl ?? "/logo.png",
+      },
+    });
+
+    // Set HTTP-only auth cookie for middleware and server verification
+    res.cookies.set("auth_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+    });
+
+    return res;
 
   } catch (err) {
     console.error("LOGIN ERROR:", err);

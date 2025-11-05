@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import {
   User, Mail, Phone, MapPin, Edit, Package, Heart, ShoppingBag, Loader2
 } from "lucide-react";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 type Address = {
   id: string;
@@ -18,7 +19,7 @@ type Address = {
   city: string;
   state: string | null;
   postalCode: string | null;
-  country: string; // ISO-2
+  country: string;
 };
 
 type Profile = {
@@ -37,12 +38,8 @@ type Profile = {
   billingAddress: Address | null;
 };
 
-type ApiResponse =
-  | { profile: Profile }
-  | { error: string; details?: unknown };
-
 function formatPhoneHuman(e164?: string | null) {
-  if (!e164) return "";
+  if (!e164) return "—";
   const m = e164.match(/^\+?(\d{2})(\d{2})(\d{3})(\d{4})$/);
   if (m) return `+${m[1]} ${m[2]} ${m[3]} ${m[4]}`;
   return e164;
@@ -63,7 +60,8 @@ function addressToLine(a?: Address | null) {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const { user: authUser, loading: authLoading, logout, verified } = useAuth(true);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,12 +75,21 @@ export default function ProfilePage() {
   );
 
   useEffect(() => {
+    // ✅ Chỉ load profile khi auth đã verify xong VÀ có user
+    if (!verified || authLoading) return;
+    if (!authUser) {
+      setProfileLoading(false);
+      return;
+    }
+
     let isMounted = true;
-    async function load() {
-      setLoading(true);
+
+    async function loadProfile() {
+      setProfileLoading(true);
       setError(null);
+      
       try {
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        const token = localStorage.getItem("token");
         const res = await fetch("/api/profile", {
           method: "GET",
           headers: {
@@ -92,37 +99,58 @@ export default function ProfilePage() {
           cache: "no-store",
         });
 
-        if (res.status === 401) {
-          if (isMounted) {
-            setError("UNAUTHORIZED");
-            setLoading(false);
-            router.push("/login");
-          }
-          return;
-        }
-
         if (!res.ok) {
-          const t: ApiResponse = await res.json();
-          throw new Error((t as any)?.error || "REQUEST_FAILED");
+          throw new Error("Failed to load profile");
         }
 
-        const data: ApiResponse = await res.json();
-        if ("profile" in data) {
-          if (isMounted) setProfile(data.profile);
-        } else {
-          throw new Error(data.error || "UNKNOWN_ERROR");
+        const data = await res.json();
+        
+        if ("profile" in data && isMounted) {
+          setProfile(data.profile);
         }
       } catch (e: any) {
-        if (isMounted) setError(e?.message || "ERROR");
+        if (isMounted) {
+          console.error("Profile load error:", e);
+          setError(e?.message || "ERROR");
+        }
       } finally {
-        if (isMounted) setLoading(false);
+        if (isMounted) {
+          setProfileLoading(false);
+        }
       }
     }
-    load();
-    return () => { isMounted = false; };
-  }, [router]);
 
-  const displayName = profile?.fullName || profile?.username || "Người dùng";
+    loadProfile();
+    return () => { isMounted = false; };
+  }, [authUser, authLoading, verified]);
+
+  // ✅ Show loading while auth is verifying
+  if (authLoading || !verified) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Đang kiểm tra đăng nhập...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Auth required but no user (should not reach here due to useAuth redirect)
+  if (!authUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Vui lòng đăng nhập</p>
+          <Link href="/login">
+            <Button>Đăng nhập</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const displayName = profile?.fullName || profile?.username || authUser.fullName || "Người dùng";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -132,33 +160,32 @@ export default function ProfilePage() {
           <div className="flex flex-col md:flex-row items-center gap-6">
             {/* Avatar */}
             <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-4 border-white/30 overflow-hidden">
-              {loading ? (
+              {profileLoading ? (
                 <Loader2 className="h-10 w-10 animate-spin" />
-              ) : profile?.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
+              ) : (authUser.avatarUrl && authUser.avatarUrl !== "/logo.png") ? (
                 <img
-                  src={profile.avatarUrl || "/logo.png"}
+                  src={authUser.avatarUrl}
                   alt="avatar"
                   className="w-full h-full object-cover"
                 />
               ) : (
                 <span className="text-2xl font-bold">
-                  {displayName?.charAt(0)?.toUpperCase() ?? <User className="h-10 w-10" />}
+                  {displayName?.charAt(0)?.toUpperCase()}
                 </span>
               )}
             </div>
 
             <div className="text-center md:text-left flex-1">
               <h1 className="text-3xl font-bold mb-2">
-                {loading ? "Đang tải..." : displayName}
+                {profileLoading ? "Đang tải..." : displayName}
               </h1>
 
-              {/* CHANGED: bỏ phần “công ty/vai trò” */}
-              <div className="mb-4 h-5" />
+              <p className="text-blue-100 mb-4">
+                {authUser.email}
+              </p>
 
-              {/* Nút chỉnh sửa */}
-              <Link href="/profile/edit">{/* CHANGED: bọc Link bên ngoài, không dùng asChild */}
-                <Button variant="outline" className="border-white text-blue-600 hover:bg-white/10">
+              <Link href="/profile/edit">
+                <Button variant="outline" className="border-white text-white hover:bg-white/10">
                   <Edit className="h-4 w-4 mr-2" />
                   Chỉnh sửa hồ sơ
                 </Button>
@@ -212,7 +239,7 @@ export default function ProfilePage() {
                   <div>
                     <p className="text-sm text-gray-500">Họ và tên</p>
                     <p className="font-medium">
-                      {loading ? "—" : displayName}
+                      {profileLoading ? "—" : displayName}
                     </p>
                   </div>
                 </div>
@@ -222,7 +249,7 @@ export default function ProfilePage() {
                   <div>
                     <p className="text-sm text-gray-500">Email</p>
                     <p className="font-medium">
-                      {loading ? "—" : profile?.email ?? "—"}
+                      {profileLoading ? "—" : profile?.email ?? authUser.email ?? "—"}
                     </p>
                   </div>
                 </div>
@@ -232,18 +259,17 @@ export default function ProfilePage() {
                   <div>
                     <p className="text-sm text-gray-500">Số điện thoại</p>
                     <p className="font-medium">
-                      {loading ? "—" : formatPhoneHuman(profile?.phoneE164)}
+                      {profileLoading ? "—" : formatPhoneHuman(profile?.phoneE164)}
                     </p>
                   </div>
                 </div>
 
-                {/* CHANGED: chỉ hiển thị 2 địa chỉ theo đúng nhãn */}
                 <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
                   <div>
                     <p className="text-sm text-gray-500">Địa chỉ giao hàng</p>
-                    <p className="font-medium">
-                      {loading ? "—" : addressToLine(profile?.shippingAddress)}
+                    <p className="font-medium text-sm">
+                      {profileLoading ? "—" : addressToLine(profile?.shippingAddress)}
                     </p>
                   </div>
                 </div>
@@ -252,16 +278,26 @@ export default function ProfilePage() {
                   <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
                   <div>
                     <p className="text-sm text-gray-500">Địa chỉ nhận hóa đơn</p>
-                    <p className="font-medium">
-                      {loading ? "—" : addressToLine(profile?.billingAddress)}
+                    <p className="font-medium text-sm">
+                      {profileLoading ? "—" : addressToLine(profile?.billingAddress)}
                     </p>
                   </div>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                    onClick={logout}
+                  >
+                    Đăng xuất
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Recent Orders (placeholder) */}
+          {/* Recent Orders */}
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
@@ -273,8 +309,7 @@ export default function ProfilePage() {
                   (Chưa kết nối endpoint đơn hàng — thêm sau)
                 </div>
 
-                {/* CHANGED: bọc Link bên ngoài, không dùng asChild */}
-                <Link href="/order">
+                <Link href="/profile/orders">
                   <Button variant="outline" className="w-full mt-2">
                     Xem tất cả đơn hàng
                   </Button>
@@ -289,7 +324,6 @@ export default function ProfilePage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
-                  {/* CHANGED: bọc Link bên ngoài, không dùng asChild */}
                   <Link href="/wishlist">
                     <Button variant="outline" className="h-20 w-full flex-col">
                       <Heart className="h-6 w-6 mb-2" />
