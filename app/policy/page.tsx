@@ -15,6 +15,9 @@ import {
   PackageCheck,
   BadgeCheck,
   AlertCircle,
+  Lock,
+  Globe,
+  CheckCircle,
 } from "lucide-react";
 
 export default function PolicyPage() {
@@ -80,10 +83,10 @@ export default function PolicyPage() {
             </div>
             <div className="bg-white rounded-2xl p-6 shadow-xl">
               <div className="w-12 h-12 rounded-xl bg-purple-600/10 text-purple-700 flex items-center justify-center mb-3">
-                <CreditCard className="w-6 h-6" />
+                <Lock className="w-6 h-6" />
               </div>
-              <div className="font-semibold text-gray-900">Hoàn tiền minh bạch</div>
-              <p className="text-sm text-gray-600 mt-1">Quy trình nhanh chóng, dễ theo dõi.</p>
+              <div className="font-semibold text-gray-900">Thanh toán an toàn</div>
+              <p className="text-sm text-gray-600 mt-1">Mã hóa SSL, PCI DSS, OTP xác thực.</p>
             </div>
           </div>
         </div>
@@ -99,99 +102,140 @@ export default function PolicyPage() {
             <h2 className="text-3xl font-bold text-gray-900">Chính sách đổi trả</h2>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-md p-6 space-y-4">
-            <div className="flex items-start gap-3">
-              <BadgeCheck className="w-5 h-5 text-emerald-600 mt-0.5" />
-              <p className="text-gray-700">
-                Thời hạn đổi trả: <span className="font-semibold">07 ngày</span> kể từ ngày nhận hàng đối với lỗi do nhà sản xuất; <span className="font-semibold">03 ngày</span> đối với sai sản phẩm/thiếu phụ kiện.
-              </p>
+          <div className="bg-white rounded-2xl shadow-md p-6 space-y-5">
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-600" />
+                Các trường hợp được đổi trả
+              </h3>
+              <ul className="space-y-2 text-gray-700 ml-7">
+                <li className="flex gap-2"><BadgeCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" /> Sản phẩm lỗi kỹ thuật do nhà sản xuất.</li>
+                <li className="flex gap-2"><BadgeCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" /> Sai sản phẩm, thiếu phụ kiện, không đúng mô tả.</li>
+                <li className="flex gap-2"><BadgeCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" /> Còn nguyên tem, nhãn, hóa đơn, chưa sử dụng.</li>
+              </ul>
             </div>
-            <div className="flex items-start gap-3">
-              <PackageCheck className="w-5 h-5 text-blue-600 mt-0.5" />
-              <p className="text-gray-700">
-                Điều kiện: Sản phẩm còn nguyên tem/nhãn, đầy đủ phụ kiện, không trầy xước, móp méo, có hóa đơn/chứng từ kèm theo.
-              </p>
+
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-amber-600" />
+                Không áp dụng đổi trả
+              </h3>
+              <ul className="space-y-2 text-gray-700 ml-7">
+                <li className="flex gap-2"><span className="w-4 h-4 rounded-full bg-amber-600/20 shrink-0 mt-0.5"></span> Hàng đặt riêng, đã qua sử dụng, tự ý sửa chữa.</li>
+                <li className="flex gap-2"><span className="w-4 h-4 rounded-full bg-amber-600/20 shrink-0 mt-0.5"></span> Hư hỏng do vận hành sai, thiên tai, tác động ngoại lực.</li>
+              </ul>
             </div>
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
-              <p className="text-gray-700">
-                Không áp dụng đổi trả với các sản phẩm làm theo yêu cầu riêng, hàng đã qua sử dụng sai quy cách hoặc hư hỏng do lắp đặt/vận hành không đúng hướng dẫn.
+
+            <div className="pt-3 border-t">
+              <p className="text-sm text-gray-600">
+                <strong>Địa chỉ đổi trả:</strong> 39/15 Đ. Cao Bá Quát, Khu Phố Đông Tân, Dĩ An, Bình Dương
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Chính sách hoàn tiền */}
+      {/* Chính sách bảo hành */}
       <section ref={addToRefs} className="reveal py-14 bg-linear-to-br from-gray-50 to-blue-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6 flex items-center gap-3">
-            <div className="w-12 h-12 bg-linear-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
-              <CreditCard className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-linear-to-br from-emerald-600 to-green-600 rounded-xl flex items-center justify-center">
+              <Shield className="w-6 h-6 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">Chính sách hoàn tiền</h2>
+            <h2 className="text-3xl font-bold text-gray-900">Chính sách bảo hành</h2>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-md p-6 space-y-4">
+          <div className="bg-white rounded-2xl shadow-md p-6 space-y-5">
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-emerald-600" />
+                Điều kiện bảo hành
+              </h3>
+              <ul className="space-y-2 text-gray-700 ml-7">
+                <li className="flex gap-2"><BadgeCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" /> Còn tem, số seri, trong thời hạn bảo hành (12–36 tháng tùy sản phẩm).</li>
+                <li className="flex gap-2"><BadgeCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" /> Lỗi kỹ thuật do nhà sản xuất.</li>
+                <li className="flex gap-2"><BadgeCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" /> Chưa tháo mở, tự ý sửa chữa.</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-amber-600" />
+                Không bảo hành
+              </h3>
+              <ul className="space-y-2 text-gray-700 ml-7">
+                <li className="flex gap-2"><span className="w-4 h-4 rounded-full bg-amber-600/20 shrink-0 mt-0.5"></span> Sử dụng sai điện áp, quá tải, không bảo dưỡng định kỳ.</li>
+                <li className="flex gap-2"><span className="w-4 h-4 rounded-full bg-amber-600/20 shrink-0 mt-0.5"></span> Hư hỏng do người dùng, thiên tai, tai nạn.</li>
+                <li className="flex gap-2"><span className="w-4 h-4 rounded-full bg-amber-600/20 shrink-0 mt-0.5"></span> Phiếu bảo hành bị tẩy xóa, sai lệch thông tin.</li>
+              </ul>
+            </div>
+
+            <div className="pt-3 border-t text-sm text-gray-600">
+              <p>Khách hàng chịu phí vận chuyển đến và từ trung tâm bảo hành.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Chính sách bảo mật thanh toán */}
+      <section ref={addToRefs} className="reveal py-14">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="w-12 h-12 bg-linear-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
+              <Lock className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900">Chính sách bảo mật thanh toán</h2>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-md p-6 space-y-5">
             <div className="flex items-start gap-3">
-              <Receipt className="w-5 h-5 text-purple-600 mt-0.5" />
+              <Globe className="w-5 h-5 text-purple-600 mt-0.5" />
               <p className="text-gray-700">
-                Hình thức hoàn tiền: theo phương thức đã thanh toán (chuyển khoản/tiền mặt), hoặc trừ trực tiếp trên đơn thay thế.
+                Hệ thống thanh toán được cung cấp bởi <span className="font-semibold">đối tác cổng thanh toán hợp pháp</span> tại Việt Nam, tuân thủ đầy đủ tiêu chuẩn bảo mật ngành.
               </p>
             </div>
-            <div className="flex items-start gap-3">
-              <Clock className="w-5 h-5 text-blue-600 mt-0.5" />
-              <p className="text-gray-700">
-                Thời gian xử lý: <span className="font-semibold">3–7 ngày làm việc</span> từ khi xác nhận yêu cầu hợp lệ. Một số ngân hàng có thể cộng thêm thời gian hạch toán.
-              </p>
+
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2">Tiêu chuẩn bảo mật áp dụng:</h4>
+              <ul className="space-y-1 text-gray-700 ml-7">
+                <li className="flex gap-2"><CheckCircle className="w-4 h-4 text-purple-600 mt-0.5 shrink-0" /> Giao thức mã hóa <strong>SSL</strong></li>
+                <li className="flex gap-2"><CheckCircle className="w-4 h-4 text-purple-600 mt-0.5 shrink-0" /> Chứng nhận <strong>PCI DSS</strong></li>
+                <li className="flex gap-2"><CheckCircle className="w-4 h-4 text-purple-600 mt-0.5 shrink-0" /> Xác thực <strong>OTP qua SMS</strong></li>
+                <li className="flex gap-2"><CheckCircle className="w-4 h-4 text-purple-600 mt-0.5 shrink-0" /> Mã hóa <strong>MD5 128-bit</strong></li>
+              </ul>
             </div>
-            <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-amber-600 mt-0.5" />
-              <p className="text-gray-700">
-                Phí phát sinh (nếu có) do bên vận chuyển/ngân hàng sẽ được thông báo minh bạch trước khi tiến hành.
+
+            <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
+              <p className="text-sm text-purple-800 font-medium">
+                AHSO <strong>không lưu trữ thông tin thẻ</strong>. Dữ liệu được mã hóa và bảo mật bởi đối tác thanh toán.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Bảo hành & vận chuyển */}
-      <section ref={addToRefs} className="reveal py-14">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-6">
-          {/* Bảo hành */}
-          <div className="bg-white rounded-2xl shadow-md p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-linear-to-br from-emerald-600 to-green-600 rounded-xl flex items-center justify-center">
-                <Shield className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900">Chính sách bảo hành</h3>
+      {/* Vận chuyển & nhận hàng */}
+      <section ref={addToRefs} className="reveal py-14 bg-linear-to-br from-gray-50 to-purple-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="w-12 h-12 bg-linear-to-br from-blue-600 to-cyan-600 rounded-xl flex items-center justify-center">
+              <Truck className="w-6 h-6 text-white" />
             </div>
-            <ul className="space-y-3 text-gray-700">
-              <li className="flex gap-3"><BadgeCheck className="w-5 h-5 text-emerald-600 mt-0.5" /> Thời gian bảo hành: theo quy định từng sản phẩm (12–36 tháng).</li>
-              <li className="flex gap-3"><BadgeCheck className="w-5 h-5 text-emerald-600 mt-0.5" /> Bảo hành tại hãng/điểm bảo hành ủy quyền hoặc tại AHSO.</li>
-              <li className="flex gap-3"><AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" /> Không bảo hành do tác động ngoại lực, thiên tai, dùng sai điện áp/quy trình.</li>
-            </ul>
+            <h2 className="text-3xl font-bold text-gray-900">Vận chuyển & nhận hàng</h2>
           </div>
 
-          {/* Vận chuyển */}
           <div className="bg-white rounded-2xl shadow-md p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-linear-to-br from-blue-600 to-cyan-600 rounded-xl flex items-center justify-center">
-                <Truck className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900">Vận chuyển & nhận hàng</h3>
-            </div>
             <ul className="space-y-3 text-gray-700">
-              <li className="flex gap-3"><BadgeCheck className="w-5 h-5 text-blue-600 mt-0.5" /> Kiểm tra ngoại quan khi nhận: thùng hàng nguyên vẹn, không ướt/móp.</li>
-              <li className="flex gap-3"><BadgeCheck className="w-5 h-5 text-blue-600 mt-0.5" /> Nếu phát hiện bất thường, vui lòng ghi nhận với đơn vị vận chuyển và liên hệ AHSO ngay.</li>
-              <li className="flex gap-3"><AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" /> Hàng cồng kềnh/đặc thù có thể yêu cầu lắp đặt bởi kỹ thuật AHSO.</li>
+              <li className="flex gap-3"><BadgeCheck className="w-5 h-5 text-blue-600 mt-0.5" /> Kiểm tra thùng hàng nguyên vẹn, không ướt/móp khi nhận.</li>
+              <li className="flex gap-3"><BadgeCheck className="w-5 h-5 text-blue-600 mt-0.5" /> Ghi nhận bất thường với shipper và liên hệ AHSO ngay.</li>
+              <li className="flex gap-3"><AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" /> Hàng cồng kềnh cần kỹ thuật viên AHSO lắp đặt.</li>
             </ul>
           </div>
         </div>
       </section>
 
       {/* Hủy đơn & thay đổi */}
-      <section ref={addToRefs} className="reveal py-14 bg-linear-to-br from-gray-50 to-purple-50">
+      <section ref={addToRefs} className="reveal py-14">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6 flex items-center gap-3">
             <div className="w-12 h-12 bg-linear-to-br from-fuchsia-600 to-purple-600 rounded-xl flex items-center justify-center">
@@ -200,9 +244,9 @@ export default function PolicyPage() {
             <h2 className="text-3xl font-bold text-gray-900">Hủy đơn & thay đổi thông tin</h2>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-md p-6 space-y-4 text-gray-700">
-            <p>Bạn có thể yêu cầu <span className="font-semibold">hủy đơn</span> hoặc <span className="font-semibold">thay đổi địa chỉ/Thông tin xuất hóa đơn</span> trước khi đơn được bàn giao cho đơn vị vận chuyển.</p>
-            <p>Vui lòng liên hệ kênh hỗ trợ để được xử lý nhanh nhất.</p>
+          <div className="bg-white rounded-2xl shadow-md p-6 text-gray-700">
+            <p>Yêu cầu <span className="font-semibold">hủy đơn</span> hoặc <span className="font-semibold">sửa địa chỉ/hóa đơn</span> được xử lý <strong>trước khi giao cho vận chuyển</strong>.</p>
+            <p className="mt-2">Liên hệ ngay qua hotline hoặc email để được hỗ trợ nhanh nhất.</p>
           </div>
         </div>
       </section>
@@ -217,7 +261,7 @@ export default function PolicyPage() {
 
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Cần trợ giúp ngay?</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Đội ngũ chăm sóc khách hàng của AHSO sẵn sàng hỗ trợ 24/7 qua hotline, email hoặc biểu mẫu liên hệ.
+            Đội ngũ AHSO sẵn sàng hỗ trợ 24/7 qua hotline, email hoặc biểu mẫu liên hệ.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4 justify-center">
@@ -226,7 +270,6 @@ export default function PolicyPage() {
               className="group px-8 py-4 bg-white text-blue-600 rounded-xl font-bold shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
             >
               Liên hệ ngay
-              {/* dùng icon chuẩn trong lib */}
               <Headphones className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
@@ -243,15 +286,15 @@ export default function PolicyPage() {
       <section ref={addToRefs} className="reveal py-10 bg-linear-to-br from-gray-100 to-gray-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-sm text-gray-600">
           <p className="mb-2">
-            <span className="font-semibold">Lưu ý:</span> Chính sách có thể được cập nhật theo từng thời kỳ để phù hợp quy định pháp luật và chính sách nhà sản xuất.
+            <span className="font-semibold">Lưu ý:</span> Chính sách có thể được cập nhật theo quy định pháp luật và chính sách nhà sản xuất.
           </p>
           <p>
-            Ngày hiệu lực hiện tại: <span className="font-medium">01/11/2025</span>. Vui lòng tham khảo bản mới nhất trên trang chính sách của AHSO.
+            Ngày hiệu lực hiện tại: <span className="font-medium">03/05/2022</span> (Cập nhật lần cuối).
           </p>
         </div>
       </section>
 
-      {/* local styles cho hiệu ứng reveal (đồng bộ style với các trang khác của bạn) */}
+      {/* Local styles */}
       <style jsx>{`
         .reveal {
           opacity: 0;
