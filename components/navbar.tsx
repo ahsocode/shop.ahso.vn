@@ -191,7 +191,7 @@ export function Navbar() {
           {/* Right */}
           <div className="flex items-center gap-3">
             <Link href="/cart">
-              <Button variant="ghost" size="icon" aria-label="Giỏ hàng">
+              <Button id="site-cart-icon" variant="ghost" size="icon" aria-label="Giỏ hàng">
                 <ShoppingCart className="h-5 w-5" />
               </Button>
             </Link>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -113,6 +114,7 @@ export default function RegisterPage() {
     setError("")
     if (step === 1 && validateStep1()) {
       setStep(2)
+      toast.info("Vui lòng nhập địa chỉ nhận hàng.")
     }
   }
 
@@ -123,7 +125,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!validateStep2()) return
+    if (!validateStep2()) { toast.error("Vui lòng kiểm tra lại địa chỉ."); return }
 
     setIsLoading(true)
     setError("")
@@ -153,10 +155,13 @@ export default function RegisterPage() {
       if (!response.ok) {
         if (data.error === "CONFLICT") {
           setError("Email, tên đăng nhập hoặc số điện thoại đã được sử dụng")
+          toast.error("Email/tên đăng nhập/số điện thoại đã tồn tại.")
         } else if (data.error === "VALIDATION_ERROR") {
           setError("Vui lòng kiểm tra lại thông tin đăng ký")
+          toast.error("Thông tin đăng ký chưa hợp lệ.")
         } else {
           setError(data.message || "Đã có lỗi xảy ra. Vui lòng thử lại!")
+          toast.error(data.message || "Đã có lỗi xảy ra.")
         }
         return
       }
@@ -165,12 +170,14 @@ export default function RegisterPage() {
       localStorage.setItem("token", data.token)
       localStorage.setItem("user", JSON.stringify(data.user))
 
+      toast.success("Đăng ký thành công! Chào mừng bạn đến AHSO.")
       // Chuyển hướng về trang chủ hoặc trang profile
       router.push("/profile")
       router.refresh()
     } catch (err) {
       console.error("Register error:", err)
       setError("Không thể kết nối đến máy chủ. Vui lòng thử lại!")
+      toast.error("Không thể kết nối đến máy chủ.")
     } finally {
       setIsLoading(false)
     }

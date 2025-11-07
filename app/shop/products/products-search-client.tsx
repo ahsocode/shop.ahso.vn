@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import FilterLayout from "../filterlayout";
+import { ShoppingCart } from "lucide-react";
+import { toast } from "sonner";
 
 type VariantCard = {
   sku: string;
@@ -84,6 +86,56 @@ export default function ProductsSearchClient() {
     fetch("/api/products/categories").then(r=>r.json()).then(json=>{ if(!aborted) setCategories(json.data ?? []); }).catch(()=>{});
     return () => { aborted = true; };
   }, []);
+
+  function flyToCartFrom(el: HTMLElement | null, image?: string | null) {
+    try {
+      if (!el) return;
+      const target = document.getElementById("site-cart-icon");
+      if (!target) return;
+      const start = el.getBoundingClientRect();
+      const end = target.getBoundingClientRect();
+      const ghost = document.createElement(image ? "img" : "div");
+      if (image) (ghost as HTMLImageElement).src = image;
+      else ghost.textContent = "🛒";
+      ghost.style.position = "fixed";
+      ghost.style.left = `${start.left + start.width / 2}px`;
+      ghost.style.top = `${start.top + start.height / 2}px`;
+      ghost.style.width = image ? "40px" : "24px";
+      ghost.style.height = image ? "40px" : "24px";
+      ghost.style.borderRadius = "9999px";
+      ghost.style.zIndex = "9999";
+      ghost.style.pointerEvents = "none";
+      ghost.style.transition = "transform 600ms cubic-bezier(0.22, 1, 0.36, 1), opacity 600ms";
+      ghost.style.transform = "translate(-50%, -50%) scale(1)";
+      document.body.appendChild(ghost);
+      requestAnimationFrame(() => {
+        const dx = end.left + end.width / 2 - (start.left + start.width / 2);
+        const dy = end.top + end.height / 2 - (start.top + start.height / 2);
+        ghost.style.transform = `translate(${dx - 20}px, ${dy - 20}px) scale(0.4)`;
+        ghost.style.opacity = "0.3";
+      });
+      setTimeout(() => ghost.remove(), 700);
+    } catch {}
+  }
+
+  async function handleAdd(p: VariantCard, btn: HTMLButtonElement | null) {
+    try {
+      const res = await fetch("/api/cart/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sku: p.sku, quantity: 1 }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data?.error || "Thêm vào giỏ thất bại");
+        return;
+      }
+      flyToCartFrom(btn, p.image || undefined);
+      toast.success(`Đã thêm "${p.name}" vào giỏ hàng.`);
+    } catch {
+      toast.error("Lỗi mạng. Vui lòng thử lại.");
+    }
+  }
 
   return (
     <FilterLayout
@@ -185,7 +237,7 @@ export default function ProductsSearchClient() {
                 <Link href={`/shop/products/${encodeURIComponent(p.productSlug || '')}/${encodeURIComponent(p.sku)}`} className="flex-1 rounded-md bg-blue-600 text-white py-2 text-sm font-semibold text-center hover:bg-blue-700">
                   Xem chi tiết
                 </Link>
-                <button className="px-3 rounded-md border text-sm">Thêm</button>
+                <button className="rounded-md border w-10 h-10 flex items-center justify-center hover:bg-gray-50" aria-label="Thêm vào giỏ" onClick={(e) => handleAdd(p, e.currentTarget)} title="Thêm vào giỏ"><ShoppingCart className="h-4 w-4" /></button>
               </div>
             </article>
           ))
@@ -202,3 +254,4 @@ export default function ProductsSearchClient() {
     </FilterLayout>
   );
 }
+

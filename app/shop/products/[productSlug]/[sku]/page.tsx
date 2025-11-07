@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { ArrowLeft, Home, PackageCheck } from "lucide-react";
+import { ArrowLeft, Home } from "lucide-react";
+import AddToCartClient from "./AddToCartClient";
 
 export const revalidate = 60;
 
@@ -123,7 +124,7 @@ export default async function ProductDetailPage(
               <div className="flex gap-2"><dt className="text-gray-500 min-w-20">Giá</dt><dd className="flex-1 font-semibold">{price.toLocaleString()} {v.currency}</dd></div>
             </dl>
             <div className="mt-4 flex gap-2">
-              <button className="flex-1 rounded-md bg-blue-600 text-white px-4 py-2 text-sm font-semibold hover:bg-blue-700"><PackageCheck className="inline h-4 w-4 mr-2"/>Thêm vào giỏ</button>
+              <AddToCartClient sku={v.variantSku} name={name} image={coverSrc} />
               <Link href="/contact" className="rounded-md border px-4 py-2 text-sm">Liên hệ</Link>
             </div>
           </div>
@@ -147,4 +148,3 @@ export default async function ProductDetailPage(
     </div>
   );
 }
-
