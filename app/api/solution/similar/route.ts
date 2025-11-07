@@ -1,8 +1,7 @@
-// app/api/solutions/similar/route.ts
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma"; // hoặc import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma";
 
-export const revalidate = 60; // ISR nhẹ
+export const revalidate = 60;
 
 function toLimit(v: string | null, def = 12, max = 24) {
   const n = v ? Number(v) : NaN;
@@ -10,10 +9,7 @@ function toLimit(v: string | null, def = 12, max = 24) {
 }
 
 /**
- * GET /api/solutions/similar?industry=electronics&exclude=slug-or-id&limit=12
- * - industry: (bắt buộc) tên ngành (string) để lọc cùng ngành
- * - exclude : (tuỳ chọn) slug hoặc id giải pháp hiện tại để loại trừ
- * - limit   : (tuỳ chọn) mặc định 12, tối đa 24
+ * GET /api/solution/similar?industry=electronics&exclude=slug-or-id&limit=12
  */
 export async function GET(req: Request) {
   try {
@@ -31,18 +27,9 @@ export async function GET(req: Request) {
 
     const rows = await prisma.solution.findMany({
       where: {
-        status: "PUBLISHED",      // enum PublishStatus
-        industry,                 // cùng ngành
-        AND: exclude
-          ? [
-              {
-                OR: [
-                  { slug: { not: exclude } }, // loại trừ theo slug
-                  { id: { not: exclude } },   // hoặc theo id
-                ],
-              },
-            ]
-          : undefined,
+        status: "PUBLISHED",
+        industry: industry, // dữ liệu đã chuẩn hóa theo DB
+        AND: exclude ? [{ slug: { not: exclude } }, { id: { not: exclude } }] : undefined,
       },
       take: limit,
       orderBy: [{ updatedAt: "desc" }],
@@ -52,11 +39,8 @@ export async function GET(req: Request) {
         title: true,
         summary: true,
         coverImage: true,
-        images: {
-          select: { url: true, sortOrder: true },
-          orderBy: { sortOrder: "asc" },
-          take: 1,
-        },
+        industry: true, // ⬅️ thêm để hiển thị
+        usecase: true,  // ⬅️ thêm để hiển thị (làm "Phân loại")
       },
     });
 
@@ -65,7 +49,9 @@ export async function GET(req: Request) {
       slug: r.slug,
       title: r.title,
       summary: r.summary ?? null,
-      image: r.coverImage ?? r.images?.[0]?.url ?? null,
+      image: r.coverImage ?? null,
+      industry: r.industry ?? null,
+      usecase: r.usecase ?? null,
     }));
 
     return NextResponse.json({
@@ -73,7 +59,7 @@ export async function GET(req: Request) {
       meta: { industry, exclude, limit, total: data.length },
     });
   } catch (e) {
-    console.error("GET /api/solutions/similar error:", e);
+    console.error("GET /api/solution/similar error:", e);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

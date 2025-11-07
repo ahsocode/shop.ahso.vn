@@ -6,8 +6,6 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 
 const items = [
-  { href: "/shop/solutions", label: "Giải pháp Công Nghiệp" },
-  { href: "/shop/software", label: "Phần mềm & Dịch vụ" },
   { href: "/shop/products", label: "Sản phẩm & Linh kiện Công Nghiệp" },
 ];
 
@@ -47,3 +45,4 @@ export function ShopTabs() {
     </nav>
   );
 }
+

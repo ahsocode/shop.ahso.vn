@@ -56,3 +56,63 @@ export type Solution = Prisma.SolutionModel
  * 
  */
 export type SolutionImage = Prisma.SolutionImageModel
+/**
+ * Model SoftwareCategory
+ * 
+ */
+export type SoftwareCategory = Prisma.SoftwareCategoryModel
+/**
+ * Model Software
+ * 
+ */
+export type Software = Prisma.SoftwareModel
+/**
+ * Model Brand
+ * 
+ */
+export type Brand = Prisma.BrandModel
+/**
+ * Model Category
+ * 
+ */
+export type Category = Prisma.CategoryModel
+/**
+ * Model ProductCategory
+ * 
+ */
+export type ProductCategory = Prisma.ProductCategoryModel
+/**
+ * Model Product
+ * 
+ */
+export type Product = Prisma.ProductModel
+/**
+ * Model ProductVariant
+ * 
+ */
+export type ProductVariant = Prisma.ProductVariantModel
+/**
+ * Model ProductSpec
+ * 
+ */
+export type ProductSpec = Prisma.ProductSpecModel
+/**
+ * Model ProductImage
+ * 
+ */
+export type ProductImage = Prisma.ProductImageModel
+/**
+ * Model ProductDoc
+ * 
+ */
+export type ProductDoc = Prisma.ProductDocModel
+/**
+ * Model Cart
+ * 
+ */
+export type Cart = Prisma.CartModel
+/**
+ * Model CartItem
+ * 
+ */
+export type CartItem = Prisma.CartItemModel

@@ -2,46 +2,39 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import FilterLayout from "../filterlayout";
 
-type Software = { id: string; name: string; services: string[]; stack: string[] };
-
-const SERVICES = [
-  { value: "", label: "Tất cả dịch vụ" },
-  { value: "implementation", label: "Triển khai" },
-  { value: "integration", label: "Tích hợp" },
-  { value: "maintenance", label: "Bảo trì" },
-  { value: "training", label: "Đào tạo" },
-];
-const STACKS = ["MES", "ERP", "CMMS", "SCADA"];
+type Software = { id: string; slug: string; title: string; image?: string | null; summary?: string | null };
+type Category = { id: string; slug: string; name: string };
 
 export default function SoftwareSearchClient() {
   const router = useRouter();
   const sp = useSearchParams();
 
   const [q, setQ] = useState(sp.get("q") ?? "");
-  const [service, setService] = useState(sp.get("service") ?? "");
-  const [stack, setStack] = useState(sp.get("stack") ?? "");
   const [page, setPage] = useState(Number(sp.get("page") ?? "1"));
+  const [category, setCategory] = useState(sp.get("category") ?? "");
 
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<Software[]>([]);
   const [total, setTotal] = useState(0);
+  const [categories, setCategories] = useState<Category[]>([]);
   const pageSize = 12;
 
   const params = useMemo(() => {
     const p = new URLSearchParams();
     if (q) p.set("q", q);
-    if (service) p.set("service", service);
-    if (stack) p.set("stack", stack);
+    if (category) p.set("category", category);
     p.set("page", String(page));
     p.set("pageSize", String(pageSize));
     return p;
-  }, [q, service, stack, page]);
+  }, [q, category, page]);
 
   useEffect(() => {
-    const url = `/api/search/software?${params.toString()}`;
-    router.replace(`/shop/software?${params.toString()}`, { scroll: false });
+    const url = `/api/software?${params.toString()}`;
+    router.replace(`/software?${params.toString()}`, { scroll: false });
 
     let aborted = false;
     setLoading(true);
@@ -57,7 +50,17 @@ export default function SoftwareSearchClient() {
     return () => { aborted = true; };
   }, [params, router]);
 
-  useEffect(() => { setPage(1); }, [q, service, stack]);
+  useEffect(() => { setPage(1); }, [q, category]);
+
+  // Load categories once
+  useEffect(() => {
+    let aborted = false;
+    fetch("/api/software/categories")
+      .then((r) => r.json())
+      .then((json) => { if (!aborted) setCategories(json.data ?? []); })
+      .catch(() => { if (!aborted) setCategories([]); });
+    return () => { aborted = true; };
+  }, []);
 
   const pages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -79,20 +82,24 @@ export default function SoftwareSearchClient() {
       }
       sidebar={
         <>
-          <h3 className="font-semibold mb-4">Bộ lọc (Phần mềm & Dịch vụ)</h3>
+          <h3 className="font-semibold mb-4">Bộ lọc (Phần mềm)</h3>
 
-          <label className="block text-sm font-medium mb-1">Loại dịch vụ</label>
-          <select className="w-full border rounded-md px-3 py-2 mb-4" value={service} onChange={(e) => setService(e.target.value)}>
-            {SERVICES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+          <label className="block text-sm font-medium mb-1">Danh mục</label>
+          <select
+            className="w-full border rounded-md px-3 py-2 mb-4"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">Tất cả danh mục</option>
+            {categories.map((c) => (
+              <option key={c.slug} value={c.slug}>{c.name}</option>
+            ))}
           </select>
 
-          <label className="block text-sm font-medium mb-1">Nền tảng</label>
-          <select className="w-full border rounded-md px-3 py-2 mb-4" value={stack} onChange={(e) => setStack(e.target.value)}>
-            <option value="">Tất cả nền tảng</option>
-            {STACKS.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-
-          <button onClick={() => { setQ(""); setService(""); setStack(""); }} className="w-full rounded-md border px-3 py-2 text-sm">
+          <button
+            onClick={() => { setQ(""); setCategory(""); }}
+            className="w-full rounded-md border px-3 py-2 text-sm"
+          >
             Xóa bộ lọc
           </button>
         </>
@@ -110,14 +117,38 @@ export default function SoftwareSearchClient() {
           <div className="col-span-full text-center text-sm text-gray-600">Không có kết quả</div>
         ) : (
           data.map((x) => (
-            <article key={x.id} className="border rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition">
-              <h3 className="font-semibold">{x.name}</h3>
-              <div className="text-sm text-gray-600 mt-1">
-                Dịch vụ: {x.services.join(", ")} • Nền tảng: {x.stack.join(", ")}
+            <article
+              key={x.id}
+              className="border rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition flex flex-col h-full"
+            >
+              <Link href={`/software/${encodeURIComponent(x.slug)}`} className="block">
+                {x.image ? (
+                  <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-gray-100">
+                    <Image
+                      src={x.image}
+                      alt={x.title}
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-video w-full rounded-lg bg-gray-100" />
+                )}
+              </Link>
+
+              <div className="mt-3 flex-1 flex flex-col">
+                <h3 className="font-semibold line-clamp-2">{x.title}</h3>
+                {x.summary && <p className="text-sm text-gray-600 mt-1 line-clamp-2">{x.summary}</p>}
+                <div className="mt-auto pt-3">
+                  <Link
+                    href={`/software/${encodeURIComponent(x.slug)}`}
+                    className="inline-flex items-center justify-center w-full rounded-md bg-blue-600 text-white px-4 py-2 text-sm font-semibold hover:bg-blue-700"
+                  >
+                    Xem chi tiết
+                  </Link>
+                </div>
               </div>
-              <button className="mt-3 rounded-md bg-blue-600 text-white px-4 py-2 text-sm font-semibold hover:bg-blue-700">
-                Xem chi tiết
-              </button>
             </article>
           ))
         )}

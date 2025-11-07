@@ -142,10 +142,12 @@ export function Navbar() {
 
   const navItems = [
     { href: "/", label: "Trang chủ" },
-    { href: "/shop", label: "Sản phẩm" },
+    { href: "/shop/products", label: "Sản phẩm" },
     { href: "/about", label: "Về chúng tôi" },
     { href: "/policy", label: "Chính sách" },
     { href: "/contact", label: "Liên hệ" },
+    { href: "/solutions", label: "Giải pháp" },
+    { href: "/software", label: "Phần mềm" },
   ];
 
   return (
@@ -183,6 +185,7 @@ export function Navbar() {
                 )}
               </Link>
             ))}
+           
           </div>
 
           {/* Right */}
@@ -315,6 +318,28 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
+            <Link
+              href="/solutions"
+              onClick={() => setIsMenuOpen(false)}
+              className={`block px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                isActive("/solutions")
+                  ? "bg-blue-50 text-blue-600 font-bold"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              Giải pháp Công Nghiệp
+            </Link>
+            <Link
+              href="/software"
+              onClick={() => setIsMenuOpen(false)}
+              className={`block px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                isActive("/software")
+                  ? "bg-blue-50 text-blue-600 font-bold"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              Phần mềm & Dịch vụ
+            </Link>
 
             {hydrated && user ? (
               <>
@@ -367,3 +392,4 @@ export function Navbar() {
     </nav>
   );
 }
+

@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
+import AppShell from "@/components/app-shell";
 import { Toaster } from "sonner"; // 👈 thêm dòng này
 
 const geistSans = Geist({
@@ -31,9 +30,7 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Navbar />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
+        <AppShell>{children}</AppShell>
 
         {/* ✅ Toaster toàn cục để hiển thị toast Sonner */}
         <Toaster

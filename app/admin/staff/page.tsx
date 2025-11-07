@@ -1,0 +1,150 @@
+"use client";
+import { AdminRoute } from "@/components/auth/admin-route";
+import { useEffect, useMemo, useState } from "react";
+
+type Row = { id: string; username: string; fullName: string; email: string; phoneE164: string; role: string; createdAt: string };
+
+export default function StaffAdminPage() {
+  const [q, setQ] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const [rows, setRows] = useState<Row[]>([]);
+  const [total, setTotal] = useState(0);
+
+  const params = useMemo(() => {
+    const p = new URLSearchParams();
+    if (q) p.set("q", q);
+    p.set("page", String(page));
+    p.set("pageSize", String(pageSize));
+    return p.toString();
+  }, [q, page, pageSize]);
+
+  useEffect(() => {
+    let aborted = false;
+    async function run() {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token") || "";
+        const r = await fetch(`/api/admin/users/staff?${params}`, { headers: { Authorization: `Bearer ${token}` } });
+        const json = await r.json();
+        if (!aborted) {
+          setRows(json.data || []);
+          setTotal(json.meta?.total || 0);
+        }
+      } finally {
+        if (!aborted) setLoading(false);
+      }
+    }
+    run();
+    return () => { aborted = true };
+  }, [params]);
+
+  const [showCreate, setShowCreate] = useState(false);
+  const [form, setForm] = useState({ username: "", password: "", fullName: "" });
+  const resetForm = () => setForm({ username: "", password: "", fullName: "" });
+
+  async function createStaff(e: React.FormEvent) {
+    e.preventDefault();
+    const token = localStorage.getItem("token") || "";
+    const r = await fetch(`/api/admin/users/staff`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(form),
+    });
+    if (r.ok) {
+      setShowCreate(false);
+      resetForm();
+      setPage(1);
+    } else {
+      const j = await r.json().catch(() => ({}));
+      alert(j.error || "Tạo nhân viên thất bại");
+    }
+  }
+
+  async function remove(id: string) {
+    if (!confirm("Xóa nhân viên này?")) return;
+    const token = localStorage.getItem("token") || "";
+    const r = await fetch(`/api/admin/users/staff/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+    if (r.ok) setRows((s) => s.filter((x) => x.id !== id));
+    else alert("Xóa thất bại");
+  }
+
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+
+  return (
+    <AdminRoute>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-semibold">Nhân viên</h1>
+          <button onClick={() => setShowCreate(true)} className="rounded-md bg-blue-600 text-white px-3 py-2 text-sm font-semibold hover:bg-blue-700">Thêm mới</button>
+        </div>
+
+        <div className="flex gap-2">
+          <input value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} placeholder="Tìm theo tên/email/điện thoại" className="w-full max-w-md rounded-md border px-3 py-2" />
+          <span className="text-sm text-gray-600 self-center">Tổng: {total}</span>
+        </div>
+
+        <div className="rounded-lg border overflow-auto">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-3 py-2 text-left">Username</th>
+                <th className="px-3 py-2 text-left">Họ tên</th>
+                <th className="px-3 py-2 text-left">Email</th>
+                <th className="px-3 py-2 text-left">Điện thoại</th>
+                <th className="px-3 py-2">Vai trò</th>
+                <th className="px-3 py-2">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={6} className="px-3 py-6 text-center text-gray-500">Đang tải…</td></tr>
+              ) : rows.length === 0 ? (
+                <tr><td colSpan={6} className="px-3 py-6 text-center text-gray-500">Không có dữ liệu</td></tr>
+              ) : (
+                rows.map((u) => (
+                  <tr key={u.id} className="border-t">
+                    <td className="px-3 py-2 font-mono">{u.username}</td>
+                    <td className="px-3 py-2">{u.fullName}</td>
+                    <td className="px-3 py-2">{u.email}</td>
+                    <td className="px-3 py-2">{u.phoneE164}</td>
+                    <td className="px-3 py-2 text-center">{u.role}</td>
+                    <td className="px-3 py-2 text-center">
+                      <button onClick={() => remove(u.id)} className="text-red-600 hover:underline">Xóa</button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {pages > 1 && (
+          <div className="flex gap-2 justify-center">
+            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1 rounded border disabled:opacity-50">Trước</button>
+            <span className="text-sm self-center">{page}/{pages}</span>
+            <button onClick={() => setPage((p) => Math.min(pages, p + 1))} disabled={page === pages} className="px-3 py-1 rounded border disabled:opacity-50">Sau</button>
+          </div>
+        )}
+
+        {showCreate && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
+            <form onSubmit={createStaff} className="w-full max-w-md rounded-xl bg-white p-4 shadow">
+              <h2 className="font-semibold mb-3">Thêm nhân viên</h2>
+              <div className="grid gap-2">
+                <input required value={form.username} onChange={(e)=>setForm({...form, username:e.target.value})} placeholder="Username" className="rounded-md border px-3 py-2" />
+                <input required type="password" value={form.password} onChange={(e)=>setForm({...form, password:e.target.value})} placeholder="Mật khẩu" className="rounded-md border px-3 py-2" />
+                <input required value={form.fullName} onChange={(e)=>setForm({...form, fullName:e.target.value})} placeholder="Họ tên" className="rounded-md border px-3 py-2" />
+              </div>
+              <div className="mt-3 flex justify-end gap-2">
+                <button type="button" onClick={()=>{setShowCreate(false); resetForm();}} className="px-3 py-2 rounded-md border">Hủy</button>
+                <button type="submit" className="px-3 py-2 rounded-md bg-blue-600 text-white">Lưu</button>
+              </div>
+            </form>
+          </div>
+        )}
+      </div>
+    </AdminRoute>
+  );
+}
