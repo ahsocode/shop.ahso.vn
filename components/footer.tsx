@@ -19,7 +19,7 @@ export function Footer() {
                 className="h-8 w-8 object-contain"
                 priority
               />
-              <span>AHSO</span>
+              <span>AHSO Industrial</span>
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed">
               <strong>Giới Thiệu Về AHSO</strong><br />

@@ -52,7 +52,10 @@ export const ModelName = {
   Address: 'Address',
   Order: 'Order',
   OrderItem: 'OrderItem',
-  Payment: 'Payment'
+  Payment: 'Payment',
+  SolutionCategory: 'SolutionCategory',
+  Solution: 'Solution',
+  SolutionImage: 'SolutionImage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -147,6 +150,56 @@ export const PaymentScalarFieldEnum = {
 export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
 
 
+export const SolutionCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  image: 'image',
+  parentId: 'parentId',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SolutionCategoryScalarFieldEnum = (typeof SolutionCategoryScalarFieldEnum)[keyof typeof SolutionCategoryScalarFieldEnum]
+
+
+export const SolutionScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  slug: 'slug',
+  summary: 'summary',
+  coverImage: 'coverImage',
+  bodyHtml: 'bodyHtml',
+  industry: 'industry',
+  usecase: 'usecase',
+  status: 'status',
+  publishedAt: 'publishedAt',
+  metaTitle: 'metaTitle',
+  metaDescription: 'metaDescription',
+  canonicalUrl: 'canonicalUrl',
+  categoryId: 'categoryId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SolutionScalarFieldEnum = (typeof SolutionScalarFieldEnum)[keyof typeof SolutionScalarFieldEnum]
+
+
+export const SolutionImageScalarFieldEnum = {
+  id: 'id',
+  solutionId: 'solutionId',
+  url: 'url',
+  alt: 'alt',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt'
+} as const
+
+export type SolutionImageScalarFieldEnum = (typeof SolutionImageScalarFieldEnum)[keyof typeof SolutionImageScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -223,4 +276,44 @@ export const PaymentOrderByRelevanceFieldEnum = {
 } as const
 
 export type PaymentOrderByRelevanceFieldEnum = (typeof PaymentOrderByRelevanceFieldEnum)[keyof typeof PaymentOrderByRelevanceFieldEnum]
+
+
+export const SolutionCategoryOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  image: 'image',
+  parentId: 'parentId'
+} as const
+
+export type SolutionCategoryOrderByRelevanceFieldEnum = (typeof SolutionCategoryOrderByRelevanceFieldEnum)[keyof typeof SolutionCategoryOrderByRelevanceFieldEnum]
+
+
+export const SolutionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  title: 'title',
+  slug: 'slug',
+  summary: 'summary',
+  coverImage: 'coverImage',
+  bodyHtml: 'bodyHtml',
+  industry: 'industry',
+  usecase: 'usecase',
+  metaTitle: 'metaTitle',
+  metaDescription: 'metaDescription',
+  canonicalUrl: 'canonicalUrl',
+  categoryId: 'categoryId'
+} as const
+
+export type SolutionOrderByRelevanceFieldEnum = (typeof SolutionOrderByRelevanceFieldEnum)[keyof typeof SolutionOrderByRelevanceFieldEnum]
+
+
+export const SolutionImageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  solutionId: 'solutionId',
+  url: 'url',
+  alt: 'alt'
+} as const
+
+export type SolutionImageOrderByRelevanceFieldEnum = (typeof SolutionImageOrderByRelevanceFieldEnum)[keyof typeof SolutionImageOrderByRelevanceFieldEnum]
 

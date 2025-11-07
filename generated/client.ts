@@ -68,3 +68,18 @@ export type OrderItem = Prisma.OrderItemModel
  * 
  */
 export type Payment = Prisma.PaymentModel
+/**
+ * Model SolutionCategory
+ * 
+ */
+export type SolutionCategory = Prisma.SolutionCategoryModel
+/**
+ * Model Solution
+ * 
+ */
+export type Solution = Prisma.SolutionModel
+/**
+ * Model SolutionImage
+ * 
+ */
+export type SolutionImage = Prisma.SolutionImageModel

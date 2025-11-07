@@ -1,146 +1,135 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Lock, Mail, User, AlertCircle, Eye, EyeOff } from "lucide-react"
-import Image from "next/image"
-import { setUser, useAuthStore } from "@/lib/auth-store"
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Lock, Mail, User, AlertCircle, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import { setUser, useAuthStore } from "@/lib/auth-store";
+import { toast } from "sonner";
 
+// ---- Wrapper bắt buộc có Suspense ----
 export default function LoginPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const currentUser = useAuthStore()
-  
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [loginMethod, setLoginMethod] = useState<"username" | "email">("username")
-  const [redirecting, setRedirecting] = useState(false)
-  const [isHydrated, setIsHydrated] = useState(false) // ✅ Track hydration
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-  })
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Đang tải trang đăng nhập…</p>
+          </div>
+        </div>
+      }
+    >
+      <LoginClient />
+    </Suspense>
+  );
+}
 
-  // ✅ Đợi client hydrate
-  useEffect(() => {
-    setIsHydrated(true)
-  }, [])
+// ---- Toàn bộ logic cũ chuyển sang component con ----
+function LoginClient() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentUser = useAuthStore();
 
-  // ✅ Nếu đã đăng nhập → redirect về trang đích
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loginMethod, setLoginMethod] = useState<"username" | "email">("username");
+  const [redirecting, setRedirecting] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [formData, setFormData] = useState({ username: "", email: "", password: "" });
+
+  useEffect(() => { setIsHydrated(true); }, []);
+
+  // Nếu đã đăng nhập -> redirect
   useEffect(() => {
-    // Chỉ redirect khi: đã hydrate VÀ có user VÀ không đang login
-    if (!isHydrated || !currentUser || isLoading || redirecting) return
-    
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
-    if (!token) return
-    const hasAuthCookie = typeof document !== 'undefined' && document.cookie.includes('auth_token=')
-    if (!hasAuthCookie) return
-    const redirectTo = searchParams.get("redirect") || "/"
-    
-    // ✅ Validate redirect URL - chỉ cho phép internal paths
-    const isValidRedirect = redirectTo.startsWith('/') && !redirectTo.startsWith('/login')
-    const finalRedirect = isValidRedirect ? redirectTo : '/'
-    
-    console.log("✅ Already logged in, redirecting to:", finalRedirect)
-    setRedirecting(true)
-    
-    // Delay nhỏ để đảm bảo UI update
-    const timer = setTimeout(() => {
-      router.push(finalRedirect)
-    }, 200)
-    
-    return () => clearTimeout(timer)
-  }, [isHydrated, currentUser, isLoading, redirecting, router, searchParams])
+    if (!isHydrated || !currentUser || isLoading || redirecting) return;
+
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) return;
+
+    const hasAuthCookie = typeof document !== "undefined" && document.cookie.includes("auth_token=");
+    if (!hasAuthCookie) return;
+
+    const redirectTo = searchParams.get("redirect") || "/";
+    const isValidRedirect = redirectTo.startsWith("/") && !redirectTo.startsWith("/login");
+    const finalRedirect = isValidRedirect ? redirectTo : "/";
+
+    setRedirecting(true);
+    const timer = setTimeout(() => router.push(finalRedirect), 200);
+    return () => clearTimeout(timer);
+  }, [isHydrated, currentUser, isLoading, redirecting, router, searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
-    if (error) setError("")
-  }
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (error) setError("");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     try {
-      const payload = loginMethod === "username" 
-        ? { username: formData.username, password: formData.password }
-        : { email: formData.email, password: formData.password }
-
-      console.log("🔍 Logging in with:", loginMethod)
+      const payload =
+        loginMethod === "username"
+          ? { username: formData.username, password: formData.password }
+          : { email: formData.email, password: formData.password };
 
       const response = await fetch("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        console.error("❌ Login failed:", data.error)
-        if (data.error === "INVALID_CREDENTIALS") {
-          setError("Tên đăng nhập/email hoặc mật khẩu không đúng")
-        } else if (data.error === "VALIDATION_ERROR") {
-          setError("Vui lòng kiểm tra lại thông tin đăng nhập")
-        } else {
-          setError(data.message || "Đã có lỗi xảy ra. Vui lòng thử lại!")
-        }
-        return
+        const msg =
+          data?.error === "INVALID_CREDENTIALS"
+            ? "Tên đăng nhập/email hoặc mật khẩu không đúng"
+            : data?.error === "VALIDATION_ERROR"
+            ? "Vui lòng kiểm tra lại thông tin đăng nhập"
+            : data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";
+        setError(msg);
+        toast.error("Đăng nhập thất bại", { description: msg });
+        return;
       }
 
-      console.log("✅ Login successful:", data.user.email)
-
-      // Lưu token vào localStorage
-      localStorage.setItem("token", data.token)
-
-      // Cập nhật store ngay lập tức
+      localStorage.setItem("token", data.token);
       const userData = {
         id: data.user.id,
         email: data.user.email,
         fullName: data.user.fullName,
         avatarUrl: data.user.avatarUrl || "/logo.png",
         role: data.user.role,
-      }
-      
-      setUser(userData)
-      console.log("📦 Store updated with user:", userData)
+      };
+      setUser(userData);
 
-      // ✅ Đợi store broadcast xong
-      await new Promise(resolve => setTimeout(resolve, 100))
+      toast.success("Đăng nhập thành công", {
+        description: `Chào mừng trở lại, ${userData.fullName || userData.email}!`,
+      });
 
-      // Redirect
-      const redirectTo = searchParams.get("redirect") || "/"
-      
-      // ✅ Validate redirect URL
-      const isValidRedirect = redirectTo.startsWith('/') && !redirectTo.startsWith('/login')
-      const finalRedirect = isValidRedirect ? redirectTo : '/'
-      
-      console.log("🚀 Redirecting to:", finalRedirect)
-      
-      setRedirecting(true)
-      router.push(finalRedirect)
-      
-    } catch (err) {
-      console.error("❌ Login error:", err)
-      setError("Không thể kết nối đến máy chủ. Vui lòng thử lại!")
+      await new Promise((r) => setTimeout(r, 100));
+      const redirectTo = searchParams.get("redirect") || "/";
+      const isValidRedirect = redirectTo.startsWith("/") && !redirectTo.startsWith("/login");
+      const finalRedirect = isValidRedirect ? redirectTo : "/";
+
+      setRedirecting(true);
+      router.push(finalRedirect);
+    } catch {
+      const msg = "Không thể kết nối đến máy chủ. Vui lòng thử lại!";
+      setError(msg);
+      toast.error("Lỗi mạng", { description: msg });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  // ✅ Show loading khi đang redirect
   if (redirecting) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -149,7 +138,7 @@ export default function LoginPage() {
           <p className="text-gray-600">Đang chuyển hướng...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -158,14 +147,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-gray-900">
-            <Image
-              src="/logo.png"
-              alt="AHSO Logo"
-              width={48}
-              height={48}
-              className="h-12 w-12 object-contain"
-              priority
-            />
+            <Image src="/logo.png" alt="AHSO Logo" width={48} height={48} className="h-12 w-12 object-contain" priority />
             <span>AHSO</span>
           </Link>
         </div>
@@ -173,20 +155,16 @@ export default function LoginPage() {
         <Card className="shadow-xl border-t-4 border-t-blue-600">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">Đăng nhập</CardTitle>
-            <CardDescription className="text-center">
-              Đăng nhập để tiếp tục mua sắm
-            </CardDescription>
+            <CardDescription className="text-center">Đăng nhập để tiếp tục mua sắm</CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Login Method Toggle */}
+            {/* Toggle phương thức */}
             <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-lg">
               <button
                 type="button"
                 onClick={() => setLoginMethod("username")}
                 className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                  loginMethod === "username"
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                  loginMethod === "username" ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 Tên đăng nhập
@@ -195,16 +173,14 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setLoginMethod("email")}
                 className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                  loginMethod === "email"
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                  loginMethod === "email" ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 Email
               </button>
             </div>
 
-            {/* Error Message */}
+            {/* Hộp lỗi */}
             {error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-start gap-2">
                 <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
@@ -276,11 +252,7 @@ export default function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
               </div>
@@ -337,15 +309,11 @@ export default function LoginPage() {
 
         <p className="text-center text-xs text-gray-500 mt-6">
           Bằng việc đăng nhập, bạn đồng ý với{" "}
-          <Link href="#" className="text-blue-600 hover:text-blue-700">
-            Điều khoản sử dụng
-          </Link>{" "}
+          <Link href="#" className="text-blue-600 hover:text-blue-700">Điều khoản sử dụng</Link>{" "}
           và{" "}
-          <Link href="#" className="text-blue-600 hover:text-blue-700">
-            Chính sách bảo mật
-          </Link>
+          <Link href="#" className="text-blue-600 hover:text-blue-700">Chính sách bảo mật</Link>
         </p>
       </div>
     </div>
-  )
+  );
 }
