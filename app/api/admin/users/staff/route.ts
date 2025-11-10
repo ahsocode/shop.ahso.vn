@@ -1,4 +1,3 @@
-// app/api/admin/users/staff/route.ts
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
@@ -6,107 +5,82 @@ import { z } from "zod";
 import { prisma } from "../../../../../lib/prisma";
 import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../../lib/auth";
 
-// Có thể tái sử dụng addressSchema từ file register, copy sang đây cho gọn:
-const addressSchema = z.object({
-  line1: z.string().min(1),
-  line2: z.string().optional(),
-  city: z.string().min(1),
-  state: z.string().optional(),
-  postalCode: z.string().optional(),
-  country: z.string().length(2),
-});
-
 const createStaffSchema = z.object({
-  username: z.string().min(3).max(32).regex(/^[a-z0-9_.-]+$/),
+  // Chấp nhận hoa/thường, sẽ lưu lowercase
+  username: z.string().min(3).max(32).regex(/^[a-zA-Z0-9_.-]+$/),
   password: z.string().min(8),
   fullName: z.string().min(1).max(128),
-  phone: z.string().min(9).max(20),
-  email: z.string().email(),
-  shippingAddress: addressSchema,
-  billingAddress: addressSchema.optional(),
-  taxCode: z.string().regex(/^\d{10}(\d{3})?$/).optional(),
 });
 
-const PHONE_VN_REGEX = /^(?:\+?84|0)(\d{9})$/;
-const toE164VN = (input: string) => {
-  const s = input.replace(/\s|-/g, "");
-  const m = s.match(PHONE_VN_REGEX);
-  if (!m) return s.startsWith("+") ? s : s;
-  return `+84${m[1]}`;
-};
-const normCountry2 = (s: string) => s.toUpperCase();
-const addressesEqual = (a: z.infer<typeof addressSchema>, b: z.infer<typeof addressSchema>) =>
-  a.line1 === b.line1 &&
-  (a.line2 ?? "") === (b.line2 ?? "") &&
-  a.city === b.city &&
-  (a.state ?? "") === (b.state ?? "") &&
-  (a.postalCode ?? "") === (b.postalCode ?? "") &&
-  normCountry2(a.country) === normCountry2(b.country);
+function toInt(v: string | null, def = 1) {
+  const n = v ? Number(v) : NaN;
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : def;
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const me = await verifyBearerAuth(req);
+    requireRole(me, ["ADMIN"]);
+
+    const { searchParams } = new URL(req.url);
+    const q = (searchParams.get("q") || "").trim();
+    const page = toInt(searchParams.get("page"), 1);
+    const pageSize = toInt(searchParams.get("pageSize"), 20);
+
+    const where: any = { role: "STAFF" };
+    if (q) where.OR = [
+      { username: { contains: q } },
+      { fullName: { contains: q } },
+      { email: { contains: q } },
+      { phoneE164: { contains: q } },
+    ];
+
+    const [total, rows] = await Promise.all([
+      prisma.user.count({ where }),
+      prisma.user.findMany({ where, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize, select: { id: true, username: true, fullName: true, email: true, phoneE164: true, role: true, createdAt: true } }),
+    ]);
+
+    return NextResponse.json({ data: rows, meta: { total, page, pageSize } });
+  } catch (e) {
+    if (e instanceof UnauthorizedError || e instanceof ForbiddenError) {
+      return NextResponse.json({ error: e.message }, { status: e.status });
+    }
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
-    const me = await verifyBearerAuth(req);          // ném 401 nếu sai
-    requireRole(me, ["ADMIN"]);                      // ném 403 nếu không phải ADMIN
+    const me = await verifyBearerAuth(req);
+    requireRole(me, ["ADMIN"]);
 
     const body = await req.json();
     const parsed = createStaffSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "VALIDATION_ERROR", details: parsed.error.flatten() },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "VALIDATION_ERROR", details: parsed.error.flatten() }, { status: 400 });
     }
 
     const data = parsed.data;
     const username = data.username.toLowerCase();
-    const email = data.email.toLowerCase();
-    const phoneE164 = toE164VN(data.phone);
-    const shipping = { ...data.shippingAddress, country: normCountry2(data.shippingAddress.country) };
-    const billingInput = data.billingAddress
-      ? { ...data.billingAddress, country: normCountry2(data.billingAddress.country) }
-      : undefined;
-
-    // Tránh trùng email/username/phone
-    const conflict = await prisma.user.findFirst({
-      where: { OR: [{ email }, { username }, { phoneE164 }] },
-      select: { id: true },
-    });
-    if (conflict) {
-      return NextResponse.json(
-        { error: "CONFLICT", message: "email/username/phone đã tồn tại" },
-        { status: 409 }
-      );
+    let email = `${username}@example.local`;
+    // Tạo số điện thoại E.164 ngẫu nhiên để đảm bảo unique
+    async function genUniquePhone(): Promise<string> {
+      for (let i = 0; i < 5; i++) {
+        const candidate = `+84${Math.floor(100000000 + Math.random() * 900000000)}`; // +84 + 9 digits
+        const found = await prisma.user.findUnique({ where: { phoneE164: candidate } });
+        if (!found) return candidate;
+      }
+      return `+84${Date.now().toString().slice(-9)}`;
     }
+    const phoneE164 = await genUniquePhone();
+
+    const existed = await prisma.user.findFirst({ where: { OR: [{ username }, { email }] }, select: { id: true } });
+    if (existed) email = `${username}+${Date.now()}@example.local`;
 
     const passwordHash = await bcrypt.hash(data.password, 12);
 
     const user = await prisma.$transaction(async (tx) => {
-      const shipAddr = await tx.address.create({
-        data: {
-          line1: shipping.line1,
-          line2: shipping.line2 ?? null,
-          city: shipping.city,
-          state: shipping.state ?? null,
-          postalCode: shipping.postalCode ?? null,
-          country: shipping.country,
-        },
-      });
-
-      let billingAddrId = shipAddr.id;
-      if (billingInput && !addressesEqual(shipping, billingInput)) {
-        const billAddr = await tx.address.create({
-          data: {
-            line1: billingInput.line1,
-            line2: billingInput.line2 ?? null,
-            city: billingInput.city,
-            state: billingInput.state ?? null,
-            postalCode: billingInput.postalCode ?? null,
-            country: billingInput.country,
-          },
-        });
-        billingAddrId = billAddr.id;
-      }
-
+      const addr = await tx.address.create({ data: { line1: "Auto Staff", city: "HCM", country: "VN" } });
       return tx.user.create({
         data: {
           username,
@@ -114,20 +88,11 @@ export async function POST(req: NextRequest) {
           fullName: data.fullName,
           email,
           phoneE164,
-          taxCode: data.taxCode ?? null,
-          shippingAddressId: shipAddr.id,
-          billingAddressId: billingAddrId,
-          role: "STAFF", // chỉ tạo STAFF ở route này
+          shippingAddressId: addr.id,
+          billingAddressId: addr.id,
+          role: "STAFF",
         },
-        select: {
-          id: true,
-          username: true,
-          fullName: true,
-          email: true,
-          phoneE164: true,
-          role: true,
-          createdAt: true,
-        },
+        select: { id: true, username: true, fullName: true, email: true, phoneE164: true, role: true, createdAt: true },
       });
     });
 
@@ -136,7 +101,6 @@ export async function POST(req: NextRequest) {
     if (e instanceof UnauthorizedError || e instanceof ForbiddenError) {
       return NextResponse.json({ error: e.message }, { status: e.status });
     }
-    console.error("Create staff error:", e);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

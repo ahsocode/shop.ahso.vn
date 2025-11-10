@@ -1,0 +1,1 @@
+  const grandTotal = useMemo(() => subtotal + vat + shippingFee, [subtotal, vat]);\\\r\\\n\\\r\\\n  useEffect(() => {\\\r\\\n    try {\\\r\\\n      const token = localStorage.getItem('token');\\\r\\\n      const u = localStorage.getItem('user');\\\r\\\n      if (token || u) setIsLogged(true);\\\r\\\n    } catch {}\\\r\\\n  }, []);

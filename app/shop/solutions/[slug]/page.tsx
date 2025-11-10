@@ -5,7 +5,7 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { ArrowLeft, Home, Phone, Mail, MessageCircle, Tag, Factory } from "lucide-react";
 import ShareButton from "@/components/ui/share-button";
-import SimilarProductsCarousel from "./SimilarSolutionsCarousel"; // <-- ✅ thêm
+import SimilarProductsCarousel from "./SimilarSolutionsCarousel"; 
 import SimilarSolutionsCarousel from "./SimilarSolutionsCarousel";
 
 export const revalidate = 60;
@@ -54,7 +54,7 @@ export default async function SolutionDetailPage(
   if (!s) notFound();
 
   const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ahso.vn";
-  const shareUrl = `${BASE_URL}/shop/solutions/${s.slug}`;
+  const shareUrl = `${BASE_URL}/solutions/${s.slug}`;
   const coverSrc = s.coverImage ?? "/logo.png";
 
   return (
@@ -65,7 +65,7 @@ export default async function SolutionDetailPage(
           <Home className="h-4 w-4" /> Trang chủ
         </Link>
         <span className="text-gray-400">/</span>
-        <Link href="/shop/solutions" className="hover:text-gray-900">
+        <Link href="/solutions" className="hover:text-gray-900">
           Giải pháp
         </Link>
         <span className="text-gray-400">/</span>
@@ -73,7 +73,7 @@ export default async function SolutionDetailPage(
 
         <div className="ml-auto">
           <Link
-            href="/shop/solutions"
+            href="/solutions"
             className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 hover:bg-gray-50"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -103,7 +103,7 @@ export default async function SolutionDetailPage(
           )}
           {s.usecase && (
             <span className="inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs text-gray-700">
-              Use case: <strong className="ml-1">{s.usecase}</strong>
+              Phân loại: <strong className="ml-1">{s.usecase}</strong>
             </span>
           )}
         </div>
@@ -242,7 +242,7 @@ export default async function SolutionDetailPage(
                 )}
                 {s.usecase && (
                   <div className="flex justify-between gap-3">
-                    <dt className="text-gray-500">Use case</dt>
+                    <dt className="text-gray-500">Phân loại</dt>
                     <dd className="font-medium text-gray-900">{s.usecase}</dd>
                   </div>
                 )}

@@ -1,0 +1,93 @@
+[
+  {
+    "title": "MES Cloud Suite",
+    "slug": "mes-cloud-suite",
+    "summary": "Bộ giải pháp MES trên nền tảng đám mây cho nhà máy điện tử.",
+    "coverImage": "/factory1.jpg",
+    "bodyHtml": "<p>MES Cloud Suite giúp giám sát sản xuất theo thời gian thực, theo dõi WIP và truy xuất nguồn gốc.</p>",
+    "category": "MES",
+    "categorySlug": "mes"
+  },
+  {
+    "title": "ERP Manufacturing Pro",
+    "slug": "erp-manufacturing-pro",
+    "summary": "Giải pháp ERP chuyên sâu cho sản xuất.",
+    "coverImage": "/factory2.jpg",
+    "bodyHtml": "<p>Tích hợp kế toán, kho, mua hàng, và sản xuất trên một nền tảng.</p>",
+    "category": "ERP",
+    "categorySlug": "erp"
+  },
+  {
+    "title": "SCADA Connect",
+    "slug": "scada-connect",
+    "summary": "Kết nối và giám sát SCADA đa giao thức.",
+    "coverImage": "/factory3.jpg",
+    "bodyHtml": "<p>Hỗ trợ Modbus, OPC-UA, và giao thức tùy chỉnh.</p>",
+    "category": "SCADA",
+    "categorySlug": "scada"
+  },
+  {
+    "title": "CMMS EasyCare",
+    "slug": "cmms-easy-care",
+    "summary": "Quản lý bảo trì thiết bị dễ dàng.",
+    "coverImage": "/thietbido1.jpg",
+    "bodyHtml": "<p>Lập kế hoạch PM, theo dõi lịch sử bảo trì và phụ tùng.</p>",
+    "category": "CMMS",
+    "categorySlug": "cmms"
+  },
+  {
+    "title": "Quality Insight AI",
+    "slug": "quality-insight-ai",
+    "summary": "AI thị giác cho kiểm tra chất lượng.",
+    "coverImage": "/quality1.png",
+    "bodyHtml": "<p>Tự động phát hiện lỗi bề mặt, méo, và thiếu linh kiện.</p>",
+    "category": "Quality",
+    "categorySlug": "quality"
+  },
+  {
+    "title": "Traceability Core",
+    "slug": "traceability-core",
+    "summary": "Nền tảng truy xuất nguồn gốc từ đầu vào đến đầu ra.",
+    "coverImage": "/linhkien1.jpg",
+    "bodyHtml": "<p>Liên kết lô linh kiện, công đoạn, và dữ liệu kiểm tra.</p>",
+    "category": "Traceability",
+    "categorySlug": "traceability"
+  },
+  {
+    "title": "Energy Optimizer",
+    "slug": "energy-optimizer",
+    "summary": "Theo dõi và tối ưu năng lượng tiêu thụ.",
+    "coverImage": "/factory4.jpg",
+    "bodyHtml": "<p>Dashboard năng lượng và cảnh báo vượt ngưỡng.</p>",
+    "category": "Energy",
+    "categorySlug": "energy"
+  },
+  {
+    "title": "Packaging Flow Designer",
+    "slug": "packaging-flow-designer",
+    "summary": "Thiết kế và mô phỏng luồng đóng gói.",
+    "coverImage": "/time1.webp",
+    "bodyHtml": "<p>Giảm thời gian thao tác và tối ưu bố trí trạm.</p>",
+    "category": "Packaging",
+    "categorySlug": "packaging"
+  },
+  {
+    "title": "Warehouse Control Lite",
+    "slug": "warehouse-control-lite",
+    "summary": "Điều khiển kho tự động đơn giản.",
+    "coverImage": "/logo.png",
+    "bodyHtml": "<p>Điều phối băng tải, AGV và vị trí lưu trữ.</p>",
+    "category": "WCS",
+    "categorySlug": "wcs"
+  },
+  {
+    "title": "AndonDX",
+    "slug": "andondx",
+    "summary": "Andon số hóa với thông báo thời gian thực.",
+    "coverImage": "/logo.png",
+    "bodyHtml": "<p>Gọi hỗ trợ nhanh, phân tích thời gian dừng.</p>",
+    "category": "Andon",
+    "categorySlug": "andon"
+  }
+]
+

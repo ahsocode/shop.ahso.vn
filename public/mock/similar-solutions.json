@@ -1,0 +1,101 @@
+{
+  "data": [
+    {
+      "id": "sol-101",
+      "slug": "mes-integration-suite",
+      "title": "MES Integration Suite",
+      "summary": "Kết nối dữ liệu dây chuyền, giám sát theo thời gian thực.",
+      "image": "/factory1.jpg",
+      "industry": "electronics",
+      "usecase": "integration"
+    },
+    {
+      "id": "sol-102",
+      "slug": "quality-vision-ai",
+      "title": "Quality Vision AI",
+      "summary": "Nhận diện lỗi sản phẩm bằng AI thị giác.",
+      "image": "/quality1.png",
+      "industry": "electronics",
+      "usecase": "inspection"
+    },
+    {
+      "id": "sol-103",
+      "slug": "traceability-hub",
+      "title": "Traceability Hub",
+      "summary": "Truy xuất nguồn gốc linh kiện từ đầu vào đến thành phẩm.",
+      "image": "/linhkien1.jpg",
+      "industry": "electronics",
+      "usecase": "traceability"
+    },
+    {
+      "id": "sol-104",
+      "slug": "oee-optimizer",
+      "title": "OEE Optimizer",
+      "summary": "Tối ưu OEE với cảnh báo và phân tích tổn thất.",
+      "image": "/factory2.jpg",
+      "industry": "electronics",
+      "usecase": "oee"
+    },
+    {
+      "id": "sol-105",
+      "slug": "scada-bridge",
+      "title": "SCADA Bridge",
+      "summary": "Kết nối PLC/SCADA lên nền tảng dữ liệu thời gian thực.",
+      "image": "/factory3.jpg",
+      "industry": "electronics",
+      "usecase": "scada"
+    },
+    {
+      "id": "sol-106",
+      "slug": "predictive-maintenance-kit",
+      "title": "Predictive Maintenance Kit",
+      "summary": "Bảo trì dự đoán dựa trên rung, nhiệt, và dòng điện.",
+      "image": "/thietbido1.jpg",
+      "industry": "electronics",
+      "usecase": "maintenance"
+    },
+    {
+      "id": "sol-107",
+      "slug": "energy-monitor-pro",
+      "title": "Energy Monitor Pro",
+      "summary": "Giám sát tiêu thụ năng lượng và cảnh báo bất thường.",
+      "image": "/factory4.jpg",
+      "industry": "electronics",
+      "usecase": "energy"
+    },
+    {
+      "id": "sol-108",
+      "slug": "packaging-flow-designer",
+      "title": "Packaging Flow Designer",
+      "summary": "Thiết kế luồng đóng gói tối ưu, giảm thời gian thao tác.",
+      "image": "/time1.webp",
+      "industry": "electronics",
+      "usecase": "packaging"
+    },
+    {
+      "id": "sol-109",
+      "slug": "warehouse-automation-lite",
+      "title": "Warehouse Automation Lite",
+      "summary": "Tự động hóa kho với định tuyến thông minh.",
+      "image": "/logo.png",
+      "industry": "electronics",
+      "usecase": "intralogistic"
+    },
+    {
+      "id": "sol-110",
+      "slug": "andondx",
+      "title": "AndonDX",
+      "summary": "Hệ thống Andon số hóa với phản hồi nhanh.",
+      "image": "/logo.png",
+      "industry": "electronics",
+      "usecase": "andon"
+    }
+  ],
+  "meta": {
+    "industry": "electronics",
+    "exclude": "current-solution-slug",
+    "limit": 12,
+    "total": 10
+  }
+}
+

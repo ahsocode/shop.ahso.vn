@@ -8,12 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Plus, Minus, PackageCheck, ShoppingCart, Percent, TicketPercent } from "lucide-react";
+import { toast } from "sonner";
 
 // -----------------------------
 // Types
 // -----------------------------
 export type CartItem = {
-  id: string; // variant id or SKU
+  // Prefer server CartItem id when available to sync API (PATCH/DELETE)
+  id: string; // cartItemId (if from API) or fallback local id
+  cartItemId?: string; // explicit cart item id from server
+  sku?: string; // variant SKU (for display/links)
   productId: string;
   name: string; // product name
   variantLabel?: string; // e.g. "M3 x 20"
@@ -61,6 +65,7 @@ const PROMOS: Record<string, Discount> = {
 export default function CartPage() {
   const router = useRouter();
   const [items, setItems] = useState<CartItem[]>([]);
+  const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [shipMethod, setShipMethod] = useState<typeof SHIPPING_METHODS[number]["id"]>("standard");
   const [promoInput, setPromoInput] = useState("");
   const [appliedCode, setAppliedCode] = useState<string | null>(null);
@@ -105,14 +110,53 @@ export default function CartPage() {
     } catch {}
   }, []);
 
+  // Try syncing from server cart API (if available)
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/cart", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        const apiItems = (data?.cart?.items ?? []) as Array<any>;
+        if (Array.isArray(apiItems) && apiItems.length > 0) {
+          const mapped: CartItem[] = apiItems.map((it) => ({
+            id: String(it.id), // cart item id from server
+            cartItemId: String(it.id),
+            sku: it.variantSku || undefined,
+            productId: it.variantId || String(it.id),
+            name: it.productTitle || it.variantSku || "",
+            variantLabel: undefined,
+            price: Number(it.unitPrice || 0),
+            imgUrl: it.image || undefined,
+            slug: it.productSlug || "",
+            qty: Number(it.quantity || 1),
+            stock: it.inStock ? 9999 : 0,
+          }));
+          setItems(mapped);
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(mapped)); } catch {}
+        }
+      } catch {}
+    })();
+  }, []);
+
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     } catch {}
   }, [items]);
 
+  // Persist selection
+  useEffect(() => {
+    try {
+      const ids = Object.entries(selected).filter(([, v]) => v).map(([k]) => k);
+      localStorage.setItem("cart:selected", JSON.stringify(ids));
+    } catch {}
+  }, [selected]);
+
   // Totals
   const subtotal = useMemo(() => items.reduce((s, it) => s + it.price * it.qty, 0), [items]);
+  const selectedCount = useMemo(() => Object.values(selected).filter(Boolean).length, [selected]);
+  const allChecked = useMemo(() => items.length > 0 && items.every((i) => selected[i.id]), [items, selected]);
 
   const shippingFee = useMemo(() => {
     const m = SHIPPING_METHODS.find((m) => m.id === shipMethod)!;
@@ -132,24 +176,71 @@ export default function CartPage() {
   const vat = useMemo(() => (subtotal - discount) * VAT_RATE, [subtotal, discount]);
   const grandTotal = useMemo(() => subtotal - discount + vat + shippingFee, [subtotal, discount, vat, shippingFee]);
 
+  // Default select all when items loaded/changed (only set if new ids appear)
+  useEffect(() => {
+    setSelected((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      for (const it of items) {
+        if (next[it.id] == null) {
+          next[it.id] = true;
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [items]);
+
+  const toggleOne = (id: string) => setSelected((s) => ({ ...s, [id]: !s[id] }));
+  const selectAll = () => setSelected(Object.fromEntries(items.map((i) => [i.id, true])));
+  const clearAll = () => setSelected(Object.fromEntries(items.map((i) => [i.id, false])));
+
   // Actions
-  const changeQty = (id: string, qty: number) => {
-    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, qty: clamp(qty, 1, it.stock ?? 9999) } : it)));
+  const changeQty = async (id: string, qty: number) => {
+    const nextQty = Math.max(1, qty);
+    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, qty: clamp(nextQty, 1, it.stock ?? 9999) } : it)));
+    const item = items.find((x) => x.id === id);
+    const serverId = item?.cartItemId || item?.id;
+    // If seems like a server id (cuid-like) try syncing
+    if (serverId && serverId.length > 10) {
+      try {
+        await fetch(`/api/cart/items/${encodeURIComponent(serverId)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ quantity: nextQty }),
+        });
+      } catch {}
+    }
   };
-  const removeItem = (id: string) => setItems((prev) => prev.filter((it) => it.id !== id));
-  const clearCart = () => setItems([]);
+  const removeItem = async (id: string) => {
+    const item = items.find((x) => x.id === id);
+    const serverId = item?.cartItemId || item?.id;
+    setItems((prev) => prev.filter((it) => it.id !== id));
+    try {
+      if (serverId && serverId.length > 10) {
+        await fetch(`/api/cart/items/${encodeURIComponent(serverId)}`, { method: "DELETE" });
+      }
+    } catch {}
+    toast.success("Đã xoá sản phẩm khỏi giỏ hàng.");
+  };
+  const clearCart = async () => {
+    setItems([]);
+    try { await fetch("/api/cart", { method: "DELETE" }); } catch {}
+    toast.success("Đã xoá toàn bộ giỏ hàng.");
+  };
 
   const applyPromo = () => {
     const code = promoInput.trim().toUpperCase();
     if (!code) return;
     if (!PROMOS[code]) {
-      alert("Mã giảm giá không hợp lệ.");
+      toast.error("Mã giảm giá không hợp lệ.");
       return;
     }
     setAppliedCode(code);
     setPromoInput("");
+    toast.success(`Áp dụng mã "${code}" thành công.`);
   };
-  const removePromo = () => setAppliedCode(null);
+  const removePromo = () => { setAppliedCode(null); toast.info("Đã bỏ mã giảm giá."); };
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 lg:px-8">
@@ -177,9 +268,18 @@ export default function CartPage() {
               </div>
             ) : (
               <div className="overflow-x-auto">
+                <div className="mb-2 flex items-center gap-2">
+                  <button className="text-sm underline" onClick={selectAll}>Chọn tất cả</button>
+                  <span className="text-gray-300">|</span>
+                  <button className="text-sm underline" onClick={clearAll}>Bỏ chọn</button>
+                  <span className="ml-auto text-sm text-muted-foreground">Đã chọn: {selectedCount}</span>
+                </div>
                 <table className="w-full border-separate border-spacing-y-2">
                   <thead>
                     <tr className="text-left text-sm text-muted-foreground">
+                      <th className="w-10 p-2">
+                        <input type="checkbox" checked={allChecked} onChange={(e) => (e.target.checked ? selectAll() : clearAll())} />
+                      </th>
                       <th className="w-[420px] p-2 font-medium">Sản phẩm</th>
                       <th className="p-2 text-right font-medium">Đơn giá</th>
                       <th className="p-2 text-center font-medium">Số lượng</th>
@@ -190,6 +290,9 @@ export default function CartPage() {
                   <tbody>
                     {items.map((it) => (
                       <tr key={it.id} className="rounded-md border">
+                        <td className="p-2">
+                          <input type="checkbox" checked={!!selected[it.id]} onChange={() => toggleOne(it.id)} />
+                        </td>
                         <td className="p-2">
                           <div className="flex items-center gap-4">
                             <div className="relative h-16 w-16 overflow-hidden rounded-md border bg-white">
@@ -256,7 +359,7 @@ export default function CartPage() {
             </CardHeader>
             <CardContent className="space-y-5">
               {/* Shipping */}
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <div className="text-sm font-medium">Vận chuyển</div>
                 <div className="relative">
                   <select
@@ -271,10 +374,10 @@ export default function CartPage() {
                     ))}
                   </select>
                 </div>
-              </div>
+              </div> */}
 
               {/* Promo code */}
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <TicketPercent className="h-4 w-4" /> Mã giảm giá
                 </div>
@@ -295,17 +398,17 @@ export default function CartPage() {
                     </Button>
                   </div>
                 )}
-              </div>
+              </div> */}
 
               {/* Order note */}
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <div className="text-sm font-medium">Ghi chú đơn hàng</div>
                 <Input
                   placeholder="Yêu cầu xuất hoá đơn, giờ nhận hàng, v.v. (tuỳ chọn)"
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                 />
-              </div>
+              </div> */}
 
               <hr className="my-2" />
 
@@ -314,18 +417,18 @@ export default function CartPage() {
                   <span>Tạm tính</span>
                   <span className="font-medium">{formatVND(subtotal)}</span>
                 </div>
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
                   <span>Giảm giá</span>
                   <span className="font-medium">-{formatVND(discount)}</span>
-                </div>
+                </div> */}
                 <div className="flex items-center justify-between">
                   <span>VAT (10%)</span>
                   <span className="font-medium">{formatVND(vat)}</span>
                 </div>
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
                   <span>Phí vận chuyển</span>
                   <span className="font-medium">{formatVND(shippingFee)}</span>
-                </div>
+                </div> */}
                 <hr className="my-2" />
                 <div className="flex items-center justify-between text-base">
                   <span className="font-semibold">Tổng cộng</span>
@@ -335,7 +438,20 @@ export default function CartPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" size="lg" disabled={items.length === 0} onClick={() => alert("Đi tới checkout")}>Tiến hành thanh toán</Button>
+              <Button
+                className="w-full"
+                size="lg"
+                disabled={items.length === 0 || selectedCount === 0}
+                onClick={() => {
+                  const ids = Object.entries(selected).filter(([, v]) => v).map(([k]) => k);
+                  if (!ids.length) { toast.error("Vui lòng chọn ít nhất một sản phẩm."); return; }
+                  try { localStorage.setItem("cart:selected", JSON.stringify(ids)); } catch {}
+                  toast.success("Đã chọn sản phẩm. Tiến hành thanh toán.");
+                  router.push("/cart-review");
+                }}
+              >
+                Tiến hành thanh toán ({selectedCount})
+              </Button>
             </CardFooter>
           </Card>
 

@@ -1,18 +1,23 @@
+// ================================================
+// GENERATORS & DATASOURCE (giữ nguyên theo dự án gốc)
+// ================================================
 generator client_types {
   provider = "prisma-client"
   output   = "../generated"
 }
 
-// THÊM generator CHUẨN để seed/API dùng @prisma/client
 generator client {
   provider = "prisma-client-js"
-  // để trống output -> Prisma build vào node_modules/@prisma/client
 }
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+// ================================================
+// ENUMS HỆ THỐNG (gốc)
+// ================================================
 enum Role {
   USER
   STAFF
@@ -28,6 +33,9 @@ enum OrderStatus {
   cancelled
 }
 
+// ================================================
+// USER / ADDRESS / ORDER / PAYMENT (gốc)
+// ================================================
 model User {
   id            String   @id @default(cuid())
   username      String   @unique
@@ -42,14 +50,13 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  shippingAddressId String  @unique
-  billingAddressId  String? @unique
+  // Liên kết đến Address (shipping/billing)
+  shippingAddressId String   @unique
+  billingAddressId  String?  @unique
+  shippingAddress   Address  @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
+  billingAddress    Address? @relation("BillingAddress", fields: [billingAddressId], references: [id])
 
-  // Quan hệ User <-> Address đã có
-  shippingAddress Address  @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
-  billingAddress  Address? @relation("BillingAddress", fields: [billingAddressId], references: [id])
-
-  // 🔹 Back-relation cho User <-> Order (một user có thể có nhiều order)
+  // Back-relation User <-> Order
   orders Order[] @relation("UserOrders")
 }
 
@@ -60,15 +67,14 @@ model Address {
   city       String
   state      String?
   postalCode String?
-  country    String   @db.Char(2)
+  country    String   @db.Char(2) // ISO-3166-1 alpha-2 (VD: "VN","DE")
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  // Quan hệ có sẵn với User
   usersShipping User[] @relation("ShippingAddress")
   usersBilling  User[] @relation("BillingAddress")
 
-  // 🔹 Back-relation cho Order <-> Address
+  // Back-relation cho Order <-> Address
   orders Order[] @relation("OrderAddress")
 }
 
@@ -84,17 +90,17 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // 🔹 Quan hệ Order <-> OrderItem (1 - n)
+  // 1 - n OrderItem
   items OrderItem[]
 
-  // 🔹 Quan hệ Order <-> Payment (1 - 1). `orderId` phải UNIQUE để Prisma hiểu 1-1
+  // 1 - 1 Payment
   payment Payment?
 
-  // 🔹 Quan hệ Order <-> Address (n - 1) với tên "OrderAddress"
+  // n - 1 Address (địa chỉ đơn hàng)
   address   Address? @relation("OrderAddress", fields: [addressId], references: [id])
   addressId String?
 
-  // 🔹 Quan hệ Order <-> User (n - 1) với tên "UserOrders"
+  // n - 1 User (chủ đơn)
   user   User?   @relation("UserOrders", fields: [userId], references: [id])
   userId String?
 
@@ -105,7 +111,6 @@ model Order {
 model OrderItem {
   id String @id @default(cuid())
 
-  // 🔹 Nhiều item thuộc 1 order
   order   Order  @relation(fields: [orderId], references: [id])
   orderId String
 
@@ -119,18 +124,18 @@ model OrderItem {
 model Payment {
   id String @id @default(cuid())
 
-  // 🔹 1-1 với Order: orderId phải UNIQUE để không thành 1-n
+  // 1-1 với Order
   order   Order  @relation(fields: [orderId], references: [id])
   orderId String @unique
 
-  method String // "cod" | "vnpay" | "credit" | "bank" (string để linh hoạt)
+  method String // "cod" | "vnpay" | "credit" | "bank"
   amount Int
   paidAt DateTime? @default(now())
 }
-// ===============================
-// SOLUTION CATALOG
-// ===============================
 
+// ================================================
+// SOLUTION CATALOG (gốc)
+// ================================================
 enum PublishStatus {
   DRAFT
   PUBLISHED
@@ -138,63 +143,55 @@ enum PublishStatus {
 }
 
 model SolutionCategory {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
-  slug        String   @unique
+  slug        String  @unique
   description String?
-  image       String?            // ảnh biểu trưng category (nếu cần)
+  image       String?
 
-  // Phân cấp (tùy chọn). Nếu không dùng phân cấp: giữ parentId = null
-  parentId    String?
-  parent      SolutionCategory?  @relation("SolutionCategoryToParent", fields: [parentId], references: [id])
-  children    SolutionCategory[] @relation("SolutionCategoryToParent")
+  parentId String?
+  parent   SolutionCategory?  @relation("SolutionCategoryToParent", fields: [parentId], references: [id])
+  children SolutionCategory[] @relation("SolutionCategoryToParent")
 
-  sortOrder   Int      @default(0)
-  isActive    Boolean  @default(true)
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
 
-  // Quan hệ
-  solutions   Solution[]
+  solutions Solution[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([parentId, sortOrder])
 }
 
 model Solution {
-  id            String         @id @default(cuid())
-  title         String
-  slug          String         @unique
-  summary       String?        // mô tả ngắn để hiển thị ở card
-  coverImage    String?        // ảnh chính (URL)
-  bodyHtml      String         @db.LongText // nội dung HTML chi tiết (copy từ editor/CMS)
+  id         String  @id @default(cuid())
+  title      String
+  slug       String  @unique
+  summary    String?
+  coverImage String?
+  bodyHtml   String  @db.LongText
 
-  // Lọc/hiển thị theo UI tìm kiếm hiện tại (tùy chọn)
-  industry      String?        // ví dụ: "food", "auto", "electronics"…
-  usecase       String?        // ví dụ: "palletizing", "packaging"…
+  industry String?
+  usecase  String?
 
-  // Trạng thái hiển thị
-  status        PublishStatus  @default(DRAFT)
-  publishedAt   DateTime?
+  status      PublishStatus @default(DRAFT)
+  publishedAt DateTime?
 
-  // SEO cơ bản (tùy chọn)
   metaTitle       String?
   metaDescription String?
   canonicalUrl    String?
 
-  // Quan hệ Category
-  categoryId    String
-  category      SolutionCategory @relation(fields: [categoryId], references: [id])
+  categoryId String
+  category   SolutionCategory @relation(fields: [categoryId], references: [id])
 
-  // Thư viện ảnh n-ảnh
-  images        SolutionImage[]
+  images SolutionImage[]
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  // Chỉ mục phục vụ search/list nhanh
   @@index([categoryId, status])
-  @@fulltext([title, bodyHtml, usecase]) // MySQL 8+ (InnoDB) hỗ trợ FULLTEXT
+  @@fulltext([title, bodyHtml, usecase])
 }
 
 model SolutionImage {
@@ -202,11 +199,351 @@ model SolutionImage {
   solutionId String
   solution   Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
 
-  url        String   // chỉ lưu link ảnh
-  alt        String?  // mô tả ảnh cho SEO/a11y
-  sortOrder  Int      @default(0)
+  url       String
+  alt       String?
+  sortOrder Int     @default(0)
 
-  createdAt  DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([solutionId, sortOrder])
+}
+
+// ================================================
+// SOFTWARE CATALOG (gốc)
+// ================================================
+model SoftwareCategory {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  image       String?
+
+  parentId String?
+  parent   SoftwareCategory?  @relation("SoftwareCategoryToParent", fields: [parentId], references: [id])
+  children SoftwareCategory[] @relation("SoftwareCategoryToParent")
+
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+
+  softwares Software[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([parentId, sortOrder])
+}
+
+model Software {
+  id         String  @id @default(cuid())
+  title      String
+  slug       String  @unique
+  summary    String?
+  coverImage String?
+  bodyHtml   String  @db.LongText
+
+  status      PublishStatus @default(DRAFT)
+  publishedAt DateTime?
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  canonicalUrl    String?
+
+  categoryId String
+  category   SoftwareCategory @relation(fields: [categoryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId, status])
+  @@fulltext([title, bodyHtml])
+}
+
+// =====================================================
+// ========== PRODUCT CATALOG (đã điều chỉnh) ==========
+// =====================================================
+
+// ---- Đơn vị tính / Loại tài liệu / Trạng thái giỏ ----
+enum Unit {
+  PCS
+  BOX
+  SET
+  ROLL
+  METER
+  LITER
+  KILOGRAM
+}
+
+enum DocType {
+  DATASHEET
+  MANUAL
+  CERT
+  OTHER
+}
+
+enum CartStatus {
+  ACTIVE
+  CHECKED_OUT
+  ABANDONED
+}
+
+// ---- Thương hiệu ----
+model Brand {
+  id                String  @id @default(cuid())
+  name              String
+  slug              String  @unique
+  originCountryCode String? @db.Char(2)
+  logoUrl           String?
+
+  products Product[]
+
+  // 🔢 Bộ đếm nhanh số VARIANT thuộc brand này
+  variantCount Int @default(0)
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  ProductVariant ProductVariant[]
+
+  @@index([slug])
+  @@index([variantCount])
+}
+
+// ---- Danh mục dạng cây (multi-level) ----
+model Category {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  fullSlug    String  @unique
+  level       Int     @default(0)
+  description String?
+  icon        String?
+
+  parentId String?
+  parent   Category?  @relation("CatToCat", fields: [parentId], references: [id])
+  children Category[] @relation("CatToCat")
+
+  productLinks ProductCategory[]
+
+  // 🔢 Bộ đếm nhanh
+  productCount Int @default(0) // số Product (distinct) gắn với category
+  variantCount Int @default(0) // tổng số Variant thuộc các Product trong category
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([parentId])
+  @@index([level])
+  @@index([fullSlug])
+  @@index([productCount])
+  @@index([variantCount])
+}
+
+model ProductCategory {
+  productId  String
+  categoryId String
+
+  product  Product  @relation(fields: [productId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@id([productId, categoryId])
+  @@index([categoryId])
+}
+
+// ---- Product (khung mô tả + SEO; giao dịch qua Variant) ----
+model Product {
+  id              String  @id @default(cuid())
+  title           String
+  slug            String  @unique
+  sku             String  @unique
+  mpn             String?
+  summary         String?
+  descriptionHtml String?
+  imagesCover     String?
+  unit            Unit    @default(PCS)
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  canonicalUrl    String?
+
+  // Trạng thái phát hành
+  status    PublishStatus @default(DRAFT)
+  publishAt DateTime?
+
+  // Thương hiệu (hiển thị ở listing; details nằm ở Variant)
+  brandId String?
+  brand   Brand?  @relation(fields: [brandId], references: [id])
+
+  // Xuất xứ mặc định
+  madeInCountryCode String? @db.Char(2)
+  madeInNote        String?
+
+  // Quan hệ con
+  variants ProductVariant[]
+
+  images ProductImage[]
+  docs   ProductDoc[]
+
+  // Liên kết danh mục
+  categoryLinks ProductCategory[]
+
+  // (Tuỳ chọn) denormalized để sort/filter nhanh ở listing
+  priceMin Decimal? @db.Decimal(12, 2)
+  priceMax Decimal? @db.Decimal(12, 2)
+
+  // 🔢 Bộ đếm nhanh số VARIANT của sản phẩm này
+  variantCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([status, publishAt])
+  @@index([madeInCountryCode])
+  @@index([variantCount])
+}
+
+// ---- ProductVariant (thực thể giao dịch) ----
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  // 🔁 MÃ/BARCODES/BRAND ở cấp VARIANT
+  variantSku String  @unique
+  mpn        String?
+  barcode    String?
+  brandId    String?
+  brand      Brand?  @relation(fields: [brandId], references: [id])
+
+  // Thuộc tính hiển thị (size, spec…) dạng JSON
+  attributes Json
+
+  // Giá
+  price       Decimal  @db.Decimal(12, 2)
+  listPrice   Decimal? @db.Decimal(12, 2)
+  currency    String   @default("VND")
+  taxIncluded Boolean  @default(true)
+
+  // Kho
+  stockOnHand   Int     @default(0)
+  stockReserved Int     @default(0)
+  warehouseId   String?
+  leadTimeDays  Int?
+  minOrderQty   Int?    @default(1)
+  packInner     Int?
+  packOuter     Int?
+
+  // Vận chuyển/đóng gói
+  weightGrams Int?
+  lengthMm    Int?
+  widthMm     Int?
+  heightMm    Int?
+
+  // Xuất xứ cụ thể của VARIANT (override Product)
+  madeInCountryCode String? @db.Char(2)
+  madeInNote        String?
+
+  // Specs động theo VARIANT (tùy)
+  specs ProductSpec[]
+
+  // Back-relation tới CartItem
+  cartItems CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@index([variantSku])
+  @@index([brandId])
+  @@index([madeInCountryCode])
+}
+
+model ProductSpec {
+  id String @id @default(cuid())
+
+  // ❌ BỎ productId, product
+  // productId String
+  // product   Product @relation(fields: [productId], references: [id])
+
+  // ✅ BẮT BUỘC gắn Variant
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  keySlug     String
+  label       String
+  valueText   String?
+  valueNumber Decimal? @db.Decimal(20, 6)
+  unit        String?
+  sortOrder   Int      @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([variantId, keySlug]) // tránh trùng spec theo key
+  @@index([keySlug, valueText])
+  @@index([keySlug, valueNumber])
+}
+
+// ---- Hình ảnh & tài liệu kèm Product ----
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  url       String
+  alt       String?
+  sortOrder Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@index([sortOrder])
+}
+
+model ProductDoc {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  title   String
+  fileUrl String
+  type    DocType @default(DATASHEET)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@index([type])
+}
+
+// ---- Cart / CartItem (giỏ hàng theo VARIANT) ----
+model Cart {
+  id     String     @id @default(cuid())
+  userId String?
+  items  CartItem[]
+  status CartStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model CartItem {
+  id     String @id @default(cuid())
+  cartId String
+  cart   Cart   @relation(fields: [cartId], references: [id])
+
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+  quantity   Int      @default(1)
+  unitPrice  Decimal  @db.Decimal(12, 2)
+  totalPrice Decimal  @db.Decimal(12, 2)
+  addedAt    DateTime @default(now())
+
+  @@index([cartId])
+  @@index([variantId])
 }
