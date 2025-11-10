@@ -38,32 +38,10 @@ export const PublishStatus = {
 export type PublishStatus = (typeof PublishStatus)[keyof typeof PublishStatus]
 
 
-export const Unit = {
-  PCS: 'PCS',
-  BOX: 'BOX',
-  SET: 'SET',
-  ROLL: 'ROLL',
-  METER: 'METER',
-  LITER: 'LITER',
-  KILOGRAM: 'KILOGRAM'
-} as const
-
-export type Unit = (typeof Unit)[keyof typeof Unit]
-
-
-export const DocType = {
-  DATASHEET: 'DATASHEET',
-  MANUAL: 'MANUAL',
-  CERT: 'CERT',
-  OTHER: 'OTHER'
-} as const
-
-export type DocType = (typeof DocType)[keyof typeof DocType]
-
-
 export const CartStatus = {
   ACTIVE: 'ACTIVE',
-  CHECKED_OUT: 'CHECKED_OUT',
+  CHECKOUT: 'CHECKOUT',
+  COMPLETED: 'COMPLETED',
   ABANDONED: 'ABANDONED'
 } as const
 

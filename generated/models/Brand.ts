@@ -26,42 +26,42 @@ export type AggregateBrand = {
 }
 
 export type BrandAvgAggregateOutputType = {
-  variantCount: number | null
+  productCount: number | null
 }
 
 export type BrandSumAggregateOutputType = {
-  variantCount: number | null
+  productCount: number | null
 }
 
 export type BrandMinAggregateOutputType = {
   id: string | null
-  name: string | null
   slug: string | null
-  originCountryCode: string | null
   logoUrl: string | null
-  variantCount: number | null
+  name: string | null
+  summary: string | null
+  productCount: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type BrandMaxAggregateOutputType = {
   id: string | null
-  name: string | null
   slug: string | null
-  originCountryCode: string | null
   logoUrl: string | null
-  variantCount: number | null
+  name: string | null
+  summary: string | null
+  productCount: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type BrandCountAggregateOutputType = {
   id: number
-  name: number
   slug: number
-  originCountryCode: number
   logoUrl: number
-  variantCount: number
+  name: number
+  summary: number
+  productCount: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -69,42 +69,42 @@ export type BrandCountAggregateOutputType = {
 
 
 export type BrandAvgAggregateInputType = {
-  variantCount?: true
+  productCount?: true
 }
 
 export type BrandSumAggregateInputType = {
-  variantCount?: true
+  productCount?: true
 }
 
 export type BrandMinAggregateInputType = {
   id?: true
-  name?: true
   slug?: true
-  originCountryCode?: true
   logoUrl?: true
-  variantCount?: true
+  name?: true
+  summary?: true
+  productCount?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type BrandMaxAggregateInputType = {
   id?: true
-  name?: true
   slug?: true
-  originCountryCode?: true
   logoUrl?: true
-  variantCount?: true
+  name?: true
+  summary?: true
+  productCount?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type BrandCountAggregateInputType = {
   id?: true
-  name?: true
   slug?: true
-  originCountryCode?: true
   logoUrl?: true
-  variantCount?: true
+  name?: true
+  summary?: true
+  productCount?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -198,11 +198,11 @@ export type BrandGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 
 export type BrandGroupByOutputType = {
   id: string
-  name: string
   slug: string
-  originCountryCode: string | null
   logoUrl: string | null
-  variantCount: number
+  name: string
+  summary: string | null
+  productCount: number
   createdAt: Date
   updatedAt: Date
   _count: BrandCountAggregateOutputType | null
@@ -232,28 +232,26 @@ export type BrandWhereInput = {
   OR?: Prisma.BrandWhereInput[]
   NOT?: Prisma.BrandWhereInput | Prisma.BrandWhereInput[]
   id?: Prisma.StringFilter<"Brand"> | string
-  name?: Prisma.StringFilter<"Brand"> | string
   slug?: Prisma.StringFilter<"Brand"> | string
-  originCountryCode?: Prisma.StringNullableFilter<"Brand"> | string | null
   logoUrl?: Prisma.StringNullableFilter<"Brand"> | string | null
-  variantCount?: Prisma.IntFilter<"Brand"> | number
+  name?: Prisma.StringFilter<"Brand"> | string
+  summary?: Prisma.StringNullableFilter<"Brand"> | string | null
+  productCount?: Prisma.IntFilter<"Brand"> | number
   createdAt?: Prisma.DateTimeFilter<"Brand"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Brand"> | Date | string
   products?: Prisma.ProductListRelationFilter
-  ProductVariant?: Prisma.ProductVariantListRelationFilter
 }
 
 export type BrandOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  originCountryCode?: Prisma.SortOrderInput | Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  variantCount?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  productCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   products?: Prisma.ProductOrderByRelationAggregateInput
-  ProductVariant?: Prisma.ProductVariantOrderByRelationAggregateInput
   _relevance?: Prisma.BrandOrderByRelevanceInput
 }
 
@@ -263,23 +261,22 @@ export type BrandWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.BrandWhereInput | Prisma.BrandWhereInput[]
   OR?: Prisma.BrandWhereInput[]
   NOT?: Prisma.BrandWhereInput | Prisma.BrandWhereInput[]
-  name?: Prisma.StringFilter<"Brand"> | string
-  originCountryCode?: Prisma.StringNullableFilter<"Brand"> | string | null
   logoUrl?: Prisma.StringNullableFilter<"Brand"> | string | null
-  variantCount?: Prisma.IntFilter<"Brand"> | number
+  name?: Prisma.StringFilter<"Brand"> | string
+  summary?: Prisma.StringNullableFilter<"Brand"> | string | null
+  productCount?: Prisma.IntFilter<"Brand"> | number
   createdAt?: Prisma.DateTimeFilter<"Brand"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Brand"> | Date | string
   products?: Prisma.ProductListRelationFilter
-  ProductVariant?: Prisma.ProductVariantListRelationFilter
 }, "id" | "slug">
 
 export type BrandOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  originCountryCode?: Prisma.SortOrderInput | Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  variantCount?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  productCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.BrandCountOrderByAggregateInput
@@ -294,96 +291,92 @@ export type BrandScalarWhereWithAggregatesInput = {
   OR?: Prisma.BrandScalarWhereWithAggregatesInput[]
   NOT?: Prisma.BrandScalarWhereWithAggregatesInput | Prisma.BrandScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Brand"> | string
-  name?: Prisma.StringWithAggregatesFilter<"Brand"> | string
   slug?: Prisma.StringWithAggregatesFilter<"Brand"> | string
-  originCountryCode?: Prisma.StringNullableWithAggregatesFilter<"Brand"> | string | null
   logoUrl?: Prisma.StringNullableWithAggregatesFilter<"Brand"> | string | null
-  variantCount?: Prisma.IntWithAggregatesFilter<"Brand"> | number
+  name?: Prisma.StringWithAggregatesFilter<"Brand"> | string
+  summary?: Prisma.StringNullableWithAggregatesFilter<"Brand"> | string | null
+  productCount?: Prisma.IntWithAggregatesFilter<"Brand"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Brand"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Brand"> | Date | string
 }
 
 export type BrandCreateInput = {
   id?: string
-  name: string
   slug: string
-  originCountryCode?: string | null
   logoUrl?: string | null
-  variantCount?: number
+  name: string
+  summary?: string | null
+  productCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   products?: Prisma.ProductCreateNestedManyWithoutBrandInput
-  ProductVariant?: Prisma.ProductVariantCreateNestedManyWithoutBrandInput
 }
 
 export type BrandUncheckedCreateInput = {
   id?: string
-  name: string
   slug: string
-  originCountryCode?: string | null
   logoUrl?: string | null
-  variantCount?: number
+  name: string
+  summary?: string | null
+  productCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutBrandInput
-  ProductVariant?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutBrandInput
 }
 
 export type BrandUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  originCountryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCount?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUpdateManyWithoutBrandNestedInput
-  ProductVariant?: Prisma.ProductVariantUpdateManyWithoutBrandNestedInput
 }
 
 export type BrandUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  originCountryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCount?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.ProductUncheckedUpdateManyWithoutBrandNestedInput
-  ProductVariant?: Prisma.ProductVariantUncheckedUpdateManyWithoutBrandNestedInput
 }
 
 export type BrandCreateManyInput = {
   id?: string
-  name: string
   slug: string
-  originCountryCode?: string | null
   logoUrl?: string | null
-  variantCount?: number
+  name: string
+  summary?: string | null
+  productCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type BrandUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  originCountryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCount?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BrandUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  originCountryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCount?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -396,43 +389,43 @@ export type BrandOrderByRelevanceInput = {
 
 export type BrandCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  originCountryCode?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
-  variantCount?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  summary?: Prisma.SortOrder
+  productCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type BrandAvgOrderByAggregateInput = {
-  variantCount?: Prisma.SortOrder
+  productCount?: Prisma.SortOrder
 }
 
 export type BrandMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  originCountryCode?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
-  variantCount?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  summary?: Prisma.SortOrder
+  productCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type BrandMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  originCountryCode?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
-  variantCount?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  summary?: Prisma.SortOrder
+  productCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type BrandSumOrderByAggregateInput = {
-  variantCount?: Prisma.SortOrder
+  productCount?: Prisma.SortOrder
 }
 
 export type BrandNullableScalarRelationFilter = {
@@ -456,44 +449,26 @@ export type BrandUpdateOneWithoutProductsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BrandUpdateToOneWithWhereWithoutProductsInput, Prisma.BrandUpdateWithoutProductsInput>, Prisma.BrandUncheckedUpdateWithoutProductsInput>
 }
 
-export type BrandCreateNestedOneWithoutProductVariantInput = {
-  create?: Prisma.XOR<Prisma.BrandCreateWithoutProductVariantInput, Prisma.BrandUncheckedCreateWithoutProductVariantInput>
-  connectOrCreate?: Prisma.BrandCreateOrConnectWithoutProductVariantInput
-  connect?: Prisma.BrandWhereUniqueInput
-}
-
-export type BrandUpdateOneWithoutProductVariantNestedInput = {
-  create?: Prisma.XOR<Prisma.BrandCreateWithoutProductVariantInput, Prisma.BrandUncheckedCreateWithoutProductVariantInput>
-  connectOrCreate?: Prisma.BrandCreateOrConnectWithoutProductVariantInput
-  upsert?: Prisma.BrandUpsertWithoutProductVariantInput
-  disconnect?: Prisma.BrandWhereInput | boolean
-  delete?: Prisma.BrandWhereInput | boolean
-  connect?: Prisma.BrandWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.BrandUpdateToOneWithWhereWithoutProductVariantInput, Prisma.BrandUpdateWithoutProductVariantInput>, Prisma.BrandUncheckedUpdateWithoutProductVariantInput>
-}
-
 export type BrandCreateWithoutProductsInput = {
   id?: string
-  name: string
   slug: string
-  originCountryCode?: string | null
   logoUrl?: string | null
-  variantCount?: number
+  name: string
+  summary?: string | null
+  productCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  ProductVariant?: Prisma.ProductVariantCreateNestedManyWithoutBrandInput
 }
 
 export type BrandUncheckedCreateWithoutProductsInput = {
   id?: string
-  name: string
   slug: string
-  originCountryCode?: string | null
   logoUrl?: string | null
-  variantCount?: number
+  name: string
+  summary?: string | null
+  productCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  ProductVariant?: Prisma.ProductVariantUncheckedCreateNestedManyWithoutBrandInput
 }
 
 export type BrandCreateOrConnectWithoutProductsInput = {
@@ -514,90 +489,24 @@ export type BrandUpdateToOneWithWhereWithoutProductsInput = {
 
 export type BrandUpdateWithoutProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  originCountryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCount?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  ProductVariant?: Prisma.ProductVariantUpdateManyWithoutBrandNestedInput
 }
 
 export type BrandUncheckedUpdateWithoutProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  originCountryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCount?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  ProductVariant?: Prisma.ProductVariantUncheckedUpdateManyWithoutBrandNestedInput
-}
-
-export type BrandCreateWithoutProductVariantInput = {
-  id?: string
-  name: string
-  slug: string
-  originCountryCode?: string | null
-  logoUrl?: string | null
-  variantCount?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  products?: Prisma.ProductCreateNestedManyWithoutBrandInput
-}
-
-export type BrandUncheckedCreateWithoutProductVariantInput = {
-  id?: string
-  name: string
-  slug: string
-  originCountryCode?: string | null
-  logoUrl?: string | null
-  variantCount?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  products?: Prisma.ProductUncheckedCreateNestedManyWithoutBrandInput
-}
-
-export type BrandCreateOrConnectWithoutProductVariantInput = {
-  where: Prisma.BrandWhereUniqueInput
-  create: Prisma.XOR<Prisma.BrandCreateWithoutProductVariantInput, Prisma.BrandUncheckedCreateWithoutProductVariantInput>
-}
-
-export type BrandUpsertWithoutProductVariantInput = {
-  update: Prisma.XOR<Prisma.BrandUpdateWithoutProductVariantInput, Prisma.BrandUncheckedUpdateWithoutProductVariantInput>
-  create: Prisma.XOR<Prisma.BrandCreateWithoutProductVariantInput, Prisma.BrandUncheckedCreateWithoutProductVariantInput>
-  where?: Prisma.BrandWhereInput
-}
-
-export type BrandUpdateToOneWithWhereWithoutProductVariantInput = {
-  where?: Prisma.BrandWhereInput
-  data: Prisma.XOR<Prisma.BrandUpdateWithoutProductVariantInput, Prisma.BrandUncheckedUpdateWithoutProductVariantInput>
-}
-
-export type BrandUpdateWithoutProductVariantInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  originCountryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCount?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  products?: Prisma.ProductUpdateManyWithoutBrandNestedInput
-}
-
-export type BrandUncheckedUpdateWithoutProductVariantInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  originCountryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  variantCount?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  products?: Prisma.ProductUncheckedUpdateManyWithoutBrandNestedInput
 }
 
 
@@ -607,12 +516,10 @@ export type BrandUncheckedUpdateWithoutProductVariantInput = {
 
 export type BrandCountOutputType = {
   products: number
-  ProductVariant: number
 }
 
 export type BrandCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   products?: boolean | BrandCountOutputTypeCountProductsArgs
-  ProductVariant?: boolean | BrandCountOutputTypeCountProductVariantArgs
 }
 
 /**
@@ -632,25 +539,17 @@ export type BrandCountOutputTypeCountProductsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.ProductWhereInput
 }
 
-/**
- * BrandCountOutputType without action
- */
-export type BrandCountOutputTypeCountProductVariantArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProductVariantWhereInput
-}
-
 
 export type BrandSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  name?: boolean
   slug?: boolean
-  originCountryCode?: boolean
   logoUrl?: boolean
-  variantCount?: boolean
+  name?: boolean
+  summary?: boolean
+  productCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   products?: boolean | Prisma.Brand$productsArgs<ExtArgs>
-  ProductVariant?: boolean | Prisma.Brand$ProductVariantArgs<ExtArgs>
   _count?: boolean | Prisma.BrandCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brand"]>
 
@@ -658,19 +557,18 @@ export type BrandSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 
 export type BrandSelectScalar = {
   id?: boolean
-  name?: boolean
   slug?: boolean
-  originCountryCode?: boolean
   logoUrl?: boolean
-  variantCount?: boolean
+  name?: boolean
+  summary?: boolean
+  productCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type BrandOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "originCountryCode" | "logoUrl" | "variantCount" | "createdAt" | "updatedAt", ExtArgs["result"]["brand"]>
+export type BrandOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "logoUrl" | "name" | "summary" | "productCount" | "createdAt" | "updatedAt", ExtArgs["result"]["brand"]>
 export type BrandInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   products?: boolean | Prisma.Brand$productsArgs<ExtArgs>
-  ProductVariant?: boolean | Prisma.Brand$ProductVariantArgs<ExtArgs>
   _count?: boolean | Prisma.BrandCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -678,15 +576,14 @@ export type $BrandPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name: "Brand"
   objects: {
     products: Prisma.$ProductPayload<ExtArgs>[]
-    ProductVariant: Prisma.$ProductVariantPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    name: string
     slug: string
-    originCountryCode: string | null
     logoUrl: string | null
-    variantCount: number
+    name: string
+    summary: string | null
+    productCount: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["brand"]>
@@ -1030,7 +927,6 @@ readonly fields: BrandFieldRefs;
 export interface Prisma__BrandClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   products<T extends Prisma.Brand$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Brand$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  ProductVariant<T extends Prisma.Brand$ProductVariantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Brand$ProductVariantArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductVariantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1061,11 +957,11 @@ export interface Prisma__BrandClient<T, Null = never, ExtArgs extends runtime.Ty
  */
 export interface BrandFieldRefs {
   readonly id: Prisma.FieldRef<"Brand", 'String'>
-  readonly name: Prisma.FieldRef<"Brand", 'String'>
   readonly slug: Prisma.FieldRef<"Brand", 'String'>
-  readonly originCountryCode: Prisma.FieldRef<"Brand", 'String'>
   readonly logoUrl: Prisma.FieldRef<"Brand", 'String'>
-  readonly variantCount: Prisma.FieldRef<"Brand", 'Int'>
+  readonly name: Prisma.FieldRef<"Brand", 'String'>
+  readonly summary: Prisma.FieldRef<"Brand", 'String'>
+  readonly productCount: Prisma.FieldRef<"Brand", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Brand", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Brand", 'DateTime'>
 }
@@ -1432,30 +1328,6 @@ export type Brand$productsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.ProductScalarFieldEnum | Prisma.ProductScalarFieldEnum[]
-}
-
-/**
- * Brand.ProductVariant
- */
-export type Brand$ProductVariantArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ProductVariant
-   */
-  select?: Prisma.ProductVariantSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ProductVariant
-   */
-  omit?: Prisma.ProductVariantOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProductVariantInclude<ExtArgs> | null
-  where?: Prisma.ProductVariantWhereInput
-  orderBy?: Prisma.ProductVariantOrderByWithRelationInput | Prisma.ProductVariantOrderByWithRelationInput[]
-  cursor?: Prisma.ProductVariantWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ProductVariantScalarFieldEnum | Prisma.ProductVariantScalarFieldEnum[]
 }
 
 /**

@@ -1,0 +1,1027 @@
+{
+  "brands": [
+    {
+      "name": "AHSO",
+      "slug": "ahso",
+      "logoUrl": "/logos/ahso.png",
+      "summary": "Thương hiệu công nghiệp Việt Nam"
+    },
+    {
+      "name": "Omron",
+      "slug": "omron",
+      "logoUrl": "/logos/omron.png",
+      "summary": "Thiết bị tự động hóa Nhật Bản"
+    },
+    {
+      "name": "Siemens",
+      "slug": "siemens",
+      "logoUrl": "/logos/siemens.png",
+      "summary": "Giải pháp công nghiệp Đức"
+    },
+    {
+      "name": "SKF",
+      "slug": "skf",
+      "logoUrl": "/logos/skf.png",
+      "summary": "Vòng bi và giải pháp truyền động"
+    },
+    {
+      "name": "Panasonic",
+      "slug": "panasonic",
+      "logoUrl": "/logos/panasonic.png",
+      "summary": "Thiết bị điện và công nghiệp"
+    }
+  ],
+  "productCategories": [
+    {
+      "slug": "dung-cu-cam-tay",
+      "name": "Dụng cụ cầm tay",
+      "coverImage": "/categories/dung-cu-cam-tay.jpg",
+      "description": "Kìm, cờ lê, tua vít, búa..."
+    },
+    {
+      "slug": "may-khi-nen",
+      "name": "Máy khí nén",
+      "coverImage": "/categories/may-khi-nen.jpg",
+      "description": "Máy nén khí và phụ kiện khí nén"
+    }
+  ],
+  "productTypes": [
+    {
+      "slug": "co-le-mo",
+      "name": "Cờ lê mở",
+      "coverImage": "/types/co-le-mo.jpg",
+      "description": "Cờ lê mở tiêu chuẩn",
+      "categorySlug": "dung-cu-cam-tay"
+    },
+    {
+      "slug": "co-le-vong",
+      "name": "Cờ lê vòng",
+      "coverImage": "/types/co-le-vong.jpg",
+      "description": "Cờ lê vòng hai đầu",
+      "categorySlug": "dung-cu-cam-tay"
+    },
+    {
+      "slug": "tuavit-batch",
+      "name": "Tua vít bộ",
+      "coverImage": "/types/tuavit-batch.jpg",
+      "description": "Bộ tua vít đa năng",
+      "categorySlug": "dung-cu-cam-tay"
+    },
+    {
+      "slug": "kim-da-nang",
+      "name": "Kìm đa năng",
+      "coverImage": "/types/kim-da-nang.jpg",
+      "description": "Kìm cắt, kìm mũi nhọn",
+      "categorySlug": "dung-cu-cam-tay"
+    },
+    {
+      "slug": "bua-thep",
+      "name": "Búa thép",
+      "coverImage": "/types/bua-thep.jpg",
+      "description": "Búa đầu thép, cán gỗ/nhựa",
+      "categorySlug": "dung-cu-cam-tay"
+    },
+    {
+      "slug": "thiet-bi-do-luc",
+      "name": "Thiết bị đo lực",
+      "coverImage": "/types/thiet-bi-do-luc.jpg",
+      "description": "Cờ lê lực, đồng hồ lực",
+      "categorySlug": "dung-cu-cam-tay"
+    },
+    {
+      "slug": "may-nen-khi-piston",
+      "name": "Máy nén khí piston",
+      "coverImage": "/types/may-nen-khi-piston.jpg",
+      "description": "Máy nén piston công nghiệp",
+      "categorySlug": "may-khi-nen"
+    },
+    {
+      "slug": "may-nen-khi-truc-vit",
+      "name": "Máy nén khí trục vít",
+      "coverImage": "/types/may-nen-khi-truc-vit.jpg",
+      "description": "Hiệu suất cao, vận hành êm",
+      "categorySlug": "may-khi-nen"
+    },
+    {
+      "slug": "bo-loc-khi",
+      "name": "Bộ lọc khí",
+      "coverImage": "/types/bo-loc-khi.jpg",
+      "description": "Lọc, điều áp, bôi trơn",
+      "categorySlug": "may-khi-nen"
+    },
+    {
+      "slug": "sung-xi-khi",
+      "name": "Súng xì khí",
+      "coverImage": "/types/sung-xi-khi.jpg",
+      "description": "Phụ kiện khí nén",
+      "categorySlug": "may-khi-nen"
+    }
+  ],
+  "units": [
+    {
+      "name": "pcs",
+      "symbol": "pcs",
+      "dimension": "count",
+      "baseName": "pcs"
+    },
+    {
+      "name": "kg",
+      "symbol": "kg",
+      "dimension": "mass",
+      "baseName": "kg"
+    },
+    {
+      "name": "mm",
+      "symbol": "mm",
+      "dimension": "length",
+      "baseName": "m",
+      "factorToBase": 0.001
+    },
+    {
+      "name": "L",
+      "symbol": "L",
+      "dimension": "volume",
+      "baseName": "L"
+    }
+  ],
+  "specDefinitions": [
+    {
+      "name": "Vật liệu",
+      "slug": "vat-lieu"
+    },
+    {
+      "name": "Chiều dài",
+      "slug": "chieu-dai"
+    },
+    {
+      "name": "Khối lượng",
+      "slug": "khoi-luong"
+    },
+    {
+      "name": "Kích thước đầu",
+      "slug": "kich-thuoc-dau"
+    },
+    {
+      "name": "Màu sắc",
+      "slug": "mau-sac"
+    },
+    {
+      "name": "Công suất",
+      "slug": "cong-suat"
+    },
+    {
+      "name": "Điện áp",
+      "slug": "dien-ap"
+    },
+    {
+      "name": "Áp suất làm việc",
+      "slug": "ap-suat-lam-viec"
+    },
+    {
+      "name": "Dung tích bình",
+      "slug": "dung-tich-binh"
+    },
+    {
+      "name": "Độ ồn",
+      "slug": "do-on"
+    },
+    {
+      "name": "Lưu lượng khí",
+      "slug": "luu-luong-khi"
+    },
+    {
+      "name": "Số răng",
+      "slug": "so-rang"
+    },
+    {
+      "name": "Tiêu chuẩn",
+      "slug": "tieu-chuan"
+    }
+  ],
+  "products": [
+    {
+      "slug": "co-le-mo-14mm-ahso",
+      "name": "Cờ lê mở 14mm AHSO",
+      "sku": "CLM-14-AHSO",
+      "description": "Cờ lê mở 14mm bằng thép Cr-V, mạ chrome, bền bỉ.",
+      "coverImage": "/products/co-le-mo-14mm.jpg",
+      "price": 95000,
+      "listPrice": 115000,
+      "currency": "VND",
+      "stockOnHand": 120,
+      "brandSlug": "ahso",
+      "typeSlug": "co-le-mo",
+      "categorySlugs": [
+        "dung-cu-cam-tay"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Cái",
+      "specs": [
+        {
+          "specSlug": "vat-lieu",
+          "valueString": "Thép Cr-V"
+        },
+        {
+          "specSlug": "kich-thuoc-dau",
+          "valueString": "14 mm"
+        },
+        {
+          "specSlug": "chieu-dai",
+          "valueNumber": 180,
+          "unitOverride": "mm"
+        },
+        {
+          "specSlug": "khoi-luong",
+          "valueNumber": 0.22,
+          "unitOverride": "kg"
+        },
+        {
+          "specSlug": "tieu-chuan",
+          "valueString": "JIS"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/co-le-mo-14mm-1.jpg",
+          "alt": "Cờ lê mở 14mm - ảnh 1"
+        },
+        {
+          "url": "/products/co-le-mo-14mm-2.jpg",
+          "alt": "Cờ lê mở 14mm - ảnh 2"
+        }
+      ]
+    },
+    {
+      "slug": "co-le-vong-17mm-omron",
+      "name": "Cờ lê vòng 17mm Omron",
+      "sku": "CLV-17-OMR",
+      "description": "Cờ lê vòng 17mm hãng Omron, thiết kế chính xác.",
+      "coverImage": "/products/co-le-vong-17mm.jpg",
+      "price": 145000,
+      "listPrice": 165000,
+      "currency": "VND",
+      "stockOnHand": 80,
+      "brandSlug": "omron",
+      "typeSlug": "co-le-vong",
+      "categorySlugs": [
+        "dung-cu-cam-tay"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Cái",
+      "specs": [
+        {
+          "specSlug": "vat-lieu",
+          "valueString": "Thép hợp kim"
+        },
+        {
+          "specSlug": "kich-thuoc-dau",
+          "valueString": "17 mm"
+        },
+        {
+          "specSlug": "mau-sac",
+          "valueString": "Bạc"
+        },
+        {
+          "specSlug": "chieu-dai",
+          "valueNumber": 210,
+          "unitOverride": "mm"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/co-le-vong-17mm-1.jpg",
+          "alt": "Cờ lê vòng 17mm - ảnh 1"
+        },
+        {
+          "url": "/products/co-le-vong-17mm-2.jpg",
+          "alt": "Cờ lê vòng 17mm - ảnh 2"
+        }
+      ]
+    },
+    {
+      "slug": "bo-tua-vit-6-mon-panasonic",
+      "name": "Bộ tua vít 6 món Panasonic",
+      "sku": "TVB-6-PNS",
+      "description": "Bộ tua vít 6 món đa kích cỡ, tay cầm chống trượt.",
+      "coverImage": "/products/bo-tua-vit-6-mon.jpg",
+      "price": 175000,
+      "listPrice": 199000,
+      "currency": "VND",
+      "stockOnHand": 150,
+      "brandSlug": "panasonic",
+      "typeSlug": "tuavit-batch",
+      "categorySlugs": [
+        "dung-cu-cam-tay"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Bộ",
+      "specs": [
+        {
+          "specSlug": "vat-lieu",
+          "valueString": "Thép S2"
+        },
+        {
+          "specSlug": "mau-sac",
+          "valueString": "Đen/Đỏ"
+        },
+        {
+          "specSlug": "tieu-chuan",
+          "valueString": "JIS"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/bo-tua-vit-6-mon-1.jpg",
+          "alt": "Bộ tua vít 6 món - ảnh 1"
+        },
+        {
+          "url": "/products/bo-tua-vit-6-mon-2.jpg",
+          "alt": "Bộ tua vít 6 món - ảnh 2"
+        }
+      ]
+    },
+    {
+      "slug": "kim-da-nang-8in-ahso",
+      "name": "Kìm đa năng 8 inch AHSO",
+      "sku": "KDN-8-AHSO",
+      "description": "Kìm đa năng 8\" cắt/bấm/giữ, lưỡi cắt tôi nhiệt.",
+      "coverImage": "/products/kim-da-nang-8inch.jpg",
+      "price": 129000,
+      "listPrice": 149000,
+      "currency": "VND",
+      "stockOnHand": 110,
+      "brandSlug": "ahso",
+      "typeSlug": "kim-da-nang",
+      "categorySlugs": [
+        "dung-cu-cam-tay"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Cái",
+      "specs": [
+        {
+          "specSlug": "chieu-dai",
+          "valueNumber": 200,
+          "unitOverride": "mm"
+        },
+        {
+          "specSlug": "khoi-luong",
+          "valueNumber": 0.28,
+          "unitOverride": "kg"
+        },
+        {
+          "specSlug": "mau-sac",
+          "valueString": "Đen/Vàng"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/kim-da-nang-8inch-1.jpg",
+          "alt": "Kìm đa năng 8in - ảnh 1"
+        },
+        {
+          "url": "/products/kim-da-nang-8inch-2.jpg",
+          "alt": "Kìm đa năng 8in - ảnh 2"
+        }
+      ]
+    },
+    {
+      "slug": "bua-thep-500g-siemens",
+      "name": "Búa thép 500g Siemens",
+      "sku": "BT-500-SMS",
+      "description": "Búa thép đầu 500g, cán gỗ, cân bằng tốt.",
+      "coverImage": "/products/bua-thep-500g.jpg",
+      "price": 89000,
+      "listPrice": 109000,
+      "currency": "VND",
+      "stockOnHand": 90,
+      "brandSlug": "siemens",
+      "typeSlug": "bua-thep",
+      "categorySlugs": [
+        "dung-cu-cam-tay"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Cái",
+      "specs": [
+        {
+          "specSlug": "khoi-luong",
+          "valueNumber": 0.5,
+          "unitOverride": "kg"
+        },
+        {
+          "specSlug": "mau-sac",
+          "valueString": "Đen/Bạc"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/bua-thep-500g-1.jpg",
+          "alt": "Búa thép 500g - ảnh 1"
+        },
+        {
+          "url": "/products/bua-thep-500g-2.jpg",
+          "alt": "Búa thép 500g - ảnh 2"
+        }
+      ]
+    },
+    {
+      "slug": "co-le-luc-20-100nm-skf",
+      "name": "Cờ lê lực 20–100 Nm SKF",
+      "sku": "CLL-20-100-SKF",
+      "description": "Cờ lê lực thang đo 20–100 Nm, độ chính xác cao.",
+      "coverImage": "/products/co-le-luc-20-100.jpg",
+      "price": 1850000,
+      "listPrice": 1990000,
+      "currency": "VND",
+      "stockOnHand": 25,
+      "brandSlug": "skf",
+      "typeSlug": "thiet-bi-do-luc",
+      "categorySlugs": [
+        "dung-cu-cam-tay"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Cái",
+      "specs": [
+        {
+          "specSlug": "vat-lieu",
+          "valueString": "Thép hợp kim"
+        },
+        {
+          "specSlug": "mau-sac",
+          "valueString": "Bạc/Đen"
+        },
+        {
+          "specSlug": "tieu-chuan",
+          "valueString": "ISO 6789"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/co-le-luc-20-100-1.jpg",
+          "alt": "Cờ lê lực 20-100 - ảnh 1"
+        },
+        {
+          "url": "/products/co-le-luc-20-100-2.jpg",
+          "alt": "Cờ lê lực 20-100 - ảnh 2"
+        }
+      ]
+    },
+    {
+      "slug": "co-le-mo-10mm-siemens",
+      "name": "Cờ lê mở 10mm Siemens",
+      "sku": "CLM-10-SMS",
+      "description": "Cờ lê mở 10mm nhỏ gọn, tiện thao tác trong không gian hẹp.",
+      "coverImage": "/products/co-le-mo-10mm.jpg",
+      "price": 79000,
+      "listPrice": 95000,
+      "currency": "VND",
+      "stockOnHand": 140,
+      "brandSlug": "siemens",
+      "typeSlug": "co-le-mo",
+      "categorySlugs": [
+        "dung-cu-cam-tay"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Cái",
+      "specs": [
+        {
+          "specSlug": "kich-thuoc-dau",
+          "valueString": "10 mm"
+        },
+        {
+          "specSlug": "chieu-dai",
+          "valueNumber": 150,
+          "unitOverride": "mm"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/co-le-mo-10mm-1.jpg",
+          "alt": "Cờ lê mở 10mm - ảnh 1"
+        }
+      ]
+    },
+    {
+      "slug": "co-le-vong-19mm-panasonic",
+      "name": "Cờ lê vòng 19mm Panasonic",
+      "sku": "CLV-19-PNS",
+      "description": "Cờ lê vòng 19mm, bền bỉ, chống rỉ sét.",
+      "coverImage": "/products/co-le-vong-19mm.jpg",
+      "price": 165000,
+      "listPrice": 189000,
+      "currency": "VND",
+      "stockOnHand": 60,
+      "brandSlug": "panasonic",
+      "typeSlug": "co-le-vong",
+      "categorySlugs": [
+        "dung-cu-cam-tay"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Cái",
+      "specs": [
+        {
+          "specSlug": "kich-thuoc-dau",
+          "valueString": "19 mm"
+        },
+        {
+          "specSlug": "vat-lieu",
+          "valueString": "Thép Cr-V"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/co-le-vong-19mm-1.jpg",
+          "alt": "Cờ lê vòng 19mm - ảnh 1"
+        }
+      ]
+    },
+    {
+      "slug": "tuavit-4-mon-omron",
+      "name": "Bộ tua vít 4 món Omron",
+      "sku": "TVB-4-OMR",
+      "description": "Bộ 4 tua vít dẹt + bake, tay cầm thoải mái.",
+      "coverImage": "/products/tuavit-4-mon.jpg",
+      "price": 99000,
+      "listPrice": 119000,
+      "currency": "VND",
+      "stockOnHand": 100,
+      "brandSlug": "omron",
+      "typeSlug": "tuavit-batch",
+      "categorySlugs": [
+        "dung-cu-cam-tay"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Bộ",
+      "specs": [
+        {
+          "specSlug": "vat-lieu",
+          "valueString": "Thép Cr-V"
+        },
+        {
+          "specSlug": "mau-sac",
+          "valueString": "Đen/Xanh"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/tuavit-4-mon-1.jpg",
+          "alt": "Bộ tua vít 4 món - ảnh 1"
+        }
+      ]
+    },
+    {
+      "slug": "kim-mui-nhon-6in-skf",
+      "name": "Kìm mũi nhọn 6 inch SKF",
+      "sku": "KMN-6-SKF",
+      "description": "Kìm mũi nhọn 6\" thao tác chính xác, lò xo hồi tốt.",
+      "coverImage": "/products/kim-mui-nhon-6in.jpg",
+      "price": 115000,
+      "listPrice": 135000,
+      "currency": "VND",
+      "stockOnHand": 95,
+      "brandSlug": "skf",
+      "typeSlug": "kim-da-nang",
+      "categorySlugs": [
+        "dung-cu-cam-tay"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Cái",
+      "specs": [
+        {
+          "specSlug": "chieu-dai",
+          "valueNumber": 150,
+          "unitOverride": "mm"
+        },
+        {
+          "specSlug": "mau-sac",
+          "valueString": "Đen/Đỏ"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/kim-mui-nhon-6in-1.jpg",
+          "alt": "Kìm mũi nhọn 6in - ảnh 1"
+        }
+      ]
+    },
+    {
+      "slug": "may-nen-khi-piston-60l-ahso",
+      "name": "Máy nén khí piston 60L AHSO",
+      "sku": "MKP-60-AHSO",
+      "description": "Máy nén khí piston dung tích 60L, công suất 2HP, phù hợp xưởng cơ khí.",
+      "coverImage": "/products/may-nen-khi-piston-60l.jpg",
+      "price": 3650000,
+      "listPrice": 3990000,
+      "currency": "VND",
+      "stockOnHand": 35,
+      "brandSlug": "ahso",
+      "typeSlug": "may-nen-khi-piston",
+      "categorySlugs": [
+        "may-khi-nen"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Máy",
+      "specs": [
+        {
+          "specSlug": "cong-suat",
+          "valueString": "2 HP"
+        },
+        {
+          "specSlug": "dien-ap",
+          "valueString": "220 V"
+        },
+        {
+          "specSlug": "dung-tich-binh",
+          "valueNumber": 60,
+          "unitOverride": "L"
+        },
+        {
+          "specSlug": "ap-suat-lam-viec",
+          "valueString": "8 bar"
+        },
+        {
+          "specSlug": "do-on",
+          "valueString": "≤78 dB"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/may-nen-khi-piston-60l-1.jpg",
+          "alt": "Máy nén khí piston 60L - ảnh 1"
+        },
+        {
+          "url": "/products/may-nen-khi-piston-60l-2.jpg",
+          "alt": "Máy nén khí piston 60L - ảnh 2"
+        }
+      ]
+    },
+    {
+      "slug": "may-nen-khi-truc-vit-7-5kw-omron",
+      "name": "Máy nén khí trục vít 7.5kW Omron",
+      "sku": "MKT-7K5-OMR",
+      "description": "Máy nén khí trục vít 7.5 kW, lưu lượng ổn định, êm.",
+      "coverImage": "/products/may-nen-khi-truc-vit-7k5.jpg",
+      "price": 78500000,
+      "listPrice": 82500000,
+      "currency": "VND",
+      "stockOnHand": 8,
+      "brandSlug": "omron",
+      "typeSlug": "may-nen-khi-truc-vit",
+      "categorySlugs": [
+        "may-khi-nen"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Máy",
+      "specs": [
+        {
+          "specSlug": "cong-suat",
+          "valueString": "7.5 kW"
+        },
+        {
+          "specSlug": "dien-ap",
+          "valueString": "380 V"
+        },
+        {
+          "specSlug": "ap-suat-lam-viec",
+          "valueString": "8–10 bar"
+        },
+        {
+          "specSlug": "luu-luong-khi",
+          "valueString": "1.0 m³/min"
+        },
+        {
+          "specSlug": "do-on",
+          "valueString": "≤72 dB"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/may-nen-khi-truc-vit-7k5-1.jpg",
+          "alt": "Máy nén khí trục vít 7.5kW - ảnh 1"
+        }
+      ]
+    },
+    {
+      "slug": "bo-loc-khi-1-2-panasonic",
+      "name": "Bộ lọc khí 1/2\" Panasonic",
+      "sku": "BLK-12-PNS",
+      "description": "Bộ lọc/điều áp/bôi trơn ren 1/2\", tách nước hiệu quả.",
+      "coverImage": "/products/bo-loc-khi-12.jpg",
+      "price": 890000,
+      "listPrice": 990000,
+      "currency": "VND",
+      "stockOnHand": 60,
+      "brandSlug": "panasonic",
+      "typeSlug": "bo-loc-khi",
+      "categorySlugs": [
+        "may-khi-nen"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Bộ",
+      "specs": [
+        {
+          "specSlug": "ap-suat-lam-viec",
+          "valueString": "0.5–9 bar"
+        },
+        {
+          "specSlug": "mau-sac",
+          "valueString": "Xám/Xanh"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/bo-loc-khi-12-1.jpg",
+          "alt": "Bộ lọc khí 1/2 - ảnh 1"
+        }
+      ]
+    },
+    {
+      "slug": "sung-xi-khi-ngan-ahso",
+      "name": "Súng xì khí ngắn AHSO",
+      "sku": "SXK-N-AHSO",
+      "description": "Súng xì khí thân ngắn, lượng gió tập trung, dễ thao tác.",
+      "coverImage": "/products/sung-xi-khi-ngan.jpg",
+      "price": 79000,
+      "listPrice": 99000,
+      "currency": "VND",
+      "stockOnHand": 200,
+      "brandSlug": "ahso",
+      "typeSlug": "sung-xi-khi",
+      "categorySlugs": [
+        "may-khi-nen"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Cây",
+      "specs": [
+        {
+          "specSlug": "mau-sac",
+          "valueString": "Xanh/Đen"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/sung-xi-khi-ngan-1.jpg",
+          "alt": "Súng xì khí ngắn - ảnh 1"
+        }
+      ]
+    },
+    {
+      "slug": "may-nen-khi-piston-100l-siemens",
+      "name": "Máy nén khí piston 100L Siemens",
+      "sku": "MKP-100-SMS",
+      "description": "Máy nén piston 100L, 3HP, độ ồn thấp.",
+      "coverImage": "/products/may-nen-khi-piston-100l.jpg",
+      "price": 5450000,
+      "listPrice": 5790000,
+      "currency": "VND",
+      "stockOnHand": 20,
+      "brandSlug": "siemens",
+      "typeSlug": "may-nen-khi-piston",
+      "categorySlugs": [
+        "may-khi-nen"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Máy",
+      "specs": [
+        {
+          "specSlug": "cong-suat",
+          "valueString": "3 HP"
+        },
+        {
+          "specSlug": "dung-tich-binh",
+          "valueNumber": 100,
+          "unitOverride": "L"
+        },
+        {
+          "specSlug": "dien-ap",
+          "valueString": "220 V"
+        },
+        {
+          "specSlug": "do-on",
+          "valueString": "≤75 dB"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/may-nen-khi-piston-100l-1.jpg",
+          "alt": "Máy nén piston 100L - ảnh 1"
+        }
+      ]
+    },
+    {
+      "slug": "may-nen-khi-truc-vit-11kw-skf",
+      "name": "Máy nén khí trục vít 11kW SKF",
+      "sku": "MKT-11-SKF",
+      "description": "Máy trục vít 11 kW, hiệu suất cao cho nhà xưởng.",
+      "coverImage": "/products/may-nen-khi-truc-vit-11kw.jpg",
+      "price": 104500000,
+      "listPrice": 109000000,
+      "currency": "VND",
+      "stockOnHand": 6,
+      "brandSlug": "skf",
+      "typeSlug": "may-nen-khi-truc-vit",
+      "categorySlugs": [
+        "may-khi-nen"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Máy",
+      "specs": [
+        {
+          "specSlug": "cong-suat",
+          "valueString": "11 kW"
+        },
+        {
+          "specSlug": "dien-ap",
+          "valueString": "380 V"
+        },
+        {
+          "specSlug": "luu-luong-khi",
+          "valueString": "1.6 m³/min"
+        },
+        {
+          "specSlug": "ap-suat-lam-viec",
+          "valueString": "8–13 bar"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/may-nen-khi-truc-vit-11kw-1.jpg",
+          "alt": "Máy nén khí trục vít 11kW - ảnh 1"
+        }
+      ]
+    },
+    {
+      "slug": "bo-loc-khi-3-8-omron",
+      "name": "Bộ lọc khí 3/8\" Omron",
+      "sku": "BLK-38-OMR",
+      "description": "Bộ lọc khí 3/8\", bẫy nước, lọc bụi mịn.",
+      "coverImage": "/products/bo-loc-khi-38.jpg",
+      "price": 690000,
+      "listPrice": 780000,
+      "currency": "VND",
+      "stockOnHand": 70,
+      "brandSlug": "omron",
+      "typeSlug": "bo-loc-khi",
+      "categorySlugs": [
+        "may-khi-nen"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Bộ",
+      "specs": [
+        {
+          "specSlug": "ap-suat-lam-viec",
+          "valueString": "0.5–9 bar"
+        },
+        {
+          "specSlug": "mau-sac",
+          "valueString": "Xám/Đen"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/bo-loc-khi-38-1.jpg",
+          "alt": "Bộ lọc khí 3/8 - ảnh 1"
+        }
+      ]
+    },
+    {
+      "slug": "sung-xi-khi-dai-panasonic",
+      "name": "Súng xì khí dài Panasonic",
+      "sku": "SXK-D-PNS",
+      "description": "Vòi dài, thổi sạch sâu, dùng cho vệ sinh công nghiệp.",
+      "coverImage": "/products/sung-xi-khi-dai.jpg",
+      "price": 119000,
+      "listPrice": 139000,
+      "currency": "VND",
+      "stockOnHand": 160,
+      "brandSlug": "panasonic",
+      "typeSlug": "sung-xi-khi",
+      "categorySlugs": [
+        "may-khi-nen"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Cây",
+      "specs": [
+        {
+          "specSlug": "chieu-dai",
+          "valueNumber": 300,
+          "unitOverride": "mm"
+        },
+        {
+          "specSlug": "mau-sac",
+          "valueString": "Xanh dương"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/sung-xi-khi-dai-1.jpg",
+          "alt": "Súng xì khí dài - ảnh 1"
+        }
+      ]
+    },
+    {
+      "slug": "may-nen-khi-piston-30l-skf",
+      "name": "Máy nén khí piston 30L SKF",
+      "sku": "MKP-30-SKF",
+      "description": "Máy nén 30L gọn nhẹ cho xưởng nhỏ.",
+      "coverImage": "/products/may-nen-khi-piston-30l.jpg",
+      "price": 2750000,
+      "listPrice": 2990000,
+      "currency": "VND",
+      "stockOnHand": 45,
+      "brandSlug": "skf",
+      "typeSlug": "may-nen-khi-piston",
+      "categorySlugs": [
+        "may-khi-nen"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Máy",
+      "specs": [
+        {
+          "specSlug": "cong-suat",
+          "valueString": "1.5 HP"
+        },
+        {
+          "specSlug": "dung-tich-binh",
+          "valueNumber": 30,
+          "unitOverride": "L"
+        },
+        {
+          "specSlug": "dien-ap",
+          "valueString": "220 V"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/may-nen-khi-piston-30l-1.jpg",
+          "alt": "Máy nén piston 30L - ảnh 1"
+        }
+      ]
+    },
+    {
+      "slug": "may-nen-khi-truc-vit-15kw-siemens",
+      "name": "Máy nén khí trục vít 15kW Siemens",
+      "sku": "MKT-15-SMS",
+      "description": "Máy trục vít 15 kW cho dây chuyền sản xuất.",
+      "coverImage": "/products/may-nen-khi-truc-vit-15kw.jpg",
+      "price": 128000000,
+      "listPrice": 133000000,
+      "currency": "VND",
+      "stockOnHand": 4,
+      "brandSlug": "siemens",
+      "typeSlug": "may-nen-khi-truc-vit",
+      "categorySlugs": [
+        "may-khi-nen"
+      ],
+      "unitName": "pcs",
+      "quantityValue": 1,
+      "quantityLabel": "Máy",
+      "specs": [
+        {
+          "specSlug": "cong-suat",
+          "valueString": "15 kW"
+        },
+        {
+          "specSlug": "dien-ap",
+          "valueString": "380 V"
+        },
+        {
+          "specSlug": "luu-luong-khi",
+          "valueString": "2.2 m³/min"
+        },
+        {
+          "specSlug": "ap-suat-lam-viec",
+          "valueString": "8–13 bar"
+        },
+        {
+          "specSlug": "do-on",
+          "valueString": "≤70 dB"
+        }
+      ],
+      "images": [
+        {
+          "url": "/products/may-nen-khi-truc-vit-15kw-1.jpg",
+          "alt": "Máy nén khí trục vít 15kW - ảnh 1"
+        }
+      ]
+    }
+  ]
+}
