@@ -359,7 +359,7 @@ export default function CartPage() {
             </CardHeader>
             <CardContent className="space-y-5">
               {/* Shipping */}
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <div className="text-sm font-medium">Vận chuyển</div>
                 <div className="relative">
                   <select
@@ -374,10 +374,10 @@ export default function CartPage() {
                     ))}
                   </select>
                 </div>
-              </div>
+              </div> */}
 
               {/* Promo code */}
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <TicketPercent className="h-4 w-4" /> Mã giảm giá
                 </div>
@@ -398,17 +398,17 @@ export default function CartPage() {
                     </Button>
                   </div>
                 )}
-              </div>
+              </div> */}
 
               {/* Order note */}
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <div className="text-sm font-medium">Ghi chú đơn hàng</div>
                 <Input
                   placeholder="Yêu cầu xuất hoá đơn, giờ nhận hàng, v.v. (tuỳ chọn)"
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                 />
-              </div>
+              </div> */}
 
               <hr className="my-2" />
 
@@ -417,18 +417,18 @@ export default function CartPage() {
                   <span>Tạm tính</span>
                   <span className="font-medium">{formatVND(subtotal)}</span>
                 </div>
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
                   <span>Giảm giá</span>
                   <span className="font-medium">-{formatVND(discount)}</span>
-                </div>
+                </div> */}
                 <div className="flex items-center justify-between">
                   <span>VAT (10%)</span>
                   <span className="font-medium">{formatVND(vat)}</span>
                 </div>
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
                   <span>Phí vận chuyển</span>
                   <span className="font-medium">{formatVND(shippingFee)}</span>
-                </div>
+                </div> */}
                 <hr className="my-2" />
                 <div className="flex items-center justify-between text-base">
                   <span className="font-semibold">Tổng cộng</span>
