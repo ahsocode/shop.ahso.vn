@@ -256,6 +256,7 @@ export type UserWhereInput = {
   shippingAddress?: Prisma.XOR<Prisma.AddressScalarRelationFilter, Prisma.AddressWhereInput>
   billingAddress?: Prisma.XOR<Prisma.AddressNullableScalarRelationFilter, Prisma.AddressWhereInput> | null
   orders?: Prisma.OrderListRelationFilter
+  Review?: Prisma.ReviewListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -276,6 +277,7 @@ export type UserOrderByWithRelationInput = {
   shippingAddress?: Prisma.AddressOrderByWithRelationInput
   billingAddress?: Prisma.AddressOrderByWithRelationInput
   orders?: Prisma.OrderOrderByRelationAggregateInput
+  Review?: Prisma.ReviewOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
 
@@ -300,6 +302,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   shippingAddress?: Prisma.XOR<Prisma.AddressScalarRelationFilter, Prisma.AddressWhereInput>
   billingAddress?: Prisma.XOR<Prisma.AddressNullableScalarRelationFilter, Prisma.AddressWhereInput> | null
   orders?: Prisma.OrderListRelationFilter
+  Review?: Prisma.ReviewListRelationFilter
 }, "id" | "username" | "email" | "phoneE164" | "shippingAddressId" | "billingAddressId">
 
 export type UserOrderByWithAggregationInput = {
@@ -358,6 +361,7 @@ export type UserCreateInput = {
   shippingAddress: Prisma.AddressCreateNestedOneWithoutUsersShippingInput
   billingAddress?: Prisma.AddressCreateNestedOneWithoutUsersBillingInput
   orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  Review?: Prisma.ReviewCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -376,6 +380,7 @@ export type UserUncheckedCreateInput = {
   shippingAddressId: string
   billingAddressId?: string | null
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  Review?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -394,6 +399,7 @@ export type UserUpdateInput = {
   shippingAddress?: Prisma.AddressUpdateOneRequiredWithoutUsersShippingNestedInput
   billingAddress?: Prisma.AddressUpdateOneWithoutUsersBillingNestedInput
   orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  Review?: Prisma.ReviewUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -412,6 +418,7 @@ export type UserUncheckedUpdateInput = {
   shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  Review?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -655,6 +662,22 @@ export type UserUpdateOneWithoutOrdersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOrdersInput, Prisma.UserUpdateWithoutOrdersInput>, Prisma.UserUncheckedUpdateWithoutOrdersInput>
 }
 
+export type UserCreateNestedOneWithoutReviewInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReviewInput, Prisma.UserUncheckedCreateWithoutReviewInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReviewInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutReviewNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReviewInput, Prisma.UserUncheckedCreateWithoutReviewInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReviewInput
+  upsert?: Prisma.UserUpsertWithoutReviewInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReviewInput, Prisma.UserUpdateWithoutReviewInput>, Prisma.UserUncheckedUpdateWithoutReviewInput>
+}
+
 export type UserCreateWithoutShippingAddressInput = {
   id?: string
   username: string
@@ -670,6 +693,7 @@ export type UserCreateWithoutShippingAddressInput = {
   updatedAt?: Date | string
   billingAddress?: Prisma.AddressCreateNestedOneWithoutUsersBillingInput
   orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  Review?: Prisma.ReviewCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutShippingAddressInput = {
@@ -687,6 +711,7 @@ export type UserUncheckedCreateWithoutShippingAddressInput = {
   updatedAt?: Date | string
   billingAddressId?: string | null
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  Review?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutShippingAddressInput = {
@@ -714,6 +739,7 @@ export type UserCreateWithoutBillingAddressInput = {
   updatedAt?: Date | string
   shippingAddress: Prisma.AddressCreateNestedOneWithoutUsersShippingInput
   orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+  Review?: Prisma.ReviewCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBillingAddressInput = {
@@ -731,6 +757,7 @@ export type UserUncheckedCreateWithoutBillingAddressInput = {
   updatedAt?: Date | string
   shippingAddressId: string
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+  Review?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBillingAddressInput = {
@@ -810,6 +837,7 @@ export type UserCreateWithoutOrdersInput = {
   updatedAt?: Date | string
   shippingAddress: Prisma.AddressCreateNestedOneWithoutUsersShippingInput
   billingAddress?: Prisma.AddressCreateNestedOneWithoutUsersBillingInput
+  Review?: Prisma.ReviewCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutOrdersInput = {
@@ -827,6 +855,7 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   updatedAt?: Date | string
   shippingAddressId: string
   billingAddressId?: string | null
+  Review?: Prisma.ReviewUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutOrdersInput = {
@@ -860,6 +889,7 @@ export type UserUpdateWithoutOrdersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shippingAddress?: Prisma.AddressUpdateOneRequiredWithoutUsersShippingNestedInput
   billingAddress?: Prisma.AddressUpdateOneWithoutUsersBillingNestedInput
+  Review?: Prisma.ReviewUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOrdersInput = {
@@ -877,6 +907,95 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Review?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutReviewInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  fullName: string
+  email: string
+  phoneE164: string
+  taxCode?: string | null
+  emailVerified?: boolean
+  role?: $Enums.Role
+  avatarUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  shippingAddress: Prisma.AddressCreateNestedOneWithoutUsersShippingInput
+  billingAddress?: Prisma.AddressCreateNestedOneWithoutUsersBillingInput
+  orders?: Prisma.OrderCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutReviewInput = {
+  id?: string
+  username: string
+  passwordHash: string
+  fullName: string
+  email: string
+  phoneE164: string
+  taxCode?: string | null
+  emailVerified?: boolean
+  role?: $Enums.Role
+  avatarUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  shippingAddressId: string
+  billingAddressId?: string | null
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutReviewInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutReviewInput, Prisma.UserUncheckedCreateWithoutReviewInput>
+}
+
+export type UserUpsertWithoutReviewInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutReviewInput, Prisma.UserUncheckedUpdateWithoutReviewInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutReviewInput, Prisma.UserUncheckedCreateWithoutReviewInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutReviewInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutReviewInput, Prisma.UserUncheckedUpdateWithoutReviewInput>
+}
+
+export type UserUpdateWithoutReviewInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
+  taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shippingAddress?: Prisma.AddressUpdateOneRequiredWithoutUsersShippingNestedInput
+  billingAddress?: Prisma.AddressUpdateOneWithoutUsersBillingNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutReviewInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
+  taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
+  billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyShippingAddressInput = {
@@ -926,6 +1045,7 @@ export type UserUpdateWithoutShippingAddressInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   billingAddress?: Prisma.AddressUpdateOneWithoutUsersBillingNestedInput
   orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  Review?: Prisma.ReviewUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutShippingAddressInput = {
@@ -943,6 +1063,7 @@ export type UserUncheckedUpdateWithoutShippingAddressInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   billingAddressId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  Review?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutShippingAddressInput = {
@@ -976,6 +1097,7 @@ export type UserUpdateWithoutBillingAddressInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shippingAddress?: Prisma.AddressUpdateOneRequiredWithoutUsersShippingNestedInput
   orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
+  Review?: Prisma.ReviewUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBillingAddressInput = {
@@ -993,6 +1115,7 @@ export type UserUncheckedUpdateWithoutBillingAddressInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shippingAddressId?: Prisma.StringFieldUpdateOperationsInput | string
   orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
+  Review?: Prisma.ReviewUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutBillingAddressInput = {
@@ -1018,10 +1141,12 @@ export type UserUncheckedUpdateManyWithoutBillingAddressInput = {
 
 export type UserCountOutputType = {
   orders: number
+  Review: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   orders?: boolean | UserCountOutputTypeCountOrdersArgs
+  Review?: boolean | UserCountOutputTypeCountReviewArgs
 }
 
 /**
@@ -1039,6 +1164,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
  */
 export type UserCountOutputTypeCountOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.OrderWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountReviewArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReviewWhereInput
 }
 
 
@@ -1060,6 +1192,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   shippingAddress?: boolean | Prisma.AddressDefaultArgs<ExtArgs>
   billingAddress?: boolean | Prisma.User$billingAddressArgs<ExtArgs>
   orders?: boolean | Prisma.User$ordersArgs<ExtArgs>
+  Review?: boolean | Prisma.User$ReviewArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1087,6 +1220,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   shippingAddress?: boolean | Prisma.AddressDefaultArgs<ExtArgs>
   billingAddress?: boolean | Prisma.User$billingAddressArgs<ExtArgs>
   orders?: boolean | Prisma.User$ordersArgs<ExtArgs>
+  Review?: boolean | Prisma.User$ReviewArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1096,6 +1230,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     shippingAddress: Prisma.$AddressPayload<ExtArgs>
     billingAddress: Prisma.$AddressPayload<ExtArgs> | null
     orders: Prisma.$OrderPayload<ExtArgs>[]
+    Review: Prisma.$ReviewPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1455,6 +1590,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   shippingAddress<T extends Prisma.AddressDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AddressDefaultArgs<ExtArgs>>): Prisma.Prisma__AddressClient<runtime.Types.Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   billingAddress<T extends Prisma.User$billingAddressArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$billingAddressArgs<ExtArgs>>): Prisma.Prisma__AddressClient<runtime.Types.Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   orders<T extends Prisma.User$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Review<T extends Prisma.User$ReviewArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ReviewArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1881,6 +2017,30 @@ export type User$ordersArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
+}
+
+/**
+ * User.Review
+ */
+export type User$ReviewArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Review
+   */
+  select?: Prisma.ReviewSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Review
+   */
+  omit?: Prisma.ReviewOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReviewInclude<ExtArgs> | null
+  where?: Prisma.ReviewWhereInput
+  orderBy?: Prisma.ReviewOrderByWithRelationInput | Prisma.ReviewOrderByWithRelationInput[]
+  cursor?: Prisma.ReviewWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReviewScalarFieldEnum | Prisma.ReviewScalarFieldEnum[]
 }
 
 /**

@@ -1,132 +1,120 @@
+// app/api/cart/items/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { jwtVerify } from "jose";
-
-const CART_COOKIE = "cart_id";
 
 export const dynamic = "force-dynamic";
 
-async function getUserIdFromReq(req: NextRequest): Promise<string | null> {
-  const authHeader = req.headers.get("authorization") || "";
-  const bearer = authHeader.match(/^Bearer\s+(.+)$/i)?.[1];
-  const token = bearer || req.cookies.get("auth_token")?.value || null;
-  if (!token) return null;
-  const secret = process.env.JWT_SECRET;
-  if (!secret) return null;
-  try {
-    const res = await jwtVerify(token, new TextEncoder().encode(secret));
-    const userId = (res.payload.sub as string) || null;
-    return userId;
-  } catch {
-    return null;
-  }
+const CART_COOKIE = "cart_id";
+const COOKIE_OPTS = {
+  httpOnly: true as const,
+  sameSite: "lax" as const,
+  secure: process.env.NODE_ENV === "production",
+  path: "/",
+  maxAge: 60 * 60 * 24 * 30, // 30 days
+};
+
+type TotItem = { quantity: number; unitPrice: any };
+
+function calcTotals(items: TotItem[]) {
+  const subtotal = items.reduce((s, it) => s + Number(it.unitPrice) * it.quantity, 0);
+  const discountTotal = 0;
+  const taxTotal = 0;
+  const shippingFee = 0;
+  const grandTotal = subtotal - discountTotal + taxTotal + shippingFee;
+  return { subtotal, discountTotal, taxTotal, shippingFee, grandTotal };
 }
 
-async function getOrCreateActiveCart(req: NextRequest) {
-  const userId = await getUserIdFromReq(req);
-  const cookieCartId = req.cookies.get(CART_COOKIE)?.value || null;
-
-  if (userId) {
-    let cart = await prisma.cart.findFirst({ where: { userId, status: "ACTIVE" } });
-    if (cart) return { cart, setCookieId: null } as const;
-    if (cookieCartId) {
-      const guestCart = await prisma.cart.findFirst({ where: { id: cookieCartId, status: "ACTIVE" } });
-      if (guestCart) {
-        cart = await prisma.cart.update({ where: { id: guestCart.id }, data: { userId } });
-        return { cart, setCookieId: guestCart.id } as const;
-      }
-    }
-    const newCart = await prisma.cart.create({ data: { userId, status: "ACTIVE" } });
-    return { cart: newCart, setCookieId: newCart.id } as const;
+async function getOrCreateCart(req: NextRequest) {
+  const cookieId = req.cookies.get(CART_COOKIE)?.value || null;
+  if (cookieId) {
+    const found = await prisma.cart.findUnique({ where: { id: cookieId } });
+    if (found) return { cart: found, created: false };
   }
-
-  if (cookieCartId) {
-    const cart = await prisma.cart.findFirst({ where: { id: cookieCartId, status: "ACTIVE" } });
-    if (cart) return { cart, setCookieId: cart.id } as const;
-  }
-
-  const newCart = await prisma.cart.create({ data: { status: "ACTIVE" } });
-  return { cart: newCart, setCookieId: newCart.id } as const;
+  const created = await prisma.cart.create({ data: { status: "ACTIVE" } });
+  return { cart: created, created: true };
 }
 
-function serializeCart(cart: any, items: any[]) {
-  const mapItems = items.map((it) => {
-    const v = it.variant;
-    const p = v?.product;
-    return {
-      id: it.id,
-      variantId: v?.id || null,
-      variantSku: v?.variantSku || null,
-      quantity: it.quantity,
-      unitPrice: Number(it.unitPrice || 0),
-      totalPrice: Number(it.totalPrice || 0),
-      productSlug: p?.slug || null,
-      productTitle: p?.title || (v?.variantSku ?? null),
-      image: p?.imagesCover || null,
-      currency: v?.currency || "VND",
-      inStock: (v?.stockOnHand ?? 0) - (v?.stockReserved ?? 0) > 0,
-    };
-  });
-  const subtotal = mapItems.reduce((s, x) => s + (x.totalPrice || 0), 0);
-  return {
-    id: cart.id,
-    status: cart.status,
-    items: mapItems,
-    count: mapItems.reduce((s, x) => s + (x.quantity || 0), 0),
-    subtotal,
-    currency: mapItems[0]?.currency ?? "VND",
-  };
-}
-
+/** POST /api/cart/items  body: { sku: string, qty?: number } */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const sku = (body?.sku as string | undefined)?.trim();
-    const quantity = Math.max(1, Number(body?.quantity ?? 1));
-    if (!sku) return NextResponse.json({ error: "MISSING_SKU" }, { status: 400 });
+    const sku = String(body?.sku ?? "").trim();
+    const quantity = Math.max(1, Number(body?.qty ?? body?.quantity ?? 1));
 
-    const { cart, setCookieId } = await getOrCreateActiveCart(req);
+    if (!sku) {
+      return NextResponse.json({ error: "MISSING_SKU" }, { status: 400 });
+    }
 
-    const variant = await prisma.productVariant.findUnique({ where: { variantSku: sku }, include: { product: true } });
-    if (!variant) return NextResponse.json({ error: "VARIANT_NOT_FOUND" }, { status: 404 });
+    const { cart, created } = await getOrCreateCart(req);
 
-    // If exists -> increase quantity; else create
-    const existing = await prisma.cartItem.findFirst({ where: { cartId: cart.id, variantId: variant.id } });
-    const unitPrice = variant.price as unknown as number; // Decimal -> number
+    // Find product by SKU (fits your client)
+    const product = await prisma.product.findUnique({
+      where: { sku },
+      // include: { brand: true }, // uncomment if you need brandName
+    });
+    if (!product) {
+      return NextResponse.json({ error: "PRODUCT_NOT_FOUND" }, { status: 404 });
+    }
+
+    // If line exists -> increase quantity
+    const existing = await prisma.cartItem.findFirst({
+      where: { cartId: cart.id, productId: product.id },
+    });
+
+    const unitPrice = product.price; // Decimal
     if (existing) {
       const newQty = existing.quantity + quantity;
       await prisma.cartItem.update({
         where: { id: existing.id },
-        data: { quantity: newQty, unitPrice, totalPrice: newQty * unitPrice },
+        data: {
+          quantity: newQty,
+          unitPrice,
+          lineTotal: Number(unitPrice) * newQty,
+        },
       });
     } else {
       await prisma.cartItem.create({
         data: {
           cartId: cart.id,
-          variantId: variant.id,
+          productId: product.id,
+          productName: product.name,
+          productSku: product.sku,
+          productSlug: product.slug,
+          productImage: product.coverImage ?? null,
+          // brandName: product.brand?.name ?? null,
+          unitLabel: null,
+          quantityLabel: product.quantityLabel ?? null,
+          unitPrice, // Decimal
+          currency: product.currency,
+          taxIncluded: product.taxIncluded,
           quantity,
-          unitPrice,
-          totalPrice: unitPrice * quantity,
+          lineTotal: Number(unitPrice) * quantity,
         },
       });
     }
 
-    const items = await prisma.cartItem.findMany({
-      where: { cartId: cart.id },
-      include: { variant: { include: { product: true } } },
-      orderBy: { addedAt: "desc" },
-      take: 200,
+    // Update totals
+    const items = await prisma.cartItem.findMany({ where: { cartId: cart.id } });
+    const totals = calcTotals(items);
+    await prisma.cart.update({
+      where: { id: cart.id },
+      data: {
+        subtotal: totals.subtotal,
+        discountTotal: totals.discountTotal,
+        taxTotal: totals.taxTotal,
+        shippingFee: totals.shippingFee,
+        grandTotal: totals.grandTotal,
+      },
     });
 
-    const res = NextResponse.json({ cart: serializeCart(cart, items) });
-    if (setCookieId) {
-      res.cookies.set(CART_COOKIE, setCookieId, {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 30,
-      });
+    const full = await prisma.cart.findUnique({
+      where: { id: cart.id },
+      include: { items: true },
+    });
+
+    const res = NextResponse.json(full, { status: 201 });
+    if (created) {
+      res.cookies.set(CART_COOKIE, cart.id, COOKIE_OPTS);
     }
     return res;
   } catch (e) {

@@ -59,15 +59,18 @@ export const ModelName = {
   SoftwareCategory: 'SoftwareCategory',
   Software: 'Software',
   Brand: 'Brand',
-  Category: 'Category',
   ProductCategory: 'ProductCategory',
+  ProductCategoryLink: 'ProductCategoryLink',
+  ProductType: 'ProductType',
+  UnitDefinition: 'UnitDefinition',
+  ProductSpecDefinition: 'ProductSpecDefinition',
   Product: 'Product',
-  ProductVariant: 'ProductVariant',
-  ProductSpec: 'ProductSpec',
   ProductImage: 'ProductImage',
-  ProductDoc: 'ProductDoc',
+  ProductSpecValue: 'ProductSpecValue',
   Cart: 'Cart',
-  CartItem: 'CartItem'
+  CartItem: 'CartItem',
+  Review: 'Review',
+  ReviewImage: 'ReviewImage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -250,11 +253,11 @@ export type SoftwareScalarFieldEnum = (typeof SoftwareScalarFieldEnum)[keyof typ
 
 export const BrandScalarFieldEnum = {
   id: 'id',
-  name: 'name',
   slug: 'slug',
-  originCountryCode: 'originCountryCode',
   logoUrl: 'logoUrl',
-  variantCount: 'variantCount',
+  name: 'name',
+  summary: 'summary',
+  productCount: 'productCount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -262,106 +265,105 @@ export const BrandScalarFieldEnum = {
 export type BrandScalarFieldEnum = (typeof BrandScalarFieldEnum)[keyof typeof BrandScalarFieldEnum]
 
 
-export const CategoryScalarFieldEnum = {
+export const ProductCategoryScalarFieldEnum = {
   id: 'id',
-  name: 'name',
   slug: 'slug',
-  fullSlug: 'fullSlug',
-  level: 'level',
+  name: 'name',
+  coverImage: 'coverImage',
   description: 'description',
-  icon: 'icon',
-  parentId: 'parentId',
   productCount: 'productCount',
-  variantCount: 'variantCount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
-} as const
-
-export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
-
-
-export const ProductCategoryScalarFieldEnum = {
-  productId: 'productId',
-  categoryId: 'categoryId'
 } as const
 
 export type ProductCategoryScalarFieldEnum = (typeof ProductCategoryScalarFieldEnum)[keyof typeof ProductCategoryScalarFieldEnum]
 
 
-export const ProductScalarFieldEnum = {
+export const ProductCategoryLinkScalarFieldEnum = {
+  productId: 'productId',
+  categoryId: 'categoryId'
+} as const
+
+export type ProductCategoryLinkScalarFieldEnum = (typeof ProductCategoryLinkScalarFieldEnum)[keyof typeof ProductCategoryLinkScalarFieldEnum]
+
+
+export const ProductTypeScalarFieldEnum = {
   id: 'id',
-  title: 'title',
   slug: 'slug',
-  sku: 'sku',
-  mpn: 'mpn',
-  summary: 'summary',
-  descriptionHtml: 'descriptionHtml',
-  imagesCover: 'imagesCover',
-  unit: 'unit',
-  metaTitle: 'metaTitle',
-  metaDescription: 'metaDescription',
-  canonicalUrl: 'canonicalUrl',
-  status: 'status',
-  publishAt: 'publishAt',
-  brandId: 'brandId',
-  madeInCountryCode: 'madeInCountryCode',
-  madeInNote: 'madeInNote',
-  priceMin: 'priceMin',
-  priceMax: 'priceMax',
-  variantCount: 'variantCount',
+  name: 'name',
+  coverImage: 'coverImage',
+  description: 'description',
+  categoryId: 'categoryId',
+  productCount: 'productCount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+export type ProductTypeScalarFieldEnum = (typeof ProductTypeScalarFieldEnum)[keyof typeof ProductTypeScalarFieldEnum]
 
 
-export const ProductVariantScalarFieldEnum = {
+export const UnitDefinitionScalarFieldEnum = {
   id: 'id',
-  productId: 'productId',
-  variantSku: 'variantSku',
-  mpn: 'mpn',
-  barcode: 'barcode',
-  brandId: 'brandId',
-  attributes: 'attributes',
+  name: 'name',
+  symbol: 'symbol',
+  dimension: 'dimension',
+  baseName: 'baseName',
+  factorToBase: 'factorToBase',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UnitDefinitionScalarFieldEnum = (typeof UnitDefinitionScalarFieldEnum)[keyof typeof UnitDefinitionScalarFieldEnum]
+
+
+export const ProductSpecDefinitionScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProductSpecDefinitionScalarFieldEnum = (typeof ProductSpecDefinitionScalarFieldEnum)[keyof typeof ProductSpecDefinitionScalarFieldEnum]
+
+
+export const ProductScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  name: 'name',
+  sku: 'sku',
+  description: 'description',
+  coverImage: 'coverImage',
+  metaTitle: 'metaTitle',
+  metaDescription: 'metaDescription',
+  status: 'status',
+  publishAt: 'publishAt',
   price: 'price',
   listPrice: 'listPrice',
   currency: 'currency',
   taxIncluded: 'taxIncluded',
   stockOnHand: 'stockOnHand',
   stockReserved: 'stockReserved',
-  warehouseId: 'warehouseId',
-  leadTimeDays: 'leadTimeDays',
-  minOrderQty: 'minOrderQty',
-  packInner: 'packInner',
-  packOuter: 'packOuter',
   weightGrams: 'weightGrams',
   lengthMm: 'lengthMm',
   widthMm: 'widthMm',
   heightMm: 'heightMm',
-  madeInCountryCode: 'madeInCountryCode',
-  madeInNote: 'madeInNote',
+  typeId: 'typeId',
+  brandId: 'brandId',
+  unitId: 'unitId',
+  quantityValue: 'quantityValue',
+  quantityUnitId: 'quantityUnitId',
+  quantityLabel: 'quantityLabel',
+  minOrderQty: 'minOrderQty',
+  stepQty: 'stepQty',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  ratingAvg: 'ratingAvg',
+  ratingCount: 'ratingCount',
+  purchaseCount: 'purchaseCount'
 } as const
 
-export type ProductVariantScalarFieldEnum = (typeof ProductVariantScalarFieldEnum)[keyof typeof ProductVariantScalarFieldEnum]
-
-
-export const ProductSpecScalarFieldEnum = {
-  id: 'id',
-  variantId: 'variantId',
-  keySlug: 'keySlug',
-  label: 'label',
-  valueText: 'valueText',
-  valueNumber: 'valueNumber',
-  unit: 'unit',
-  sortOrder: 'sortOrder',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProductSpecScalarFieldEnum = (typeof ProductSpecScalarFieldEnum)[keyof typeof ProductSpecScalarFieldEnum]
+export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
 
 
 export const ProductImageScalarFieldEnum = {
@@ -377,23 +379,33 @@ export const ProductImageScalarFieldEnum = {
 export type ProductImageScalarFieldEnum = (typeof ProductImageScalarFieldEnum)[keyof typeof ProductImageScalarFieldEnum]
 
 
-export const ProductDocScalarFieldEnum = {
+export const ProductSpecValueScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
-  title: 'title',
-  fileUrl: 'fileUrl',
-  type: 'type',
+  specDefinitionId: 'specDefinitionId',
+  valueString: 'valueString',
+  valueNumber: 'valueNumber',
+  valueBoolean: 'valueBoolean',
+  unitOverride: 'unitOverride',
+  note: 'note',
+  sortOrder: 'sortOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type ProductDocScalarFieldEnum = (typeof ProductDocScalarFieldEnum)[keyof typeof ProductDocScalarFieldEnum]
+export type ProductSpecValueScalarFieldEnum = (typeof ProductSpecValueScalarFieldEnum)[keyof typeof ProductSpecValueScalarFieldEnum]
 
 
 export const CartScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   status: 'status',
+  currency: 'currency',
+  subtotal: 'subtotal',
+  discountTotal: 'discountTotal',
+  taxTotal: 'taxTotal',
+  shippingFee: 'shippingFee',
+  grandTotal: 'grandTotal',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -404,14 +416,50 @@ export type CartScalarFieldEnum = (typeof CartScalarFieldEnum)[keyof typeof Cart
 export const CartItemScalarFieldEnum = {
   id: 'id',
   cartId: 'cartId',
-  variantId: 'variantId',
-  quantity: 'quantity',
+  productId: 'productId',
+  productName: 'productName',
+  productSku: 'productSku',
+  productSlug: 'productSlug',
+  productImage: 'productImage',
+  brandName: 'brandName',
+  unitLabel: 'unitLabel',
+  quantityLabel: 'quantityLabel',
   unitPrice: 'unitPrice',
-  totalPrice: 'totalPrice',
+  currency: 'currency',
+  taxIncluded: 'taxIncluded',
+  quantity: 'quantity',
+  lineTotal: 'lineTotal',
   addedAt: 'addedAt'
 } as const
 
 export type CartItemScalarFieldEnum = (typeof CartItemScalarFieldEnum)[keyof typeof CartItemScalarFieldEnum]
+
+
+export const ReviewScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  userId: 'userId',
+  rating: 'rating',
+  feedback: 'feedback',
+  description: 'description',
+  reply: 'reply',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ReviewScalarFieldEnum = (typeof ReviewScalarFieldEnum)[keyof typeof ReviewScalarFieldEnum]
+
+
+export const ReviewImageScalarFieldEnum = {
+  id: 'id',
+  reviewId: 'reviewId',
+  url: 'url',
+  alt: 'alt',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt'
+} as const
+
+export type ReviewImageScalarFieldEnum = (typeof ReviewImageScalarFieldEnum)[keyof typeof ReviewImageScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -420,13 +468,6 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
-
-
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const NullsOrder = {
@@ -569,99 +610,84 @@ export type SoftwareOrderByRelevanceFieldEnum = (typeof SoftwareOrderByRelevance
 
 export const BrandOrderByRelevanceFieldEnum = {
   id: 'id',
-  name: 'name',
   slug: 'slug',
-  originCountryCode: 'originCountryCode',
-  logoUrl: 'logoUrl'
+  logoUrl: 'logoUrl',
+  name: 'name',
+  summary: 'summary'
 } as const
 
 export type BrandOrderByRelevanceFieldEnum = (typeof BrandOrderByRelevanceFieldEnum)[keyof typeof BrandOrderByRelevanceFieldEnum]
 
 
-export const CategoryOrderByRelevanceFieldEnum = {
-  id: 'id',
-  name: 'name',
-  slug: 'slug',
-  fullSlug: 'fullSlug',
-  description: 'description',
-  icon: 'icon',
-  parentId: 'parentId'
-} as const
-
-export type CategoryOrderByRelevanceFieldEnum = (typeof CategoryOrderByRelevanceFieldEnum)[keyof typeof CategoryOrderByRelevanceFieldEnum]
-
-
 export const ProductCategoryOrderByRelevanceFieldEnum = {
-  productId: 'productId',
-  categoryId: 'categoryId'
+  id: 'id',
+  slug: 'slug',
+  name: 'name',
+  coverImage: 'coverImage',
+  description: 'description'
 } as const
 
 export type ProductCategoryOrderByRelevanceFieldEnum = (typeof ProductCategoryOrderByRelevanceFieldEnum)[keyof typeof ProductCategoryOrderByRelevanceFieldEnum]
 
 
+export const ProductCategoryLinkOrderByRelevanceFieldEnum = {
+  productId: 'productId',
+  categoryId: 'categoryId'
+} as const
+
+export type ProductCategoryLinkOrderByRelevanceFieldEnum = (typeof ProductCategoryLinkOrderByRelevanceFieldEnum)[keyof typeof ProductCategoryLinkOrderByRelevanceFieldEnum]
+
+
+export const ProductTypeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  name: 'name',
+  coverImage: 'coverImage',
+  description: 'description',
+  categoryId: 'categoryId'
+} as const
+
+export type ProductTypeOrderByRelevanceFieldEnum = (typeof ProductTypeOrderByRelevanceFieldEnum)[keyof typeof ProductTypeOrderByRelevanceFieldEnum]
+
+
+export const UnitDefinitionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  symbol: 'symbol',
+  dimension: 'dimension',
+  baseName: 'baseName'
+} as const
+
+export type UnitDefinitionOrderByRelevanceFieldEnum = (typeof UnitDefinitionOrderByRelevanceFieldEnum)[keyof typeof UnitDefinitionOrderByRelevanceFieldEnum]
+
+
+export const ProductSpecDefinitionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug'
+} as const
+
+export type ProductSpecDefinitionOrderByRelevanceFieldEnum = (typeof ProductSpecDefinitionOrderByRelevanceFieldEnum)[keyof typeof ProductSpecDefinitionOrderByRelevanceFieldEnum]
+
+
 export const ProductOrderByRelevanceFieldEnum = {
   id: 'id',
-  title: 'title',
   slug: 'slug',
+  name: 'name',
   sku: 'sku',
-  mpn: 'mpn',
-  summary: 'summary',
-  descriptionHtml: 'descriptionHtml',
-  imagesCover: 'imagesCover',
+  description: 'description',
+  coverImage: 'coverImage',
   metaTitle: 'metaTitle',
   metaDescription: 'metaDescription',
-  canonicalUrl: 'canonicalUrl',
+  currency: 'currency',
+  typeId: 'typeId',
   brandId: 'brandId',
-  madeInCountryCode: 'madeInCountryCode',
-  madeInNote: 'madeInNote'
+  unitId: 'unitId',
+  quantityUnitId: 'quantityUnitId',
+  quantityLabel: 'quantityLabel'
 } as const
 
 export type ProductOrderByRelevanceFieldEnum = (typeof ProductOrderByRelevanceFieldEnum)[keyof typeof ProductOrderByRelevanceFieldEnum]
-
-
-export const JsonNullValueFilter = {
-  DbNull: DbNull,
-  JsonNull: JsonNull,
-  AnyNull: AnyNull
-} as const
-
-export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-export const QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-} as const
-
-export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
-
-
-export const ProductVariantOrderByRelevanceFieldEnum = {
-  id: 'id',
-  productId: 'productId',
-  variantSku: 'variantSku',
-  mpn: 'mpn',
-  barcode: 'barcode',
-  brandId: 'brandId',
-  currency: 'currency',
-  warehouseId: 'warehouseId',
-  madeInCountryCode: 'madeInCountryCode',
-  madeInNote: 'madeInNote'
-} as const
-
-export type ProductVariantOrderByRelevanceFieldEnum = (typeof ProductVariantOrderByRelevanceFieldEnum)[keyof typeof ProductVariantOrderByRelevanceFieldEnum]
-
-
-export const ProductSpecOrderByRelevanceFieldEnum = {
-  id: 'id',
-  variantId: 'variantId',
-  keySlug: 'keySlug',
-  label: 'label',
-  valueText: 'valueText',
-  unit: 'unit'
-} as const
-
-export type ProductSpecOrderByRelevanceFieldEnum = (typeof ProductSpecOrderByRelevanceFieldEnum)[keyof typeof ProductSpecOrderByRelevanceFieldEnum]
 
 
 export const ProductImageOrderByRelevanceFieldEnum = {
@@ -674,19 +700,22 @@ export const ProductImageOrderByRelevanceFieldEnum = {
 export type ProductImageOrderByRelevanceFieldEnum = (typeof ProductImageOrderByRelevanceFieldEnum)[keyof typeof ProductImageOrderByRelevanceFieldEnum]
 
 
-export const ProductDocOrderByRelevanceFieldEnum = {
+export const ProductSpecValueOrderByRelevanceFieldEnum = {
   id: 'id',
   productId: 'productId',
-  title: 'title',
-  fileUrl: 'fileUrl'
+  specDefinitionId: 'specDefinitionId',
+  valueString: 'valueString',
+  unitOverride: 'unitOverride',
+  note: 'note'
 } as const
 
-export type ProductDocOrderByRelevanceFieldEnum = (typeof ProductDocOrderByRelevanceFieldEnum)[keyof typeof ProductDocOrderByRelevanceFieldEnum]
+export type ProductSpecValueOrderByRelevanceFieldEnum = (typeof ProductSpecValueOrderByRelevanceFieldEnum)[keyof typeof ProductSpecValueOrderByRelevanceFieldEnum]
 
 
 export const CartOrderByRelevanceFieldEnum = {
   id: 'id',
-  userId: 'userId'
+  userId: 'userId',
+  currency: 'currency'
 } as const
 
 export type CartOrderByRelevanceFieldEnum = (typeof CartOrderByRelevanceFieldEnum)[keyof typeof CartOrderByRelevanceFieldEnum]
@@ -695,8 +724,38 @@ export type CartOrderByRelevanceFieldEnum = (typeof CartOrderByRelevanceFieldEnu
 export const CartItemOrderByRelevanceFieldEnum = {
   id: 'id',
   cartId: 'cartId',
-  variantId: 'variantId'
+  productId: 'productId',
+  productName: 'productName',
+  productSku: 'productSku',
+  productSlug: 'productSlug',
+  productImage: 'productImage',
+  brandName: 'brandName',
+  unitLabel: 'unitLabel',
+  quantityLabel: 'quantityLabel',
+  currency: 'currency'
 } as const
 
 export type CartItemOrderByRelevanceFieldEnum = (typeof CartItemOrderByRelevanceFieldEnum)[keyof typeof CartItemOrderByRelevanceFieldEnum]
+
+
+export const ReviewOrderByRelevanceFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  userId: 'userId',
+  feedback: 'feedback',
+  description: 'description',
+  reply: 'reply'
+} as const
+
+export type ReviewOrderByRelevanceFieldEnum = (typeof ReviewOrderByRelevanceFieldEnum)[keyof typeof ReviewOrderByRelevanceFieldEnum]
+
+
+export const ReviewImageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  reviewId: 'reviewId',
+  url: 'url',
+  alt: 'alt'
+} as const
+
+export type ReviewImageOrderByRelevanceFieldEnum = (typeof ReviewImageOrderByRelevanceFieldEnum)[keyof typeof ReviewImageOrderByRelevanceFieldEnum]
 
