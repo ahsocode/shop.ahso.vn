@@ -1,6 +1,12 @@
-import Page, { generateMetadata as _generateMetadata } from "@/app/shop/solutions/[slug]/page";
+// Move your actual page component and generateMetadata function here
+// This file should contain the implementation, not re-exports
 
-// Re-export component and metadata; set config literals here (no re-export)
 export const revalidate = 60;
-export const generateMetadata = _generateMetadata;
-export default Page;
+
+export async function generateMetadata() {
+  // Your metadata generation logic here
+}
+
+export default function Page() {
+  // Your page component logic here
+}

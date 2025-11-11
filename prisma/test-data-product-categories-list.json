@@ -1,0 +1,64 @@
+{
+  "categories": [
+    {
+      "slug": "may-nen-khi",
+      "name": "Máy nén khí",
+      "coverImage": "/categories/may-nen-khi.jpg",
+      "description": "Máy nén khí trục vít, piston, không dầu, mini, và máy sấy khí cho nhà máy."
+    },
+    {
+      "slug": "thiet-bi-khi-nen",
+      "name": "Thiết bị khí nén",
+      "coverImage": "/categories/thiet-bi-khi-nen.jpg",
+      "description": "Bao gồm van điện từ, xy lanh, lọc khí, bộ điều áp và các linh kiện khí nén khác."
+    },
+    {
+      "slug": "dong-co-dien",
+      "name": "Động cơ điện & biến tần",
+      "coverImage": "/categories/dong-co-dien.jpg",
+      "description": "Các loại động cơ công nghiệp, hộp số, biến tần và phụ kiện điều khiển tốc độ."
+    },
+    {
+      "slug": "thiet-bi-dien-tu-dong",
+      "name": "Thiết bị điện tự động",
+      "coverImage": "/categories/thiet-bi-dien-tu-dong.jpg",
+      "description": "Relay, cảm biến, bộ điều khiển PLC, HMI, bộ đếm và timer."
+    },
+    {
+      "slug": "thiet-bi-do-luong",
+      "name": "Thiết bị đo lường & cảm biến",
+      "coverImage": "/categories/thiet-bi-do-luong.jpg",
+      "description": "Cảm biến tiệm cận, cảm biến quang, đồng hồ áp suất, lưu lượng kế và bộ hiển thị."
+    },
+    {
+      "slug": "day-cap-va-phu-kien",
+      "name": "Dây cáp & phụ kiện điện",
+      "coverImage": "/categories/day-cap.jpg",
+      "description": "Cáp nguồn, cáp tín hiệu, đầu nối công nghiệp, khớp nối và phụ kiện đấu nối điện."
+    },
+    {
+      "slug": "bo-loc-va-duong-ong",
+      "name": "Bộ lọc & Đường ống",
+      "coverImage": "/categories/bo-loc.jpg",
+      "description": "Lọc khí, lọc dầu, van 1 chiều, khớp nối nhanh và phụ kiện đường ống."
+    },
+    {
+      "slug": "may-bom-va-he-thong-nuoc",
+      "name": "Máy bơm & Hệ thống nước",
+      "coverImage": "/categories/may-bom.jpg",
+      "description": "Máy bơm công nghiệp, bơm chân không, van nước và phụ kiện hệ thống dẫn nước."
+    },
+    {
+      "slug": "thiet-bi-an-toan-cong-nghiep",
+      "name": "Thiết bị an toàn công nghiệp",
+      "coverImage": "/categories/an-toan.jpg",
+      "description": "Công tắc hành trình, nút dừng khẩn, cảm biến an toàn và rào chắn bảo vệ máy móc."
+    },
+    {
+      "slug": "phu-tung-cong-nghiep",
+      "name": "Phụ tùng công nghiệp",
+      "coverImage": "/categories/phu-tung.jpg",
+      "description": "Bạc đạn, vòng bi, dây curoa, phớt, gioăng và linh kiện thay thế thiết bị công nghiệp."
+    }
+  ]
+}

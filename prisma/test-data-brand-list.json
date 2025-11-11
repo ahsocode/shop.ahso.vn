@@ -1,0 +1,64 @@
+{
+  "brands": [
+    {
+      "slug": "hitachi",
+      "name": "Hitachi",
+      "logoUrl": "/brands/hitachi.png",
+      "summary": "Tập đoàn công nghiệp Nhật Bản nổi tiếng trong lĩnh vực máy móc và thiết bị tự động hóa."
+    },
+    {
+      "slug": "smc",
+      "name": "SMC",
+      "logoUrl": "/brands/smc.png",
+      "summary": "Nhà sản xuất hàng đầu thế giới về thiết bị khí nén và điều khiển tự động."
+    },
+    {
+      "slug": "mitsubishi",
+      "name": "Mitsubishi Electric",
+      "logoUrl": "/brands/mitsubishi.png",
+      "summary": "Thương hiệu Nhật Bản uy tín trong lĩnh vực thiết bị công nghiệp và điện tự động hóa."
+    },
+    {
+      "slug": "omron",
+      "name": "Omron",
+      "logoUrl": "/brands/omron.png",
+      "summary": "Công ty công nghệ Nhật Bản chuyên về cảm biến, điều khiển và hệ thống tự động hóa."
+    },
+    {
+      "slug": "festo",
+      "name": "Festo",
+      "logoUrl": "/brands/festo.png",
+      "summary": "Tập đoàn Đức dẫn đầu thế giới về công nghệ khí nén và giải pháp tự động hóa nhà máy."
+    },
+    {
+      "slug": "siemens",
+      "name": "Siemens",
+      "logoUrl": "/brands/siemens.png",
+      "summary": "Tập đoàn công nghiệp Đức, nổi tiếng với giải pháp điện – tự động hóa và điều khiển công nghiệp."
+    },
+    {
+      "slug": "delta",
+      "name": "Delta Electronics",
+      "logoUrl": "/brands/delta.png",
+      "summary": "Nhà sản xuất thiết bị điện – tự động hóa công nghiệp hàng đầu Đài Loan."
+    },
+    {
+      "slug": "schneider",
+      "name": "Schneider Electric",
+      "logoUrl": "/brands/schneider.png",
+      "summary": "Thương hiệu Pháp chuyên về giải pháp điện, năng lượng và tự động hóa công nghiệp."
+    },
+    {
+      "slug": "panasonic",
+      "name": "Panasonic",
+      "logoUrl": "/brands/panasonic.png",
+      "summary": "Tập đoàn điện tử Nhật Bản cung cấp thiết bị điện, động cơ và giải pháp công nghiệp."
+    },
+    {
+      "slug": "autonics",
+      "name": "Autonics",
+      "logoUrl": "/brands/autonics.png",
+      "summary": "Hãng Hàn Quốc chuyên về cảm biến, bộ điều khiển, bộ đếm và thiết bị điều khiển tự động."
+    }
+  ]
+}

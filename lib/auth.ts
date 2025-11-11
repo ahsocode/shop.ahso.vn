@@ -14,14 +14,21 @@ export const JwtPayloadSchema = z.object({
 });
 export type JwtPayload = z.infer<typeof JwtPayloadSchema>;
 
-/** Lấy token từ Authorization: Bearer ... hoặc cookie "token" */
+/** Lấy token từ Authorization: Bearer ... hoặc cookie "auth_token" */
 export function getTokenFromRequest(req: NextRequest): string | null {
+  // 1. Ưu tiên Authorization header
   const auth = req.headers.get("authorization");
-  if (auth?.startsWith("Bearer ")) return auth.slice(7);
+  if (auth?.startsWith("Bearer ")) {
+    return auth.slice(7);
+  }
 
-  const cookieHeader = req.headers.get("cookie") ?? "";
-  const m = cookieHeader.match(/(?:^|;\s*)token=([^;]+)/);
-  return m ? decodeURIComponent(m[1]) : null;
+  // 2. Fallback cookie "auth_token"
+  const cookieToken = req.cookies.get("auth_token")?.value;
+  if (cookieToken) {
+    return cookieToken;
+  }
+
+  return null;
 }
 
 /** Kiểu lỗi HTTP đơn giản để route có thể bắt và trả về status phù hợp */
@@ -32,17 +39,24 @@ export class HttpError extends Error {
     this.status = status;
   }
 }
+
 export class UnauthorizedError extends HttpError {
-  constructor(message = "Unauthorized") { super(401, message); }
+  constructor(message = "Unauthorized") {
+    super(401, message);
+  }
 }
+
 export class ForbiddenError extends HttpError {
-  constructor(message = "Forbidden") { super(403, message); }
+  constructor(message = "Forbidden") {
+    super(403, message);
+  }
 }
 
 /** Xác thực: trả về payload hoặc null (không ném lỗi) */
 export async function verifyRequestUser(req: NextRequest): Promise<JwtPayload | null> {
   const secret = process.env.JWT_SECRET;
   if (!secret) throw new Error("Missing JWT_SECRET");
+  
   const token = getTokenFromRequest(req);
   if (!token) return null;
 
@@ -56,7 +70,7 @@ export async function verifyRequestUser(req: NextRequest): Promise<JwtPayload | 
   }
 }
 
-/** Xác thực: yêu cầu có Bearer token hợp lệ, sai thì NÉM lỗi 401 */
+/** Xác thực: yêu cầu có Bearer token hoặc cookie hợp lệ, sai thì NÉM lỗi 401 */
 export async function verifyBearerAuth(req: NextRequest): Promise<JwtPayload> {
   const secret = process.env.JWT_SECRET;
   if (!secret) throw new Error("Missing JWT_SECRET");

@@ -1,0 +1,132 @@
+{
+  "products": [
+    {
+      "slug": "may-nen-khi-hitachi-osp-22van2",
+      "name": "Máy nén khí trục vít Hitachi OSP-22VAN2",
+      "sku": "HIT-OSP22VAN2",
+      "description": "Máy nén khí trục vít công suất 22 kW, tiết kiệm năng lượng, độ ồn thấp, bền bỉ, phù hợp cho nhà xưởng vừa và nhỏ.",
+      "coverImage": "/products/hitachi-osp22/cover.jpg",
+      "metaTitle": "Hitachi OSP-22VAN2 | Máy nén khí trục vít 22 kW",
+      "metaDescription": "Máy nén khí trục vít Hitachi OSP-22VAN2, hiệu suất cao, hoạt động êm ái, tiết kiệm điện năng.",
+      "status": "PUBLISHED",
+      "publishAt": "2025-11-01T00:00:00.000Z",
+      "price": "89000000.00",
+      "listPrice": "95000000.00",
+      "currency": "VND",
+      "taxIncluded": true,
+      "stockOnHand": 6,
+      "stockReserved": 0,
+      "weightGrams": 430000,
+      "lengthMm": 1050,
+      "widthMm": 850,
+      "heightMm": 1350,
+      "typeSlug": "truc-vit",
+      "brandSlug": "hitachi",
+      "unitName": "Piece",
+      "quantityValue": "1.000000",
+      "quantityUnitName": "Piece",
+      "quantityLabel": "Bộ",
+      "minOrderQty": 1,
+      "stepQty": 1,
+      "images": [
+        { "url": "/products/hitachi-osp22/front.jpg", "alt": "Mặt trước Hitachi OSP-22VAN2", "sortOrder": 1 },
+        { "url": "/products/hitachi-osp22/side.jpg", "alt": "Cạnh bên Hitachi OSP-22VAN2", "sortOrder": 2 }
+      ],
+      "specValues": [
+        { "specSlug": "cong-suat", "specName": "Công suất", "valueString": "22 kW", "valueNumber": 22, "unitOverride": "kW", "sortOrder": 1 },
+        { "specSlug": "luu-luong", "specName": "Lưu lượng khí", "valueString": "3.8 m3/min", "valueNumber": 3.8, "unitOverride": "m3/min", "sortOrder": 2 },
+        { "specSlug": "ap-suat", "specName": "Áp suất làm việc", "valueString": "0.7–0.8 MPa", "unitOverride": "MPa", "sortOrder": 3 },
+        { "specSlug": "dien-ap", "specName": "Điện áp hoạt động", "valueString": "380V / 50Hz", "unitOverride": "V", "sortOrder": 4 },
+        { "specSlug": "do-on", "specName": "Độ ồn", "valueString": "< 62 dB", "valueNumber": 62, "unitOverride": "dB", "sortOrder": 5 }
+      ],
+      "categoryLinks": [
+        { "categorySlug": "may-nen-khi" }
+      ]
+    },
+
+    {
+      "slug": "van-dien-tu-smc-sy3140",
+      "name": "Van điện từ SMC SY3140",
+      "sku": "SMC-SY3140-5LZ",
+      "description": "Van điện từ dòng SY của SMC, thiết kế nhỏ gọn, phản hồi nhanh, tuổi thọ cao, phù hợp cho hệ thống khí nén tự động.",
+      "coverImage": "/products/smc-sy3140/cover.jpg",
+      "metaTitle": "SMC SY3140 | Van điện từ khí nén",
+      "metaDescription": "Van điện từ SMC SY3140 – điều khiển khí nén hiệu quả, độ bền cao.",
+      "status": "PUBLISHED",
+      "publishAt": "2025-10-25T00:00:00.000Z",
+      "price": "1350000.00",
+      "listPrice": "1450000.00",
+      "currency": "VND",
+      "taxIncluded": true,
+      "stockOnHand": 120,
+      "stockReserved": 0,
+      "weightGrams": 180,
+      "lengthMm": 120,
+      "widthMm": 45,
+      "heightMm": 35,
+      "typeSlug": "van-dien-tu",
+      "brandSlug": "smc",
+      "unitName": "Piece",
+      "quantityValue": "1.000000",
+      "quantityUnitName": "Piece",
+      "quantityLabel": "Cái",
+      "minOrderQty": 1,
+      "stepQty": 1,
+      "images": [
+        { "url": "/products/smc-sy3140/main.jpg", "alt": "Van điện từ SMC SY3140", "sortOrder": 1 }
+      ],
+      "specValues": [
+        { "specSlug": "dien-ap", "specName": "Điện áp", "valueString": "24VDC", "valueNumber": 24, "unitOverride": "V", "sortOrder": 1 },
+        { "specSlug": "luu-luong", "specName": "Lưu lượng khí", "valueString": "400 L/min", "valueNumber": 400, "unitOverride": "L/min", "sortOrder": 2 },
+        { "specSlug": "ap-suat", "specName": "Áp suất hoạt động", "valueString": "0.15–0.7 MPa", "unitOverride": "MPa", "sortOrder": 3 },
+        { "specSlug": "do-on", "specName": "Độ ồn", "valueString": "< 60 dB", "valueNumber": 60, "unitOverride": "dB", "sortOrder": 4 }
+      ],
+      "categoryLinks": [
+        { "categorySlug": "thiet-bi-khi-nen" }
+      ]
+    },
+
+    {
+      "slug": "bien-tan-delta-vfd075e43a",
+      "name": "Biến tần Delta VFD075E43A",
+      "sku": "DELTA-VFD075E43A",
+      "description": "Biến tần dòng VFD-E series công suất 7.5 kW, hỗ trợ điều khiển vector và PID, thiết kế nhỏ gọn, dễ lắp đặt.",
+      "coverImage": "/products/delta-vfd075/cover.jpg",
+      "metaTitle": "Delta VFD075E43A | Biến tần 7.5 kW",
+      "metaDescription": "Biến tần Delta 7.5 kW điều khiển động cơ 3 pha, tiết kiệm điện năng, dễ cài đặt.",
+      "status": "PUBLISHED",
+      "publishAt": "2025-11-05T00:00:00.000Z",
+      "price": "6200000.00",
+      "listPrice": "6900000.00",
+      "currency": "VND",
+      "taxIncluded": true,
+      "stockOnHand": 20,
+      "stockReserved": 0,
+      "weightGrams": 2200,
+      "lengthMm": 260,
+      "widthMm": 150,
+      "heightMm": 190,
+      "typeSlug": "bien-tan",
+      "brandSlug": "delta",
+      "unitName": "Piece",
+      "quantityValue": "1.000000",
+      "quantityUnitName": "Piece",
+      "quantityLabel": "Bộ",
+      "minOrderQty": 1,
+      "stepQty": 1,
+      "images": [
+        { "url": "/products/delta-vfd075/front.jpg", "alt": "Biến tần Delta VFD075E43A mặt trước", "sortOrder": 1 },
+        { "url": "/products/delta-vfd075/side.jpg", "alt": "Biến tần Delta VFD075E43A cạnh bên", "sortOrder": 2 }
+      ],
+      "specValues": [
+        { "specSlug": "cong-suat", "specName": "Công suất", "valueString": "7.5 kW", "valueNumber": 7.5, "unitOverride": "kW", "sortOrder": 1 },
+        { "specSlug": "dien-ap", "specName": "Nguồn cấp", "valueString": "3 pha 380V", "unitOverride": "V", "sortOrder": 2 },
+        { "specSlug": "tan-so", "specName": "Tần số ngõ ra", "valueString": "0.1 – 600 Hz", "unitOverride": "Hz", "sortOrder": 3 },
+        { "specSlug": "tinh-nang", "specName": "Tính năng", "valueString": "PID, điều khiển vector, bảo vệ quá tải", "sortOrder": 4 }
+      ],
+      "categoryLinks": [
+        { "categorySlug": "dong-co-dien" }
+      ]
+    }
+  ]
+}

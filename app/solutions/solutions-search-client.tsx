@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import FilterLayout from "../filterlayout";
+
 import Link from "next/link";
 import Image from "next/image";
+import FilterLayout from "../shop/filterlayout";
 
 
 export type Solution = {

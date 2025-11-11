@@ -1,15 +1,17 @@
+// app/api/auth/login/route.ts
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
-import { prisma } from "../../../../lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const loginSchema = z.object({
+  identifier: z.string().optional(), // Support cả username/email/phone
   username: z.string().optional(),
   email: z.string().optional(),
   password: z.string().min(1, "Password required"),
-}).refine((data) => data.username || data.email, {
-  message: "Username or email is required",
+}).refine((data) => data.identifier || data.username || data.email, {
+  message: "Username, email, or identifier is required",
 });
 
 function parseExpiry(s: string): number {
@@ -32,10 +34,102 @@ async function signJwt(payload: object, expiresIn = "7d") {
     .sign(encoder.encode(secret));
 }
 
+/**
+ * Merge guest cart vào user cart khi login
+ */
+async function mergeGuestCartToUser(guestCartId: string, userId: string) {
+  try {
+    const guestCart = await prisma.cart.findUnique({
+      where: { id: guestCartId },
+      include: { items: true },
+    });
+
+    // Không merge nếu cart không tồn tại hoặc đã thuộc user khác
+    if (!guestCart || guestCart.userId) {
+      return;
+    }
+
+    // Tìm hoặc tạo user cart
+    let userCart = await prisma.cart.findFirst({
+      where: { userId, status: "ACTIVE" },
+      include: { items: true },
+    });
+
+    if (!userCart) {
+      userCart = await prisma.cart.create({
+        data: { userId, status: "ACTIVE" },
+        include: { items: true },
+      });
+    }
+
+    // Merge items
+    for (const guestItem of guestCart.items) {
+      const existingUserItem = userCart.items.find(
+        (ui) => ui.productId === guestItem.productId
+      );
+
+      if (existingUserItem) {
+        // Cộng dồn số lượng
+        const newQty = existingUserItem.quantity + guestItem.quantity;
+        await prisma.cartItem.update({
+          where: { id: existingUserItem.id },
+          data: {
+            quantity: newQty,
+            lineTotal: Number(existingUserItem.unitPrice) * newQty,
+          },
+        });
+      } else {
+        // Tạo item mới
+        await prisma.cartItem.create({
+          data: {
+            cartId: userCart.id,
+            productId: guestItem.productId,
+            productName: guestItem.productName,
+            productSku: guestItem.productSku,
+            productSlug: guestItem.productSlug,
+            productImage: guestItem.productImage,
+            brandName: guestItem.brandName,
+            unitLabel: guestItem.unitLabel,
+            quantityLabel: guestItem.quantityLabel,
+            unitPrice: guestItem.unitPrice,
+            currency: guestItem.currency,
+            taxIncluded: guestItem.taxIncluded,
+            quantity: guestItem.quantity,
+            lineTotal: guestItem.lineTotal,
+          },
+        });
+      }
+    }
+
+    // Tính lại tổng
+    const updatedItems = await prisma.cartItem.findMany({
+      where: { cartId: userCart.id },
+    });
+    const subtotal = updatedItems.reduce((s, it) => s + Number(it.lineTotal || 0), 0);
+
+    await prisma.cart.update({
+      where: { id: userCart.id },
+      data: {
+        subtotal,
+        grandTotal: subtotal,
+      },
+    });
+
+    // Xóa guest cart
+    await prisma.cart.delete({ where: { id: guestCartId } });
+
+    console.log(`✅ Merged guest cart ${guestCartId} to user ${userId}`);
+  } catch (error) {
+    console.error("❌ Error merging cart:", error);
+    // Không throw error để không làm fail login
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const parsed = loginSchema.safeParse(body);
+    
     if (!parsed.success) {
       return NextResponse.json(
         { error: "VALIDATION_ERROR", details: parsed.error.flatten() },
@@ -44,22 +138,56 @@ export async function POST(req: Request) {
     }
 
     const data = parsed.data;
-    const where = data.username
-      ? { username: data.username.toLowerCase() }
-      : { email: data.email!.toLowerCase() };
+    
+    // Xác định where clause
+    let where: any;
+    if (data.identifier) {
+      const id = data.identifier.toLowerCase();
+      where = {
+        OR: [
+          { username: id },
+          { email: id },
+          { phoneE164: id.startsWith("+") ? id : `+84${id.replace(/^0/, "")}` },
+        ],
+      };
+    } else if (data.username) {
+      where = { username: data.username.toLowerCase() };
+    } else {
+      where = { email: data.email!.toLowerCase() };
+    }
 
-    const user = await prisma.user.findUnique({ where });
+    const user = await prisma.user.findFirst({ where });
+    
     if (!user) {
-      return NextResponse.json({ error: "INVALID_CREDENTIALS" }, { status: 401 });
+      return NextResponse.json(
+        { error: "INVALID_CREDENTIALS" },
+        { status: 401 }
+      );
     }
 
     const match = await bcrypt.compare(data.password, user.passwordHash);
+    
     if (!match) {
-      return NextResponse.json({ error: "INVALID_CREDENTIALS" }, { status: 401 });
+      return NextResponse.json(
+        { error: "INVALID_CREDENTIALS" },
+        { status: 401 }
+      );
     }
 
+    // ⭐ Merge guest cart nếu có
+    const guestCartId = req.headers.get("cookie")?.match(/cart_id=([^;]+)/)?.[1];
+    if (guestCartId) {
+      await mergeGuestCartToUser(decodeURIComponent(guestCartId), user.id);
+    }
+
+    // Tạo JWT token
     const token = await signJwt(
-      { sub: user.id, username: user.username, email: user.email, role: user.role },
+      {
+        sub: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
       "7d"
     );
 
@@ -77,19 +205,24 @@ export async function POST(req: Request) {
       },
     });
 
-    // Set HTTP-only auth cookie for middleware and server verification
+    // Set auth cookie
     res.cookies.set("auth_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
+      maxAge: 7 * 24 * 60 * 60,
     });
 
-    return res;
+    // ⭐ Clear guest cart cookie
+    res.cookies.delete("cart_id");
 
+    return res;
   } catch (err) {
     console.error("LOGIN ERROR:", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
