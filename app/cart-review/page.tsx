@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -244,18 +244,17 @@ export default function CartReviewPage() {
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (!agree) newErrors.agree = "Bạn cần đồng ý điều khoản";
+    if (!agree) newErrors.agree = "Bạn cần đồng ý với điều khoản";
     if (items.length === 0) newErrors.items = "Giỏ hàng trống";
 
-    // Dù đăng nhập hay không, vẫn xác thực các trường cần thiết để tránh lỗi vận chuyển
+    // Dù đăng nhập hay không vẫn kiểm tra các trường bắt buộc để giao hàng
     if (!form.fullName.trim()) newErrors.fullName = "Vui lòng nhập họ và tên";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = "Email không hợp lệ";
-    if (!/^\+?\d{8,15}$/.test(form.phoneE164))
-      newErrors.phoneE164 = "Số điện thoại không hợp lệ";
+    if (!/^\+?\d{8,15}$/.test(form.phoneE164)) newErrors.phoneE164 = "Số điện thoại không hợp lệ";
     if (!form.line1.trim()) newErrors.line1 = "Vui lòng nhập địa chỉ";
     if (!form.city.trim()) newErrors.city = "Vui lòng nhập tỉnh/thành phố";
     if (invoice && form.taxCode && !/^\d{10,13}$/.test(form.taxCode))
-      newErrors.taxCode = "Mã số thuế 10–13 chữ số";
+      newErrors.taxCode = "Mã số thuế phải gồm 10–13 chữ số";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -269,7 +268,7 @@ export default function CartReviewPage() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          guest: form, // nếu backend của bạn cho phép addressId khi login, bổ sung ở đây
+          guest: form, // nếu backend cho phép dùng addressId khi đã đăng nhập, có thể bổ sung ở đây
           paymentType,
           paymentMethod,
           coupon: appliedCode,
@@ -315,7 +314,7 @@ export default function CartReviewPage() {
 
         {/* Layout */}
         <div className="grid gap-6 lg:grid-cols-3">
-          {/* LEFT */}
+          {/* LEFT COLUMN: products & payment */}
           <div className="lg:col-span-2 space-y-6">
             {/* Product list */}
             <div className="rounded-2xl border bg-white p-4 sm:p-6 shadow-sm">
@@ -358,20 +357,6 @@ export default function CartReviewPage() {
               )}
             </div>
 
-            {/* Shipping / Customer info (PROFILE) */}
-            <ShippingFromProfile
-              isLoggedIn={isLoggedIn}
-              form={form}
-              setForm={setForm}
-              errors={errors}
-              setErrors={setErrors}
-              invoice={invoice}
-              setInvoice={setInvoice}
-              agree={agree}
-              setAgree={setAgree}
-              onChange={onChange}
-            />
-
             {/* Payment + coupon + note */}
             <div className="rounded-2xl border bg-white p-4 sm:p-6 shadow-sm">
               <div className="mb-4 flex items-center gap-3">
@@ -381,57 +366,37 @@ export default function CartReviewPage() {
                 <h2 className="text-lg font-semibold text-gray-900">Thanh toán & Khuyến mãi</h2>
               </div>
 
-              {/* Payment type */}
-              <div className="grid gap-3 sm:grid-cols-3">
-                {[
-                  { id: "cod", label: "Thanh toán khi nhận (COD)" },
-                  { id: "bank", label: "Chuyển khoản ngân hàng" },
-                  { id: "online", label: "Online (Momo/VNPay)" },
-                ].map((opt) => (
-                  <label
-                    key={opt.id}
-                    className={`flex cursor-pointer items-center gap-2 rounded-lg border p-3 text-sm ${
-                      paymentType === opt.id ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="payment-type"
-                      checked={paymentType === (opt.id as any)}
-                      onChange={() => setPaymentType(opt.id as "cod" | "bank" | "online")}
-                      className="h-4 w-4 text-blue-600"
-                    />
-                    {opt.label}
-                  </label>
-                ))}
+             {/* Payment section - Select only, QR will be shown on next step */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="rounded-lg bg-blue-100 p-2">
+                  <CreditCard className="h-5 w-5 text-blue-600" />
+                </div>
+                <h2 className="text-lg font-semibold text-gray-900">Phương thức thanh toán</h2>
               </div>
 
-              {(paymentType === "bank" || paymentType === "online") && (
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                  {(
-                    paymentType === "bank"
-                      ? ["Vietcombank", "Techcombank", "MB Bank"]
-                      : ["Momo", "VNPay", "ZaloPay"]
-                  ).map((m) => (
-                    <label
-                      key={m}
-                      className={`flex cursor-pointer items-center gap-2 rounded-lg border p-3 text-sm ${
-                        paymentMethod === m ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment-method"
-                        checked={paymentMethod === m}
-                        onChange={() => setPaymentMethod(m)}
-                        className="h-4 w-4 text-blue-600"
-                      />
-                      {m}
-                    </label>
-                  ))}
+              {/* Chỉ hiển thị 1 lựa chọn cố định */}
+              <label className="flex items-start gap-3 rounded-lg border border-blue-500 bg-blue-50 p-4">
+                <input
+                  type="radio"
+                  checked
+                  readOnly
+                  className="h-4 w-4 mt-1 text-blue-600"
+                />
+                <div className="text-sm">
+                  <div className="font-semibold text-gray-900">
+                    Chuyển khoản ngân hàng qua QR 
+                  </div>
+                  <ul className="mt-2 text-gray-700 space-y-1">
+                    <li><b>Đơn vị thụ hưởng:</b> CÔNG TY TNHH AHSO</li>
+                    <li><b>Số tài khoản:</b> 03168969399</li>
+                    <li><b>Ngân hàng:</b> TPBank – Chi nhánh Bình Chánh</li>
+                    <li className="text-xs text-gray-600">
+                    </li>
+                  </ul>
                 </div>
-              )}
-
+              </label>
+            </div>
               {/* Coupon */}
               <div className="mt-6">
                 <label className="mb-2 block text-sm font-medium text-gray-700">Mã khuyến mãi</label>
@@ -478,64 +443,75 @@ export default function CartReviewPage() {
             </div>
           </div>
 
-          {/* RIGHT: Summary only (sticky) */}
-          <aside className="lg:col-span-1">
-            <div className="lg:sticky lg:top-24">
-              <div className="rounded-2xl border bg-white p-4 sm:p-6 shadow-sm">
-                <h2 className="mb-4 text-lg font-semibold text-gray-900">Tóm tắt đơn hàng</h2>
+          {/* RIGHT COLUMN: summary + shipping */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="rounded-2xl border bg-white p-4 sm:p-6 shadow-sm">
+              <h2 className="mb-4 text-lg font-semibold text-gray-900">Tóm tắt đơn hàng</h2>
 
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tạm tính</span>
-                    <span className="font-medium">{formatVND(subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Giảm giá</span>
-                    <span className="font-medium">-{formatVND(discount)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">VAT (10%)</span>
-                    <span className="font-medium">{formatVND(vat)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Vận chuyển</span>
-                    <span className="font-medium">{formatVND(shippingFee)}</span>
-                  </div>
-                  <div className="flex justify-between border-t pt-3 text-base">
-                    <span className="font-semibold text-gray-900">Tổng cộng</span>
-                    <span className="text-xl font-bold text-blue-600">{formatVND(grandTotal)}</span>
-                  </div>
-                  <p className="text-xs text-gray-500">Đã bao gồm VAT</p>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Tạm tính</span>
+                  <span className="font-medium">{formatVND(subtotal)}</span>
                 </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Giảm giá</span>
+                  <span className="font-medium">-{formatVND(discount)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">VAT (10%)</span>
+                  <span className="font-medium">{formatVND(vat)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Vận chuyển</span>
+                  <span className="font-medium">{formatVND(shippingFee)}</span>
+                </div>
+                <div className="flex justify-between border-t pt-3 text-base">
+                  <span className="font-semibold text-gray-900">Tổng cộng</span>
+                  <span className="text-xl font-bold text-blue-600">{formatVND(grandTotal)}</span>
+                </div>
+                <p className="text-xs text-gray-500">* Đã bao gồm VAT</p>
+              </div>
 
-                <button
-                  onClick={handlePlaceOrder}
-                  disabled={!agree || items.length === 0}
-                  className="group relative overflow-hidden mt-4 w-full rounded-xl bg-linear-to-r from-blue-600 to-blue-700 px-6 py-4 font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    <CheckCircle2 className="h-5 w-5" />
-                    Đặt hàng ngay
-                  </span>
-                  <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-blue-700 to-blue-800 opacity-0 transition-opacity group-hover:opacity-100" />
-                </button>
+              <button
+                onClick={handlePlaceOrder}
+                disabled={!agree || items.length === 0}
+                className="group relative overflow-hidden mt-4 w-full rounded-xl bg-linear-to-r from-blue-600 to-blue-700 px-6 py-4 font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  <CheckCircle2 className="h-5 w-5" />
+                  Đặt hàng ngay
+                </span>
+                <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-blue-700 to-blue-800 opacity-0 transition-opacity group-hover:opacity-100" />
+              </button>
 
-                <div className="mt-4 rounded-xl border border-green-200 bg-green-50 p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="rounded-lg bg-green-100 p-2">
-                      <CreditCard className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-green-900">Thanh toán an toàn</h3>
-                      <p className="mt-1 text-xs text-green-700">
-                        Thông tin của bạn được mã hóa và bảo mật
-                      </p>
-                    </div>
+              <div className="mt-4 rounded-xl border border-green-200 bg-green-50 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-lg bg-green-100 p-2">
+                    <CreditCard className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-green-900">Thanh toán an toàn</h3>
+                    <p className="mt-1 text-xs text-green-700">
+                      Thông tin của bạn được mã hóa và bảo mật
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
-          </aside>
+
+            <ShippingFromProfile
+              isLoggedIn={isLoggedIn}
+              form={form}
+              setForm={setForm}
+              errors={errors}
+              setErrors={setErrors}
+              invoice={invoice}
+              setInvoice={setInvoice}
+              agree={agree}
+              setAgree={setAgree}
+              onChange={onChange}
+            />
+          </div>
         </div>
 
         {/* Mobile CTA */}
@@ -588,6 +564,10 @@ function ShippingFromProfile({
   const [mode, setMode] = useState<"view" | "edit">(isLoggedIn ? "view" : "edit");
   const readOnly = isLoggedIn && mode === "view";
 
+  useEffect(() => {
+    setMode(isLoggedIn ? "view" : "edit");
+  }, [isLoggedIn]);
+
   async function saveProfile() {
     try {
       const r = await fetch("/api/profile", {
@@ -596,7 +576,7 @@ function ShippingFromProfile({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           fullName: form.fullName,
-          phone: form.phoneE164,            // backend tự chuẩn hóa E.164
+          phone: form.phoneE164, // backend sẽ chuẩn hóa E.164
           taxCode: form.taxCode || null,
           shippingAddress: {
             line1: form.line1,
@@ -606,7 +586,7 @@ function ShippingFromProfile({
             postalCode: form.postalCode || undefined,
             country: (form.country || "VN").toUpperCase(),
           },
-          // billingAddress: null => dùng chung shipping (đúng theo logic backend của bạn)
+          // billingAddress: null -> dùng chung shipping (tùy logic backend)
         }),
       });
       if (!r.ok) throw 0;
@@ -657,13 +637,70 @@ function ShippingFromProfile({
 
       {/* Form */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextField id="fullName" label="Họ và tên" required value={form.fullName} onChange={onChange("fullName")} error={errors.fullName} className="sm:col-span-2" readOnly={readOnly} />
-        <IconField id="email" label="Email" icon={<Mail className="h-5 w-5 text-gray-400" />} required value={form.email} onChange={onChange("email")} error={errors.email} readOnly />
-        <IconField id="phoneE164" label="Số điện thoại" icon={<Phone className="h-5 w-5 text-gray-400" />} required value={form.phoneE164} onChange={onChange("phoneE164")} error={errors.phoneE164} readOnly={readOnly} />
-        <TextField id="line1" label="Địa chỉ" required value={form.line1} onChange={onChange("line1")} error={errors.line1} className="sm:col-span-2" readOnly={readOnly} />
-        <TextField id="line2" label="Địa chỉ bổ sung" value={form.line2 ?? ""} onChange={onChange("line2")} className="sm:col-span-2" readOnly={readOnly} />
-        <TextField id="city" label="Tỉnh/Thành phố" required value={form.city} onChange={onChange("city")} error={errors.city} readOnly={readOnly} />
-        <TextField id="state" label="Quận/Huyện" value={form.state ?? ""} onChange={onChange("state")} readOnly={readOnly} />
+        <TextField
+          id="fullName"
+          label="Họ và tên"
+          required
+          value={form.fullName}
+          onChange={onChange("fullName")}
+          error={errors.fullName}
+          className="sm:col-span-2"
+          readOnly={readOnly}
+        />
+        <IconField
+          id="email"
+          label="Email"
+          icon={<Mail className="h-5 w-5 text-gray-400" />}
+          required
+          value={form.email}
+          onChange={onChange("email")}
+          error={errors.email}
+          readOnly
+        />
+        <IconField
+          id="phoneE164"
+          label="Số điện thoại"
+          icon={<Phone className="h-5 w-5 text-gray-400" />}
+          required
+          value={form.phoneE164}
+          onChange={onChange("phoneE164")}
+          error={errors.phoneE164}
+          readOnly={readOnly}
+        />
+        <TextField
+          id="line1"
+          label="Địa chỉ"
+          required
+          value={form.line1}
+          onChange={onChange("line1")}
+          error={errors.line1}
+          className="sm:col-span-2"
+          readOnly={readOnly}
+        />
+        <TextField
+          id="line2"
+          label="Địa chỉ bổ sung"
+          value={form.line2 ?? ""}
+          onChange={onChange("line2")}
+          className="sm:col-span-2"
+          readOnly={readOnly}
+        />
+        <TextField
+          id="city"
+          label="Tỉnh/Thành phố"
+          required
+          value={form.city}
+          onChange={onChange("city")}
+          error={errors.city}
+          readOnly={readOnly}
+        />
+        <TextField
+          id="state"
+          label="Quận/Huyện"
+          value={form.state ?? ""}
+          onChange={onChange("state")}
+          readOnly={readOnly}
+        />
       </div>
 
       {/* Hóa đơn */}
@@ -688,7 +725,15 @@ function ShippingFromProfile({
 
           {invoice && (
             <div className="space-y-4 rounded-lg bg-gray-50 p-4">
-              <TextField id="taxCode" label="Mã số thuế" required value={form.taxCode ?? ""} onChange={onChange("taxCode")} error={errors.taxCode} readOnly={readOnly} />
+              <TextField
+                id="taxCode"
+                label="Mã số thuế"
+                required
+                value={form.taxCode ?? ""}
+                onChange={onChange("taxCode")}
+                error={errors.taxCode}
+                readOnly={readOnly}
+              />
             </div>
           )}
         </div>

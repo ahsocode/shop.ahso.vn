@@ -2,16 +2,17 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useCart } from "@/lib/hooks/useCart";
 
 type Props = {
   sku: string;
   name?: string;
   image?: string;
   className?: string;
-  /** Cho phép vô hiệu hoá nút (ví dụ hết hàng) */
   disabled?: boolean;
-  /** Tuỳ biến nội dung nút (icon + text). Nếu không truyền sẽ dùng mặc định */
-  children?: React.ReactNode;
+  children?: React.ReactNode; // icon/text tuỳ biến
 };
 
 export default function AddToCartClient({
@@ -24,9 +25,12 @@ export default function AddToCartClient({
 }: Props) {
   const [loading, setLoading] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
+  const router = useRouter();
+  const { refresh: refreshCart } = useCart();
 
   async function handleAdd() {
     if (loading || disabled) return;
+
     try {
       setLoading(true);
       const res = await fetch("/api/cart/items", {
@@ -35,14 +39,53 @@ export default function AddToCartClient({
         credentials: "include",
         body: JSON.stringify({ sku, qty: 1, name, image }),
       });
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        throw new Error(j?.error || `Add to cart failed (${res.status})`);
+
+      // --- PHÂN NHÁNH TRẠNG THÁI ---
+      if (res.status === 401) {
+        // Chưa đăng nhập -> toast + nút Đăng nhập (giữ redirect)
+        const redirect = typeof window !== "undefined" ? window.location.pathname : "/shop/products";
+        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ.", {
+          action: {
+            label: "Đăng nhập",
+            onClick: () => router.push(`/login?redirect=${encodeURIComponent(redirect)}`),
+          },
+        });
+        return;
       }
-      // TODO: toast thành công nếu cần
-    } catch (e) {
+
+      if (!res.ok) {
+        // Thử đọc thông điệp cụ thể từ server
+        const j = await res.json().catch(() => ({} as any));
+        const err = (j?.error || j?.message || "").toUpperCase();
+
+        if (res.status === 409 || err.includes("OUT_OF_STOCK")) {
+          toast.error("Sản phẩm tạm hết hàng.");
+          return;
+        }
+        if (res.status === 422 || err.includes("VALIDATION")) {
+          toast.error("Dữ liệu không hợp lệ. Vui lòng thử lại.");
+          return;
+        }
+
+        throw new Error(j?.error || j?.message || `Add to cart failed (${res.status})`);
+      }
+
+      // Thành công
+      try {
+        await refreshCart();
+      } catch { /* ignore */ }
+
+      toast.success("Đã thêm vào giỏ!", {
+        description: name || sku,
+        action: {
+          label: "Xem giỏ",
+          onClick: () => router.push("/cart"),
+        },
+      });
+    } catch (e: any) {
+      // Lỗi mạng/khác
+      toast.error("Không thể thêm sản phẩm. Vui lòng thử lại.");
       console.error(e);
-      // TODO: toast lỗi nếu cần
     } finally {
       setLoading(false);
     }

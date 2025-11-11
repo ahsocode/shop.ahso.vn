@@ -1,160 +1,227 @@
-// hooks/useCart.tsx
+// lib/hooks/useCart.tsx
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { ls_get, ls_set, ls_add, ls_setQty, ls_remove, ls_clear, type LocalCartItem } from "@/lib/cart-storage";
+import { toast } from "sonner";
 
-type ServerCartItem = {
-  id: string; productSlug?: string; productName?: string; productImage?: string;
-  productSku?: string; quantity: number; unitPrice: number;
+type CartItem = {
+  id: string;
+  name: string;
+  price: number;
+  qty: number;
+  image?: string;
+  slug?: string;
+  sku?: string;
 };
 
 type CartCtx = {
-  items: Array<{
-    id: string; name: string; price: number; qty: number;
-    image?: string; slug?: string; sku?: string; isServer?: boolean;
-  }>;
+  items: CartItem[];
   loading: boolean;
-  add: (p: { sku: string; name: string; price: number; image?: string; slug?: string; qty?: number; }) => Promise<void>;
+  add: (p: { sku: string; name: string; price: number; image?: string; slug?: string; qty?: number }) => Promise<void>;
   setQty: (id: string, qty: number) => Promise<void>;
   remove: (id: string) => Promise<void>;
   refresh: () => Promise<void>;
-  isLoggedIn: boolean;
+  mergeGuestCart: () => Promise<void>; // ⭐ Mới: gộp guest cart khi login
+  itemCount: number;
 };
 
 const CartContext = createContext<CartCtx | null>(null);
 
-// ✅ đổi logic này theo app của bạn
-function getToken() {
-  if (typeof document === "undefined") return null;
-  // ví dụ cookie "auth_token"
-  const m = document.cookie.match(/(?:^|;\s*)auth_token=([^;]+)/);
-  return m?.[1] || null;
+function getToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("token");
 }
 
-const MERGE_ON_LOGIN = false; // nếu muốn gộp local -> server khi login, bật true
-
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [items, setItems] = useState<CartCtx["items"]>([]);
+  const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const readServer = useCallback(async () => {
+  const mapServerItems = (serverItems: any[]): CartItem[] => {
+    return serverItems.map((it) => ({
+      id: String(it.id),
+      name: it.productName ?? it.productSku ?? "",
+      price: Number(it.unitPrice || 0),
+      qty: Number(it.quantity || 1),
+      image: it.productImage,
+      slug: it.productSlug,
+      sku: it.productSku,
+    }));
+  };
+
+  const readCart = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/cart", { cache: "no-store", credentials: "include" });
-      if (!res.ok) { setItems([]); return; }
+      const token = getToken();
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const res = await fetch("/api/cart", {
+        cache: "no-store",
+        credentials: "include",
+        headers,
+      });
+
+      if (!res.ok) {
+        setItems([]);
+        return;
+      }
+
       const data = await res.json();
       const cart = data?.cart ?? data;
-      const mapped: CartCtx["items"] = (cart?.items ?? []).map((it: ServerCartItem) => ({
-        id: String(it.id),
-        name: it.productName ?? it.productSku ?? "",
-        price: Number(it.unitPrice || 0),
-        qty: Number(it.quantity || 1),
-        image: (it as any).productImage,
-        slug: it.productSlug,
-        sku: it.productSku,
-        isServer: true,
-      }));
+      const mapped = mapServerItems(cart?.items ?? []);
       setItems(mapped);
-    } finally { setLoading(false); }
-  }, []);
-
-  const readLocal = useCallback(() => {
-    const ls = ls_get();
-    const mapped: CartCtx["items"] = ls.map((it) => ({
-      id: it.id,
-      name: it.name,
-      price: it.price,
-      qty: it.qty,
-      image: it.image,
-      slug: it.slug,
-      sku: it.sku,
-      isServer: false,
-    }));
-    setItems(mapped);
-    setLoading(false);
+    } catch (error) {
+      console.error("Error reading cart:", error);
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const refresh = useCallback(async () => {
-    const token = getToken();
-    const logged = !!token;
-    setIsLoggedIn(logged);
-    if (logged) await readServer(); else readLocal();
-  }, [readLocal, readServer]);
+    await readCart();
+  }, [readCart]);
 
-  // Initial load + on token change (đơn giản: mỗi mount đọc token một lần)
-  useEffect(() => { refresh(); }, [refresh]);
-
-  // API ops
-  const add = useCallback<CartCtx["add"]>(async (p) => {
-    if (!isLoggedIn) {
-      ls_add({ sku: p.sku, name: p.name, price: p.price, image: p.image, slug: p.slug, qty: p.qty ?? 1 });
-      readLocal();
-    } else {
-      await fetch("/api/cart/items", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ sku: p.sku, quantity: p.qty ?? 1 }),
-      });
-      await readServer();
-    }
-  }, [isLoggedIn, readLocal, readServer]);
-
-  const setQty = useCallback<CartCtx["setQty"]>(async (id, qty) => {
-    if (!isLoggedIn) {
-      ls_setQty(id, qty);
-      readLocal();
-    } else {
-      await fetch(`/api/cart/items/${encodeURIComponent(id)}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ quantity: qty }),
-      });
-      await readServer();
-    }
-  }, [isLoggedIn, readLocal, readServer]);
-
-  const remove = useCallback<CartCtx["remove"]>(async (id) => {
-    if (!isLoggedIn) {
-      ls_remove(id);
-      readLocal();
-    } else {
-      await fetch(`/api/cart/items/${encodeURIComponent(id)}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      await readServer();
-    }
-  }, [isLoggedIn, readLocal, readServer]);
-
-  const value = useMemo<CartCtx>(() => ({
-    items, loading, add, setQty, remove, refresh, isLoggedIn,
-  }), [items, loading, add, setQty, remove, refresh, isLoggedIn]);
-
-  // 🚀 Xử lý sự kiện đăng nhập/đăng xuất:
-  // - Khi phát hiện token xuất hiện: (tùy chọn) merge local -> server rồi clear local
+  // Initial load
   useEffect(() => {
-    if (!isLoggedIn) return;
-    (async () => {
-      const local = ls_get();
-      if (local.length === 0) return;
-      if (MERGE_ON_LOGIN) {
-        for (const it of local) {
-          await fetch("/api/cart/items", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ sku: it.sku, quantity: it.qty }),
-          });
+    readCart();
+  }, [readCart]);
+
+  const add = useCallback<CartCtx["add"]>(
+    async (p) => {
+      try {
+        const token = getToken();
+        const headers: HeadersInit = { "Content-Type": "application/json" };
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
         }
+
+        const res = await fetch("/api/cart/items", {
+          method: "POST",
+          headers,
+          credentials: "include",
+          body: JSON.stringify({ sku: p.sku, quantity: p.qty ?? 1 }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: "Unknown error" }));
+          throw new Error(err.error || "Failed to add to cart");
+        }
+
+        toast.success("Đã thêm vào giỏ hàng");
+        await readCart();
+      } catch (error: any) {
+        console.error("Add to cart error:", error);
+        toast.error(error.message || "Không thể thêm vào giỏ");
       }
-      ls_clear(); // theo yêu cầu: login thì KHÔNG dùng local
-      await readServer();
-    })();
-  }, [isLoggedIn, readServer]);
+    },
+    [readCart]
+  );
+
+  const setQty = useCallback<CartCtx["setQty"]>(
+    async (id, qty) => {
+      try {
+        const token = getToken();
+        const headers: HeadersInit = { "Content-Type": "application/json" };
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const res = await fetch(`/api/cart/items/${encodeURIComponent(id)}`, {
+          method: "PATCH",
+          headers,
+          credentials: "include",
+          body: JSON.stringify({ quantity: qty }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: "Unknown error" }));
+          throw new Error(err.error || "Failed to update quantity");
+        }
+
+        await readCart();
+      } catch (error: any) {
+        console.error("Set quantity error:", error);
+        toast.error(error.message || "Không thể cập nhật số lượng");
+      }
+    },
+    [readCart]
+  );
+
+  const remove = useCallback<CartCtx["remove"]>(
+    async (id) => {
+      try {
+        const token = getToken();
+        const headers: HeadersInit = {};
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const res = await fetch(`/api/cart/items/${encodeURIComponent(id)}`, {
+          method: "DELETE",
+          headers,
+          credentials: "include",
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: "Unknown error" }));
+          throw new Error(err.error || "Failed to remove item");
+        }
+
+        toast.success("Đã xóa khỏi giỏ");
+        await readCart();
+      } catch (error: any) {
+        console.error("Remove item error:", error);
+        toast.error(error.message || "Không thể xóa sản phẩm");
+      }
+    },
+    [readCart]
+  );
+
+  /**
+   * ⭐ Gộp guest cart vào user cart sau khi login
+   */
+  const mergeGuestCart = useCallback(async () => {
+    try {
+      const token = getToken();
+      if (!token) return; // Chỉ merge khi đã login
+
+      const res = await fetch("/api/cart/merge", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        console.log("Cart merged:", data.message);
+        await readCart();
+      }
+    } catch (error) {
+      console.error("Merge cart error:", error);
+    }
+  }, [readCart]);
+
+  const itemCount = useMemo(() => items.reduce((sum, it) => sum + it.qty, 0), [items]);
+
+  const value = useMemo<CartCtx>(
+    () => ({
+      items,
+      loading,
+      add,
+      setQty,
+      remove,
+      refresh,
+      mergeGuestCart,
+      itemCount,
+    }),
+    [items, loading, add, setQty, remove, refresh, mergeGuestCart, itemCount]
+  );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

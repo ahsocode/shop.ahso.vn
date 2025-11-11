@@ -10,8 +10,8 @@ import { Lock, Mail, User, AlertCircle, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import { setUser, useAuthStore } from "@/lib/auth-store";
 import { toast } from "sonner";
+import { useCart } from "@/lib/hooks/useCart";
 
-// ---- Wrapper bắt buộc có Suspense ----
 export default function LoginPage() {
   return (
     <Suspense
@@ -29,11 +29,11 @@ export default function LoginPage() {
   );
 }
 
-// ---- Toàn bộ logic cũ chuyển sang component con ----
 function LoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentUser = useAuthStore();
+  const { refresh: refreshCart } = useCart(); // ⭐ Hook cart để refresh sau login
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -43,7 +43,9 @@ function LoginClient() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [formData, setFormData] = useState({ username: "", email: "", password: "" });
 
-  useEffect(() => { setIsHydrated(true); }, []);
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   // Nếu đã đăng nhập -> redirect
   useEffect(() => {
@@ -52,7 +54,8 @@ function LoginClient() {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     if (!token) return;
 
-    const hasAuthCookie = typeof document !== "undefined" && document.cookie.includes("auth_token=");
+    const hasAuthCookie =
+      typeof document !== "undefined" && document.cookie.includes("auth_token=");
     if (!hasAuthCookie) return;
 
     const redirectTo = searchParams.get("redirect") || "/";
@@ -75,14 +78,17 @@ function LoginClient() {
     setError("");
 
     try {
-      const payload =
-        loginMethod === "username"
-          ? { username: formData.username, password: formData.password }
-          : { email: formData.email, password: formData.password };
+      // ⭐ Gửi cả identifier (hỗ trợ username/email/phone)
+      const identifier = loginMethod === "username" ? formData.username : formData.email;
+      const payload = {
+        identifier: identifier.trim(),
+        password: formData.password,
+      };
 
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // ⭐ Quan trọng: gửi cookie
         body: JSON.stringify(payload),
       });
 
@@ -100,6 +106,7 @@ function LoginClient() {
         return;
       }
 
+      // Lưu token và user info
       localStorage.setItem("token", data.token);
       const userData = {
         id: data.user.id,
@@ -114,14 +121,25 @@ function LoginClient() {
         description: `Chào mừng trở lại, ${userData.fullName || userData.email}!`,
       });
 
-      await new Promise((r) => setTimeout(r, 100));
+      // ⭐ Refresh cart để lấy cart mới sau khi merge
+      try {
+        await refreshCart();
+        console.log("✅ Cart refreshed after login");
+      } catch (error) {
+        console.error("❌ Failed to refresh cart:", error);
+      }
+
+      // Delay nhỏ để đảm bảo cookie được set
+      await new Promise((r) => setTimeout(r, 150));
+
       const redirectTo = searchParams.get("redirect") || "/";
       const isValidRedirect = redirectTo.startsWith("/") && !redirectTo.startsWith("/login");
       const finalRedirect = isValidRedirect ? redirectTo : "/";
 
       setRedirecting(true);
       router.push(finalRedirect);
-    } catch {
+    } catch (err) {
+      console.error("Login error:", err);
       const msg = "Không thể kết nối đến máy chủ. Vui lòng thử lại!";
       setError(msg);
       toast.error("Lỗi mạng", { description: msg });
@@ -146,8 +164,18 @@ function LoginClient() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-gray-900">
-            <Image src="/logo.png" alt="AHSO Logo" width={48} height={48} className="h-12 w-12 object-contain" priority />
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-2xl font-bold text-gray-900"
+          >
+            <Image
+              src="/logo.png"
+              alt="AHSO Logo"
+              width={48}
+              height={48}
+              className="h-12 w-12 object-contain"
+              priority
+            />
             <span>AHSO</span>
           </Link>
         </div>
@@ -155,7 +183,9 @@ function LoginClient() {
         <Card className="shadow-xl border-t-4 border-t-blue-600">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">Đăng nhập</CardTitle>
-            <CardDescription className="text-center">Đăng nhập để tiếp tục mua sắm</CardDescription>
+            <CardDescription className="text-center">
+              Đăng nhập để tiếp tục mua sắm
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {/* Toggle phương thức */}
@@ -164,7 +194,9 @@ function LoginClient() {
                 type="button"
                 onClick={() => setLoginMethod("username")}
                 className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                  loginMethod === "username" ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  loginMethod === "username"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 Tên đăng nhập
@@ -173,7 +205,9 @@ function LoginClient() {
                 type="button"
                 onClick={() => setLoginMethod("email")}
                 className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                  loginMethod === "email" ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  loginMethod === "email"
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 Email
@@ -251,8 +285,13 @@ function LoginClient() {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    tabIndex={-1}
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -262,7 +301,10 @@ function LoginClient() {
                   <input type="checkbox" className="rounded border-gray-300" />
                   <span className="text-sm text-gray-600">Ghi nhớ đăng nhập</span>
                 </label>
-                <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
                   Quên mật khẩu?
                 </Link>
               </div>
@@ -309,9 +351,13 @@ function LoginClient() {
 
         <p className="text-center text-xs text-gray-500 mt-6">
           Bằng việc đăng nhập, bạn đồng ý với{" "}
-          <Link href="#" className="text-blue-600 hover:text-blue-700">Điều khoản sử dụng</Link>{" "}
+          <Link href="#" className="text-blue-600 hover:text-blue-700">
+            Điều khoản sử dụng
+          </Link>{" "}
           và{" "}
-          <Link href="#" className="text-blue-600 hover:text-blue-700">Chính sách bảo mật</Link>
+          <Link href="#" className="text-blue-600 hover:text-blue-700">
+            Chính sách bảo mật
+          </Link>
         </p>
       </div>
     </div>

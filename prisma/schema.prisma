@@ -123,7 +123,7 @@ model OrderItem {
   name     String
   quantity Int
   price    Int
-  image    String?
+  image    String? @db.Text
 }
 
 model Payment {
@@ -145,7 +145,7 @@ model SolutionCategory {
   name        String
   slug        String  @unique
   description String?
-  image       String?
+  image       String? @db.Text
 
   parentId String?
   parent   SolutionCategory?  @relation("SolutionCategoryToParent", fields: [parentId], references: [id])
@@ -167,7 +167,7 @@ model Solution {
   title      String
   slug       String  @unique
   summary    String?
-  coverImage String?
+  coverImage String? @db.Text
   bodyHtml   String  @db.LongText
 
   industry String?
@@ -214,7 +214,7 @@ model SoftwareCategory {
   name        String
   slug        String  @unique
   description String?
-  image       String?
+  image       String? @db.Text
 
   parentId String?
   parent   SoftwareCategory?  @relation("SoftwareCategoryToParent", fields: [parentId], references: [id])
@@ -236,7 +236,7 @@ model Software {
   title      String
   slug       String  @unique
   summary    String?
-  coverImage String?
+  coverImage String? @db.Text
   bodyHtml   String  @db.LongText
 
   status      PublishStatus @default(DRAFT)
@@ -262,7 +262,7 @@ model Software {
 model Brand {
   id           String    @id @default(cuid())
   slug         String    @unique
-  logoUrl      String?
+  logoUrl      String?   @db.Text
   name         String
   summary      String?
   productCount Int       @default(0)
@@ -275,7 +275,7 @@ model ProductCategory {
   id          String  @id @default(cuid())
   slug        String  @unique
   name        String
-  coverImage  String?
+  coverImage  String? @db.Text
   description String?
 
   productLinks ProductCategoryLink[]
@@ -304,7 +304,7 @@ model ProductType {
   id          String  @id @default(cuid())
   slug        String
   name        String
-  coverImage  String?
+  coverImage  String? @db.Text
   description String?
 
   categoryId String
@@ -356,7 +356,7 @@ model Product {
   name        String
   sku         String  @unique
   description String?
-  coverImage  String?
+  coverImage  String? @db.Text
 
   metaTitle       String?
   metaDescription String?
@@ -424,7 +424,7 @@ model ProductImage {
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  url       String
+  url       String @db.Text
   alt       String?
   sortOrder Int     @default(0)
 
@@ -495,7 +495,7 @@ model CartItem {
   productName  String
   productSku   String
   productSlug  String
-  productImage String?
+  productImage String? @db.Text
   brandName    String?
 
   unitLabel     String?

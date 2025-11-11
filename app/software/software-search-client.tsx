@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import FilterLayout from "../filterlayout";
+import FilterLayout from "../shop/filterlayout";
+
 
 type Software = { id: string; slug: string; title: string; image?: string | null; summary?: string | null };
 type Category = { id: string; slug: string; name: string };

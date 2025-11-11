@@ -1,5 +1,12 @@
-import Page, { generateMetadata as _generateMetadata } from "@/app/shop/software/[slug]/page";
+import Page from "@/app/software/page";
+import type { Metadata } from "next";
 
 export const revalidate = 60;
-export const generateMetadata = _generateMetadata;
+
+export const generateMetadata = async (): Promise<Metadata> => {
+  return {
+	title: "Software",
+  };
+};
+
 export default Page;

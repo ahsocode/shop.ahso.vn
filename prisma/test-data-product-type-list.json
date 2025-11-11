@@ -1,0 +1,158 @@
+{
+  "productTypes": [
+    {
+      "slug": "truc-vit",
+      "name": "Máy nén khí trục vít",
+      "coverImage": "/types/may-nen-truc-vit.jpg",
+      "description": "Dòng máy nén khí công suất trung bình và lớn, vận hành êm, tiết kiệm điện năng.",
+      "categorySlug": "may-nen-khi"
+    },
+    {
+      "slug": "piston",
+      "name": "Máy nén khí piston",
+      "coverImage": "/types/may-nen-piston.jpg",
+      "description": "Máy nén khí công suất nhỏ – vừa, phù hợp cho xưởng cơ khí và tiệm sửa chữa.",
+      "categorySlug": "may-nen-khi"
+    },
+    {
+      "slug": "mini",
+      "name": "Máy nén khí mini",
+      "coverImage": "/types/may-nen-mini.jpg",
+      "description": "Máy nén khí nhỏ gọn, di động, dùng cho gia đình hoặc công việc nhẹ.",
+      "categorySlug": "may-nen-khi"
+    },
+    {
+      "slug": "van-dien-tu",
+      "name": "Van điện từ khí nén",
+      "coverImage": "/types/van-dien-tu.jpg",
+      "description": "Điều khiển hướng khí nén bằng tín hiệu điện, phổ biến trong hệ thống tự động.",
+      "categorySlug": "thiet-bi-khi-nen"
+    },
+    {
+      "slug": "xy-lanh",
+      "name": "Xy lanh khí nén",
+      "coverImage": "/types/xy-lanh.jpg",
+      "description": "Thiết bị chuyển đổi năng lượng khí nén thành chuyển động cơ học tuyến tính.",
+      "categorySlug": "thiet-bi-khi-nen"
+    },
+    {
+      "slug": "bo-loc-dieu-ap",
+      "name": "Bộ lọc – điều áp – bôi trơn (FRL)",
+      "coverImage": "/types/frl.jpg",
+      "description": "Tổ hợp thiết bị xử lý khí nén: lọc, điều áp, bôi trơn, giúp khí nén sạch và ổn định.",
+      "categorySlug": "thiet-bi-khi-nen"
+    },
+    {
+      "slug": "dong-co-3-pha",
+      "name": "Động cơ điện 3 pha",
+      "coverImage": "/types/dong-co-3-pha.jpg",
+      "description": "Động cơ điện công suất cao, hoạt động ổn định, sử dụng phổ biến trong công nghiệp.",
+      "categorySlug": "dong-co-dien"
+    },
+    {
+      "slug": "bien-tan",
+      "name": "Biến tần công nghiệp",
+      "coverImage": "/types/bien-tan.jpg",
+      "description": "Thiết bị điều khiển tốc độ động cơ điện, giúp tiết kiệm năng lượng và bảo vệ động cơ.",
+      "categorySlug": "dong-co-dien"
+    },
+    {
+      "slug": "plc",
+      "name": "Bộ điều khiển PLC",
+      "coverImage": "/types/plc.jpg",
+      "description": "Bộ điều khiển logic lập trình, trung tâm điều khiển các dây chuyền tự động hóa.",
+      "categorySlug": "thiet-bi-dien-tu-dong"
+    },
+    {
+      "slug": "hmi",
+      "name": "Màn hình HMI",
+      "coverImage": "/types/hmi.jpg",
+      "description": "Thiết bị giao diện người–máy, cho phép giám sát và điều khiển quy trình công nghiệp.",
+      "categorySlug": "thiet-bi-dien-tu-dong"
+    },
+    {
+      "slug": "cam-bien-quang",
+      "name": "Cảm biến quang",
+      "coverImage": "/types/cam-bien-quang.jpg",
+      "description": "Cảm biến phát hiện vật thể bằng ánh sáng, ứng dụng trong dây chuyền tự động.",
+      "categorySlug": "thiet-bi-do-luong"
+    },
+    {
+      "slug": "cam-bien-ap-suat",
+      "name": "Cảm biến áp suất",
+      "coverImage": "/types/cam-bien-ap-suat.jpg",
+      "description": "Đo và giám sát áp suất trong hệ thống khí, thủy lực, nước hoặc dầu.",
+      "categorySlug": "thiet-bi-do-luong"
+    },
+    {
+      "slug": "cap-dien",
+      "name": "Cáp điện công nghiệp",
+      "coverImage": "/types/cap-dien.jpg",
+      "description": "Cáp nguồn, cáp tín hiệu, cáp điều khiển chịu tải cao dùng trong nhà máy.",
+      "categorySlug": "day-cap-va-phu-kien"
+    },
+    {
+      "slug": "phu-kien-dau-noi",
+      "name": "Đầu nối và phụ kiện điện",
+      "coverImage": "/types/phu-kien-dau-noi.jpg",
+      "description": "Đầu nối nhanh, khớp nối, kẹp cáp, ống gen bảo vệ và phụ kiện đấu nối.",
+      "categorySlug": "day-cap-va-phu-kien"
+    },
+    {
+      "slug": "van-1-chieu",
+      "name": "Van 1 chiều",
+      "coverImage": "/types/van-1-chieu.jpg",
+      "description": "Van tự động cho phép dòng chảy đi theo một hướng duy nhất, dùng trong khí nén và thủy lực.",
+      "categorySlug": "bo-loc-va-duong-ong"
+    },
+    {
+      "slug": "loc-khi",
+      "name": "Bộ lọc khí nén",
+      "coverImage": "/types/loc-khi.jpg",
+      "description": "Thiết bị lọc tạp chất, hơi nước, dầu ra khỏi khí nén, đảm bảo chất lượng khí sạch.",
+      "categorySlug": "bo-loc-va-duong-ong"
+    },
+    {
+      "slug": "may-bom-nuoc",
+      "name": "Máy bơm nước công nghiệp",
+      "coverImage": "/types/may-bom-nuoc.jpg",
+      "description": "Máy bơm ly tâm, bơm chân không, bơm chìm cho hệ thống nước công nghiệp.",
+      "categorySlug": "may-bom-va-he-thong-nuoc"
+    },
+    {
+      "slug": "bom-chan-khong",
+      "name": "Bơm chân không",
+      "coverImage": "/types/bom-chan-khong.jpg",
+      "description": "Dùng để tạo môi trường chân không trong hệ thống sản xuất hoặc phòng thí nghiệm.",
+      "categorySlug": "may-bom-va-he-thong-nuoc"
+    },
+    {
+      "slug": "cong-tac-hanh-trinh",
+      "name": "Công tắc hành trình",
+      "coverImage": "/types/cong-tac-hanh-trinh.jpg",
+      "description": "Cảm biến cơ khí dùng để xác định vị trí hoặc giới hạn hành trình của vật thể chuyển động.",
+      "categorySlug": "thiet-bi-an-toan-cong-nghiep"
+    },
+    {
+      "slug": "nut-dung-khan",
+      "name": "Nút dừng khẩn cấp",
+      "coverImage": "/types/nut-dung-khan.jpg",
+      "description": "Nút nhấn dừng máy ngay lập tức trong tình huống nguy hiểm.",
+      "categorySlug": "thiet-bi-an-toan-cong-nghiep"
+    },
+    {
+      "slug": "vong-bi",
+      "name": "Vòng bi – bạc đạn",
+      "coverImage": "/types/vong-bi.jpg",
+      "description": "Phụ tùng cơ khí giúp giảm ma sát và chịu tải trong chuyển động quay.",
+      "categorySlug": "phu-tung-cong-nghiep"
+    },
+    {
+      "slug": "day-curoa",
+      "name": "Dây curoa & bánh đai",
+      "coverImage": "/types/day-curoa.jpg",
+      "description": "Phụ kiện truyền động cơ khí phổ biến, dùng trong máy móc công nghiệp.",
+      "categorySlug": "phu-tung-cong-nghiep"
+    }
+  ]
+}

@@ -1,112 +1,47 @@
 // app/api/cart/items/[itemId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { verifyRequestUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-function getCartIdFromReq(req: NextRequest): string | null {
-  return req.cookies.get("cart_id")?.value ?? null;
-}
-
-/** PATCH /api/cart/items/[itemId]  body: { quantity: number } */
-export async function PATCH(
+/**
+ * Kiểm tra quyền sở hữu cart item
+ * - Logged-in user: cart phải có userId trùng
+ * - Guest: cart không có userId VÀ cookie cart_id phải trùng
+ */
+async function verifyCartItemOwnership(
   req: NextRequest,
-  context: { params: Promise<{ itemId: string }> }
-) {
-  try {
-    const { itemId } = await context.params;
-    const body = await req.json().catch(() => ({}));
-    const quantity = Number(body?.quantity);
+  cartItem: any
+): Promise<boolean> {
+  const user = await verifyRequestUser(req);
 
-    if (!Number.isFinite(quantity) || quantity < 0) {
-      return NextResponse.json({ error: "INVALID_QUANTITY" }, { status: 400 });
-    }
-
-    const cartId = getCartIdFromReq(req);
-
-    const existing = await prisma.cartItem.findUnique({
-      where: { id: itemId },
-      include: {
-        product: { select: { price: true, stockOnHand: true } },
-      },
+  if (user?.sub) {
+    // User đã đăng nhập → cart phải thuộc user này
+    const cart = await prisma.cart.findUnique({
+      where: { id: cartItem.cartId },
+      select: { userId: true },
     });
-    if (!existing) return NextResponse.json({ error: "ITEM_NOT_FOUND" }, { status: 404 });
-    if (cartId && existing.cartId !== cartId) {
-      return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
-    }
-
-    // Delete if quantity == 0
-    if (quantity === 0) {
-      await prisma.cartItem.delete({ where: { id: itemId } });
-      await recalc(existing.cartId);
-      return NextResponse.json({ ok: true, deleted: true });
-    }
-
-    // Check stock
-    if (existing.product && quantity > existing.product.stockOnHand) {
-      return NextResponse.json(
-        { error: "INSUFFICIENT_STOCK", available: existing.product.stockOnHand },
-        { status: 400 }
-      );
-    }
-
-    const unitPrice =
-      existing.product?.price != null
-        ? Number(existing.product.price)
-        : Number(existing.unitPrice);
-
-    const lineTotal = unitPrice * quantity;
-
-    const updated = await prisma.cartItem.update({
-      where: { id: itemId },
-      data: { quantity, unitPrice, lineTotal },
+    return cart?.userId === user.sub;
+  } else {
+    // Guest → cart không có userId VÀ cookie phải khớp
+    const cart = await prisma.cart.findUnique({
+      where: { id: cartItem.cartId },
+      select: { userId: true, id: true },
     });
 
-    await recalc(existing.cartId);
+    if (cart?.userId) {
+      // Cart này thuộc user khác
+      return false;
+    }
 
-    return NextResponse.json({
-      ok: true,
-      item: {
-        id: updated.id,
-        quantity: updated.quantity,
-        unitPrice: updated.unitPrice,
-        lineTotal: updated.lineTotal,
-      },
-    });
-  } catch (e) {
-    console.error("PATCH /api/cart/items/[itemId] error:", e);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    const cookieCartId = req.cookies.get("cart_id")?.value;
+    return cart?.id === cookieCartId;
   }
 }
 
-/** DELETE /api/cart/items/[itemId] */
-export async function DELETE(
-  req: NextRequest,
-  context: { params: Promise<{ itemId: string }> }
-) {
-  try {
-    const { itemId } = await context.params;
-    const cartId = getCartIdFromReq(req);
-
-    const existing = await prisma.cartItem.findUnique({ where: { id: itemId } });
-    if (!existing) return NextResponse.json({ ok: true, deleted: true });
-
-    if (cartId && existing.cartId !== cartId) {
-      return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
-    }
-
-    await prisma.cartItem.delete({ where: { id: itemId } });
-    await recalc(existing.cartId);
-
-    return NextResponse.json({ ok: true, deleted: true });
-  } catch (e) {
-    console.error("DELETE /api/cart/items/[itemId] error:", e);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  }
-}
-
-/** Recalculate totals for a cart */
-async function recalc(cartId: string) {
+/** Tính lại tổng tiền của cart */
+async function recalcCart(cartId: string) {
   const items = await prisma.cartItem.findMany({ where: { cartId } });
   const subtotal = items.reduce((s, it) => s + Number(it.lineTotal || 0), 0);
 
@@ -124,4 +59,116 @@ async function recalc(cartId: string) {
     where: { id: cartId },
     data: { subtotal, grandTotal, shippingFee, discountTotal, taxTotal },
   });
+}
+
+/** PATCH /api/cart/items/[itemId] - Cập nhật số lượng */
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ itemId: string }> }
+) {
+  try {
+    const { itemId } = await context.params;
+    const body = await req.json().catch(() => ({}));
+    const quantity = Number(body?.quantity);
+
+    if (!Number.isFinite(quantity) || quantity < 0) {
+      return NextResponse.json({ error: "INVALID_QUANTITY" }, { status: 400 });
+    }
+
+    // Tìm cart item
+    const existing = await prisma.cartItem.findUnique({
+      where: { id: itemId },
+      include: {
+        product: { select: { price: true, stockOnHand: true, stockReserved: true } },
+      },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "ITEM_NOT_FOUND" }, { status: 404 });
+    }
+
+    // Kiểm tra quyền sở hữu
+    const isOwner = await verifyCartItemOwnership(req, existing);
+    if (!isOwner) {
+      return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
+    }
+
+    // Xóa nếu quantity = 0
+    if (quantity === 0) {
+      await prisma.cartItem.delete({ where: { id: itemId } });
+      await recalcCart(existing.cartId);
+      return NextResponse.json({ ok: true, deleted: true });
+    }
+
+    // Kiểm tra stock
+    if (existing.product) {
+      const available = 
+        (existing.product.stockOnHand ?? 0) - (existing.product.stockReserved ?? 0);
+      
+      if (quantity > available) {
+        return NextResponse.json(
+          { error: "INSUFFICIENT_STOCK", available },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Cập nhật
+    const unitPrice =
+      existing.product?.price != null
+        ? Number(existing.product.price)
+        : Number(existing.unitPrice);
+
+    const lineTotal = unitPrice * quantity;
+
+    const updated = await prisma.cartItem.update({
+      where: { id: itemId },
+      data: { quantity, unitPrice, lineTotal },
+    });
+
+    await recalcCart(existing.cartId);
+
+    return NextResponse.json({
+      ok: true,
+      item: {
+        id: updated.id,
+        quantity: updated.quantity,
+        unitPrice: updated.unitPrice,
+        lineTotal: updated.lineTotal,
+      },
+    });
+  } catch (e) {
+    console.error("PATCH /api/cart/items/[itemId] error:", e);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+/** DELETE /api/cart/items/[itemId] - Xóa item */
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ itemId: string }> }
+) {
+  try {
+    const { itemId } = await context.params;
+
+    const existing = await prisma.cartItem.findUnique({ where: { id: itemId } });
+
+    if (!existing) {
+      return NextResponse.json({ ok: true, deleted: true });
+    }
+
+    // Kiểm tra quyền sở hữu
+    const isOwner = await verifyCartItemOwnership(req, existing);
+    if (!isOwner) {
+      return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
+    }
+
+    await prisma.cartItem.delete({ where: { id: itemId } });
+    await recalcCart(existing.cartId);
+
+    return NextResponse.json({ ok: true, deleted: true });
+  } catch (e) {
+    console.error("DELETE /api/cart/items/[itemId] error:", e);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }
