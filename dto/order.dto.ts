@@ -24,12 +24,12 @@ export interface OrderDetailItemDTO {
   image?: string | null;
 }
 
-export interface OrderDetailDTO {
+export type OrderDetailDTO = {
   id: string;
   code: string;
   createdAt: string;
-  status: OrderStatus;
-  customer: { name: string; phone?: string; email?: string };
+  status: "pending" | "paid" | "processing" | "shipped" | "delivered" | "cancelled";
+  customer: { name: string; email?: string; phone?: string };
   shippingAddress?: {
     line1: string;
     line2?: string;
@@ -37,8 +37,30 @@ export interface OrderDetailDTO {
     district?: string;
     province?: string;
   };
-  payment: { method: "cod" | "vnpay" | "credit" | "bank"; paidAmount: number };
-  shipping: { method: string; fee: number };
-  items: OrderDetailItemDTO[];
+  payment: {
+    method: string;
+    paidAmount: number;
+  };
+  shipping: {
+    method: string;
+    fee: number;
+  };
+  items: {
+    sku: string;
+    name: string;
+    qty: number;
+    price: number;
+    image?: string | null;
+  }[];
   note?: string;
-}
+
+  // 👉 THÊM BLOCK NÀY
+  pricing: {
+    subtotal: number;
+    discountTotal: number;
+    taxTotal: number;
+    shippingFee: number;
+    grandTotal: number;
+  };
+};
+

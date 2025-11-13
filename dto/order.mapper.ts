@@ -8,10 +8,19 @@ type OrderEntityMinimal = {
   createdAt: Date;
   status: string;
   customerName: string;
+  customerEmail?: string | null;
+  customerPhone?: string | null;
   shippingMethod?: string | null;
   shippingFee?: number | null;
   note?: string | null;
+
+  // 👉 thêm (optional để không vỡ chỗ cũ)
+  subtotal?: number | null;
+  discountTotal?: number | null;
+  taxTotal?: number | null;
+  grandTotal?: number | null;
 };
+
 
 type OrderItemEntityMinimal = {
   sku: string;
@@ -36,10 +45,16 @@ type PaymentEntityMinimal = {
 
 export function toOrderListItemDTO(
   order: OrderEntityMinimal,
-  items: OrderItemEntityMinimal[]
+  items: OrderItemEntityMinimal[],
 ): OrderListItemDTO {
-  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
-  const total = subtotal + (order.shippingFee ?? 0);
+  // nếu DB đã lưu subtotal thì dùng luôn, không thì fallback tính từ items
+  const subtotalFromItems = items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const subtotal = order.subtotal ?? subtotalFromItems;
+
+  // nếu grandTotal đã lưu thì ưu tiên dùng,
+  // không thì tạm tính = subtotal + shippingFee
+  const shippingFee = order.shippingFee ?? 0;
+  const total = order.grandTotal ?? subtotal + shippingFee;
 
   return {
     id: order.id,
@@ -51,6 +66,7 @@ export function toOrderListItemDTO(
   };
 }
 
+
 export function toOrderDetailDTO(params: {
   order: OrderEntityMinimal;
   items: OrderItemEntityMinimal[];
@@ -59,12 +75,24 @@ export function toOrderDetailDTO(params: {
 }): OrderDetailDTO {
   const { order, items, address, payment } = params;
 
+  // fallback đề phòng trường hợp order chưa có số (dev/staging)
+  const subtotalFallback = items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const subtotal = order.subtotal ?? subtotalFallback;
+  const discountTotal = order.discountTotal ?? 0;
+  const taxTotal = order.taxTotal ?? 0;
+  const shippingFee = order.shippingFee ?? 0;
+  const grandTotal = order.grandTotal ?? subtotal - discountTotal + taxTotal + shippingFee;
+
   return {
     id: order.id,
     code: order.code,
     createdAt: order.createdAt.toISOString(),
     status: order.status as OrderDetailDTO["status"],
-    customer: { name: order.customerName },
+    customer: {
+      name: order.customerName,
+      email: order.customerEmail ?? undefined,
+      phone: order.customerPhone ?? undefined,
+    },
     shippingAddress: address
       ? {
           line1: address.line1,
@@ -80,7 +108,7 @@ export function toOrderDetailDTO(params: {
     },
     shipping: {
       method: order.shippingMethod ?? "standard",
-      fee: order.shippingFee ?? 0,
+      fee: shippingFee,
     },
     items: items.map((i) => ({
       sku: i.sku,
@@ -90,5 +118,14 @@ export function toOrderDetailDTO(params: {
       image: i.image,
     })),
     note: order.note ?? undefined,
+
+    // 👇 FE dùng block này để render breakdown
+    pricing: {
+      subtotal,
+      discountTotal,
+      taxTotal,
+      shippingFee,
+      grandTotal,
+    },
   };
 }

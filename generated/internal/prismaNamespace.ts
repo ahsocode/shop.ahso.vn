@@ -2027,10 +2027,30 @@ export const OrderScalarFieldEnum = {
   id: 'id',
   code: 'code',
   status: 'status',
-  customerName: 'customerName',
+  customerFullName: 'customerFullName',
+  customerEmail: 'customerEmail',
+  customerPhone: 'customerPhone',
+  customerTaxCode: 'customerTaxCode',
+  shippingLine1: 'shippingLine1',
+  shippingLine2: 'shippingLine2',
+  shippingCity: 'shippingCity',
+  shippingState: 'shippingState',
+  shippingPostalCode: 'shippingPostalCode',
+  shippingCountry: 'shippingCountry',
+  billingLine1: 'billingLine1',
+  billingLine2: 'billingLine2',
+  billingCity: 'billingCity',
+  billingState: 'billingState',
+  billingPostalCode: 'billingPostalCode',
+  billingCountry: 'billingCountry',
   shippingMethod: 'shippingMethod',
   shippingFee: 'shippingFee',
   note: 'note',
+  currency: 'currency',
+  subtotal: 'subtotal',
+  discountTotal: 'discountTotal',
+  taxTotal: 'taxTotal',
+  grandTotal: 'grandTotal',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   addressId: 'addressId',
@@ -2043,11 +2063,20 @@ export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof Or
 export const OrderItemScalarFieldEnum = {
   id: 'id',
   orderId: 'orderId',
+  productId: 'productId',
   sku: 'sku',
   name: 'name',
+  slug: 'slug',
+  image: 'image',
+  brandName: 'brandName',
+  unitLabel: 'unitLabel',
+  quantityLabel: 'quantityLabel',
+  unitPrice: 'unitPrice',
+  currency: 'currency',
+  discount: 'discount',
   quantity: 'quantity',
-  price: 'price',
-  image: 'image'
+  lineTotal: 'lineTotal',
+  createdAt: 'createdAt'
 } as const
 
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
@@ -2058,7 +2087,10 @@ export const PaymentScalarFieldEnum = {
   orderId: 'orderId',
   method: 'method',
   amount: 'amount',
-  paidAt: 'paidAt'
+  status: 'status',
+  requestedAt: 'requestedAt',
+  customerMarkedPaidAt: 'customerMarkedPaidAt',
+  confirmedAt: 'confirmedAt'
 } as const
 
 export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
@@ -2409,9 +2441,25 @@ export type AddressOrderByRelevanceFieldEnum = (typeof AddressOrderByRelevanceFi
 export const OrderOrderByRelevanceFieldEnum = {
   id: 'id',
   code: 'code',
-  customerName: 'customerName',
+  customerFullName: 'customerFullName',
+  customerEmail: 'customerEmail',
+  customerPhone: 'customerPhone',
+  customerTaxCode: 'customerTaxCode',
+  shippingLine1: 'shippingLine1',
+  shippingLine2: 'shippingLine2',
+  shippingCity: 'shippingCity',
+  shippingState: 'shippingState',
+  shippingPostalCode: 'shippingPostalCode',
+  shippingCountry: 'shippingCountry',
+  billingLine1: 'billingLine1',
+  billingLine2: 'billingLine2',
+  billingCity: 'billingCity',
+  billingState: 'billingState',
+  billingPostalCode: 'billingPostalCode',
+  billingCountry: 'billingCountry',
   shippingMethod: 'shippingMethod',
   note: 'note',
+  currency: 'currency',
   addressId: 'addressId',
   userId: 'userId'
 } as const
@@ -2422,9 +2470,15 @@ export type OrderOrderByRelevanceFieldEnum = (typeof OrderOrderByRelevanceFieldE
 export const OrderItemOrderByRelevanceFieldEnum = {
   id: 'id',
   orderId: 'orderId',
+  productId: 'productId',
   sku: 'sku',
   name: 'name',
-  image: 'image'
+  slug: 'slug',
+  image: 'image',
+  brandName: 'brandName',
+  unitLabel: 'unitLabel',
+  quantityLabel: 'quantityLabel',
+  currency: 'currency'
 } as const
 
 export type OrderItemOrderByRelevanceFieldEnum = (typeof OrderItemOrderByRelevanceFieldEnum)[keyof typeof OrderItemOrderByRelevanceFieldEnum]
@@ -2701,6 +2755,13 @@ export type EnumOrderStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pris
 
 
 /**
+ * Reference to a field of type 'Decimal'
+ */
+export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -2708,16 +2769,16 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
 
 
 /**
- * Reference to a field of type 'PublishStatus'
+ * Reference to a field of type 'PaymentStatus'
  */
-export type EnumPublishStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PublishStatus'>
+export type EnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentStatus'>
     
 
 
 /**
- * Reference to a field of type 'Decimal'
+ * Reference to a field of type 'PublishStatus'
  */
-export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+export type EnumPublishStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PublishStatus'>
     
 
 

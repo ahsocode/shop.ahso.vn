@@ -35,6 +35,8 @@ type GuestInfo = {
   email: string;
   phoneE164: string;
   taxCode?: string | null;
+
+  // Shipping address
   line1: string;
   line2?: string;
   city: string;
@@ -42,6 +44,15 @@ type GuestInfo = {
   postalCode?: string;
   country: string;
   note?: string;
+
+  // Billing address (optional, khi xuất hoá đơn)
+  useSeparateBilling?: boolean;
+  billingLine1?: string;
+  billingLine2?: string;
+  billingCity?: string;
+  billingState?: string;
+  billingPostalCode?: string;
+  billingCountry?: string;
 };
 
 type Profile = {
@@ -64,6 +75,8 @@ type Profile = {
 /* ================== Consts & helpers ================== */
 const VAT_RATE = 0.1;
 const CHECKOUT_KEY = "checkout:guest";
+const SELECTED_KEY = "cart:selected:v1";
+
 
 const PROMOS: Record<
   string,
@@ -91,18 +104,19 @@ export default function CartReviewPage() {
 
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
-
-  const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
 
   // payment / coupon / note
-  const [paymentType, setPaymentType] = useState<"cod" | "bank" | "online">("cod");
-  const [paymentMethod, setPaymentMethod] = useState<string>("");
+    const [paymentType] = useState<"cod" | "bank" | "online">("cod");
+    const [paymentMethod] = useState<string>("bank_transfer_qr");
+
   const [promoInput, setPromoInput] = useState("");
   const [appliedCode, setAppliedCode] = useState<string | null>(null);
   const [noteLeft, setNoteLeft] = useState("");
 
-  // shipping form
+  // shipping + billing form
   const [agree, setAgree] = useState(false);
   const [invoice, setInvoice] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -118,15 +132,29 @@ export default function CartReviewPage() {
     postalCode: "",
     country: "VN",
     note: "",
+    useSeparateBilling: false,
+    billingLine1: "",
+    billingLine2: "",
+    billingCity: "",
+    billingState: "",
+    billingPostalCode: "",
+    billingCountry: "VN",
   });
 
   /* ====== Load profile (prefill) + cart ====== */
   useEffect(() => {
     // Prefill từ localStorage (guest) trước
-    try {
-      const rawGuest = localStorage.getItem(CHECKOUT_KEY);
-      if (rawGuest) setForm((f) => ({ ...f, ...(JSON.parse(rawGuest) as GuestInfo) }));
-    } catch {}
+    // Load selected items từ localStorage
+try {
+  const rawSel = localStorage.getItem(SELECTED_KEY);
+  if (rawSel) {
+    const ids = JSON.parse(rawSel);
+    if (Array.isArray(ids)) {
+      setSelectedItemIds(ids);
+    }
+  }
+} catch {}
+
 
     // Cart
     (async () => {
@@ -181,6 +209,8 @@ export default function CartReviewPage() {
           state: profile.shippingAddress?.state ?? f.state,
           postalCode: profile.shippingAddress?.postalCode ?? f.postalCode,
           country: profile.shippingAddress?.country ?? f.country ?? "VN",
+          // billingCountry mặc định theo country
+          billingCountry: f.billingCountry ?? profile.shippingAddress?.country ?? "VN",
         }));
         setProfileLoaded(true);
       } catch {
@@ -198,7 +228,18 @@ export default function CartReviewPage() {
   }, [form]);
 
   /* ======= totals ======= */
-  const subtotal = useMemo(() => items.reduce((s, it) => s + it.price * it.qty, 0), [items]);
+
+   const visibleItems = useMemo(
+    () =>
+      selectedItemIds.length > 0
+        ? items.filter((it) => selectedItemIds.includes(it.id))
+        : [],
+    [items, selectedItemIds]
+  );
+const subtotal = useMemo(
+  () => visibleItems.reduce((s, it) => s + it.price * it.qty, 0),
+  [visibleItems],
+);
 
   const discount = useMemo(() => {
     if (!appliedCode) return 0;
@@ -212,21 +253,25 @@ export default function CartReviewPage() {
   const taxable = Math.max(0, subtotal - discount);
   const vat = useMemo(() => taxable * VAT_RATE, [taxable]);
 
-  const shippingFee = useMemo(() => {
-    if (items.length === 0) return 0;
-    const free = appliedCode && PROMOS[appliedCode]?.kind === "shipping_free";
-    return free ? 0 : 30000;
-  }, [items.length, appliedCode]);
+ const shippingFee = useMemo(() => {
+  if (visibleItems.length === 0) return 0;
+  const free = appliedCode && PROMOS[appliedCode]?.kind === "shipping_free";
+  return free ? 0 : 30000;
+}, [items.length, appliedCode]);
 
-  const grandTotal = useMemo(() => taxable + vat + shippingFee, [taxable, vat, shippingFee]);
+  const grandTotal = useMemo(
+    () => taxable + vat + shippingFee,
+    [ taxable, vat, shippingFee ],
+  );
 
   /* ======= handlers ======= */
-  const onChange = (key: keyof GuestInfo) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setForm((prev) => ({ ...prev, [key]: e.target.value }));
-    setErrors((prev) => ({ ...prev, [key]: "" }));
-  };
+  const onChange =
+    (key: keyof GuestInfo) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const value = e.target.value;
+      setForm((prev) => ({ ...prev, [key]: value }));
+      setErrors((prev) => ({ ...prev, [key]: "" }));
+    };
 
   const applyPromo = () => {
     const code = promoInput.trim().toUpperCase();
@@ -250,11 +295,21 @@ export default function CartReviewPage() {
     // Dù đăng nhập hay không vẫn kiểm tra các trường bắt buộc để giao hàng
     if (!form.fullName.trim()) newErrors.fullName = "Vui lòng nhập họ và tên";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = "Email không hợp lệ";
-    if (!/^\+?\d{8,15}$/.test(form.phoneE164)) newErrors.phoneE164 = "Số điện thoại không hợp lệ";
+    if (!/^\+?\d{8,15}$/.test(form.phoneE164))
+      newErrors.phoneE164 = "Số điện thoại không hợp lệ";
     if (!form.line1.trim()) newErrors.line1 = "Vui lòng nhập địa chỉ";
     if (!form.city.trim()) newErrors.city = "Vui lòng nhập tỉnh/thành phố";
+
     if (invoice && form.taxCode && !/^\d{10,13}$/.test(form.taxCode))
       newErrors.taxCode = "Mã số thuế phải gồm 10–13 chữ số";
+
+    // Nếu xuất hoá đơn và dùng địa chỉ hoá đơn riêng -> validate billing
+    if (invoice && form.useSeparateBilling) {
+      if (!form.billingLine1?.trim())
+        newErrors.billingLine1 = "Vui lòng nhập địa chỉ hoá đơn";
+      if (!form.billingCity?.trim())
+        newErrors.billingCity = "Vui lòng nhập tỉnh/thành phố hoá đơn";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -268,11 +323,13 @@ export default function CartReviewPage() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          guest: form, // nếu backend cho phép dùng addressId khi đã đăng nhập, có thể bổ sung ở đây
-          paymentType,
-          paymentMethod,
+          guest: form,
+          paymentType,      // hiện set "cod"
+          paymentMethod,    // "bank_transfer_qr"
           coupon: appliedCode,
           note: noteLeft,
+          invoice,
+          itemIds: selectedItemIds,
         }),
       });
       const data = await res.json();
@@ -280,13 +337,16 @@ export default function CartReviewPage() {
         throw new Error(data?.error || "Đặt hàng thất bại");
       }
       sessionStorage.setItem("orderPreview", JSON.stringify(data.orderPreview));
-      router.push("/thank-you");
+      router.push("/checkout");
     } catch (e: any) {
       alert(e?.message || "Không thể đặt hàng. Vui lòng thử lại.");
     }
   };
 
   if (loading || !profileLoaded) return null;
+ 
+
+  
 
   /* ================== UI ================== */
   return (
@@ -299,8 +359,12 @@ export default function CartReviewPage() {
               <ShoppingCart className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Xác nhận đơn hàng</h1>
-              <p className="text-sm text-gray-600">Kiểm tra thông tin và hoàn tất đặt hàng</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                Xác nhận đơn hàng
+              </h1>
+              <p className="text-sm text-gray-600">
+                Kiểm tra thông tin và hoàn tất đặt hàng
+              </p>
             </div>
           </div>
           <button
@@ -325,13 +389,13 @@ export default function CartReviewPage() {
                 <h2 className="text-lg font-semibold text-gray-900">Danh sách sản phẩm</h2>
               </div>
 
-              {items.length === 0 ? (
+              {visibleItems.length === 0 ? (
                 <div className="rounded-lg bg-gray-50 p-4 text-center text-sm text-gray-600">
                   Giỏ hàng trống
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {items.map((it) => (
+                  {visibleItems.map((it) => (
                     <div key={it.id} className="flex gap-3 rounded-lg border p-3">
                       <div className="relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-md bg-gray-100">
                         <img
@@ -363,43 +427,53 @@ export default function CartReviewPage() {
                 <div className="rounded-lg bg-blue-100 p-2">
                   <Banknote className="h-5 w-5 text-blue-600" />
                 </div>
-                <h2 className="text-lg font-semibold text-gray-900">Thanh toán & Khuyến mãi</h2>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Thanh toán & Khuyến mãi
+                </h2>
               </div>
 
-             {/* Payment section - Select only, QR will be shown on next step */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="rounded-lg bg-blue-100 p-2">
-                  <CreditCard className="h-5 w-5 text-blue-600" />
-                </div>
-                <h2 className="text-lg font-semibold text-gray-900">Phương thức thanh toán</h2>
-              </div>
-
-              {/* Chỉ hiển thị 1 lựa chọn cố định */}
-              <label className="flex items-start gap-3 rounded-lg border border-blue-500 bg-blue-50 p-4">
-                <input
-                  type="radio"
-                  checked
-                  readOnly
-                  className="h-4 w-4 mt-1 text-blue-600"
-                />
-                <div className="text-sm">
-                  <div className="font-semibold text-gray-900">
-                    Chuyển khoản ngân hàng qua QR 
+              {/* Payment section - Select only, QR sẽ hiển thị bước sau */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="rounded-lg bg-blue-100 p-2">
+                    <CreditCard className="h-5 w-5 text-blue-600" />
                   </div>
-                  <ul className="mt-2 text-gray-700 space-y-1">
-                    <li><b>Đơn vị thụ hưởng:</b> CÔNG TY TNHH AHSO</li>
-                    <li><b>Số tài khoản:</b> 03168969399</li>
-                    <li><b>Ngân hàng:</b> TPBank – Chi nhánh Bình Chánh</li>
-                    <li className="text-xs text-gray-600">
-                    </li>
-                  </ul>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Phương thức thanh toán
+                  </h2>
                 </div>
-              </label>
-            </div>
+
+                <label className="flex items-start gap-3 rounded-lg border border-blue-500 bg-blue-50 p-4">
+                  <input
+                    type="radio"
+                    checked
+                    readOnly
+                    className="h-4 w-4 mt-1 text-blue-600"
+                  />
+                  <div className="text-sm">
+                    <div className="font-semibold text-gray-900">
+                      Chuyển khoản ngân hàng qua QR
+                    </div>
+                    <ul className="mt-2 text-gray-700 space-y-1">
+                      <li>
+                        <b>Đơn vị thụ hưởng:</b> CÔNG TY TNHH AHSO
+                      </li>
+                      <li>
+                        <b>Số tài khoản:</b> 03168969399
+                      </li>
+                      <li>
+                        <b>Ngân hàng:</b> TPBank – Chi nhánh Bình Chánh
+                      </li>
+                    </ul>
+                  </div>
+                </label>
+              </div>
+
               {/* Coupon */}
               <div className="mt-6">
-                <label className="mb-2 block text-sm font-medium text-gray-700">Mã khuyến mãi</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Mã khuyến mãi
+                </label>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <BadgePercent className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -424,7 +498,9 @@ export default function CartReviewPage() {
                     Đã áp dụng: <b>{appliedCode}</b>
                   </p>
                 )}
-                {errors.promo && <p className="mt-2 text-sm text-red-600">{errors.promo}</p>}
+                {errors.promo && (
+                  <p className="mt-2 text-sm text-red-600">{errors.promo}</p>
+                )}
               </div>
 
               {/* Note */}
@@ -446,7 +522,9 @@ export default function CartReviewPage() {
           {/* RIGHT COLUMN: summary + shipping */}
           <div className="lg:col-span-1 space-y-6">
             <div className="rounded-2xl border bg-white p-4 sm:p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-semibold text-gray-900">Tóm tắt đơn hàng</h2>
+              <h2 className="mb-4 text-lg font-semibold text-gray-900">
+                Tóm tắt đơn hàng
+              </h2>
 
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
@@ -467,14 +545,16 @@ export default function CartReviewPage() {
                 </div>
                 <div className="flex justify-between border-t pt-3 text-base">
                   <span className="font-semibold text-gray-900">Tổng cộng</span>
-                  <span className="text-xl font-bold text-blue-600">{formatVND(grandTotal)}</span>
+                  <span className="text-xl font-bold text-blue-600">
+                    {formatVND(grandTotal)}
+                  </span>
                 </div>
                 <p className="text-xs text-gray-500">* Đã bao gồm VAT</p>
               </div>
 
               <button
                 onClick={handlePlaceOrder}
-                disabled={!agree || items.length === 0}
+                disabled={!agree || visibleItems.length === 0}
                 className="group relative overflow-hidden mt-4 w-full rounded-xl bg-linear-to-r from-blue-600 to-blue-700 px-6 py-4 font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
@@ -490,7 +570,9 @@ export default function CartReviewPage() {
                     <CreditCard className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-green-900">Thanh toán an toàn</h3>
+                    <h3 className="text-sm font-semibold text-green-900">
+                      Thanh toán an toàn
+                    </h3>
                     <p className="mt-1 text-xs text-green-700">
                       Thông tin của bạn được mã hóa và bảo mật
                     </p>
@@ -519,11 +601,13 @@ export default function CartReviewPage() {
           <div className="mx-auto max-w-7xl px-4 py-3 flex items-center gap-3">
             <div className="flex-1">
               <div className="text-xs text-gray-600">Tổng cộng</div>
-              <div className="text-lg font-bold text-blue-600">{formatVND(grandTotal)}</div>
+              <div className="text-lg font-bold text-blue-600">
+                {formatVND(grandTotal)}
+              </div>
             </div>
             <button
               onClick={handlePlaceOrder}
-              disabled={!agree || items.length === 0}
+              disabled={!agree || visibleItems.length === 0}
               className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
             >
               Đặt hàng ngay
@@ -559,7 +643,9 @@ function ShippingFromProfile({
   setInvoice: (v: boolean) => void;
   agree: boolean;
   setAgree: (v: boolean) => void;
-  onChange: (k: keyof GuestInfo) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange: (
+    k: keyof GuestInfo,
+  ) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }) {
   const [mode, setMode] = useState<"view" | "edit">(isLoggedIn ? "view" : "edit");
   const readOnly = isLoggedIn && mode === "view";
@@ -576,7 +662,7 @@ function ShippingFromProfile({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           fullName: form.fullName,
-          phone: form.phoneE164, // backend sẽ chuẩn hóa E.164
+          phone: form.phoneE164,
           taxCode: form.taxCode || null,
           shippingAddress: {
             line1: form.line1,
@@ -586,7 +672,6 @@ function ShippingFromProfile({
             postalCode: form.postalCode || undefined,
             country: (form.country || "VN").toUpperCase(),
           },
-          // billingAddress: null -> dùng chung shipping (tùy logic backend)
         }),
       });
       if (!r.ok) throw 0;
@@ -595,6 +680,33 @@ function ShippingFromProfile({
       alert("Không thể lưu hồ sơ. Vui lòng thử lại.");
     }
   }
+
+  const handleToggleInvoice = (checked: boolean) => {
+    setInvoice(checked);
+    if (!checked) {
+      // Tắt hoá đơn -> clear lỗi billing
+      setForm((f) => ({ ...f, useSeparateBilling: false }));
+      setErrors((prev) => {
+        const clone = { ...prev };
+        delete clone.taxCode;
+        delete clone.billingLine1;
+        delete clone.billingCity;
+        return clone;
+      });
+    }
+  };
+
+  const handleToggleSeparateBilling = (checked: boolean) => {
+    setForm((f) => ({ ...f, useSeparateBilling: checked }));
+    setErrors((prev) => {
+      const clone = { ...prev };
+      delete clone.billingLine1;
+      delete clone.billingCity;
+      return clone;
+    });
+  };
+
+  const useSeparateBilling = !!form.useSeparateBilling;
 
   return (
     <div className="rounded-2xl border bg-white p-4 sm:p-6 shadow-sm">
@@ -635,7 +747,7 @@ function ShippingFromProfile({
         )}
       </div>
 
-      {/* Form */}
+      {/* Form shipping */}
       <div className="grid gap-4 sm:grid-cols-2">
         <TextField
           id="fullName"
@@ -655,7 +767,7 @@ function ShippingFromProfile({
           value={form.email}
           onChange={onChange("email")}
           error={errors.email}
-          readOnly
+          readOnly={readOnly}
         />
         <IconField
           id="phoneE164"
@@ -710,17 +822,21 @@ function ShippingFromProfile({
             <div className="rounded-lg bg-purple-100 p-2">
               <FileText className="h-5 w-5 text-purple-600" />
             </div>
-            <h3 className="text-base font-semibold text-gray-900">Thông tin hóa đơn</h3>
+            <h3 className="text-base font-semibold text-gray-900">
+              Thông tin hóa đơn
+            </h3>
           </div>
 
           <label className="mb-4 flex cursor-pointer items-center gap-3">
             <input
               type="checkbox"
               checked={invoice}
-              onChange={(e) => setInvoice(e.target.checked)}
+              onChange={(e) => handleToggleInvoice(e.target.checked)}
               className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
             />
-            <span className="text-sm font-medium text-gray-700">Xuất hóa đơn công ty</span>
+            <span className="text-sm font-medium text-gray-700">
+              Xuất hóa đơn công ty
+            </span>
           </label>
 
           {invoice && (
@@ -734,6 +850,57 @@ function ShippingFromProfile({
                 error={errors.taxCode}
                 readOnly={readOnly}
               />
+
+              <label className="flex cursor-pointer items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={useSeparateBilling}
+                  onChange={(e) => handleToggleSeparateBilling(e.target.checked)}
+                  className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  Địa chỉ hóa đơn khác địa chỉ giao hàng
+                </span>
+              </label>
+
+              {useSeparateBilling && (
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <TextField
+                    id="billingLine1"
+                    label="Địa chỉ hóa đơn"
+                    required
+                    value={form.billingLine1 ?? ""}
+                    onChange={onChange("billingLine1")}
+                    error={errors.billingLine1}
+                    className="sm:col-span-2"
+                    readOnly={readOnly}
+                  />
+                  <TextField
+                    id="billingLine2"
+                    label="Địa chỉ bổ sung (hóa đơn)"
+                    value={form.billingLine2 ?? ""}
+                    onChange={onChange("billingLine2")}
+                    className="sm:col-span-2"
+                    readOnly={readOnly}
+                  />
+                  <TextField
+                    id="billingCity"
+                    label="Tỉnh/Thành phố (hóa đơn)"
+                    required
+                    value={form.billingCity ?? ""}
+                    onChange={onChange("billingCity")}
+                    error={errors.billingCity}
+                    readOnly={readOnly}
+                  />
+                  <TextField
+                    id="billingState"
+                    label="Quận/Huyện (hóa đơn)"
+                    value={form.billingState ?? ""}
+                    onChange={onChange("billingState")}
+                    readOnly={readOnly}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -799,7 +966,9 @@ function TextField({
         onChange={onChange}
         readOnly={readOnly}
         className={`w-full rounded-lg border px-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200
-          ${error ? "border-red-500" : "border-gray-300"} ${readOnly ? "bg-gray-50 text-gray-700" : "bg-white"}`}
+          ${error ? "border-red-500" : "border-gray-300"} ${
+          readOnly ? "bg-gray-50 text-gray-700" : "bg-white"
+        }`}
         placeholder=""
       />
       {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
@@ -840,7 +1009,9 @@ function IconField({
           onChange={onChange}
           readOnly={readOnly}
           className={`w-full rounded-lg border py-3 pl-11 pr-4 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200
-            ${error ? "border-red-500" : "border-gray-300"} ${readOnly ? "bg-gray-50 text-gray-700" : "bg-white"}`}
+            ${error ? "border-red-500" : "border-gray-300"} ${
+            readOnly ? "bg-gray-50 text-gray-700" : "bg-white"
+          }`}
         />
       </div>
       {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
