@@ -12,6 +12,7 @@ import {
   UserCircle,
   Package,
   Settings,
+  ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore, getUser, setUser } from "@/lib/auth-store";
@@ -249,12 +250,21 @@ export function Navbar() {
                             <UserCircle className="h-4 w-4" /> Tài khoản của tôi
                           </Link>
                           <Link
-                            href="/profile/orders"
+                            href="/order"
                             onClick={() => setIsUserMenuOpen(false)}
                             className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                           >
                             <Package className="h-4 w-4" /> Đơn hàng
                           </Link>
+                          {(user.role === "STAFF" || user.role === "ADMIN") && (
+                            <Link
+                              href="/staff"
+                              onClick={() => setIsUserMenuOpen(false)}
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            >
+                              <ClipboardList className="h-4 w-4" /> Không gian Staff
+                            </Link>
+                          )}
                           {user.role === "ADMIN" && (
                             <Link
                               href="/admin"
@@ -355,12 +365,21 @@ export function Navbar() {
                   Tài khoản
                 </Link>
                 <Link
-                  href="/profile/orders"
+                  href="/order"
                   onClick={() => setIsMenuOpen(false)}
                   className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
                 >
                   Đơn hàng
                 </Link>
+                {(user.role === "STAFF" || user.role === "ADMIN") && (
+                  <Link
+                    href="/staff"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
+                  >
+                    Nhân viên
+                  </Link>
+                )}
                 {user.role === "ADMIN" && (
                   <Link
                     href="/admin"

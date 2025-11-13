@@ -1,13 +1,21 @@
 "use client";
 
-// app/order/page.tsx
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Search, Filter, Eye, RefreshCcw, ChevronLeft, ChevronRight, BadgeCheck } from "lucide-react";
+import {
+  Search,
+  Filter,
+  Eye,
+  RefreshCcw,
+  ChevronLeft,
+  ChevronRight,
+  BadgeCheck,
+} from "lucide-react";
 import type { OrderListItemDTO } from "../../dto/order.dto";
 
 function formatVND(n: number) {
-  return n.toLocaleString("vi-VN") + " ₫";
+  const num = typeof n === "number" ? n : Number(n || 0);
+  return num.toLocaleString("vi-VN") + " ₫";
 }
 
 const STATUS_LABEL: Record<NonNullable<OrderListItemDTO["status"]>, string> = {
@@ -20,6 +28,8 @@ const STATUS_LABEL: Record<NonNullable<OrderListItemDTO["status"]>, string> = {
 };
 
 function StatusBadge({ status }: { status: OrderListItemDTO["status"] }) {
+  if (!status) return null;
+
   const styles: Record<NonNullable<OrderListItemDTO["status"]>, string> = {
     pending: "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200",
     paid: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
@@ -28,64 +38,106 @@ function StatusBadge({ status }: { status: OrderListItemDTO["status"] }) {
     delivered: "bg-green-50 text-green-700 ring-1 ring-green-200",
     cancelled: "bg-rose-50 text-rose-700 ring-1 ring-rose-200",
   };
-  if (!status) return null;
+
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${styles[status]}`}>
+    <span
+      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${styles[status]}`}
+    >
       {STATUS_LABEL[status]}
     </span>
   );
 }
 
+type OrderListResponse = {
+  items: OrderListItemDTO[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+};
+
 export default function OrderListPage() {
   const [orders, setOrders] = useState<OrderListItemDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<"" | NonNullable<OrderListItemDTO["status"]>>("");
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      try {
-        const r = await fetch("/api/orders", { cache: "no-store" });
-        if (!r.ok) throw new Error("no api");
-        const data = (await r.json()) as OrderListItemDTO[];
-        setOrders(data);
-      } catch {
-        // mock nếu chưa có API
-        const mock: OrderListItemDTO[] = Array.from({ length: 24 }).map((_, i) => ({
-          id: String(1000 + i),
-          code: `#AHSO-${1000 + i}`,
-          createdAt: new Date(Date.now() - i * 86400000).toISOString(),
-          customerName: ["Nguyễn Văn A", "Trần Thị B", "Lê Hoàng C", "Phạm Duy D"][i % 4],
-          total: 150000 + i * 12345,
-          status: (["pending", "paid", "processing", "shipped", "delivered", "cancelled"] as const)[i % 6],
-        }));
-        setOrders(mock);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
-  const filtered = useMemo(() => {
-    return orders.filter((o) => {
-      const hitQ =
-        q.trim() === "" ||
-        o.code.toLowerCase().includes(q.toLowerCase()) ||
-        o.customerName.toLowerCase().includes(q.toLowerCase());
-      const hitStatus = status === "" || o.status === status;
-      return hitQ && hitStatus;
-    });
-  }, [orders, q, status]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const pageData = filtered.slice((page - 1) * pageSize, page * pageSize);
-
+  // Reset page về 1 nếu thay filter/search
   useEffect(() => {
     setPage(1);
   }, [q, status]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const params = new URLSearchParams();
+        params.set("page", String(page));
+        params.set("pageSize", String(pageSize));
+        if (q.trim()) params.set("q", q.trim());
+        if (status) params.set("status", status);
+
+        const r = await fetch(`/api/orders?${params.toString()}`, {
+          cache: "no-store",
+          credentials: "include",
+        });
+
+        if (!r.ok) {
+          throw new Error(`Failed to fetch orders: ${r.status}`);
+        }
+
+        const data = (await r.json()) as OrderListResponse | OrderListItemDTO[];
+
+        if (cancelled) return;
+
+        if (Array.isArray(data)) {
+          // Trường hợp API cũ trả về mảng đơn thuần
+          setOrders(data);
+          setTotalItems(data.length);
+          setTotalPages(Math.max(1, Math.ceil(data.length / pageSize)));
+        } else {
+          setOrders(data.items);
+          setTotalItems(data.totalItems);
+          setTotalPages(Math.max(1, data.totalPages || 1));
+        }
+      } catch (err: any) {
+        if (cancelled) return;
+        setError("Không thể tải danh sách đơn hàng.");
+        setOrders([]);
+        setTotalItems(0);
+        setTotalPages(1);
+        console.error(err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [q, status, page, pageSize]);
+
+  const hasData = orders.length > 0;
+
+  // Nếu API trả về mảng thô mà không có phân trang server,
+  // ta vẫn cắt theo page client-side để UI không phải sửa nhiều.
+  const pageData = useMemo(() => {
+    // Nếu totalItems > orders.length → backend đã phân trang → dùng luôn
+    if (totalItems > orders.length) return orders;
+    const start = (page - 1) * pageSize;
+    return orders.slice(start, start + pageSize);
+  }, [orders, page, pageSize, totalItems]);
 
   return (
     <div className="mx-auto max-w-7xl p-4 sm:p-6">
@@ -93,7 +145,7 @@ export default function OrderListPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Đơn hàng</h1>
         <div className="hidden md:flex items-center gap-2 text-sm text-gray-500">
           <BadgeCheck className="w-4 h-4" />
-          <span>DTO + UI đồng bộ</span>
+          <span>Danh sách đơn hàng theo DTO</span>
         </div>
       </div>
 
@@ -152,8 +204,12 @@ export default function OrderListPage() {
 
         {loading ? (
           <div className="p-8 text-center text-sm text-gray-500">Đang tải…</div>
-        ) : pageData.length === 0 ? (
-          <div className="p-8 text-center text-sm text-gray-500">Không có đơn hàng phù hợp.</div>
+        ) : error ? (
+          <div className="p-8 text-center text-sm text-red-600">{error}</div>
+        ) : !hasData ? (
+          <div className="p-8 text-center text-sm text-gray-500">
+            Không có đơn hàng phù hợp.
+          </div>
         ) : (
           pageData.map((o) => (
             <div
@@ -165,12 +221,16 @@ export default function OrderListPage() {
                 <div className="mt-0.5 text-xs text-gray-500">ID: {o.id}</div>
               </div>
               <div className="sm:col-span-2 text-gray-700">
-                {new Date(o.createdAt).toLocaleDateString("vi-VN")}
+                {o.createdAt
+                  ? new Date(o.createdAt).toLocaleDateString("vi-VN")
+                  : "-"}
               </div>
               <div className="sm:col-span-3">
                 <div className="text-gray-900">{o.customerName}</div>
               </div>
-              <div className="sm:col-span-2 text-right font-medium">{formatVND(o.total)}</div>
+              <div className="sm:col-span-2 text-right font-medium">
+                {formatVND(o.total)}
+              </div>
               <div className="sm:col-span-1">
                 {o.status ? <StatusBadge status={o.status} /> : null}
               </div>
@@ -191,7 +251,7 @@ export default function OrderListPage() {
       {/* Pagination */}
       <div className="mt-4 flex items-center justify-between text-sm">
         <div className="text-gray-500">
-          Trang {page}/{totalPages} · {filtered.length} đơn
+          Trang {page}/{Math.max(1, totalPages)} · {totalItems} đơn
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -202,8 +262,8 @@ export default function OrderListPage() {
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page >= totalPages}
+            onClick={() => setPage((p) => Math.min(Math.max(1, totalPages), p + 1))}
+            disabled={page >= Math.max(1, totalPages)}
             className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2 hover:bg-gray-50 disabled:opacity-50"
           >
             <ChevronRight className="h-4 w-4" />

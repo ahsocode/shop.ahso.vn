@@ -4,13 +4,27 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Card, CardContent, CardDescription, CardHeader, CardTitle
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  User, Mail, Phone, MapPin, Edit, Package, Heart, ShoppingBag, Loader2
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Edit,
+  Package,
+  Heart,
+  ShoppingBag,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "@/lib/hooks/useAuth";
+
+/* ================== Types ================== */
 
 type Address = {
   id: string;
@@ -38,6 +52,25 @@ type Profile = {
   billingAddress: Address | null;
 };
 
+type OrderStatus =
+  | "pending"
+  | "paid"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+
+type RecentOrder = {
+  id: string;
+  code: string;
+  createdAt: string;
+  customerName: string;
+  total: number;
+  status: OrderStatus;
+};
+
+/* ================== Helpers ================== */
+
 function formatPhoneHuman(e164?: string | null) {
   if (!e164) return "—";
   const m = e164.match(/^\+?(\d{2})(\d{2})(\d{3})(\d{4})$/);
@@ -58,24 +91,53 @@ function addressToLine(a?: Address | null) {
   return parts.join(", ");
 }
 
+const STATUS_LABEL: Record<OrderStatus, string> = {
+  pending: "Chờ thanh toán",
+  paid: "Đã thanh toán",
+  processing: "Đang xử lý",
+  shipped: "Đã gửi hàng",
+  delivered: "Đã giao",
+  cancelled: "Đã hủy",
+};
+
+const STATUS_CLASS: Record<OrderStatus, string> = {
+  pending: "bg-yellow-50 text-yellow-700 ring-yellow-200",
+  paid: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  processing: "bg-blue-50 text-blue-700 ring-blue-200",
+  shipped: "bg-indigo-50 text-indigo-700 ring-indigo-200",
+  delivered: "bg-green-50 text-green-700 ring-green-200",
+  cancelled: "bg-rose-50 text-rose-700 ring-rose-200",
+};
+
+/* ================== Component ================== */
+
 export default function ProfilePage() {
   const router = useRouter();
   const { user: authUser, loading: authLoading, logout, verified } = useAuth(true);
+
   const [profileLoading, setProfileLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+
   const stats = useMemo(
     () => [
-      { label: "Đơn hàng", value: "—", icon: Package },
+      {
+        label: "Đơn hàng",
+        value: ordersLoading ? "…" : String(recentOrders.length),
+        icon: Package,
+      },
       { label: "Yêu thích", value: "—", icon: Heart },
       { label: "Giỏ hàng", value: "—", icon: ShoppingBag },
     ],
-    []
+    [ordersLoading, recentOrders.length],
   );
 
+  /* ========== Load profile ========== */
   useEffect(() => {
-    // ✅ Chỉ load profile khi auth đã verify xong VÀ có user
+    // Chỉ load profile khi auth đã verify xong VÀ có user
     if (!verified || authLoading) return;
     if (!authUser) {
       setProfileLoading(false);
@@ -87,7 +149,7 @@ export default function ProfilePage() {
     async function loadProfile() {
       setProfileLoading(true);
       setError(null);
-      
+
       try {
         const token = localStorage.getItem("token");
         const res = await fetch("/api/profile", {
@@ -104,7 +166,7 @@ export default function ProfilePage() {
         }
 
         const data = await res.json();
-        
+
         if ("profile" in data && isMounted) {
           setProfile(data.profile);
         }
@@ -121,10 +183,63 @@ export default function ProfilePage() {
     }
 
     loadProfile();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [authUser, authLoading, verified]);
 
-  // ✅ Show loading while auth is verifying
+  /* ========== Load recent orders ========== */
+  useEffect(() => {
+    if (!verified || authLoading) return;
+    if (!authUser) {
+      setOrdersLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    async function loadRecentOrders() {
+      setOrdersLoading(true);
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("/api/orders/recent?limit=3", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          cache: "no-store",
+          credentials: "include",
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to load recent orders");
+        }
+
+        const data = (await res.json()) as RecentOrder[];
+
+        if (isMounted) {
+          setRecentOrders(data);
+        }
+      } catch (e) {
+        if (isMounted) {
+          console.error("Recent orders load error:", e);
+        }
+      } finally {
+        if (isMounted) {
+          setOrdersLoading(false);
+        }
+      }
+    }
+
+    loadRecentOrders();
+    return () => {
+      isMounted = false;
+    };
+  }, [authUser, authLoading, verified]);
+
+  /* ========== Auth loading UI ========== */
+
   if (authLoading || !verified) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -136,7 +251,6 @@ export default function ProfilePage() {
     );
   }
 
-  // Auth required but no user (should not reach here due to useAuth redirect)
   if (!authUser) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -150,7 +264,10 @@ export default function ProfilePage() {
     );
   }
 
-  const displayName = profile?.fullName || profile?.username || authUser.fullName || "Người dùng";
+  const displayName =
+    profile?.fullName || profile?.username || authUser.fullName || "Người dùng";
+
+  /* ========== Render ========== */
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -162,7 +279,8 @@ export default function ProfilePage() {
             <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-4 border-white/30 overflow-hidden">
               {profileLoading ? (
                 <Loader2 className="h-10 w-10 animate-spin" />
-              ) : (authUser.avatarUrl && authUser.avatarUrl !== "/logo.png") ? (
+              ) : authUser.avatarUrl && authUser.avatarUrl !== "/logo.png" ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={authUser.avatarUrl}
                   alt="avatar"
@@ -180,12 +298,13 @@ export default function ProfilePage() {
                 {profileLoading ? "Đang tải..." : displayName}
               </h1>
 
-              <p className="text-blue-100 mb-4">
-                {authUser.email}
-              </p>
+              <p className="text-blue-100 mb-4">{authUser.email}</p>
 
               <Link href="/profile/edit">
-                <Button variant="outline" className="border-black text-blue-600 hover:bg-white/10 hover:text-white hover:stroke-zinc-500">
+                <Button
+                  variant="outline"
+                  className="border-black text-blue-600 hover:bg-white/10 hover:text-white hover:stroke-zinc-500"
+                >
                   <Edit className="h-4 w-4 mr-2" />
                   Chỉnh sửa hồ sơ
                 </Button>
@@ -195,6 +314,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Body */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Error bar */}
         {error && (
@@ -231,7 +351,9 @@ export default function ProfilePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Thông tin cá nhân</CardTitle>
-                <CardDescription>Thông tin chi tiết về tài khoản của bạn</CardDescription>
+                <CardDescription>
+                  Thông tin chi tiết về tài khoản của bạn
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start gap-3">
@@ -249,7 +371,9 @@ export default function ProfilePage() {
                   <div>
                     <p className="text-sm text-gray-500">Email</p>
                     <p className="font-medium">
-                      {profileLoading ? "—" : profile?.email ?? authUser.email ?? "—"}
+                      {profileLoading
+                        ? "—"
+                        : profile?.email ?? authUser.email ?? "—"}
                     </p>
                   </div>
                 </div>
@@ -259,7 +383,9 @@ export default function ProfilePage() {
                   <div>
                     <p className="text-sm text-gray-500">Số điện thoại</p>
                     <p className="font-medium">
-                      {profileLoading ? "—" : formatPhoneHuman(profile?.phoneE164)}
+                      {profileLoading
+                        ? "—"
+                        : formatPhoneHuman(profile?.phoneE164)}
                     </p>
                   </div>
                 </div>
@@ -269,7 +395,9 @@ export default function ProfilePage() {
                   <div>
                     <p className="text-sm text-gray-500">Địa chỉ giao hàng</p>
                     <p className="font-medium text-sm">
-                      {profileLoading ? "—" : addressToLine(profile?.shippingAddress)}
+                      {profileLoading
+                        ? "—"
+                        : addressToLine(profile?.shippingAddress)}
                     </p>
                   </div>
                 </div>
@@ -279,14 +407,16 @@ export default function ProfilePage() {
                   <div>
                     <p className="text-sm text-gray-500">Địa chỉ nhận hóa đơn</p>
                     <p className="font-medium text-sm">
-                      {profileLoading ? "—" : addressToLine(profile?.billingAddress)}
+                      {profileLoading
+                        ? "—"
+                        : addressToLine(profile?.billingAddress)}
                     </p>
                   </div>
                 </div>
 
                 <div className="pt-4 border-t">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
                     onClick={logout}
                   >
@@ -297,20 +427,62 @@ export default function ProfilePage() {
             </Card>
           </div>
 
-          {/* Recent Orders */}
+          {/* Recent Orders + Quick Actions */}
           <div className="lg:col-span-2">
+            {/* Recent Orders */}
             <Card>
               <CardHeader>
                 <CardTitle>Đơn hàng gần đây</CardTitle>
-                <CardDescription>Theo dõi trạng thái đơn hàng của bạn</CardDescription>
+                <CardDescription>
+                  Theo dõi trạng thái đơn hàng của bạn
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-center py-8 text-sm text-gray-500">
-                  (Chưa kết nối endpoint đơn hàng — thêm sau)
-                </div>
+                {ordersLoading ? (
+                  <div className="flex items-center justify-center py-8 text-sm text-gray-500">
+                    Đang tải đơn hàng...
+                  </div>
+                ) : recentOrders.length === 0 ? (
+                  <div className="flex items-center justify-center py-8 text-sm text-gray-500">
+                    Bạn chưa có đơn hàng đang xử lý.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {recentOrders.map((o) => (
+                      <div
+                        key={o.id}
+                        className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-3"
+                      >
+                        <div>
+                          <Link
+                            href={`/order/${o.id}`}
+                            className="font-medium text-gray-900 hover:text-blue-600"
+                          >
+                            {o.code}
+                          </Link>
+                          <div className="text-xs text-gray-500">
+                            {new Date(o.createdAt).toLocaleString("vi-VN")}
+                          </div>
+                        </div>
+                        <div className="text-right space-y-1">
+                          <div className="text-sm font-semibold">
+                            {Number(o.total || 0).toLocaleString("vi-VN")} ₫
+                          </div>
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ${
+                              STATUS_CLASS[o.status]
+                            }`}
+                          >
+                            {STATUS_LABEL[o.status]}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-                <Link href="/profile/orders">
-                  <Button variant="outline" className="w-full mt-2">
+                <Link href="/order">
+                  <Button variant="outline" className="w-full mt-4">
                     Xem tất cả đơn hàng
                   </Button>
                 </Link>
@@ -325,23 +497,27 @@ export default function ProfilePage() {
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
                   <Link href="/wishlist">
-                    <Button variant="outline" className="h-20 w-full flex-col">
+                    <Button
+                      variant="outline"
+                      className="h-20 w-full flex-col"
+                    >
                       <Heart className="h-6 w-6 mb-2" />
                       Danh sách yêu thích
                     </Button>
                   </Link>
 
                   <Link href="/cart">
-                    <Button variant="outline" className="h-20 w-full flex-col">
+                    <Button
+                      variant="outline"
+                      className="h-20 w-full flex-col"
+                    >
                       <ShoppingBag className="h-6 w-6 mb-2" />
                       Giỏ hàng
                     </Button>
                   </Link>
 
                   <Link href="/shop" className="col-span-2">
-                    <Button className="w-full h-12">
-                      Tiếp tục mua sắm
-                    </Button>
+                    <Button className="w-full h-12">Tiếp tục mua sắm</Button>
                   </Link>
                 </div>
               </CardContent>

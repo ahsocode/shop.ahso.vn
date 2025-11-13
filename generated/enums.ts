@@ -46,3 +46,13 @@ export const CartStatus = {
 } as const
 
 export type CartStatus = (typeof CartStatus)[keyof typeof CartStatus]
+
+
+export const PaymentStatus = {
+  pending: 'pending',
+  awaiting_confirmation: 'awaiting_confirmation',
+  confirmed: 'confirmed',
+  failed: 'failed'
+} as const
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]

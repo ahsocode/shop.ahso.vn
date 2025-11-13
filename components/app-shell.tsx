@@ -6,9 +6,9 @@ import { Footer } from "@/components/footer";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith("/admin");
+  const hideChrome = pathname.startsWith("/admin") || pathname.startsWith("/staff");
 
-  if (isAdmin) {
+  if (hideChrome) {
     return <>{children}</>;
   }
 
@@ -20,4 +20,3 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     </>
   );
 }
-

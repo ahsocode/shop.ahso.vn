@@ -289,7 +289,7 @@ export type AddressCreateInput = {
   city: string
   state?: string | null
   postalCode?: string | null
-  country: string
+  country?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   usersShipping?: Prisma.UserCreateNestedManyWithoutShippingAddressInput
@@ -304,7 +304,7 @@ export type AddressUncheckedCreateInput = {
   city: string
   state?: string | null
   postalCode?: string | null
-  country: string
+  country?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   usersShipping?: Prisma.UserUncheckedCreateNestedManyWithoutShippingAddressInput
@@ -349,7 +349,7 @@ export type AddressCreateManyInput = {
   city: string
   state?: string | null
   postalCode?: string | null
-  country: string
+  country?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -483,7 +483,7 @@ export type AddressCreateWithoutUsersShippingInput = {
   city: string
   state?: string | null
   postalCode?: string | null
-  country: string
+  country?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   usersBilling?: Prisma.UserCreateNestedManyWithoutBillingAddressInput
@@ -497,7 +497,7 @@ export type AddressUncheckedCreateWithoutUsersShippingInput = {
   city: string
   state?: string | null
   postalCode?: string | null
-  country: string
+  country?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   usersBilling?: Prisma.UserUncheckedCreateNestedManyWithoutBillingAddressInput
@@ -516,7 +516,7 @@ export type AddressCreateWithoutUsersBillingInput = {
   city: string
   state?: string | null
   postalCode?: string | null
-  country: string
+  country?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   usersShipping?: Prisma.UserCreateNestedManyWithoutShippingAddressInput
@@ -530,7 +530,7 @@ export type AddressUncheckedCreateWithoutUsersBillingInput = {
   city: string
   state?: string | null
   postalCode?: string | null
-  country: string
+  country?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   usersShipping?: Prisma.UserUncheckedCreateNestedManyWithoutShippingAddressInput
@@ -627,7 +627,7 @@ export type AddressCreateWithoutOrdersInput = {
   city: string
   state?: string | null
   postalCode?: string | null
-  country: string
+  country?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   usersShipping?: Prisma.UserCreateNestedManyWithoutShippingAddressInput
@@ -641,7 +641,7 @@ export type AddressUncheckedCreateWithoutOrdersInput = {
   city: string
   state?: string | null
   postalCode?: string | null
-  country: string
+  country?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   usersShipping?: Prisma.UserUncheckedCreateNestedManyWithoutShippingAddressInput
