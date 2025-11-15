@@ -130,8 +130,13 @@ export async function GET(req: NextRequest) {
       cancelled: 0,
     };
     stats.forEach((row) => {
-      const countValue = typeof row._count === "object" ? row._count.status : row._count;
-      statsMap[row.status] = countValue ?? 0;
+      const countValue =
+        typeof row._count === "object"
+          ? row._count?.status
+          : row._count === true
+            ? 1
+            : row._count;
+      statsMap[row.status] = typeof countValue === "number" ? countValue : 0;
     });
 
     return jsonOk({
