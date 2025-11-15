@@ -1,5 +1,6 @@
 // app/api/cart/items/route.ts
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { verifyRequestUser } from "@/lib/auth";
 
@@ -14,10 +15,10 @@ const COOKIE_OPTS = {
   maxAge: 60 * 60 * 24 * 30,
 };
 
-type TotItem = { quantity: number; unitPrice: any };
+type TotItem = { quantity: number; unitPrice: Prisma.Decimal | number | string | null };
 
 function calcTotals(items: TotItem[]) {
-  const subtotal = items.reduce((s, it) => s + Number(it.unitPrice) * it.quantity, 0);
+  const subtotal = items.reduce((s, it) => s + Number(it.unitPrice ?? 0) * it.quantity, 0);
   const discountTotal = 0;
   const taxTotal = 0;
   const shippingFee = 0;

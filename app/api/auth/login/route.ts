@@ -2,8 +2,9 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
-import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 
 const loginSchema = z.object({
   identifier: z.string().optional(), // Support cả username/email/phone
@@ -140,7 +141,7 @@ export async function POST(req: Request) {
     const data = parsed.data;
     
     // Xác định where clause
-    let where: any;
+    let where: Prisma.UserWhereInput;
     if (data.identifier) {
       const id = data.identifier.toLowerCase();
       where = {
@@ -218,10 +219,11 @@ export async function POST(req: Request) {
     res.cookies.delete("cart_id");
 
     return res;
-  } catch (err) {
-    console.error("LOGIN ERROR:", err);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+    console.error("LOGIN ERROR:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: message },
       { status: 500 }
     );
   }

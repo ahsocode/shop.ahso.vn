@@ -75,13 +75,18 @@ export default function StatusManager({
         }),
       });
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error || "Không thể cập nhật đơn hàng");
+        const data = await res.json().catch(() => null);
+        const message =
+          typeof data === "object" && data && "error" in data && typeof data.error === "string"
+            ? data.error
+            : "Không thể cập nhật đơn hàng";
+        throw new Error(message);
       }
       toast.success("Đã cập nhật trạng thái đơn hàng");
       router.refresh();
-    } catch (err: any) {
-      toast.error(err.message || "Không thể cập nhật đơn hàng");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Không thể cập nhật đơn hàng";
+      toast.error(message);
     } finally {
       setSaving(false);
     }

@@ -206,7 +206,7 @@ export default function ContactPage() {
                     href={info.link}
                     className="reveal group block bg-white rounded-2xl p-6 shadow-xl transition-all duration-300 will-change-transform translate-y-0 hover:-translate-y-2 hover:shadow-2xl h-full"
                     data-reveal
-                    style={{ ["--d" as any]: `${idx * 100}ms` }}
+                    style={withRevealDelay(`${idx * 100}ms`)}
                     aria-label={info.title}
                   >
                     <div
@@ -420,7 +420,7 @@ export default function ContactPage() {
                   ].map((item, idx) => {
                     const Icon = item.icon;
                     return (
-                      <div key={idx} className="flex items-center gap-3 p-4 bg-white rounded-xl" data-reveal style={{ ["--d" as any]: `${idx * 80}ms` }}>
+                      <div key={idx} className="flex items-center gap-3 p-4 bg-white rounded-xl" data-reveal style={withRevealDelay(`${idx * 80}ms`)}>
                         <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shrink-0">
                           <Icon className="w-5 h-5 text-white" />
                         </div>
@@ -469,7 +469,7 @@ export default function ContactPage() {
                         className={`w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 ${social.color} group`}
                         title={social.name}
                         data-reveal
-                        style={{ ["--d" as any]: `${idx * 70}ms` }}
+                        style={withRevealDelay(`${idx * 70}ms`)}
                         aria-label={social.name}
                       >
                         <Icon className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
@@ -514,7 +514,7 @@ export default function ContactPage() {
                 key={idx}
                 className="reveal group bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300"
                 data-reveal
-                style={{ ["--d" as any]: `${idx * 90}ms` }}
+                style={withRevealDelay(`${idx * 90}ms`)}
               >
                 <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
                   <span className="font-semibold text-gray-900 pr-4">{faq.q}</span>

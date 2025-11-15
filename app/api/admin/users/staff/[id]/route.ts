@@ -19,7 +19,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
     const user = await prisma.user.findUnique({ where: { id, role: "STAFF" }, select: { id: true, username: true, fullName: true, email: true, phoneE164: true, role: true, createdAt: true } });
     if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json({ data: user });
-  } catch (e) {
+  } catch (error) {
+    console.error("Fetch staff user error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

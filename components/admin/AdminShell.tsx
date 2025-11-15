@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import {
   Package, Settings, Users, Shield, PanelsTopLeft, Code2, Home,
   Menu, X, ChevronRight, LogOut, User as UserIcon, Layers, Tag, Grid3x3
@@ -62,7 +63,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           {sidebarOpen ? (
             <>
               <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-                <img src="/logo.png" alt="AHSO" className="w-8 h-8" />
+                <Image src="/logo.png" alt="AHSO" width={32} height={32} />
                 <span>AHSO Admin</span>
               </Link>
               <button onClick={() => setSidebarOpen(false)} className="p-1 hover:bg-blue-700 rounded-md">

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 
@@ -10,12 +11,12 @@ export async function GET(req: Request) {
     const categorySlug = searchParams.get("category") ?? undefined;
     const q = searchParams.get("q") ?? undefined;
 
-    const where: any = {};
+    const where: Prisma.ProductTypeWhereInput = {};
     if (categorySlug) where.category = { slug: categorySlug };
     if (q) {
       where.OR = [
-        { name: { contains: q, mode: "insensitive" } },
-        { slug: { contains: q, mode: "insensitive" } },
+        { name: { contains: q } },
+        { slug: { contains: q } },
       ];
     }
 

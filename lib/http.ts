@@ -63,8 +63,8 @@ export function parsePaging(
     sp.get("limit") || // compat
     String(defaultPageSize);
 
-  let page = Math.max(1, parseInt(pageRaw, 10) || defaultPage);
-  let pageSize = Math.max(1, Math.min(maxPageSize, parseInt(psRaw, 10) || defaultPageSize));
+  const page = Math.max(1, parseInt(pageRaw, 10) || defaultPage);
+  const pageSize = Math.max(1, Math.min(maxPageSize, parseInt(psRaw, 10) || defaultPageSize));
 
   const skip = (page - 1) * pageSize;
   const take = pageSize;

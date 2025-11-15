@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 // ===== Validation =====
@@ -237,11 +238,12 @@ export async function POST(req: Request) {
     res.cookies.delete("cart_id");
 
     return res;
-  } catch (err: any) {
-    console.error("REGISTER ERROR:", err);
-    if (err?.code === "P2002") {
-      return NextResponse.json({ error: "CONFLICT", meta: err.meta }, { status: 409 });
+  } catch (error) {
+    console.error("REGISTER ERROR:", error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return NextResponse.json({ error: "CONFLICT", meta: error.meta }, { status: 409 });
     }
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

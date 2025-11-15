@@ -20,8 +20,9 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ ok: true, messageId: info.messageId });
-  } catch (err: any) {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Send mail failed";
     console.error("Send mail error:", err);
-    return NextResponse.json({ ok: false, error: err?.message || "Send mail failed" }, { status: 500 });
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

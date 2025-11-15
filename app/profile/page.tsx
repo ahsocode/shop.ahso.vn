@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Card,
@@ -112,7 +111,6 @@ const STATUS_CLASS: Record<OrderStatus, string> = {
 /* ================== Component ================== */
 
 export default function ProfilePage() {
-  const router = useRouter();
   const { user: authUser, loading: authLoading, logout, verified } = useAuth(true);
 
   const [profileLoading, setProfileLoading] = useState(true);
@@ -170,10 +168,11 @@ export default function ProfilePage() {
         if ("profile" in data && isMounted) {
           setProfile(data.profile);
         }
-      } catch (e: any) {
+      } catch (error) {
         if (isMounted) {
-          console.error("Profile load error:", e);
-          setError(e?.message || "ERROR");
+          console.error("Profile load error:", error);
+          const message = error instanceof Error ? error.message : "ERROR";
+          setError(message);
         }
       } finally {
         if (isMounted) {

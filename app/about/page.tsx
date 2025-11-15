@@ -102,7 +102,7 @@ export default function AboutPage() {
             ].map((stat, idx) => {
               const Icon = stat.icon;
               return (
-                <div key={idx} className="group" data-reveal style={{ ["--d" as any]: `${idx * 90}ms` }}>
+                <div key={idx} className="group" data-reveal style={withRevealDelay(`${idx * 90}ms`)}>
                   <div className="w-16 h-16 mx-auto mb-4 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <Icon className="w-8 h-8" />
                   </div>
@@ -163,7 +163,7 @@ export default function AboutPage() {
                   key={i}
                   className={`bg-linear-to-br ${c.box} rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300`}
                   data-reveal
-                  style={{ ["--d" as any]: `${i * 100}ms` }}
+                  style={withRevealDelay(`${i * 100}ms`)}
                 >
                   <div className={`w-14 h-14 ${c.iconBox} rounded-xl flex items-center justify-center mb-5`}>
                     <Icon className="w-8 h-8 text-white" />
@@ -190,7 +190,7 @@ export default function AboutPage() {
             ].map((b, idx) => {
               const Icon = b.icon;
               return (
-                <div key={idx} className={`bg-linear-to-br ${b.box} rounded-2xl p-8 text-white`} data-reveal style={{ ["--d" as any]: `${idx * 100}ms` }}>
+                <div key={idx} className={`bg-linear-to-br ${b.box} rounded-2xl p-8 text-white`} data-reveal style={withRevealDelay(`${idx * 100}ms`)}>
                   <Icon className="w-12 h-12 mb-5" />
                   <h3 className="text-2xl font-bold mb-3">{b.title}</h3>
                   <p className="text-lg">{b.desc}</p>
@@ -205,7 +205,7 @@ export default function AboutPage() {
               {coreValues.map((value, i) => {
                 const Icon = value.icon;
                 return (
-                  <div key={i} className="text-center group" data-reveal style={{ ["--d" as any]: `${i * 80}ms` }}>
+                  <div key={i} className="text-center group" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
                     <div className="w-16 h-16 mx-auto bg-blue-600/10 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                       <Icon className="w-8 h-8 text-blue-700 group-hover:text-white" />
                     </div>
@@ -243,7 +243,7 @@ export default function AboutPage() {
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div key={idx} className="flex items-start gap-3 p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300" data-reveal style={{ ["--d" as any]: `${idx * 80}ms` }}>
+                    <div key={idx} className="flex items-start gap-3 p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300" data-reveal style={withRevealDelay(`${idx * 80}ms`)}>
                       <div className="w-12 h-12 bg-linear-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shrink-0">
                         <Icon className="w-6 h-6 text-white" />
                       </div>
@@ -295,7 +295,7 @@ export default function AboutPage() {
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div key={idx} className="flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300" data-reveal style={{ ["--d" as any]: `${idx * 90}ms` }}>
+                    <div key={idx} className="flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300" data-reveal style={withRevealDelay(`${idx * 90}ms`)}>
                       <div className="w-14 h-14 bg-linear-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shrink-0">
                         <Icon className="w-7 h-7 text-white" />
                       </div>
@@ -335,7 +335,7 @@ export default function AboutPage() {
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div key={idx} className="flex items-center gap-4" data-reveal style={{ ["--d" as any]: `${idx * 90}ms` }}>
+                    <div key={idx} className="flex items-center gap-4" data-reveal style={withRevealDelay(`${idx * 90}ms`)}>
                       <div className="w-12 h-12 bg-linear-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center shrink-0">
                         <Icon className="w-6 h-6 text-white" />
                       </div>
@@ -388,7 +388,7 @@ export default function AboutPage() {
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div key={idx} className="group flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300" data-reveal style={{ ["--d" as any]: `${idx * 90}ms` }}>
+                    <div key={idx} className="group flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300" data-reveal style={withRevealDelay(`${idx * 90}ms`)}>
                       <div className={`w-14 h-14 bg-linear-to-br ${item.color} rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
                         <Icon className="w-7 h-7 text-white" />
                       </div>
@@ -442,7 +442,7 @@ export default function AboutPage() {
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div key={idx} className="flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300" data-reveal style={{ ["--d" as any]: `${idx * 90}ms` }}>
+                    <div key={idx} className="flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300" data-reveal style={withRevealDelay(`${idx * 90}ms`)}>
                       <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center shrink-0">
                         <Icon className="w-6 h-6 text-white" />
                       </div>

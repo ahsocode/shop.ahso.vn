@@ -1,5 +1,4 @@
 // app/api/orders/route.ts
-import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { toOrderListItemDTO } from "@/dto/order.mapper";
@@ -11,7 +10,7 @@ type OrderWithItems = Prisma.OrderGetPayload<{
   include: { items: true };
 }>;
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   const rows: OrderWithItems[] = await prisma.order.findMany({
     include: { items: true },
     orderBy: { createdAt: "desc" },

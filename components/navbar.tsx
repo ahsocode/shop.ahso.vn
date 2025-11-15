@@ -210,9 +210,11 @@ export function Navbar() {
                     ref={userBtnRef}
                   >
                     {user.avatarUrl && user.avatarUrl !== "/logo.png" ? (
-                      <img
+                      <Image
                         src={user.avatarUrl!}
                         alt={user.fullName || "User"}
+                        width={32}
+                        height={32}
                         className="h-8 w-8 rounded-full object-cover"
                       />
                     ) : (

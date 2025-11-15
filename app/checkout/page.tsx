@@ -1,8 +1,9 @@
 // app/checkout/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { CheckCircle2, QrCode, ArrowLeft } from "lucide-react";
 
 type OrderPreview = {
@@ -33,15 +34,15 @@ const formatVND = (n: number) =>
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const [order, setOrder] = useState<OrderPreview | null>(null);
-
-  useEffect(() => {
+  const [order] = useState<OrderPreview | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
-      const raw = sessionStorage.getItem("orderPreview");
-      if (!raw) return;
-      setOrder(JSON.parse(raw) as OrderPreview);
-    } catch {}
-  }, []);
+      const raw = window.sessionStorage.getItem("orderPreview");
+      return raw ? (JSON.parse(raw) as OrderPreview) : null;
+    } catch {
+      return null;
+    }
+  });
 
   if (!order) {
     return (
@@ -110,10 +111,14 @@ export default function CheckoutPage() {
             </p>
 
             <div className="rounded-2xl border bg-gray-50 p-4">
-              <img
+              <Image
                 src={qrUrl}
                 alt="Mã QR thanh toán VietQR"
+                width={256}
+                height={256}
+                sizes="256px"
                 className="h-64 w-64 object-contain"
+                priority
               />
             </div>
 

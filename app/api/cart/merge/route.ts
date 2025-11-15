@@ -5,6 +5,7 @@
  * Gọi sau khi user login thành công
  */
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth } from "@/lib/auth";
 
@@ -12,10 +13,10 @@ export const dynamic = "force-dynamic";
 
 const CART_COOKIE = "cart_id";
 
-type TotItem = { quantity: number; unitPrice: any };
+type TotItem = { quantity: number; unitPrice: Prisma.Decimal | number | string | null };
 
 function calcTotals(items: TotItem[]) {
-  const subtotal = items.reduce((s, it) => s + Number(it.unitPrice) * it.quantity, 0);
+  const subtotal = items.reduce((s, it) => s + Number(it.unitPrice ?? 0) * it.quantity, 0);
   const discountTotal = 0;
   const taxTotal = 0;
   const shippingFee = 0;

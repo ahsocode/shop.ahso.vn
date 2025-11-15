@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server";
-import type { Prisma } from "@prisma/client";
+import type { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
-import { jsonError, jsonOk } from "@/lib/http";
+import { jsonError, jsonOk, toHttpError } from "@/lib/http";
 
 export const dynamic = "force-dynamic";
 
@@ -62,10 +62,11 @@ export async function PATCH(
     });
 
     return jsonOk({ data: updated });
-  } catch (err: any) {
-    if (err.code === "P2025") {
+  } catch (err: unknown) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {
       return jsonError("Không tìm thấy đơn hàng", 404);
     }
-    return jsonError(err.message || "Internal Server Error", err.status || 500);
+    const httpError = toHttpError(err);
+    return jsonError(httpError.message ?? "Internal Server Error", httpError.status ?? 500);
   }
 }

@@ -2,6 +2,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+type Suggestion = {
+  type: "product" | "brand" | "category" | "popular" | "search";
+  text: string;
+  subtext?: string;
+  url?: string;
+  image?: string | null;
+  icon?: string;
+};
+
 export const dynamic = "force-dynamic";
 
 // Cache popular searches (in production, use Redis)
@@ -109,7 +118,7 @@ export async function GET(req: NextRequest) {
       ]);
 
     // Build suggestions array
-    const suggestions: any[] = [];
+    const suggestions: Suggestion[] = [];
 
     // Add product suggestions
     productSuggestions.forEach((p) => {

@@ -102,10 +102,15 @@ export function toOrderDetailDTO(params: {
           province: address.province ?? undefined,
         }
       : undefined,
-    payment: {
-      method: ((payment?.method as any) ?? "cod") as any,
-      paidAmount: payment?.amount ?? 0,
-    },
+    payment: payment
+      ? {
+          method: payment.method || "cod",
+          paidAmount: payment.amount ?? 0,
+        }
+      : {
+          method: "cod",
+          paidAmount: 0,
+        },
     shipping: {
       method: order.shippingMethod ?? "standard",
       fee: shippingFee,

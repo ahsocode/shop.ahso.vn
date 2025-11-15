@@ -1,7 +1,7 @@
 // app/api/search/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -68,7 +68,87 @@ function buildSearchConditions(query: string) {
 }
 
 // Helper: Calculate relevance score
-function calculateRelevance(product: any, query: string): number {
+type ProductForSearch = Prisma.ProductGetPayload<{
+  select: {
+    id: true;
+    slug: true;
+    name: true;
+    sku: true;
+    description: true;
+    coverImage: true;
+    price: true;
+    currency: true;
+    stockOnHand: true;
+    ratingAvg: true;
+    ratingCount: true;
+    purchaseCount: true;
+    brand: {
+      select: {
+        name: true;
+        slug: true;
+        logoUrl: true;
+      };
+    };
+    type: {
+      select: {
+        name: true;
+        slug: true;
+        category: {
+          select: {
+            name: true;
+            slug: true;
+          };
+        };
+      };
+    };
+  };
+}>;
+
+type ProductSearchSummary = {
+  id: string;
+  slug: string;
+  name: string;
+  sku: string;
+  description: string | null;
+  image: string | null;
+  price: number;
+  currency: string | null;
+  inStock: boolean;
+  rating: {
+    avg: number;
+    count: number;
+  };
+  purchaseCount: number;
+  brand: { name: string; slug: string; logo: string | null } | null;
+  category: { name: string; slug: string } | null;
+  relevance: number;
+};
+
+type BrandSearchSummary = {
+  id: string;
+  slug: string;
+  name: string;
+  logo: string | null;
+  summary: string | null;
+  productCount: number;
+};
+
+type CategorySearchSummary = {
+  id: string;
+  slug: string;
+  name: string;
+  image: string | null;
+  description: string | null;
+  productCount: number;
+};
+
+type SearchResults = {
+  products: ProductSearchSummary[];
+  brands: BrandSearchSummary[];
+  categories: CategorySearchSummary[];
+};
+
+function calculateRelevance(product: ProductForSearch, query: string): number {
   const normalized = normalizeQuery(query);
   const words = splitWords(query);
   let score = 0;
@@ -147,7 +227,7 @@ export async function GET(req: NextRequest) {
     const startTime = Date.now();
 
     // Build search results
-    const results: any = {
+    const results: SearchResults = {
       products: [],
       brands: [],
       categories: [],
@@ -352,27 +432,27 @@ export async function GET(req: NextRequest) {
 }
 
 // Generate search suggestions
-function generateSuggestions(query: string, results: any): string[] {
+function generateSuggestions(_query: string, results: SearchResults): string[] {
   const suggestions = new Set<string>();
 
   // Add brand names from results
-  results.products?.forEach((p: any) => {
+  results.products.forEach((p) => {
     if (p.brand?.name) {
       suggestions.add(p.brand.name);
     }
   });
 
   // Add category names
-  results.products?.forEach((p: any) => {
+  results.products.forEach((p) => {
     if (p.category?.name) {
       suggestions.add(p.category.name);
     }
   });
 
   // Add product type variations
-  results.products?.slice(0, 3).forEach((p: any) => {
-    const words = p.name.split(/\s+/).filter((w: string) => w.length > 3);
-    words.forEach((w: string) => suggestions.add(w));
+  results.products.slice(0, 3).forEach((p) => {
+    const words = p.name.split(/\s+/).filter((w) => w.length > 3);
+    words.forEach((w) => suggestions.add(w));
   });
 
   return Array.from(suggestions).slice(0, 5);

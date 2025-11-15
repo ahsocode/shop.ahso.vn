@@ -1,7 +1,7 @@
 // app/api/auth/reset-password/route.ts
 import { NextResponse } from "next/server"
 import { z } from "zod"
-import { jwtVerify } from "jose"
+import { jwtVerify, type JWTPayload } from "jose"
 import bcrypt from "bcrypt"
 import { prisma } from "@/lib/prisma"
 
@@ -30,11 +30,12 @@ export async function POST(req: Request) {
     if (!secret) throw new Error("Missing JWT_SECRET")
 
     // Verify token
-    let payload: any
+    type ResetPayload = JWTPayload & { type?: string }
+    let payload: ResetPayload
     try {
-      const result = await jwtVerify(token, new TextEncoder().encode(secret))
+      const result = await jwtVerify<ResetPayload>(token, new TextEncoder().encode(secret))
       payload = result.payload
-    } catch (err) {
+    } catch {
       return NextResponse.json(
         { error: "INVALID_TOKEN", message: "Token không hợp lệ hoặc đã hết hạn" },
         { status: 400 }
@@ -77,10 +78,11 @@ export async function POST(req: Request) {
       message: "Đặt lại mật khẩu thành công",
     })
 
-  } catch (err) {
-    console.error("RESET PASSWORD ERROR:", err)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Internal Server Error"
+    console.error("RESET PASSWORD ERROR:", error)
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: message },
       { status: 500 }
     )
   }

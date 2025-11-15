@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 import { Package, Menu, X, LogOut, Home, BadgeCheck } from "lucide-react";
 import { useAuthStore, setUser } from "@/lib/auth-store";
 
@@ -60,7 +61,7 @@ export default function StaffShell({ children }: { children: React.ReactNode }) 
           {sidebarOpen ? (
             <>
               <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-                <img src="/logo.png" alt="AHSO" className="w-8 h-8 rounded" />
+                <Image src="/logo.png" alt="AHSO" width={32} height={32} className="rounded" />
                 <div className="text-left">
                   <span className="text-xs uppercase text-white/60">AHSO</span>
                   <div className="leading-tight">Staff Desk</div>

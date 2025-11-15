@@ -2,6 +2,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCart } from "@/lib/hooks/useCart";
@@ -12,7 +13,21 @@ type Props = {
   image?: string;
   className?: string;
   disabled?: boolean;
-  children?: React.ReactNode; // icon/text tuỳ biến
+  children?: ReactNode; // icon/text tuỳ biến
+};
+
+type CartErrorPayload = {
+  error?: string;
+  message?: string;
+};
+
+const extractError = (payload: unknown) => {
+  if (typeof payload === "object" && payload !== null) {
+    const { error, message } = payload as CartErrorPayload;
+    if (typeof error === "string") return error;
+    if (typeof message === "string") return message;
+  }
+  return undefined;
 };
 
 export default function AddToCartClient({
@@ -55,8 +70,8 @@ export default function AddToCartClient({
 
       if (!res.ok) {
         // Thử đọc thông điệp cụ thể từ server
-        const j = await res.json().catch(() => ({} as any));
-        const err = (j?.error || j?.message || "").toUpperCase();
+        const body = (await res.json().catch(() => null)) as unknown;
+        const err = (extractError(body) || "").toUpperCase();
 
         if (res.status === 409 || err.includes("OUT_OF_STOCK")) {
           toast.error("Sản phẩm tạm hết hàng.");
@@ -67,7 +82,7 @@ export default function AddToCartClient({
           return;
         }
 
-        throw new Error(j?.error || j?.message || `Add to cart failed (${res.status})`);
+        throw new Error(extractError(body) || `Add to cart failed (${res.status})`);
       }
 
       // Thành công
@@ -82,10 +97,10 @@ export default function AddToCartClient({
           onClick: () => router.push("/cart"),
         },
       });
-    } catch (e: any) {
+    } catch (error) {
       // Lỗi mạng/khác
       toast.error("Không thể thêm sản phẩm. Vui lòng thử lại.");
-      console.error(e);
+      console.error(error);
     } finally {
       setLoading(false);
     }

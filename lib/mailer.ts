@@ -12,19 +12,21 @@ export function getTransporter() {
   });
 }
 
-export async function sendMail({
-  to,
-  subject,
-  html,
-  text,
-  attachments,
-}: {
+type Attachment = {
+  filename: string;
+  path?: string;
+  content?: string | Buffer;
+};
+
+type SendMailOptions = {
   to: string | string[];
   subject: string;
   html?: string;
   text?: string;
-  attachments?: { filename: string; path?: string; content?: any }[];
-}) {
+  attachments?: Attachment[];
+};
+
+export async function sendMail({ to, subject, html, text, attachments }: SendMailOptions) {
   const transporter = getTransporter();
   const info = await transporter.sendMail({
     from: process.env.FROM_EMAIL || process.env.SMTP_USER, // ← nếu không set FROM_EMAIL sẽ dùng SMTP_USER

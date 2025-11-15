@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { z } from "zod";
-import type { Prisma, UserRole } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "../../../../lib/prisma";
 import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../lib/auth";
 
@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
     const pageSize = toInt(searchParams.get("pageSize"), 20);
 
     const where: Prisma.UserWhereInput = {};
-    if (role) where.role = role as UserRole;
+    if (role) where.role = role as Prisma.UserScalarWhereWithAggregatesInput["role"];
     if (q) where.OR = [
       { username: { contains: q } },
       { fullName: { contains: q } },

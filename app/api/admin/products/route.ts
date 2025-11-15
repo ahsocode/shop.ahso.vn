@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     const { page, pageSize, skip, take } = parsePaging(req);
 
     const where: Prisma.ProductWhereInput = {};
-    if (q) where.OR = [{ name: { contains: q, mode: "insensitive" } }, { sku: { contains: q, mode: "insensitive" } }];
+    if (q) where.OR = [{ name: { contains: q } }, { sku: { contains: q } }];
     if (brandId) where.brandId = brandId;
     if (typeId) where.typeId = typeId;
     if (status) where.status = status;

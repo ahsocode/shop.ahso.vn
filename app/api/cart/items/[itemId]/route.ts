@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
  */
 async function verifyCartItemOwnership(
   req: NextRequest,
-  cartItem: any
+  cartItem: { cartId: string }
 ): Promise<boolean> {
   const user = await verifyRequestUser(req);
 

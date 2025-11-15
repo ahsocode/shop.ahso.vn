@@ -83,10 +83,11 @@ export async function POST(req: Request) {
       message: "Nếu email tồn tại, link đặt lại mật khẩu đã được gửi",
     })
 
-  } catch (err: any) {
-    console.error("FORGOT PASSWORD ERROR:", err)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Internal Server Error"
+    console.error("FORGOT PASSWORD ERROR:", error)
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: message },
       { status: 500 }
     )
   }

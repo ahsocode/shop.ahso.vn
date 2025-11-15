@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Factory, Mail, Phone, MapPin, Building2 } from "lucide-react";
+import { Mail, Phone, MapPin, Building2 } from "lucide-react";
 import Image from "next/image";
 
 export function Footer() {

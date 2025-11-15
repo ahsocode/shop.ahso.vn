@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, ArrowLeft, User, Mail, Phone, MapPin } from "lucide-react";
-import { setUser} from "@/lib/auth-store";
+import { setUser } from "@/lib/auth-store";
 
 type Address = {
   line1: string;
@@ -43,6 +43,26 @@ type ApiResponse =
   | { profile: Profile }
   | { error: string; details?: unknown };
 
+type CloudinaryUploadInfo = {
+  secure_url?: string;
+};
+
+type CloudinaryUploadResult = {
+  event?: string;
+  info?: CloudinaryUploadInfo;
+};
+
+type CloudinaryUploadWidgetInstance = {
+  open?: () => void;
+};
+
+type CloudinaryGlobal = {
+  createUploadWidget: (
+    options: Record<string, unknown>,
+    callback: (error: unknown, result: CloudinaryUploadResult) => void,
+  ) => CloudinaryUploadWidgetInstance;
+};
+
 const addressSchema = z.object({
   line1: z.string().min(1, "Bắt buộc"),
   line2: z.string().optional().or(z.literal("").transform(() => undefined)),
@@ -71,38 +91,50 @@ type FormValues = z.infer<typeof formSchema>;
 /** Cloudinary Upload Widget */
 declare global {
   interface Window {
-    cloudinary?: any;
+    cloudinary?: CloudinaryGlobal;
   }
 }
+
+const getErrorMessage = (payload: unknown, fallback: string) => {
+  if (typeof payload === "object" && payload !== null && "error" in payload) {
+    const value = (payload as { error?: unknown }).error;
+    if (typeof value === "string") {
+      return value;
+    }
+  }
+  return fallback;
+};
+
 function useCloudinaryWidget(onUploaded: (url: string) => void) {
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!;
   const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!;
-  const widgetRef = useRef<any>(null);
+  const widgetRef = useRef<CloudinaryUploadWidgetInstance | null>(null);
 
   useEffect(() => {
     const ensureWidget = () => {
-      widgetRef.current = window.cloudinary?.createUploadWidget(
+      if (!window.cloudinary) return;
+      widgetRef.current = window.cloudinary.createUploadWidget(
         {
           cloudName,
-          uploadPreset,         // UNSIGNED preset name (vd: "shop.ahso.vn")
+          uploadPreset, // UNSIGNED preset name (vd: "shop.ahso.vn")
           multiple: false,
           sources: ["local", "url", "camera"],
           folder: "avatars",
           clientAllowedFormats: ["jpg", "jpeg", "png", "webp"],
           maxFileSize: 5_000_000,
         },
-        (error: any, result: any) => {
+        (error: unknown, result: CloudinaryUploadResult) => {
           if (!error && result?.event === "success") {
-            const url = result?.info?.secure_url as string;
+            const url = result?.info?.secure_url;
             if (url) onUploaded(url);
           }
-        }
+        },
       );
     };
 
     // nạp script widget nếu chưa có
     const existing = document.querySelector<HTMLScriptElement>(
-      'script[src="https://widget.cloudinary.com/v2.0/global/all.js"]'
+      'script[src="https://widget.cloudinary.com/v2.0/global/all.js"]',
     );
     if (!existing) {
       const s = document.createElement("script");
@@ -281,8 +313,8 @@ export default function EditProfilePage() {
           return;
         }
         if (!res.ok) {
-          const t: ApiResponse = await res.json();
-          throw new Error((t as any)?.error || "REQUEST_FAILED");
+          const body = await res.json().catch(() => null);
+          throw new Error(getErrorMessage(body, "REQUEST_FAILED"));
         }
         const data: ApiResponse = await res.json();
         if ("profile" in data) {
@@ -312,10 +344,11 @@ export default function EditProfilePage() {
             },
           });
         } else {
-          throw new Error((data as any).error || "UNKNOWN_ERROR");
+          throw new Error(getErrorMessage(data, "UNKNOWN_ERROR"));
         }
-      } catch (e: any) {
-        setError(e?.message || "ERROR");
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "ERROR";
+        setError(message);
       } finally {
         setLoading(false);
       }
@@ -351,8 +384,8 @@ export default function EditProfilePage() {
       });
 
       if (!res.ok) {
-        const t = await res.json();
-        throw new Error(t?.error || "PATCH_FAILED");
+        const body = await res.json().catch(() => null);
+        throw new Error(getErrorMessage(body, "PATCH_FAILED"));
       }
 
       // Lấy dữ liệu mới để cập nhật navbar (không cần logout)
@@ -372,8 +405,9 @@ export default function EditProfilePage() {
       }
 
       router.push("/profile");
-    } catch (e: any) {
-      setError(e?.message || "ERROR");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "ERROR";
+      setError(message);
     } finally {
       setSaving(false);
     }

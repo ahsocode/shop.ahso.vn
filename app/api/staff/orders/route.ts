@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import type { Prisma, OrderStatus, PaymentStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
-import { jsonError, jsonOk, parsePaging } from "@/lib/http";
+import { jsonError, jsonOk, parsePaging, toHttpError } from "@/lib/http";
 
 export const dynamic = "force-dynamic";
 
@@ -154,7 +154,8 @@ export async function GET(req: NextRequest) {
         to: to?.toISOString() ?? null,
       },
     });
-  } catch (err: any) {
-    return jsonError(err.message || "Internal Server Error", err.status || 500);
+  } catch (err: unknown) {
+    const httpError = toHttpError(err);
+    return jsonError(httpError.message ?? "Internal Server Error", httpError.status ?? 500);
   }
 }

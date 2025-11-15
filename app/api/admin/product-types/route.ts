@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     const { page, pageSize, skip, take } = parsePaging(req);
 
     const where: Prisma.ProductTypeWhereInput = {};
-    if (q) where.OR = [{ name: { contains: q, mode: "insensitive" } }, { slug: { contains: q, mode: "insensitive" } }];
+    if (q) where.OR = [{ name: { contains: q } }, { slug: { contains: q } }];
     if (categoryId) where.categoryId = categoryId;
 
     const [total, data] = await Promise.all([

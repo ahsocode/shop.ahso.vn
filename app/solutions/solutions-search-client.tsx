@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import Link from "next/link";
@@ -51,78 +51,75 @@ export default function SolutionsSearchClient() {
   }, [q, industry, usecase, page]);
 
   useEffect(() => {
-  const url = `/api/search/solutions?${params.toString()}`;
-  router.replace(`/solutions?${params.toString()}`, { scroll: false });
+    const url = `/api/search/solutions?${params.toString()}`;
+    router.replace(`/solutions?${params.toString()}`, { scroll: false });
 
-  let aborted = false;
-  const controller = new AbortController();
+    let aborted = false;
+    const controller = new AbortController();
 
-  async function run() {
-    setLoading(true);
-    try {
-      const r = await fetch(url, {
-        signal: controller.signal,
-        headers: { Accept: "application/json" },
-        cache: "no-store",
-      });
-
-      // Nếu lỗi HTTP (500/404/…): đừng parse JSON
-      if (!r.ok) {
-        if (!aborted) {
-          setData([]);
-          setTotal(0);
-        }
-        return;
-      }
-
-      // Đọc text rồi tự parse để tránh "Unexpected end of JSON input"
-      const text = await r.text();
-      if (!text || !text.trim()) {
-        if (!aborted) {
-          setData([]);
-          setTotal(0);
-        }
-        return;
-      }
-
-      let json: any;
+    const run = async () => {
+      setLoading(true);
       try {
-        json = JSON.parse(text);
+        const r = await fetch(url, {
+          signal: controller.signal,
+          headers: { Accept: "application/json" },
+          cache: "no-store",
+        });
+
+        if (!r.ok) {
+          if (!aborted) {
+            setData([]);
+            setTotal(0);
+          }
+          return;
+        }
+
+        const text = await r.text();
+        if (!text || !text.trim()) {
+          if (!aborted) {
+            setData([]);
+            setTotal(0);
+          }
+          return;
+        }
+
+        let json: unknown;
+        try {
+          json = JSON.parse(text);
+        } catch {
+          if (!aborted) {
+            setData([]);
+            setTotal(0);
+          }
+          return;
+        }
+
+        if (!aborted) {
+          const payload = json as { data?: Solution[]; meta?: { total?: number } };
+          setData(payload.data ?? []);
+          setTotal(payload.meta?.total ?? 0);
+        }
       } catch {
-        // Server có thể trả HTML (<!DOCTYPE …>) khi 500
         if (!aborted) {
           setData([]);
           setTotal(0);
         }
-        return;
+      } finally {
+        if (!aborted) setLoading(false);
       }
+    };
 
-      if (!aborted) {
-        setData((json.data ?? []) as Solution[]);
-        setTotal(json.meta?.total ?? 0);
-      }
-    } catch (err: any) {
-      // Abort / network error → coi như rỗng
-      if (!aborted) {
-        setData([]);
-        setTotal(0);
-      }
-    } finally {
-      if (!aborted) setLoading(false);
-    }
-  }
+    void run();
 
-  run();
+    return () => {
+      aborted = true;
+      controller.abort();
+    };
+  }, [params, router]);
 
-  return () => {
-    aborted = true;
-    controller.abort(); // hủy request cũ khi user tiếp tục gõ
-  };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [params, router]);
-
-
-  useEffect(() => { setPage(1); }, [q, industry, usecase]);
+  useEffect(() => {
+    startTransition(() => setPage(1));
+  }, [q, industry, usecase]);
 
   const pages = Math.max(1, Math.ceil(total / pageSize));
 

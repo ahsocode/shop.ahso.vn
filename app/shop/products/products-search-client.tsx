@@ -134,8 +134,8 @@ function AddToCartButton({ sku, name, image }: { sku: string; name: string; imag
       }
 
       if (!res.ok) {
-        const json = await res.json().catch(() => ({} as any));
-        const err = (json?.error || json?.message || "").toUpperCase();
+        const json: ErrorResponse = await res.json().catch(() => ({} as ErrorResponse));
+        const err = (json.error || json.message || "").toUpperCase();
         if (res.status === 409 || err.includes("OUT_OF_STOCK")) {
           toast.error("Sản phẩm tạm hết hàng.");
           return;
@@ -764,22 +764,28 @@ export default function ProductsSearchClient() {
 
   // Fetch products
   useEffect(() => {
-    const url = new URL("/api/products", window.location.origin);
-    url.searchParams.set("page", String(page));
-    url.searchParams.set("pageSize", String(pageSize));
-    if (dq) url.searchParams.set("q", dq);
-    if (brand) url.searchParams.set("brand", brand);
-    if (category) url.searchParams.set("category", category);
-    if (productType) url.searchParams.set("type", productType);
-    if (minPrice) url.searchParams.set("minPrice", minPrice);
-    if (maxPrice) url.searchParams.set("maxPrice", maxPrice);
-    if (inStock) url.searchParams.set("inStock", "true");
-    if (sort) url.searchParams.set("sort", sort);
+    let ignore = false;
+    const controller = new AbortController();
 
-    setLoading(true);
-    fetch(url.toString())
-      .then((r) => r.json())
-      .then((json) => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const url = new URL("/api/products", window.location.origin);
+        url.searchParams.set("page", String(page));
+        url.searchParams.set("pageSize", String(pageSize));
+        if (dq) url.searchParams.set("q", dq);
+        if (brand) url.searchParams.set("brand", brand);
+        if (category) url.searchParams.set("category", category);
+        if (productType) url.searchParams.set("type", productType);
+        if (minPrice) url.searchParams.set("minPrice", minPrice);
+        if (maxPrice) url.searchParams.set("maxPrice", maxPrice);
+        if (inStock) url.searchParams.set("inStock", "true");
+        if (sort) url.searchParams.set("sort", sort);
+
+        const response = await fetch(url.toString(), { signal: controller.signal });
+        const json = await response.json();
+
+        if (ignore) return;
         if (json?.success) {
           setItems(json.data || []);
           setTotal(json.meta?.total ?? 0);
@@ -787,12 +793,24 @@ export default function ProductsSearchClient() {
           setItems([]);
           setTotal(0);
         }
-      })
-      .catch(() => {
+      } catch (error) {
+        if (ignore || (error instanceof DOMException && error.name === "AbortError")) {
+          return;
+        }
         setItems([]);
         setTotal(0);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchProducts();
+    return () => {
+      ignore = true;
+      controller.abort();
+    };
   }, [dq, brand, category, productType, minPrice, maxPrice, inStock, sort, page]);
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total]);
@@ -1240,3 +1258,7 @@ export default function ProductsSearchClient() {
     </div>
   );
 }
+type ErrorResponse = {
+  error?: string;
+  message?: string;
+};
