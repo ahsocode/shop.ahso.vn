@@ -28,10 +28,8 @@ async function main() {
   for (const t of data.productTypes) {
     const cat = await prisma.productCategory.findUnique({ where: { slug: t.categorySlug } });
     if (!cat) throw new Error(`Category not found for type: ${t.slug}`);
-    // Composite unique is (categoryId, slug); we upsert by a shadow unique on slug+categoryId
-    const where = { categoryId_slug: { categoryId: cat.id, slug: t.slug } } as any;
     await prisma.productType.upsert({
-      where,
+      where: { categoryId_slug: { categoryId: cat.id, slug: t.slug } },
       update: { name: t.name, coverImage: t.coverImage ?? null, description: t.description ?? null },
       create: { slug: t.slug, name: t.name, coverImage: t.coverImage ?? null, description: t.description ?? null, categoryId: cat.id }
     });
@@ -85,7 +83,7 @@ async function main() {
         quantityLabel: p.quantityLabel ?? null,
 
         specs: p.specs?.length ? {
-          create: p.specs.map((s: any, idx: number) => ({
+          create: p.specs.map((s: (typeof p.specs)[number], idx: number) => ({
             specDefinition: { connect: { slug: s.specSlug } },
             valueString: s.valueString ?? null,
             valueNumber: s.valueNumber ?? null,
@@ -96,7 +94,7 @@ async function main() {
         } : undefined,
 
         images: p.images?.length ? {
-          create: p.images.map((i: any, idx: number) => ({
+          create: p.images.map((i: (typeof p.images)[number], idx: number) => ({
             url: i.url,
             alt: i.alt ?? null,
             sortOrder: idx + 1

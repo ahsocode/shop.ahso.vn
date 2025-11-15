@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient, PublishStatus, Prisma } from "@prisma/client";
-const prisma = new PrismaClient();
+import { PublishStatus, Prisma } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 
 // Define the product with includes for type safety
 type ProductWithRelations = Prisma.ProductGetPayload<{
@@ -33,6 +33,42 @@ type ProductWithRelations = Prisma.ProductGetPayload<{
   };
 }>;
 
+type SortDirection = "asc" | "desc";
+
+function getOrderBy(sortField: string, order: SortDirection): Prisma.ProductOrderByWithRelationInput {
+  switch (sortField) {
+    case "price":
+      return { price: order };
+    case "name":
+      return { name: order };
+    case "purchaseCount":
+      return { purchaseCount: order };
+    case "ratingAvg":
+      return { ratingAvg: order };
+    default:
+      return { createdAt: order };
+  }
+}
+
+function mapUiSort(value: string | null): Prisma.ProductOrderByWithRelationInput | null {
+  switch (value) {
+    case "price_asc":
+      return { price: "asc" };
+    case "price_desc":
+      return { price: "desc" };
+    case "name_asc":
+      return { name: "asc" };
+    case "name_desc":
+      return { name: "desc" };
+    case "popular":
+      return { purchaseCount: "desc" };
+    case "rating":
+      return { ratingAvg: "desc" };
+    default:
+      return null;
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -56,23 +92,12 @@ export async function GET(request: NextRequest) {
       "";
 
     const uiSort = searchParams.get("sort");
-    let sortBy = searchParams.get("sortBy") || "createdAt";
-    let sortOrder: "asc" | "desc" =
-      (searchParams.get("sortOrder") as "asc" | "desc") || "desc";
-    
-    if (uiSort) {
-      switch (uiSort) {
-        case "price_asc":  sortBy = "price"; sortOrder = "asc"; break;
-        case "price_desc": sortBy = "price"; sortOrder = "desc"; break;
-        case "name_asc":   sortBy = "name";  sortOrder = "asc"; break;
-        case "name_desc":  sortBy = "name";  sortOrder = "desc"; break;
-        case "popular":    sortBy = "purchaseCount"; sortOrder = "desc"; break;
-        case "rating":     sortBy = "ratingAvg"; sortOrder = "desc"; break;
-        default:           sortBy = "createdAt"; sortOrder = "desc";
-      }
-    }
-    
-    const orderBy: any = { [sortBy]: sortOrder };
+    const sortByParam = searchParams.get("sortBy") || "createdAt";
+    const sortOrderParam =
+      (searchParams.get("sortOrder") as SortDirection | null) || "desc";
+    const mappedOrder = mapUiSort(uiSort);
+    const orderBy =
+      mappedOrder ?? getOrderBy(sortByParam, sortOrderParam);
 
     // --- Filters ---
     const brandSlug = searchParams.get("brand") || undefined;
@@ -86,7 +111,7 @@ export async function GET(request: NextRequest) {
     const statusParam = searchParams.get("status") || "PUBLISHED";
 
     // Build where clause
-    const where: any = {};
+    const where: Prisma.ProductWhereInput = {};
     
     // Status filter - default to PUBLISHED only
     if (statusParam === "ALL") {
@@ -98,9 +123,9 @@ export async function GET(request: NextRequest) {
     // Search - optimized with OR
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-        { sku: { contains: search, mode: "insensitive" } },
+        { name: { contains: search } },
+        { description: { contains: search } },
+        { sku: { contains: search } },
       ];
     }
     
@@ -136,7 +161,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build query options
-    const queryOptions: any = {
+    const queryOptions: Prisma.ProductFindManyArgs = {
       where,
       orderBy,
       include: {

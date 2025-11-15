@@ -1,7 +1,9 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
+import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
-import { parsePaging, jsonOk, jsonError } from "@/lib/http";
+import { parsePaging, jsonOk, jsonError, toHttpError } from "@/lib/http";
 import { slugify } from "@/lib/slug";
 import { ProductCreateSchema, PublishStatusEnum } from "@/lib/validators";
 
@@ -15,8 +17,8 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status") as z.infer<typeof PublishStatusEnum> | null;
     const { page, pageSize, skip, take } = parsePaging(req);
 
-    const where: any = {};
-    if (q) where.OR = [{ name: { contains: q, mode: "insensitive" } }, { sku: { contains: q, mode: "insensitive" } }];
+    const where: Prisma.ProductWhereInput = {};
+    if (q) where.OR = [{ name: { contains: q } }, { sku: { contains: q } }];
     if (brandId) where.brandId = brandId;
     if (typeId) where.typeId = typeId;
     if (status) where.status = status;
@@ -33,10 +35,11 @@ export async function GET(req: NextRequest) {
     ]);
 
     return jsonOk({ data, meta: { total, page, pageSize } });
-  } catch (e: any) { return jsonError(e.message || "Internal Error", e.status || 500); }
+  } catch (error) {
+    const err = toHttpError(error);
+    return jsonError(err.message || "Internal Error", err.status || 500);
+  }
 }
-
-import { z } from "zod";
 
 export async function POST(req: NextRequest) {
   try {
@@ -79,5 +82,8 @@ export async function POST(req: NextRequest) {
       },
     });
     return jsonOk({ data: created }, 201);
-  } catch (e: any) { return jsonError(e.message || "Internal Error", e.status || 500); }
+  } catch (error) {
+    const err = toHttpError(error);
+    return jsonError(err.message || "Internal Error", err.status || 500);
+  }
 }

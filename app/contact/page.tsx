@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
+import { withRevealDelay } from "@/lib/reveal";
 import {
   Mail,
   Phone,
@@ -180,11 +181,11 @@ export default function ContactPage() {
             <span className="text-sm font-semibold">Hỗ trợ 24/7</span>
           </div>
 
-          <h1 className="text-5xl md:text-6xl font-bold mb-6" data-reveal style={{ ["--d" as any]: "80ms" }}>
+          <h1 className="text-5xl md:text-6xl font-bold mb-6" data-reveal style={withRevealDelay("80ms")}>
             Liên hệ với chúng tôi
           </h1>
 
-          <p className="text-xl text-blue-100 max-w-2xl mx-auto" data-reveal style={{ ["--d" as any]: "160ms" }}>
+          <p className="text-xl text-blue-100 max-w-2xl mx-auto" data-reveal style={withRevealDelay("160ms")}>
             Đội ngũ chuyên gia của AHSO sẵn sàng tư vấn và hỗ trợ bạn tìm ra giải pháp tốt nhất
           </p>
         </div>
@@ -205,7 +206,7 @@ export default function ContactPage() {
                     href={info.link}
                     className="reveal group block bg-white rounded-2xl p-6 shadow-xl transition-all duration-300 will-change-transform translate-y-0 hover:-translate-y-2 hover:shadow-2xl h-full"
                     data-reveal
-                    style={{ ["--d" as any]: `${idx * 100}ms` }}
+                    style={withRevealDelay(`${idx * 100}ms`)}
                     aria-label={info.title}
                   >
                     <div
@@ -232,7 +233,7 @@ export default function ContactPage() {
             <div className="reveal">
               <div className="mb-8">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4" data-reveal>Gửi thông tin liên hệ</h2>
-                <p className="text-lg text-gray-600" data-reveal style={{ ["--d" as any]: "80ms" }}>
+                <p className="text-lg text-gray-600" data-reveal style={withRevealDelay("80ms")}>
                   Điền thông tin bên dưới và chúng tôi sẽ liên hệ lại với bạn trong thời gian sớm nhất
                 </p>
               </div>
@@ -261,7 +262,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Email */}
-                <div className="group" data-reveal style={{ ["--d" as any]: "60ms" }}>
+                <div className="group" data-reveal style={withRevealDelay("60ms")}>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Email <span className="text-red-500">*</span>
                   </label>
@@ -283,7 +284,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Phone */}
-                <div className="group" data-reveal style={{ ["--d" as any]: "120ms" }}>
+                <div className="group" data-reveal style={withRevealDelay("120ms")}>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Số điện thoại <span className="text-red-500">*</span>
                   </label>
@@ -306,7 +307,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Company */}
-                <div className="group" data-reveal style={{ ["--d" as any]: "180ms" }}>
+                <div className="group" data-reveal style={withRevealDelay("180ms")}>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Tên công ty</label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2">
@@ -325,7 +326,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Subject */}
-                <div className="group" data-reveal style={{ ["--d" as any]: "240ms" }}>
+                <div className="group" data-reveal style={withRevealDelay("240ms")}>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Chủ đề</label>
                   <select
                     name="subject"
@@ -343,7 +344,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Message */}
-                <div className="group" data-reveal style={{ ["--d" as any]: "300ms" }}>
+                <div className="group" data-reveal style={withRevealDelay("300ms")}>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Nội dung <span className="text-red-500">*</span>
                   </label>
@@ -373,7 +374,7 @@ export default function ContactPage() {
                       : "bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl hover:scale-105"
                   } disabled:opacity-70 disabled:cursor-not-allowed`}
                   data-reveal
-                  style={{ ["--d" as any]: "360ms" }}
+                  style={withRevealDelay("360ms")}
                 >
                   {isSubmitting ? (
                     <>
@@ -393,7 +394,7 @@ export default function ContactPage() {
                   )}
                 </button>
 
-                <p className="text-sm text-gray-500 text-center" data-reveal style={{ ["--d" as any]: "420ms" }}>
+                <p className="text-sm text-gray-500 text-center" data-reveal style={withRevealDelay("420ms")}>
                   Bằng cách gửi thông tin, bạn đồng ý với{" "}
                   <span className="text-blue-600 cursor-pointer hover:underline">chính sách bảo mật</span> của chúng tôi
                 </p>
@@ -419,7 +420,7 @@ export default function ContactPage() {
                   ].map((item, idx) => {
                     const Icon = item.icon;
                     return (
-                      <div key={idx} className="flex items-center gap-3 p-4 bg-white rounded-xl" data-reveal style={{ ["--d" as any]: `${idx * 80}ms` }}>
+                      <div key={idx} className="flex items-center gap-3 p-4 bg-white rounded-xl" data-reveal style={withRevealDelay(`${idx * 80}ms`)}>
                         <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shrink-0">
                           <Icon className="w-5 h-5 text-white" />
                         </div>
@@ -468,7 +469,7 @@ export default function ContactPage() {
                         className={`w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 ${social.color} group`}
                         title={social.name}
                         data-reveal
-                        style={{ ["--d" as any]: `${idx * 70}ms` }}
+                        style={withRevealDelay(`${idx * 70}ms`)}
                         aria-label={social.name}
                       >
                         <Icon className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
@@ -513,7 +514,7 @@ export default function ContactPage() {
                 key={idx}
                 className="reveal group bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300"
                 data-reveal
-                style={{ ["--d" as any]: `${idx * 90}ms` }}
+                style={withRevealDelay(`${idx * 90}ms`)}
               >
                 <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
                   <span className="font-semibold text-gray-900 pr-4">{faq.q}</span>

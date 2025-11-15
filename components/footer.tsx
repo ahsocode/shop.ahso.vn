@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Factory, Mail, Phone, MapPin, Building2 } from "lucide-react";
+import { Mail, Phone, MapPin, Building2 } from "lucide-react";
 import Image from "next/image";
 
 export function Footer() {
@@ -19,7 +19,7 @@ export function Footer() {
                 className="h-8 w-8 object-contain"
                 priority
               />
-              <span>AHSO Industrial</span>
+              <span>AHSO Shop</span>
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed">
               <strong>Giới Thiệu Về AHSO</strong><br />

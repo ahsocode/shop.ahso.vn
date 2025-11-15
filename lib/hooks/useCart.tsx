@@ -9,9 +9,9 @@ type CartItem = {
   name: string;
   price: number;
   qty: number;
-  image?: string;
-  slug?: string;
-  sku?: string;
+  image?: string | null;
+  slug?: string | null;
+  sku?: string | null;
 };
 
 type CartCtx = {
@@ -36,7 +36,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const mapServerItems = (serverItems: any[]): CartItem[] => {
+  type ServerCartItem = {
+    id: string | number;
+    productName?: string | null;
+    productSku?: string | null;
+    unitPrice?: number | string | null;
+    quantity?: number | string | null;
+    productImage?: string | null;
+    productSlug?: string | null;
+  };
+
+  const mapServerItems = useCallback((serverItems: ServerCartItem[]): CartItem[] => {
     return serverItems.map((it) => ({
       id: String(it.id),
       name: it.productName ?? it.productSku ?? "",
@@ -46,7 +56,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       slug: it.productSlug,
       sku: it.productSku,
     }));
-  };
+  }, []);
 
   const readCart = useCallback(async () => {
     setLoading(true);
@@ -78,7 +88,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [mapServerItems]);
 
   const refresh = useCallback(async () => {
     await readCart();
@@ -106,15 +116,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         });
 
         if (!res.ok) {
-          const err = await res.json().catch(() => ({ error: "Unknown error" }));
-          throw new Error(err.error || "Failed to add to cart");
-        }
+        const err = await res.json().catch(() => ({ error: "Unknown error" }));
+        const message = typeof err.error === "string" ? err.error : "Failed to add to cart";
+        throw new Error(message);
+      }
 
         toast.success("Đã thêm vào giỏ hàng");
         await readCart();
-      } catch (error: any) {
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Không thể thêm vào giỏ";
         console.error("Add to cart error:", error);
-        toast.error(error.message || "Không thể thêm vào giỏ");
+        toast.error(message);
       }
     },
     [readCart]
@@ -137,14 +149,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         });
 
         if (!res.ok) {
-          const err = await res.json().catch(() => ({ error: "Unknown error" }));
-          throw new Error(err.error || "Failed to update quantity");
-        }
+        const err = await res.json().catch(() => ({ error: "Unknown error" }));
+        const message = typeof err.error === "string" ? err.error : "Failed to update quantity";
+        throw new Error(message);
+      }
 
         await readCart();
-      } catch (error: any) {
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Không thể cập nhật số lượng";
         console.error("Set quantity error:", error);
-        toast.error(error.message || "Không thể cập nhật số lượng");
+        toast.error(message);
       }
     },
     [readCart]
@@ -166,15 +180,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         });
 
         if (!res.ok) {
-          const err = await res.json().catch(() => ({ error: "Unknown error" }));
-          throw new Error(err.error || "Failed to remove item");
-        }
+        const err = await res.json().catch(() => ({ error: "Unknown error" }));
+        const message = typeof err.error === "string" ? err.error : "Failed to remove item";
+        throw new Error(message);
+      }
 
         toast.success("Đã xóa khỏi giỏ");
         await readCart();
-      } catch (error: any) {
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Không thể xóa sản phẩm";
         console.error("Remove item error:", error);
-        toast.error(error.message || "Không thể xóa sản phẩm");
+        toast.error(message);
       }
     },
     [readCart]
@@ -198,8 +214,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (res.ok) {
-        const data = await res.json();
-        console.log("Cart merged:", data.message);
         await readCart();
       }
     } catch (error) {

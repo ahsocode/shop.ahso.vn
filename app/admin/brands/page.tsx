@@ -1,35 +1,75 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getJSON, postJSON, patchJSON, del } from "../_lib/fetcher";
+import { getJSON, postJSON, del } from "../_lib/fetcher";
 
 type Brand = {
   id: string; slug: string; name: string; logoUrl: string | null; summary: string | null; productCount: number;
 };
 type ListResp = { data: Brand[]; meta: { total: number; page: number; pageSize: number } };
 
-export default function BrandsPage(props: Record<string, never>) {
-  const [q, setQ] = useState("");
+export default function BrandsPage() {
+  const pageSize = 20;
+  const [keyword, setKeyword] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(20);
   const [rows, setRows] = useState<Brand[]>([]);
   const [total, setTotal] = useState(0);
   const [form, setForm] = useState({ name: "", slug: "", logoUrl: "", summary: "" });
   const [loading, setLoading] = useState(false);
+  const [reloadToken, setReloadToken] = useState(0);
 
-  const load = async () => {
-    setLoading(true);
-    const json = await getJSON<ListResp>(`/api/admin/brands?q=${encodeURIComponent(q)}&page=${page}&pageSize=${pageSize}`);
-    setRows(json.data); setTotal(json.meta.total); setLoading(false);
+  const triggerReload = () => setReloadToken((token) => token + 1);
+
+  useEffect(() => {
+    let ignore = false;
+    const fetchBrands = async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          q: searchQuery,
+          page: String(page),
+          pageSize: String(pageSize),
+        });
+        const json = await getJSON<ListResp>(`/api/admin/brands?${params.toString()}`);
+        if (ignore) return;
+        setRows(json.data);
+        setTotal(json.meta.total);
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchBrands();
+    return () => {
+      ignore = true;
+    };
+  }, [page, pageSize, searchQuery, reloadToken]);
+
+  const handleSearch = () => {
+    const term = keyword.trim();
+    setPage(1);
+    if (term === searchQuery) {
+      triggerReload();
+    } else {
+      setSearchQuery(term);
+    }
   };
-
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [page, pageSize]);
 
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
-        <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Tìm thương hiệu..." className="input input-bordered w-full max-w-xs border rounded px-3 py-2" />
-        <button onClick={() => { setPage(1); load(); }} className="px-3 py-2 rounded bg-blue-600 text-white">Tìm</button>
+        <input
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          placeholder="Tìm thương hiệu..."
+          className="input input-bordered w-full max-w-xs border rounded px-3 py-2"
+        />
+        <button onClick={handleSearch} className="px-3 py-2 rounded bg-blue-600 text-white">
+          Tìm
+        </button>
       </div>
 
       <div className="rounded border bg-white overflow-hidden">
@@ -52,7 +92,15 @@ export default function BrandsPage(props: Record<string, never>) {
                 <td className="px-3 py-2 text-gray-500">{r.slug}</td>
                 <td className="px-3 py-2">{r.productCount}</td>
                 <td className="px-3 py-2 text-right">
-                  <button onClick={async()=>{ await del(`/api/admin/brands/${r.id}`); load(); }} className="text-red-600">Xóa</button>
+                  <button
+                    onClick={async () => {
+                      await del(`/api/admin/brands/${r.id}`);
+                      triggerReload();
+                    }}
+                    className="text-red-600"
+                  >
+                    Xóa
+                  </button>
                 </td>
               </tr>
             ))}
@@ -62,9 +110,21 @@ export default function BrandsPage(props: Record<string, never>) {
       </div>
 
       <div className="flex items-center gap-2">
-        <button disabled={page<=1} onClick={()=>setPage(p=>p-1)} className="px-3 py-1 rounded border">Prev</button>
+        <button
+          disabled={page <= 1}
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          className="px-3 py-1 rounded border"
+        >
+          Prev
+        </button>
         <div>Trang {page}</div>
-        <button disabled={page*pageSize>=total} onClick={()=>setPage(p=>p+1)} className="px-3 py-1 rounded border">Next</button>
+        <button
+          disabled={page * pageSize >= total}
+          onClick={() => setPage((p) => p + 1)}
+          className="px-3 py-1 rounded border"
+        >
+          Next
+        </button>
       </div>
 
       <div className="rounded border bg-white p-4 space-y-2">
@@ -78,7 +138,8 @@ export default function BrandsPage(props: Record<string, never>) {
         <button
           onClick={async()=>{
             await postJSON("/api/admin/brands", { ...form, logoUrl: form.logoUrl || undefined, summary: form.summary || undefined, slug: form.slug || undefined });
-            setForm({ name:"", slug:"", logoUrl:"", summary:"" }); load();
+            setForm({ name:"", slug:"", logoUrl:"", summary:"" });
+            triggerReload();
           }}
           className="px-3 py-2 rounded bg-green-600 text-white"
         >Tạo</button>

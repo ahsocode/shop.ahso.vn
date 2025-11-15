@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export const revalidate = 60;
@@ -24,14 +25,15 @@ export async function GET(req: Request) {
     }
 
     // Build category filter allowing both slug or id
-    const byCategory: any = category.length > 20
-      ? { categoryId: category }
-      : { category: { is: { slug: category } } };
+    const categoryFilter: Prisma.SoftwareWhereInput =
+      category.length > 20
+        ? { categoryId: category }
+        : { category: { is: { slug: category } } };
 
     const rows = await prisma.software.findMany({
       where: {
         status: "PUBLISHED",
-        ...byCategory,
+        ...categoryFilter,
         AND: exclude ? [{ slug: { not: exclude } }, { id: { not: exclude } }] : undefined,
       },
       take: limit,
@@ -62,4 +64,3 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
-

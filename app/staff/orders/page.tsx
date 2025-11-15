@@ -230,10 +230,11 @@ export default function StaffOrdersPage() {
         setOrders(data.data);
         setStats(data.stats);
         setTotalItems(data.meta.total);
-      } catch (err: any) {
+      } catch (err) {
         if (ignore) return;
-        if (err.name === "AbortError") return;
-        setError(err.message || "Đã xảy ra lỗi");
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        const message = err instanceof Error ? err.message : "Đã xảy ra lỗi";
+        setError(message);
         setOrders([]);
       } finally {
         if (!ignore) setLoading(false);
@@ -279,8 +280,9 @@ export default function StaffOrdersPage() {
 
       toast.success("Đã cập nhật trạng thái đơn hàng");
       setRefreshKey((key) => key + 1);
-    } catch (err: any) {
-      toast.error(err.message || "Không thể cập nhật trạng thái");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Không thể cập nhật trạng thái";
+      toast.error(message);
     } finally {
       setUpdatingId(null);
     }

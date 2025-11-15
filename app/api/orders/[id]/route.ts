@@ -37,51 +37,48 @@ export async function GET(
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   }
 
-  // Chuẩn hoá dữ liệu đưa vào mapper (cast any cho linh hoạt)
+  // Chuẩn hoá dữ liệu đưa vào mapper
   const dto = toOrderDetailDTO({
-  order: {
-    id: r.id,
-    code: r.code,
-    createdAt: r.createdAt,
-    status: r.status,
-    customerName: r.customerFullName,
-    customerEmail: r.customerEmail,
-    customerPhone: r.customerPhone,
-    shippingMethod: r.shippingMethod,
-    shippingFee: r.shippingFee ? Number(r.shippingFee) : 0,
-    note: r.note,
-
-    subtotal: Number(r.subtotal),
-    discountTotal: Number(r.discountTotal),
-    taxTotal: Number(r.taxTotal),
-    grandTotal: Number(r.grandTotal),
-  },
-  items: r.items.map((it) => ({
-    sku: it.sku,
-    name: it.name,
-    qty: it.quantity,
-    price: Number(it.unitPrice),
-    image: it.image ?? null,
-  })),
-
-  // ✅ LẤY TỪ CÁC CỘT shippingLine1, shippingCity, shippingState,...
-  address: r.shippingLine1
-    ? {
-        line1: r.shippingLine1,
-        line2: r.shippingLine2 ?? undefined,
-        city: r.shippingCity,
-        state: r.shippingState ?? undefined,
-        province: undefined,   // nếu sau này có cột province thì map thêm
-      }
-    : null,
-
-  payment: r.payment
-    ? {
-        method: r.payment.method,
-        amount: Number(r.payment.amount),
-      }
-    : null,
-} as any);
+    order: {
+      id: r.id,
+      code: r.code,
+      createdAt: r.createdAt,
+      status: r.status,
+      customerName: r.customerFullName,
+      customerEmail: r.customerEmail,
+      customerPhone: r.customerPhone,
+      shippingMethod: r.shippingMethod,
+      shippingFee: r.shippingFee ? Number(r.shippingFee) : 0,
+      note: r.note,
+      subtotal: Number(r.subtotal),
+      discountTotal: Number(r.discountTotal),
+      taxTotal: Number(r.taxTotal),
+      grandTotal: Number(r.grandTotal),
+    },
+    items: r.items.map((it) => ({
+      sku: it.sku,
+      name: it.name,
+      quantity: it.quantity,
+      price: Number(it.unitPrice),
+      image: it.image ?? null,
+    })),
+    // ✅ LẤY TỪ CÁC CỘT shippingLine1, shippingCity, shippingState,...
+    address: r.shippingLine1
+      ? {
+          line1: r.shippingLine1,
+          line2: r.shippingLine2 ?? undefined,
+          city: r.shippingCity,
+          state: r.shippingState ?? undefined,
+          province: undefined, // nếu sau này có cột province thì map thêm
+        }
+      : null,
+    payment: r.payment
+      ? {
+          method: r.payment.method,
+          amount: Number(r.payment.amount),
+        }
+      : null,
+  });
 
   return NextResponse.json(dto);
 }

@@ -1,6 +1,7 @@
 // app/api/profile/orders/route.ts
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../../../../lib/prisma";
 
 import { verifyRequestUser } from "../../../../lib/auth";
@@ -21,23 +22,24 @@ export async function GET(req: NextRequest) {
     take: 50,
   });
 
-  const data = rows.map((r: any) =>
+  type OrderWithItems = Prisma.OrderGetPayload<{ include: { items: true } }>;
+  const data = rows.map((r: OrderWithItems) =>
     toOrderListItemDTO(
       {
         id: r.id,
         code: r.code,
         createdAt: r.createdAt,
         status: r.status,
-        customerName: r.customerName,
+        customerName: r.customerFullName ?? "Khách hàng",
         shippingMethod: r.shippingMethod ?? undefined,
-        shippingFee: r.shippingFee ?? undefined,
+        shippingFee: r.shippingFee ? Number(r.shippingFee) : undefined,
         note: r.note ?? undefined,
       },
-      r.items.map((it: any) => ({
+      r.items.map((it) => ({
         sku: it.sku,
         name: it.name,
         quantity: it.quantity,
-        price: it.price,
+        price: Number(it.unitPrice ?? 0),
         image: it.image ?? null,
       }))
     )

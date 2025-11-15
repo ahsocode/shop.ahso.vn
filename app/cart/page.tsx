@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -59,18 +59,21 @@ type ServerCart = {
     productImage: string | null;
     unitLabel: string | null;
     quantityLabel: string | null;
-    unitPrice: any;
+    unitPrice: DecimalLike;
     currency: string | null;
     taxIncluded: boolean | null;
     quantity: number;
-    lineTotal: any;
+    lineTotal: DecimalLike;
   }>;
-  subtotal?: any;
-  discountTotal?: any;
-  taxTotal?: any;
-  shippingFee?: any;
-  grandTotal?: any;
+  subtotal?: DecimalLike;
+  discountTotal?: DecimalLike;
+  taxTotal?: DecimalLike;
+  shippingFee?: DecimalLike;
+  grandTotal?: DecimalLike;
 };
+
+type DecimalLike = number | string | null;
+type CartApiResponse = ServerCart | { cart?: ServerCart | null };
 
 const STORAGE_SELECTED = "cart:selected:v1";
 const VAT_RATE = 0.1;
@@ -101,7 +104,7 @@ export default function CartPage() {
   const [clearCartDialog, setClearCartDialog] = useState(false);
 
   // ---- fetch cart from server ----
-  async function fetchCart() {
+  const fetchCart = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch("/api/cart", { cache: "no-store" });
@@ -109,11 +112,10 @@ export default function CartPage() {
         setItems([]);
         return;
       }
-      const data = (await res.json()) as ServerCart | { cart?: ServerCart };
-
-      const cart =
-        ("cart" in data ? (data as any).cart : data) as ServerCart | undefined;
-      const rawItems = cart?.items || [];
+      const data: CartApiResponse = await res.json();
+      const cart: ServerCart | undefined =
+        "cart" in data ? data.cart ?? undefined : (data as ServerCart);
+      const rawItems: ServerCart["items"] = cart?.items ?? [];
 
       const mapped: CartItem[] = rawItems.map((it) => ({
         id: it.id,
@@ -140,12 +142,13 @@ export default function CartPage() {
         }
         return changed ? next : prev;
       });
-    } catch (e) {
+    } catch (error) {
+      console.error("Fetch cart error:", error);
       setItems([]);
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
     try {
@@ -156,9 +159,8 @@ export default function CartPage() {
         setSelected(map);
       }
     } catch {}
-    fetchCart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    void fetchCart();
+  }, [fetchCart]);
 
   useEffect(() => {
     try {
@@ -242,8 +244,9 @@ export default function CartPage() {
       }
 
       await fetchCart();
-    } catch (e: any) {
-      toast.error(e?.message || "Không thể cập nhật số lượng.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : null;
+      toast.error(message ?? "Không thể cập nhật số lượng.");
       await fetchCart();
     }
   };
@@ -262,8 +265,9 @@ export default function CartPage() {
       }
       toast.success(`Đã xoá "${item.name}" khỏi giỏ hàng.`);
       await fetchCart();
-    } catch (e: any) {
-      toast.error(e?.message || "Không thể xoá sản phẩm.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : null;
+      toast.error(message ?? "Không thể xoá sản phẩm.");
       await fetchCart();
     }
   };
@@ -626,13 +630,17 @@ export default function CartPage() {
               {deleteDialog.isLastQty ? (
                 <>
                   Bạn đang giảm số lượng xuống 0. Bạn có muốn xóa{" "}
-                  <strong className="text-gray-900">"{deleteDialog.itemName}"</strong>{" "}
+                  <strong className="text-gray-900">
+                    &ldquo;{deleteDialog.itemName}&rdquo;
+                  </strong>{" "}
                   khỏi giỏ hàng không?
                 </>
               ) : (
                 <>
                   Bạn có chắc chắn muốn xóa{" "}
-                  <strong className="text-gray-900">"{deleteDialog.itemName}"</strong>{" "}
+                  <strong className="text-gray-900">
+                    &ldquo;{deleteDialog.itemName}&rdquo;
+                  </strong>{" "}
                   khỏi giỏ hàng không? Hành động này không thể hoàn tác.
                 </>
               )}

@@ -1,6 +1,14 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type {
+  ChangeEvent,
+  ChangeEventHandler,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+} from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   ShoppingCart,
@@ -72,6 +80,32 @@ type Profile = {
   } | null;
 };
 
+type CartApiItem = {
+  id: string;
+  productId?: string | null;
+  productName?: string | null;
+  variantSku?: string | null;
+  unitPrice?: number | string | null;
+  productImage?: string | null;
+  productSlug?: string | null;
+  quantity?: number | string | null;
+  product?: {
+    stockOnHand?: number | null;
+  } | null;
+  productSku?: string | null;
+};
+
+type CartApiResponse = {
+  cart?: { items?: CartApiItem[] | null } | null;
+  items?: CartApiItem[] | null;
+};
+
+type CheckoutResponse = {
+  ok?: boolean;
+  orderPreview?: unknown;
+  error?: string;
+};
+
 /* ================== Consts & helpers ================== */
 const VAT_RATE = 0.1;
 const CHECKOUT_KEY = "checkout:guest";
@@ -109,11 +143,13 @@ export default function CartReviewPage() {
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
 
   // payment / coupon / note
-    const [paymentType] = useState<"cod" | "bank" | "online">("cod");
-    const [paymentMethod] = useState<string>("bank_transfer_qr");
+  const [paymentType] = useState<"cod" | "bank" | "online">("cod");
+  const [paymentMethod] = useState<string>("bank_transfer_qr");
 
   const [promoInput, setPromoInput] = useState("");
   const [appliedCode, setAppliedCode] = useState<string | null>(null);
+  // TODO(promo): promoRef sẽ lưu thông tin chương trình khuyến mãi mở rộng
+  const promoRef = useRef<string | null>(null);
   const [noteLeft, setNoteLeft] = useState("");
 
   // shipping + billing form
@@ -145,16 +181,15 @@ export default function CartReviewPage() {
   useEffect(() => {
     // Prefill từ localStorage (guest) trước
     // Load selected items từ localStorage
-try {
-  const rawSel = localStorage.getItem(SELECTED_KEY);
-  if (rawSel) {
-    const ids = JSON.parse(rawSel);
-    if (Array.isArray(ids)) {
-      setSelectedItemIds(ids);
-    }
-  }
-} catch {}
-
+    try {
+      const rawSel = localStorage.getItem(SELECTED_KEY);
+      if (rawSel) {
+        const ids = JSON.parse(rawSel);
+        if (Array.isArray(ids)) {
+          setSelectedItemIds(ids);
+        }
+      }
+    } catch {}
 
     // Cart
     (async () => {
@@ -164,9 +199,9 @@ try {
         if (!res.ok) {
           setItems([]);
         } else {
-          const data = await res.json();
-          const cart = (data?.cart ?? data) as any;
-          const rawItems: any[] = cart?.items ?? [];
+          const data: CartApiResponse = await res.json();
+          const cartItemsCandidate = Array.isArray(data.items) ? data.items : data.cart?.items;
+          const rawItems: CartApiItem[] = Array.isArray(cartItemsCandidate) ? cartItemsCandidate : [];
           const mapped: CartItem[] = rawItems.map((it) => ({
             id: it.id,
             productId: it.productId ?? undefined,
@@ -229,17 +264,17 @@ try {
 
   /* ======= totals ======= */
 
-   const visibleItems = useMemo(
+  const visibleItems = useMemo(
     () =>
       selectedItemIds.length > 0
         ? items.filter((it) => selectedItemIds.includes(it.id))
         : [],
-    [items, selectedItemIds]
+    [items, selectedItemIds],
   );
-const subtotal = useMemo(
-  () => visibleItems.reduce((s, it) => s + it.price * it.qty, 0),
-  [visibleItems],
-);
+  const subtotal = useMemo(
+    () => visibleItems.reduce((s, it) => s + it.price * it.qty, 0),
+    [visibleItems],
+  );
 
   const discount = useMemo(() => {
     if (!appliedCode) return 0;
@@ -253,21 +288,21 @@ const subtotal = useMemo(
   const taxable = Math.max(0, subtotal - discount);
   const vat = useMemo(() => taxable * VAT_RATE, [taxable]);
 
- const shippingFee = useMemo(() => {
-  if (visibleItems.length === 0) return 0;
-  const free = appliedCode && PROMOS[appliedCode]?.kind === "shipping_free";
-  return free ? 0 : 30000;
-}, [items.length, appliedCode]);
+  const shippingFee = useMemo(() => {
+    if (visibleItems.length === 0) return 0;
+    const free = appliedCode && PROMOS[appliedCode]?.kind === "shipping_free";
+    return free ? 0 : 30000;
+  }, [appliedCode, visibleItems.length]);
 
   const grandTotal = useMemo(
     () => taxable + vat + shippingFee,
-    [ taxable, vat, shippingFee ],
+    [taxable, vat, shippingFee],
   );
 
   /* ======= handlers ======= */
   const onChange =
     (key: keyof GuestInfo) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const value = e.target.value;
       setForm((prev) => ({ ...prev, [key]: value }));
       setErrors((prev) => ({ ...prev, [key]: "" }));
@@ -281,6 +316,7 @@ const subtotal = useMemo(
       return;
     }
     setAppliedCode(code);
+    promoRef.current = code;
     setErrors((e) => {
       const { promo, ...rest } = e;
       return rest;
@@ -332,14 +368,15 @@ const subtotal = useMemo(
           itemIds: selectedItemIds,
         }),
       });
-      const data = await res.json();
+      const data: CheckoutResponse = await res.json();
       if (!res.ok || !data?.ok) {
         throw new Error(data?.error || "Đặt hàng thất bại");
       }
       sessionStorage.setItem("orderPreview", JSON.stringify(data.orderPreview));
       router.push("/checkout");
-    } catch (e: any) {
-      alert(e?.message || "Không thể đặt hàng. Vui lòng thử lại.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : null;
+      alert(message ?? "Không thể đặt hàng. Vui lòng thử lại.");
     }
   };
 
@@ -380,11 +417,11 @@ const subtotal = useMemo(
         <div className="grid gap-6 lg:grid-cols-3">
           {/* LEFT COLUMN: products & payment */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Product list */}
-            <div className="rounded-2xl border bg-white p-4 sm:p-6 shadow-sm">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="rounded-lg bg-orange-100 p-2">
-                  <Package className="h-5 w-5 text-orange-600" />
+          {/* Product list */}
+          <div className="rounded-2xl border bg-white p-4 sm:p-6 shadow-sm">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="rounded-lg bg-orange-100 p-2">
+                <Package className="h-5 w-5 text-orange-600" />
                 </div>
                 <h2 className="text-lg font-semibold text-gray-900">Danh sách sản phẩm</h2>
               </div>
@@ -398,9 +435,11 @@ const subtotal = useMemo(
                   {visibleItems.map((it) => (
                     <div key={it.id} className="flex gap-3 rounded-lg border p-3">
                       <div className="relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-md bg-gray-100">
-                        <img
+                        <Image
                           src={it.imgUrl || "/logo.png"}
                           alt={it.name}
+                          width={64}
+                          height={64}
                           className="h-full w-full object-contain p-1"
                         />
                       </div>
@@ -636,16 +675,16 @@ function ShippingFromProfile({
 }: {
   isLoggedIn: boolean;
   form: GuestInfo;
-  setForm: React.Dispatch<React.SetStateAction<GuestInfo>>;
+  setForm: Dispatch<SetStateAction<GuestInfo>>;
   errors: Record<string, string>;
-  setErrors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  setErrors: Dispatch<SetStateAction<Record<string, string>>>;
   invoice: boolean;
   setInvoice: (v: boolean) => void;
   agree: boolean;
   setAgree: (v: boolean) => void;
   onChange: (
     k: keyof GuestInfo,
-  ) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  ) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }) {
   const [mode, setMode] = useState<"view" | "edit">(isLoggedIn ? "view" : "edit");
   const readOnly = isLoggedIn && mode === "view";
@@ -948,7 +987,7 @@ function TextField({
   id: string;
   label: string;
   value: string;
-  onChange: any;
+  onChange: ChangeEventHandler<HTMLInputElement>;
   required?: boolean;
   error?: string;
   className?: string;
@@ -989,10 +1028,10 @@ function IconField({
   id: string;
   label: string;
   value: string;
-  onChange: any;
+  onChange: ChangeEventHandler<HTMLInputElement>;
   required?: boolean;
   error?: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   readOnly?: boolean;
 }) {
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -38,20 +38,29 @@ export default function SoftwareSearchClient() {
     router.replace(`/software?${params.toString()}`, { scroll: false });
 
     let aborted = false;
-    setLoading(true);
-    fetch(url)
-      .then((r) => r.json())
-      .then((json) => {
-        if (aborted) return;
-        setData(json.data ?? []);
-        setTotal(json.meta?.total ?? 0);
-      })
-      .finally(() => !aborted && setLoading(false));
+    const load = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+        if (!aborted) {
+          setData(json.data ?? []);
+          setTotal(json.meta?.total ?? 0);
+        }
+      } finally {
+        if (!aborted) setLoading(false);
+      }
+    };
+    void load();
 
-    return () => { aborted = true; };
+    return () => {
+      aborted = true;
+    };
   }, [params, router]);
 
-  useEffect(() => { setPage(1); }, [q, category]);
+  useEffect(() => {
+    startTransition(() => setPage(1));
+  }, [q, category]);
 
   // Load categories once
   useEffect(() => {

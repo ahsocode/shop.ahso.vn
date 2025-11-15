@@ -1,18 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { withRevealDelay } from "@/lib/reveal";
 import Link from "next/link";
 import {
   Shield,
   RotateCcw,
-  CreditCard,
   Truck,
-  Clock,
-  Info,
   FileText,
   Headphones,
-  Receipt,
-  PackageCheck,
   BadgeCheck,
   AlertCircle,
   Lock,
@@ -84,10 +80,10 @@ export default function PolicyPage() {
             <FileText className="w-5 h-5" />
             <span className="text-sm font-semibold">Chính sách & Điều khoản</span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-4" data-reveal style={{ ["--d" as any]: "80ms" }}>
+          <h1 className="text-5xl md:text-6xl font-bold mb-4" data-reveal style={withRevealDelay("80ms")}>
             Chính sách của AHSO
           </h1>
-          <p className="text-blue-100 max-w-3xl mx-auto text-lg" data-reveal style={{ ["--d" as any]: "160ms" }}>
+          <p className="text-blue-100 max-w-3xl mx-auto text-lg" data-reveal style={withRevealDelay("160ms")}>
             Minh bạch, rõ ràng và đặt trải nghiệm khách hàng làm trung tâm
           </p>
         </div>
@@ -119,7 +115,7 @@ export default function PolicyPage() {
                 box: "text-purple-700 bg-purple-600/10",
               },
             ].map((c, i) => (
-              <div key={i} className="bg-white rounded-2xl p-6 shadow-xl" data-reveal style={{ ["--d" as any]: `${i * 100}ms` }}>
+              <div key={i} className="bg-white rounded-2xl p-6 shadow-xl" data-reveal style={withRevealDelay(`${i * 100}ms`)}>
                 <div className={`w-12 h-12 rounded-xl ${c.box} flex items-center justify-center mb-3`}>{c.icon}</div>
                 <div className="font-semibold text-gray-900">{c.title}</div>
                 <p className="text-sm text-gray-600 mt-1">{c.desc}</p>
@@ -151,7 +147,7 @@ export default function PolicyPage() {
                   "Sai sản phẩm, thiếu phụ kiện, không đúng mô tả.",
                   "Còn nguyên tem, nhãn, hóa đơn, chưa sử dụng.",
                 ].map((t, i) => (
-                  <li key={i} className="flex gap-2" data-reveal style={{ ["--d" as any]: `${i * 80}ms` }}>
+                  <li key={i} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
                     <BadgeCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" /> {t}
                   </li>
                 ))}
@@ -168,7 +164,7 @@ export default function PolicyPage() {
                   "Hàng đặt riêng, đã qua sử dụng, tự ý sửa chữa.",
                   "Hư hỏng do vận hành sai, thiên tai, tác động ngoại lực.",
                 ].map((t, i) => (
-                  <li key={i} className="flex gap-2" data-reveal style={{ ["--d" as any]: `${i * 80}ms` }}>
+                  <li key={i} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
                     <span className="w-4 h-4 rounded-full bg-amber-600/20 shrink-0 mt-0.5"></span> {t}
                   </li>
                 ))}
@@ -206,7 +202,7 @@ export default function PolicyPage() {
                   "Lỗi kỹ thuật do nhà sản xuất.",
                   "Chưa tháo mở, tự ý sửa chữa.",
                 ].map((t, i) => (
-                  <li key={i} className="flex gap-2" data-reveal style={{ ["--d" as any]: `${i * 80}ms` }}>
+                  <li key={i} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
                     <BadgeCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" /> {t}
                   </li>
                 ))}
@@ -224,7 +220,7 @@ export default function PolicyPage() {
                   "Hư hỏng do người dùng, thiên tai, tai nạn.",
                   "Phiếu bảo hành bị tẩy xóa, sai lệch thông tin.",
                 ].map((t, i) => (
-                  <li key={i} className="flex gap-2" data-reveal style={{ ["--d" as any]: `${i * 80}ms` }}>
+                  <li key={i} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
                     <span className="w-4 h-4 rounded-full bg-amber-600/20 shrink-0 mt-0.5"></span> {t}
                   </li>
                 ))}
@@ -260,7 +256,7 @@ export default function PolicyPage() {
               <h4 className="font-semibold text-gray-900 mb-2">Tiêu chuẩn bảo mật áp dụng:</h4>
               <ul className="space-y-1 text-gray-700 ml-7">
                 {["Giao thức mã hóa SSL", "Chứng nhận PCI DSS", "Xác thực OTP qua SMS", "Mã hóa MD5 128-bit"].map((t, i) => (
-                  <li key={i} className="flex gap-2" data-reveal style={{ ["--d" as any]: `${i * 70}ms` }}>
+                  <li key={i} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 70}ms`)}>
                     <CheckCircle className="w-4 h-4 text-purple-600 mt-0.5 shrink-0" /> <strong>{t}</strong>
                   </li>
                 ))}
@@ -293,7 +289,7 @@ export default function PolicyPage() {
                 { icon: <BadgeCheck className="w-5 h-5 text-blue-600 mt-0.5" />, text: "Ghi nhận bất thường với shipper và liên hệ AHSO ngay." },
                 { icon: <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />, text: "Hàng cồng kềnh cần kỹ thuật viên AHSO lắp đặt." },
               ].map((li, i) => (
-                <li key={i} className="flex gap-3" data-reveal style={{ ["--d" as any]: `${i * 80}ms` }}>
+                <li key={i} className="flex gap-3" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
                   {li.icon} {li.text}
                 </li>
               ))}
@@ -329,14 +325,14 @@ export default function PolicyPage() {
             <span className="text-sm font-semibold">Hỗ trợ khách hàng</span>
           </div>
 
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4" data-reveal style={{ ["--d" as any]: "60ms" }}>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4" data-reveal style={withRevealDelay("60ms")}>
             Cần trợ giúp ngay?
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto" data-reveal style={{ ["--d" as any]: "120ms" }}>
+          <p className="text-gray-600 max-w-2xl mx-auto" data-reveal style={withRevealDelay("120ms")}>
             Đội ngũ AHSO sẵn sàng hỗ trợ 24/7 qua hotline, email hoặc biểu mẫu liên hệ.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-4 justify-center" data-reveal style={{ ["--d" as any]: "180ms" }}>
+          <div className="mt-8 flex flex-wrap gap-4 justify-center" data-reveal style={withRevealDelay("180ms")}>
             <Link
               href="/contact"
               className="group px-8 py-4 bg-white text-blue-600 rounded-xl font-bold shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
@@ -360,7 +356,7 @@ export default function PolicyPage() {
           <p className="mb-2" data-reveal>
             <span className="font-semibold">Lưu ý:</span> Chính sách có thể được cập nhật theo quy định pháp luật và chính sách nhà sản xuất.
           </p>
-          <p data-reveal style={{ ["--d" as any]: "80ms" }}>
+          <p data-reveal style={withRevealDelay("80ms")}>
             Ngày hiệu lực hiện tại: <span className="font-medium">03/05/2022</span> (Cập nhật lần cuối).
           </p>
         </div>

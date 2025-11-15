@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { withRevealDelay } from "@/lib/reveal";
 import {
   Award, Package, Settings, Factory, Shield, Users, CheckCircle, Sparkles,
   Target, Zap, Cog, BadgeCheck, Clock, Truck, Handshake, Brain, Cpu,
@@ -83,11 +84,11 @@ export default function AboutPage() {
             <span className="text-sm font-semibold">Đối tác tin cậy của hàng nghìn doanh nghiệp</span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold mb-8 leading-tight" data-reveal style={{ ["--d" as any]: "80ms" }}>
+          <h1 className="text-5xl md:text-7xl font-bold mb-8 leading-tight" data-reveal style={withRevealDelay("80ms")}>
             Về <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-300 to-purple-300">AHSO</span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto mb-12 leading-relaxed" data-reveal style={{ ["--d" as any]: "160ms" }}>
+          <p className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto mb-12 leading-relaxed" data-reveal style={withRevealDelay("160ms")}>
             AHSO – viết tắt của Automation - High Solution - Optimization – là doanh nghiệp tiên phong cung cấp các 
             giải pháp công nghệ toàn diện trong lĩnh vực tự động hóa, chuyển đổi số, phần mềm doanh nghiệp và trí tuệ nhân tạo (AI).
           </p>
@@ -101,7 +102,7 @@ export default function AboutPage() {
             ].map((stat, idx) => {
               const Icon = stat.icon;
               return (
-                <div key={idx} className="group" data-reveal style={{ ["--d" as any]: `${idx * 90}ms` }}>
+                <div key={idx} className="group" data-reveal style={withRevealDelay(`${idx * 90}ms`)}>
                   <div className="w-16 h-16 mx-auto mb-4 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <Icon className="w-8 h-8" />
                   </div>
@@ -124,10 +125,10 @@ export default function AboutPage() {
               <Brain className="w-6 h-6 text-blue-700" />
               <span className="text-lg font-bold text-blue-900">Giới Thiệu Về AHSO</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6" data-reveal style={{ ["--d" as any]: "60ms" }}>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6" data-reveal style={withRevealDelay("60ms")}>
               Automation – High Solution – Optimization
             </h2>
-            <p className="text-xl text-gray-700 max-w-4xl mx-auto" data-reveal style={{ ["--d" as any]: "120ms" }}>
+            <p className="text-xl text-gray-700 max-w-4xl mx-auto" data-reveal style={withRevealDelay("120ms")}>
               AHSO là doanh nghiệp tiên phong cung cấp <strong>giải pháp công nghệ toàn diện</strong> trong lĩnh vực tự động hóa, chuyển đổi số, phần mềm doanh nghiệp và trí tuệ nhân tạo (AI).
             </p>
           </div>
@@ -162,7 +163,7 @@ export default function AboutPage() {
                   key={i}
                   className={`bg-linear-to-br ${c.box} rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300`}
                   data-reveal
-                  style={{ ["--d" as any]: `${i * 100}ms` }}
+                  style={withRevealDelay(`${i * 100}ms`)}
                 >
                   <div className={`w-14 h-14 ${c.iconBox} rounded-xl flex items-center justify-center mb-5`}>
                     <Icon className="w-8 h-8 text-white" />
@@ -189,7 +190,7 @@ export default function AboutPage() {
             ].map((b, idx) => {
               const Icon = b.icon;
               return (
-                <div key={idx} className={`bg-linear-to-br ${b.box} rounded-2xl p-8 text-white`} data-reveal style={{ ["--d" as any]: `${idx * 100}ms` }}>
+                <div key={idx} className={`bg-linear-to-br ${b.box} rounded-2xl p-8 text-white`} data-reveal style={withRevealDelay(`${idx * 100}ms`)}>
                   <Icon className="w-12 h-12 mb-5" />
                   <h3 className="text-2xl font-bold mb-3">{b.title}</h3>
                   <p className="text-lg">{b.desc}</p>
@@ -204,7 +205,7 @@ export default function AboutPage() {
               {coreValues.map((value, i) => {
                 const Icon = value.icon;
                 return (
-                  <div key={i} className="text-center group" data-reveal style={{ ["--d" as any]: `${i * 80}ms` }}>
+                  <div key={i} className="text-center group" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
                     <div className="w-16 h-16 mx-auto bg-blue-600/10 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                       <Icon className="w-8 h-8 text-blue-700 group-hover:text-white" />
                     </div>
@@ -227,10 +228,10 @@ export default function AboutPage() {
                 <Package className="w-5 h-5 text-purple-600" />
                 <span className="text-sm font-semibold text-purple-600">Đa dạng sản phẩm</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900" data-reveal style={{ ["--d" as any]: "60ms" }}>
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900" data-reveal style={withRevealDelay("60ms")}>
                 Hàng nghìn linh kiện <span className="text-transparent bg-clip-text bg-linear-to-r from-purple-600 to-pink-600">chất lượng cao</span>
               </h2>
-              <p className="text-lg text-gray-600 leading-relaxed" data-reveal style={{ ["--d" as any]: "120ms" }}>
+              <p className="text-lg text-gray-600 leading-relaxed" data-reveal style={withRevealDelay("120ms")}>
                 Chúng tôi tự hào sở hữu kho linh kiện phong phú với hơn 10,000 sản phẩm từ các thương hiệu uy tín trên thế giới.
               </p>
               <div className="grid grid-cols-2 gap-4">
@@ -242,7 +243,7 @@ export default function AboutPage() {
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div key={idx} className="flex items-start gap-3 p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300" data-reveal style={{ ["--d" as any]: `${idx * 80}ms` }}>
+                    <div key={idx} className="flex items-start gap-3 p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300" data-reveal style={withRevealDelay(`${idx * 80}ms`)}>
                       <div className="w-12 h-12 bg-linear-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shrink-0">
                         <Icon className="w-6 h-6 text-white" />
                       </div>
@@ -255,7 +256,7 @@ export default function AboutPage() {
                 })}
               </div>
             </div>
-            <div className="relative" data-reveal style={{ ["--d" as any]: "80ms" }}>
+            <div className="relative" data-reveal style={withRevealDelay("80ms")}>
               <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl">
                 <div className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-700" style={{ backgroundImage: 'url(/linhkien1.jpg)' }}></div>
               </div>
@@ -280,10 +281,10 @@ export default function AboutPage() {
                 <Settings className="w-5 h-5 text-blue-600" />
                 <span className="text-sm font-semibold text-blue-600">Máy móc hiện đại</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900" data-reveal style={{ ["--d" as any]: "60ms" }}>
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900" data-reveal style={withRevealDelay("60ms")}>
                 Thiết bị công nghiệp <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-600">hàng đầu</span>
               </h2>
-              <p className="text-lg text-gray-600 leading-relaxed" data-reveal style={{ ["--d" as any]: "120ms" }}>
+              <p className="text-lg text-gray-600 leading-relaxed" data-reveal style={withRevealDelay("120ms")}>
                 Từ máy CNC, máy tiện, dây chuyền tự động đến thiết bị đo kiểm – giải pháp toàn diện cho mọi nhà máy.
               </p>
               <div className="space-y-4">
@@ -294,7 +295,7 @@ export default function AboutPage() {
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div key={idx} className="flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300" data-reveal style={{ ["--d" as any]: `${idx * 90}ms` }}>
+                    <div key={idx} className="flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300" data-reveal style={withRevealDelay(`${idx * 90}ms`)}>
                       <div className="w-14 h-14 bg-linear-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shrink-0">
                         <Icon className="w-7 h-7 text-white" />
                       </div>
@@ -320,10 +321,10 @@ export default function AboutPage() {
                 <Handshake className="w-5 h-5 text-green-600" />
                 <span className="text-sm font-semibold text-green-600">Dịch vụ tận tâm</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900" data-reveal style={{ ["--d" as any]: "60ms" }}>
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900" data-reveal style={withRevealDelay("60ms")}>
                 Đồng hành cùng <span className="text-transparent bg-clip-text bg-linear-to-r from-green-600 to-emerald-600">sự phát triển</span>
               </h2>
-              <p className="text-lg text-gray-600 leading-relaxed" data-reveal style={{ ["--d" as any]: "120ms" }}>
+              <p className="text-lg text-gray-600 leading-relaxed" data-reveal style={withRevealDelay("120ms")}>
                 Đội ngũ kỹ sư và chuyên gia của chúng tôi luôn sẵn sàng hỗ trợ 24/7. Từ tư vấn, lắp đặt đến bảo trì – chúng tôi đồng hành trọn vẹn.
               </p>
               <div className="bg-linear-to-br from-green-50 to-emerald-50 rounded-2xl p-6 space-y-4">
@@ -334,7 +335,7 @@ export default function AboutPage() {
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div key={idx} className="flex items-center gap-4" data-reveal style={{ ["--d" as any]: `${idx * 90}ms` }}>
+                    <div key={idx} className="flex items-center gap-4" data-reveal style={withRevealDelay(`${idx * 90}ms`)}>
                       <div className="w-12 h-12 bg-linear-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center shrink-0">
                         <Icon className="w-6 h-6 text-white" />
                       </div>
@@ -348,7 +349,7 @@ export default function AboutPage() {
                 })}
               </div>
             </div>
-            <div className="relative" data-reveal style={{ ["--d" as any]: "80ms" }}>
+            <div className="relative" data-reveal style={withRevealDelay("80ms")}>
               <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl">
                 <div className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-700" style={{ backgroundImage: 'url(/factory3.jpg)' }}></div>
               </div>
@@ -373,10 +374,10 @@ export default function AboutPage() {
                 <BadgeCheck className="w-5 h-5 text-orange-600" />
                 <span className="text-sm font-semibold text-orange-600">Chất lượng đảm bảo</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900" data-reveal style={{ ["--d" as any]: "60ms" }}>
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900" data-reveal style={withRevealDelay("60ms")}>
                 100% chính hãng, <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-600 to-red-600">chất lượng vượt trội</span>
               </h2>
-              <p className="text-lg text-gray-600 leading-relaxed" data-reveal style={{ ["--d" as any]: "120ms" }}>
+              <p className="text-lg text-gray-600 leading-relaxed" data-reveal style={withRevealDelay("120ms")}>
                 Mọi sản phẩm đều được nhập khẩu chính hãng từ các nhà sản xuất uy tín. Chúng tôi cam kết 100% về nguồn gốc và chất lượng.
               </p>
               <div className="grid gap-4">
@@ -387,7 +388,7 @@ export default function AboutPage() {
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div key={idx} className="group flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300" data-reveal style={{ ["--d" as any]: `${idx * 90}ms` }}>
+                    <div key={idx} className="group flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300" data-reveal style={withRevealDelay(`${idx * 90}ms`)}>
                       <div className={`w-14 h-14 bg-linear-to-br ${item.color} rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
                         <Icon className="w-7 h-7 text-white" />
                       </div>
@@ -399,7 +400,7 @@ export default function AboutPage() {
                   );
                 })}
               </div>
-              <div className="flex items-center gap-3 p-5 bg-linear-to-r from-orange-500 to-red-500 rounded-xl text-white" data-reveal style={{ ["--d" as any]: "60ms" }}>
+              <div className="flex items-center gap-3 p-5 bg-linear-to-r from-orange-500 to-red-500 rounded-xl text-white" data-reveal style={withRevealDelay("60ms")}>
                 <Shield className="w-8 h-8 shrink-0" />
                 <div>
                   <div className="font-bold text-lg">Cam kết hoàn tiền 100%</div>
@@ -420,10 +421,10 @@ export default function AboutPage() {
                 <Truck className="w-5 h-5 text-blue-600" />
                 <span className="text-sm font-semibold text-blue-600">Vận chuyển toàn quốc</span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900" data-reveal style={{ ["--d" as any]: "60ms" }}>
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900" data-reveal style={withRevealDelay("60ms")}>
                 Giao hàng nhanh, <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-600">an toàn tuyệt đối</span>
               </h2>
-              <p className="text-lg text-gray-600 leading-relaxed" data-reveal style={{ ["--d" as any]: "120ms" }}>
+              <p className="text-lg text-gray-600 leading-relaxed" data-reveal style={withRevealDelay("120ms")}>
                 Hệ thống kho bãi và vận chuyển hiện đại đảm bảo giao hàng nhanh chóng đến mọi miền đất nước.
               </p>
               <div className="space-y-4">
@@ -441,7 +442,7 @@ export default function AboutPage() {
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (
-                    <div key={idx} className="flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300" data-reveal style={{ ["--d" as any]: `${idx * 90}ms` }}>
+                    <div key={idx} className="flex items-start gap-4 p-5 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300" data-reveal style={withRevealDelay(`${idx * 90}ms`)}>
                       <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center shrink-0">
                         <Icon className="w-6 h-6 text-white" />
                       </div>
@@ -454,7 +455,7 @@ export default function AboutPage() {
                 })}
               </div>
             </div>
-            <div className="relative" data-reveal style={{ ["--d" as any]: "80ms" }}>
+            <div className="relative" data-reveal style={withRevealDelay("80ms")}>
               <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl">
                 <div className="w-full h-full bg-cover bg-center transform hover:scale-105 transition-transform duration-700" style={{ backgroundImage: 'url(/time1.webp)' }}></div>
               </div>
@@ -473,13 +474,13 @@ export default function AboutPage() {
             <Sparkles className="w-5 h-5 text-yellow-300" />
             <span className="text-sm font-semibold">Bắt đầu hợp tác ngay hôm nay</span>
           </div>
-          <h2 className="text-4xl md:text-4xl font-bold mb-6" data-reveal style={{ ["--d" as any]: "60ms" }}>
+          <h2 className="text-4xl md:text-4xl font-bold mb-6" data-reveal style={withRevealDelay("60ms")}>
             Sẵn sàng nâng tầm sản xuất của bạn?
           </h2>
-          <p className="text-xl text-blue-200 mb-10 max-w-2xl mx-auto" data-reveal style={{ ["--d" as any]: "120ms" }}>
+          <p className="text-xl text-blue-200 mb-10 max-w-2xl mx-auto" data-reveal style={withRevealDelay("120ms")}>
             Liên hệ ngay để được tư vấn miễn phí và nhận báo giá tốt nhất
           </p>
-          <div className="flex flex-wrap gap-4 justify-center" data-reveal style={{ ["--d" as any]: "180ms" }}>
+          <div className="flex flex-wrap gap-4 justify-center" data-reveal style={withRevealDelay("180ms")}>
             <Link href="/contact" className="group px-8 py-4 bg-white text-blue-600 rounded-xl font-bold shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-300 flex items-center gap-2">
               Liên hệ ngay
               <Truck className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -491,11 +492,11 @@ export default function AboutPage() {
               <Mail className="w-5 h-5" />
               <span>sales@ahso.vn</span>
             </div>
-            <div className="flex items-center justify-center gap-2" data-reveal style={{ ["--d" as any]: "60ms" }}>
+            <div className="flex items-center justify-center gap-2" data-reveal style={withRevealDelay("60ms")}>
               <LinkIcon className="w-5 h-5" />
               <span>www.ahso.vn</span>
             </div>
-            <div className="flex items-center justify-center gap-2" data-reveal style={{ ["--d" as any]: "120ms" }}>
+            <div className="flex items-center justify-center gap-2" data-reveal style={withRevealDelay("120ms")}>
               <MapPin className="w-5 h-5" />
               <span>39/15 Đ. Cao Bá Quát, Dĩ An, TP.HCM</span>
             </div>

@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AHSO Industrial - Máy móc & Thiết bị Công nghiệp",
+  title: "AHSO Shop - Máy móc & Thiết bị Công nghiệp",
   description:
     "Cung cấp máy móc, thiết bị và linh kiện công nghiệp chất lượng cao",
   icons: {

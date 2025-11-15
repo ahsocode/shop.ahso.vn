@@ -1,10 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { withRevealDelay } from "@/lib/reveal";
 import {
-  Settings, Wrench, TrendingUp, Shield, Clock, Award,
-  ChevronLeft, ChevronRight, Zap, Ruler, Cog, Phone,
-  ArrowRight, Package, Headphones, BadgeCheck, Factory, Laptop
+  Settings,
+  Wrench,
+  Clock,
+  Award,
+  Phone,
+  ArrowRight,
+  Package,
+  Headphones,
+  BadgeCheck,
+  Factory,
+  Laptop,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -35,7 +44,7 @@ export default function Home() {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [heroSlides.length]);
 
   // ===== Scroll reveal =====
   useEffect(() => {
@@ -167,7 +176,7 @@ export default function Home() {
                 {heroSlides[currentSlide].subtitle}
               </p>
 
-              <div className="flex flex-wrap gap-4 animate-fade-in-delay-2" data-reveal style={{ ["--d" as any]: "120ms" }}>
+              <div className="flex flex-wrap gap-4 animate-fade-in-delay-2" data-reveal style={withRevealDelay("120ms")}>
                 <Link
                   href="/shop/products"
                   className="group px-8 py-4 bg-white text-blue-600 rounded-lg font-semibold shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
@@ -227,7 +236,7 @@ export default function Home() {
                   href={category.href}
                   className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500"
                   data-reveal
-                  style={{ ["--d" as any]: `${index * 80}ms` }}
+                  style={withRevealDelay(`${index * 80}ms`)}
                 >
                   {/* Background Image */}
                   <div
@@ -281,7 +290,7 @@ export default function Home() {
                   key={index}
                   className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
                   data-reveal
-                  style={{ ["--d" as any]: `${index * 90}ms` }}
+                  style={withRevealDelay(`${index * 90}ms`)}
                 >
                   <div className={`w-16 h-16 rounded-xl bg-linear-to-br ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg`}>
                     <Icon className="w-8 h-8 text-white" />

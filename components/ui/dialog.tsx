@@ -60,7 +60,7 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
               >
                 <DialogPanel
-                  ref={ref as any}
+                  ref={ref}
                   className={cn(
                     "w-full max-w-lg rounded-lg bg-white p-6 shadow-lg outline-none",
                     className
@@ -112,4 +112,3 @@ const DialogDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttri
 DialogDescription.displayName = "DialogDescription"
 
 export { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription }
-

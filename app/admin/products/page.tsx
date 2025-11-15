@@ -11,21 +11,51 @@ type Row = {
 type ListResp = { data: Row[]; meta: { total: number; page: number; pageSize: number } };
 
 export default function ProductsPage() {
-  const [q, setQ] = useState(""); const [page, setPage] = useState(1);
-  const [rows, setRows] = useState<Row[]>([]); const [total, setTotal] = useState(0);
+  const pageSize = 20;
+  const [keyword, setKeyword] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState<Row[]>([]);
+  const [total, setTotal] = useState(0);
+  const [reloadToken, setReloadToken] = useState(0);
 
-  const load = async () => {
-    const url = `/api/admin/products?q=${encodeURIComponent(q)}&page=${page}&pageSize=20`;
-    const json = await getJSON<ListResp>(url);
-    setRows(json.data); setTotal(json.meta.total);
+  const triggerReload = () => setReloadToken((token) => token + 1);
+
+  useEffect(() => {
+    let ignore = false;
+    const fetchProducts = async () => {
+      const params = new URLSearchParams({
+        q: searchQuery,
+        page: String(page),
+        pageSize: String(pageSize),
+      });
+      const json = await getJSON<ListResp>(`/api/admin/products?${params.toString()}`);
+      if (ignore) return;
+      setRows(json.data);
+      setTotal(json.meta.total);
+    };
+
+    fetchProducts();
+    return () => {
+      ignore = true;
+    };
+  }, [page, pageSize, searchQuery, reloadToken]);
+
+  const handleSearch = () => {
+    const term = keyword.trim();
+    setPage(1);
+    if (term === searchQuery) {
+      triggerReload();
+    } else {
+      setSearchQuery(term);
+    }
   };
-  useEffect(()=>{ load(); /* eslint-disable-next-line */}, [page]);
 
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
-        <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Tìm sản phẩm..." className="border rounded px-3 py-2"/>
-        <button onClick={()=>{ setPage(1); load(); }} className="px-3 py-2 rounded bg-blue-600 text-white">Tìm</button>
+        <input value={keyword} onChange={e=>setKeyword(e.target.value)} placeholder="Tìm sản phẩm..." className="border rounded px-3 py-2"/>
+        <button onClick={handleSearch} className="px-3 py-2 rounded bg-blue-600 text-white">Tìm</button>
       </div>
 
       <div className="rounded border bg-white overflow-hidden">
@@ -58,9 +88,9 @@ export default function ProductsPage() {
       </div>
 
       <div className="flex items-center gap-2">
-        <button disabled={page<=1} onClick={()=>setPage(p=>p-1)} className="px-3 py-1 rounded border">Prev</button>
+        <button disabled={page<=1} onClick={()=>setPage(p=>Math.max(1, p-1))} className="px-3 py-1 rounded border">Prev</button>
         <div>Trang {page}</div>
-        <button disabled={page*20>=total} onClick={()=>setPage(p=>p+1)} className="px-3 py-1 rounded border">Next</button>
+        <button disabled={page*pageSize>=total} onClick={()=>setPage(p=>p+1)} className="px-3 py-1 rounded border">Next</button>
       </div>
     </div>
   );

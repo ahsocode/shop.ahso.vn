@@ -11,7 +11,7 @@ export type AppUser = {
 
 const KEY = "user";
 
-let CH: BroadcastChannel | null =
+const channel: BroadcastChannel | null =
   typeof window !== "undefined" && "BroadcastChannel" in window
     ? new BroadcastChannel("auth")
     : null;
@@ -40,11 +40,11 @@ export function setUser(u: AppUser | null) {
   cachedUser = u;
   writeLocal(u);
   emit();
-  CH?.postMessage({ type: "auth:update" });
+  channel?.postMessage({ type: "auth:update" });
 }
 
 type Listener = () => void;
-let listeners = new Set<Listener>();
+const listeners = new Set<Listener>();
 
 function emit() {
   listeners.forEach((l) => l());
@@ -75,14 +75,14 @@ function subscribe(cb: Listener) {
   if (typeof window !== "undefined") {
     window.addEventListener("storage", onStorage);
   }
-  CH?.addEventListener("message", onBC as EventListener);
+  channel?.addEventListener("message", onBC as EventListener);
 
   return () => {
     listeners.delete(cb);
     if (typeof window !== "undefined") {
       window.removeEventListener("storage", onStorage);
     }
-    CH?.removeEventListener("message", onBC as EventListener);
+    channel?.removeEventListener("message", onBC as EventListener);
   };
 }
 

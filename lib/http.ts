@@ -10,12 +10,22 @@ function toResponseInit(init?: InitLike): ResponseInit | undefined {
   return init;
 }
 
-export function jsonOk(data: any, init?: InitLike) {
+export function jsonOk<T>(data: T, init?: InitLike) {
   return NextResponse.json(data, toResponseInit(init));
 }
 
-export function jsonError(message: string, status = 400, extra?: any) {
+export function jsonError(message: string, status = 400, extra?: Record<string, unknown>) {
   return NextResponse.json({ error: message, ...(extra ?? {}) }, { status });
+}
+
+export type HttpError = { message?: string; status?: number; code?: string };
+
+export function toHttpError(error: unknown): HttpError {
+  if (typeof error === "object" && error !== null) {
+    const { message, status, code } = error as HttpError;
+    return { message, status, code };
+  }
+  return {};
 }
 
 /** -------------------------------------------------
@@ -53,8 +63,8 @@ export function parsePaging(
     sp.get("limit") || // compat
     String(defaultPageSize);
 
-  let page = Math.max(1, parseInt(pageRaw, 10) || defaultPage);
-  let pageSize = Math.max(1, Math.min(maxPageSize, parseInt(psRaw, 10) || defaultPageSize));
+  const page = Math.max(1, parseInt(pageRaw, 10) || defaultPage);
+  const pageSize = Math.max(1, Math.min(maxPageSize, parseInt(psRaw, 10) || defaultPageSize));
 
   const skip = (page - 1) * pageSize;
   const take = pageSize;

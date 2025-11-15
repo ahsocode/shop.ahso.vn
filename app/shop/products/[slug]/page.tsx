@@ -28,6 +28,12 @@ type ProductWithRelations = Prisma.ProductGetPayload<{
   include: typeof productInclude;
 }>;
 
+type ProductWithMetrics = ProductWithRelations & {
+  ratingAvg?: number | Prisma.Decimal | null;
+  ratingCount?: number | null;
+  purchaseCount?: number | null;
+};
+
 type ReviewDTO = {
   id: string;
   rating: number;
@@ -85,15 +91,19 @@ export async function generateMetadata({
 }
 
 /* ================== Helpers ================== */
-function fmtSpec(s: any): string | null {
-  if (s.valueString) return s.valueString as string;
-  if (s.valueNumber != null) {
-    const n = Number(s.valueNumber);
+type ProductSpec = ProductWithRelations["specs"][number];
+
+function fmtSpec(spec: ProductSpec): string | null {
+  if (spec.valueString) return spec.valueString;
+  if (spec.valueNumber != null) {
+    const n = Number(spec.valueNumber);
     return Number.isFinite(n)
-      ? `${n}${s.unitOverride ? ` ${s.unitOverride}` : ""}`
+      ? `${n}${spec.unitOverride ? ` ${spec.unitOverride}` : ""}`
       : null;
   }
-  if (typeof s.valueBoolean === "boolean") return s.valueBoolean ? "Có" : "Không";
+  if (typeof spec.valueBoolean === "boolean") {
+    return spec.valueBoolean ? "Có" : "Không";
+  }
   return null;
 }
 
@@ -147,9 +157,10 @@ export default async function ProductDetailPage({
   const inStock = (p.stockOnHand ?? 0) - (p.stockReserved ?? 0) > 0;
 
   // counters (đã có trong Product, không cần include riêng)
-  const ratingAvg = (p as any).ratingAvg ?? 0;
-  const ratingCount = (p as any).ratingCount ?? 0;
-  const purchaseCount = (p as any).purchaseCount ?? 0;
+  const metrics = p as ProductWithMetrics;
+  const ratingAvg = Number(metrics.ratingAvg ?? 0);
+  const ratingCount = Number(metrics.ratingCount ?? 0);
+  const purchaseCount = Number(metrics.purchaseCount ?? 0);
 
   // reviews + images
   const reviews = await getReviews(p.id);
@@ -192,11 +203,14 @@ export default async function ProductDetailPage({
                   key={`${img.url}-${i}`}
                   className="overflow-hidden rounded-xl border bg-white"
                 >
-                  <img
+                  <Image
                     src={img.url}
                     alt={img.alt ?? p.name}
+                    width={400}
+                    height={160}
                     className="h-40 w-full object-cover"
                     loading="lazy"
+                    unoptimized
                   />
                 </div>
               ))}
@@ -268,11 +282,14 @@ export default async function ProductDetailPage({
                               className="block overflow-hidden rounded-lg border"
                               title={im.alt ?? ""}
                             >
-                              <img
+                              <Image
                                 src={im.url}
                                 alt={im.alt ?? ""}
+                                width={300}
+                                height={200}
                                 className="h-28 w-full object-cover"
                                 loading="lazy"
+                                unoptimized
                               />
                             </a>
                           ))}
@@ -354,17 +371,17 @@ export default async function ProductDetailPage({
               <h3 className="font-semibold">Thông số kỹ thuật</h3>
               <dl className="mt-3 text-sm text-gray-700 space-y-1">
                 {p.specs
-                  .map((s) => {
+                  .map((spec) => {
                     const label =
-                      s.specDefinition?.name || s.specDefinition?.slug || "—";
-                    const value = fmtSpec(s);
+                      spec.specDefinition?.name || spec.specDefinition?.slug || "—";
+                    const value = fmtSpec(spec);
                     return value ? { label, value } : null;
                   })
-                  .filter(Boolean)
+                  .filter((row): row is { label: string; value: string } => Boolean(row))
                   .map((row, i) => (
                     <div key={i} className="flex gap-2">
-                      <dt className="text-gray-500 min-w-28">{(row as any).label}</dt>
-                      <dd className="flex-1">{(row as any).value}</dd>
+                      <dt className="text-gray-500 min-w-28">{row.label}</dt>
+                      <dd className="flex-1">{row.value}</dd>
                     </div>
                   ))}
               </dl>

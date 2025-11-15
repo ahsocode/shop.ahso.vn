@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
-import { jsonOk, jsonError } from "@/lib/http";
+import { jsonOk, jsonError, toHttpError } from "@/lib/http";
 import { z } from "zod";
 
 const CreateImage = z.object({
@@ -27,7 +27,8 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ productId:
     });
 
     return jsonOk({ data: created }, 201);
-  } catch (e: any) {
-    return jsonError(e.message || "Internal Error", e.status || 500);
+  } catch (error) {
+    const err = toHttpError(error);
+    return jsonError(err.message || "Internal Error", err.status || 500);
   }
 }

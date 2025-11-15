@@ -18,7 +18,9 @@ function formatVND(n: number) {
   return num.toLocaleString("vi-VN") + " ₫";
 }
 
-const STATUS_LABEL: Record<NonNullable<OrderListItemDTO["status"]>, string> = {
+type OrderStatusValue = NonNullable<OrderListItemDTO["status"]>;
+
+const STATUS_LABEL: Record<OrderStatusValue, string> = {
   pending: "Chờ thanh toán",
   paid: "Đã thanh toán",
   processing: "Đang xử lý",
@@ -27,10 +29,13 @@ const STATUS_LABEL: Record<NonNullable<OrderListItemDTO["status"]>, string> = {
   cancelled: "Đã hủy",
 };
 
+const isValidStatus = (value: string): value is OrderStatusValue =>
+  Object.prototype.hasOwnProperty.call(STATUS_LABEL, value);
+
 function StatusBadge({ status }: { status: OrderListItemDTO["status"] }) {
   if (!status) return null;
 
-  const styles: Record<NonNullable<OrderListItemDTO["status"]>, string> = {
+  const styles: Record<OrderStatusValue, string> = {
     pending: "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200",
     paid: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
     processing: "bg-blue-50 text-blue-700 ring-1 ring-blue-200",
@@ -62,12 +67,22 @@ export default function OrderListPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [q, setQ] = useState("");
-  const [status, setStatus] = useState<"" | NonNullable<OrderListItemDTO["status"]>>("");
+  const [status, setStatus] = useState<"" | OrderStatusValue>("");
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+
+  const handleStatusChange = (value: string) => {
+    if (!value) {
+      setStatus("");
+      return;
+    }
+    if (isValidStatus(value)) {
+      setStatus(value);
+    }
+  };
 
   // Reset page về 1 nếu thay filter/search
   useEffect(() => {
@@ -111,13 +126,13 @@ export default function OrderListPage() {
           setTotalItems(data.totalItems);
           setTotalPages(Math.max(1, data.totalPages || 1));
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (cancelled) return;
         setError("Không thể tải danh sách đơn hàng.");
         setOrders([]);
         setTotalItems(0);
         setTotalPages(1);
-        console.error(err);
+        console.error("Fetch orders error:", err);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -165,7 +180,7 @@ export default function OrderListPage() {
           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <select
             value={status}
-            onChange={(e) => setStatus(e.target.value as any)}
+            onChange={(e) => handleStatusChange(e.target.value)}
             className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-9 py-2.5 text-sm outline-none focus:border-blue-300"
           >
             <option value="">Tất cả trạng thái</option>

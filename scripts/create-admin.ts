@@ -48,7 +48,6 @@ async function main() {
     select: { id: true, username: true, role: true, email: true, phoneE164: true, createdAt: true },
   });
 
-  // eslint-disable-next-line no-console
   console.log("✔ Admin ready:", user);
 }
 
@@ -60,4 +59,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-

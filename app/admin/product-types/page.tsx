@@ -7,38 +7,79 @@ type TypeRow = { id: string; slug: string; name: string; categoryId: string; pro
 type ListResp<T> = { data: T[]; meta: { total: number; page: number; pageSize: number } };
 
 export default function ProductTypesPage() {
+  const pageSize = 20;
   const [categories, setCategories] = useState<Cate[]>([]);
   const [categoryId, setCategoryId] = useState<string>("");
-  const [q, setQ] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<TypeRow[]>([]);
   const [total, setTotal] = useState(0);
-
-  const loadCategories = async () => {
-    const json = await getJSON<ListResp<any>>(`/api/admin/categories?page=1&pageSize=999`);
-    setCategories(json.data.map((c: any)=>({ id: c.id, name: c.name })));
-    if (!categoryId && json.data.length) setCategoryId(json.data[0].id);
-  };
-
-  const load = async () => {
-    const url = `/api/admin/product-types?categoryId=${encodeURIComponent(categoryId)}&q=${encodeURIComponent(q)}&page=${page}&pageSize=20`;
-    const json = await getJSON<ListResp<TypeRow>>(url);
-    setRows(json.data); setTotal(json.meta.total);
-  };
-
-  useEffect(()=>{ loadCategories(); /* eslint-disable-next-line */}, []);
-  useEffect(()=>{ if(categoryId) load(); /* eslint-disable-next-line */}, [categoryId, page]);
-
+  const [reloadToken, setReloadToken] = useState(0);
   const [form, setForm] = useState({ name: "", slug: "" });
+
+  const triggerReload = () => setReloadToken((token) => token + 1);
+
+  useEffect(() => {
+    let ignore = false;
+    const fetchCategories = async () => {
+      const json = await getJSON<ListResp<Cate>>(`/api/admin/categories?page=1&pageSize=999`);
+      if (ignore) return;
+      const mapped = json.data.map((c) => ({ id: c.id, name: c.name }));
+      setCategories(mapped);
+      setCategoryId((prev) => prev || mapped[0]?.id || "");
+    };
+    fetchCategories();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!categoryId) return;
+    let ignore = false;
+    const fetchTypes = async () => {
+      const params = new URLSearchParams({
+        categoryId,
+        q: searchQuery,
+        page: String(page),
+        pageSize: String(pageSize),
+      });
+      const json = await getJSON<ListResp<TypeRow>>(`/api/admin/product-types?${params.toString()}`);
+      if (ignore) return;
+      setRows(json.data);
+      setTotal(json.meta.total);
+    };
+    fetchTypes();
+    return () => {
+      ignore = true;
+    };
+  }, [categoryId, page, pageSize, searchQuery, reloadToken]);
+
+  const handleSearch = () => {
+    const term = searchInput.trim();
+    setPage(1);
+    if (term === searchQuery) {
+      triggerReload();
+    } else {
+      setSearchQuery(term);
+    }
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setCategoryId(value);
+    setPage(1);
+    triggerReload();
+  };
 
   return (
     <div className="space-y-4">
       <div className="flex gap-2 items-center">
-        <select value={categoryId} onChange={e=>setCategoryId(e.target.value)} className="border rounded px-3 py-2">
+        <select value={categoryId} onChange={e=>handleCategoryChange(e.target.value)} className="border rounded px-3 py-2">
           {categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
-        <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Tìm loại SP..." className="border rounded px-3 py-2" />
-        <button onClick={()=>{ setPage(1); load(); }} className="px-3 py-2 rounded bg-blue-600 text-white">Tìm</button>
+        <input value={searchInput} onChange={e=>setSearchInput(e.target.value)} placeholder="Tìm loại SP..." className="border rounded px-3 py-2" />
+        <button onClick={handleSearch} className="px-3 py-2 rounded bg-blue-600 text-white">Tìm</button>
       </div>
 
       <div className="rounded border bg-white overflow-hidden">
@@ -57,7 +98,7 @@ export default function ProductTypesPage() {
                 <td className="px-3 py-2 text-gray-500">{r.slug}</td>
                 <td className="px-3 py-2 text-center">{r.productCount}</td>
                 <td className="px-3 py-2 text-right">
-                  <button onClick={async()=>{ await del(`/api/admin/product-types/${r.id}`); load(); }} className="text-red-600">Xóa</button>
+                  <button onClick={async()=>{ await del(`/api/admin/product-types/${r.id}`); triggerReload(); }} className="text-red-600">Xóa</button>
                 </td>
               </tr>
             ))}
@@ -74,7 +115,7 @@ export default function ProductTypesPage() {
         </div>
         <button onClick={async()=>{
           await postJSON(`/api/admin/product-types`, { name: form.name, slug: form.slug || undefined, categoryId });
-          setForm({ name:"", slug:"" }); load();
+          setForm({ name:"", slug:"" }); triggerReload();
         }} className="px-3 py-2 rounded bg-green-600 text-white">Tạo</button>
       </div>
     </div>

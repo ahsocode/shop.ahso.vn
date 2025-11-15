@@ -29,7 +29,15 @@ export const logout = () => {
   window.location.href = "/login"
 }
 
-export const setAuth = (token: string, user: any) => {
+export type StoredUser = {
+  id: string;
+  email: string;
+  fullName?: string | null;
+  avatarUrl?: string | null;
+  role?: string | null;
+};
+
+export const setAuth = (token: string, user: StoredUser) => {
   if (typeof window === "undefined") return
   localStorage.setItem("token", token)
   localStorage.setItem("user", JSON.stringify(user))

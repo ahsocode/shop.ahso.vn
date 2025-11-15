@@ -1,7 +1,7 @@
 // app/thank-you/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Home } from "lucide-react";
 
@@ -12,19 +12,20 @@ type OrderPreview = {
 
 export default function ThankYouPage() {
   const router = useRouter();
-  const [order, setOrder] = useState<OrderPreview | null>(null);
-
-  useEffect(() => {
+  const [order] = useState<OrderPreview | null>(() => {
+    if (typeof window === "undefined") return null;
     try {
-      const raw = sessionStorage.getItem("orderPreview");
-      if (!raw) return;
+      const raw = window.sessionStorage.getItem("orderPreview");
+      if (!raw) return null;
       const parsed = JSON.parse(raw);
-      setOrder({
+      return {
         code: parsed.code,
         customerFullName: parsed.customerFullName,
-      });
-    } catch {}
-  }, []);
+      };
+    } catch {
+      return null;
+    }
+  });
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50 flex items-center">

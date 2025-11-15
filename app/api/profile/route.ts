@@ -1,6 +1,7 @@
 
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../../../lib/prisma";
 
 function getTokenFromReq(req: Request): string | null {
@@ -134,7 +135,7 @@ export async function PATCH(req: Request) {
     if (!me) return NextResponse.json({ error: "USER_NOT_FOUND" }, { status: 404 });
 
     
-    const userUpdate: any = {};
+    const userUpdate: Prisma.UserUpdateInput = {};
     if (data.fullName !== undefined) userUpdate.fullName = data.fullName;
     if (data.taxCode !== undefined) userUpdate.taxCode = data.taxCode ?? null;
     if (data.phone !== undefined) userUpdate.phoneE164 = toE164VN(data.phone);
@@ -165,14 +166,14 @@ export async function PATCH(req: Request) {
           }
         });
         shippingAddrId = created.id;
-        userUpdate.shippingAddressId = created.id;
+        userUpdate.shippingAddress = { connect: { id: created.id } };
       }
     }
 
-    let billingAddrId = me.billingAddressId ?? me.shippingAddressId;
     if (data.billingAddress === null) {
-      billingAddrId = shippingAddrId;
-      userUpdate.billingAddressId = shippingAddrId;
+      userUpdate.billingAddress = shippingAddrId
+        ? { connect: { id: shippingAddrId } }
+        : undefined;
     } else if (data.billingAddress) {
       const s = data.shippingAddress
         ? { ...data.shippingAddress, country: normCountry2(data.shippingAddress.country) }
@@ -190,8 +191,9 @@ export async function PATCH(req: Request) {
       const b = { ...data.billingAddress, country: normCountry2(data.billingAddress.country) };
 
       if (s && addressesEqual(s, b)) {
-        billingAddrId = shippingAddrId;
-        userUpdate.billingAddressId = shippingAddrId;
+        userUpdate.billingAddress = shippingAddrId
+          ? { connect: { id: shippingAddrId } }
+          : undefined;
       } else {
         if (me.billingAddressId && me.billingAddress) {
           await prisma.address.update({
@@ -201,7 +203,6 @@ export async function PATCH(req: Request) {
               postalCode: b.postalCode ?? null, country: b.country
             }
           });
-          billingAddrId = me.billingAddressId;
         } else {
           const created = await prisma.address.create({
             data: {
@@ -209,8 +210,7 @@ export async function PATCH(req: Request) {
               postalCode: b.postalCode ?? null, country: b.country
             }
           });
-          billingAddrId = created.id;
-          userUpdate.billingAddressId = created.id;
+          userUpdate.billingAddress = { connect: { id: created.id } };
         }
       }
     }

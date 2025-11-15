@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
-import { jsonOk, jsonError } from "@/lib/http";
+import { jsonOk, jsonError, toHttpError } from "@/lib/http";
 import { z } from "zod";
 
 const UpdateSchema = z.object({
@@ -23,8 +23,9 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
     });
     if (!row) return jsonError("Not Found", 404);
     return jsonOk({ data: row });
-  } catch (e: any) {
-    return jsonError(e.message || "Internal Error", e.status || 500);
+  } catch (error) {
+    const err = toHttpError(error);
+    return jsonError(err.message || "Internal Error", err.status || 500);
   }
 }
 
@@ -67,8 +68,9 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     });
 
     return jsonOk({ data: updated });
-  } catch (e: any) {
-    return jsonError(e.message || "Internal Error", e.status || 500);
+  } catch (error) {
+    const err = toHttpError(error);
+    return jsonError(err.message || "Internal Error", err.status || 500);
   }
 }
 
@@ -79,8 +81,9 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
 
     await prisma.productType.delete({ where: { id } });
     return jsonOk({ ok: true });
-  } catch (e: any) {
-    if (e.code === "P2003") return jsonError("Cannot delete: product type in use", 409);
-    return jsonError(e.message || "Internal Error", e.status || 500);
+  } catch (error) {
+    const err = toHttpError(error);
+    if (err.code === "P2003") return jsonError("Cannot delete: product type in use", 409);
+    return jsonError(err.message || "Internal Error", err.status || 500);
   }
 }

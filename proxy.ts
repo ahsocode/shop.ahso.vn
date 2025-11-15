@@ -8,9 +8,6 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
  
-  const publicRoutes = ["/", "/login", "/register", "/forgot-password", "/shop"];
-  const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
-
   const protectedRoutes = ["/profile", "/wishlist", "/profile/orders"];
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
