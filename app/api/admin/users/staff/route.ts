@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { z } from "zod";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "../../../../../lib/prisma";
 import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../../lib/auth";
 
@@ -27,7 +28,7 @@ export async function GET(req: NextRequest) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 20);
 
-    const where: any = { role: "STAFF" };
+    const where: Prisma.UserWhereInput = { role: "STAFF" };
     if (q) where.OR = [
       { username: { contains: q } },
       { fullName: { contains: q } },

@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
-import { jsonOk, jsonError } from "@/lib/http";
+import { jsonOk, jsonError, toHttpError } from "@/lib/http";
 import { z } from "zod";
 
 const CategoryUpdate = z.object({
@@ -19,7 +19,10 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
     const row = await prisma.productCategory.findUnique({ where: { id } });
     if (!row) return jsonError("Not Found", 404);
     return jsonOk({ data: row });
-  } catch (e: any) { return jsonError(e.message || "Internal Error", e.status || 500); }
+  } catch (error) {
+    const err = toHttpError(error);
+    return jsonError(err.message || "Internal Error", err.status || 500);
+  }
 }
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
@@ -41,7 +44,10 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
 
     const updated = await prisma.productCategory.update({ where: { id }, data: parsed.data });
     return jsonOk({ data: updated });
-  } catch (e: any) { return jsonError(e.message || "Internal Error", e.status || 500); }
+  } catch (error) {
+    const err = toHttpError(error);
+    return jsonError(err.message || "Internal Error", err.status || 500);
+  }
 }
 
 export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
@@ -51,8 +57,9 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
 
     await prisma.productCategory.delete({ where: { id } });
     return jsonOk({ ok: true });
-  } catch (e: any) {
-    if (e.code === "P2003") return jsonError("Cannot delete: category in use", 409);
-    return jsonError(e.message || "Internal Error", e.status || 500);
+  } catch (error) {
+    const err = toHttpError(error);
+    if (err.code === "P2003") return jsonError("Cannot delete: category in use", 409);
+    return jsonError(err.message || "Internal Error", err.status || 500);
   }
 }

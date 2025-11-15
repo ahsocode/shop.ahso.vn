@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
-import { jsonOk, jsonError } from "@/lib/http";
+import { jsonOk, jsonError, toHttpError } from "@/lib/http";
 import { ProductSpecUpdateSchema } from "@/lib/validators";
 // import { z } from "zod";
 // const ProductSpecUpdateSchema = z.object({
@@ -33,8 +33,9 @@ export async function PATCH(
       data: parsed.data,
     });
     return jsonOk({ data: updated });
-  } catch (e: any) {
-    return jsonError(e.message || "Internal Error", e.status || 500);
+  } catch (error) {
+    const err = toHttpError(error);
+    return jsonError(err.message || "Internal Error", err.status || 500);
   }
 }
 
@@ -51,7 +52,8 @@ export async function DELETE(
 
     await prisma.productSpecValue.delete({ where: { id: specId } });
     return jsonOk({ ok: true });
-  } catch (e: any) {
-    return jsonError(e.message || "Internal Error", e.status || 500);
+  } catch (error) {
+    const err = toHttpError(error);
+    return jsonError(err.message || "Internal Error", err.status || 500);
   }
 }

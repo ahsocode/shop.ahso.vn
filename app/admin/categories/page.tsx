@@ -6,21 +6,59 @@ type Category = { id: string; slug: string; name: string; coverImage: string|nul
 type ListResp = { data: Category[]; meta: { total: number; page: number; pageSize: number } };
 
 export default function CategoriesPage() {
-  const [q, setQ] = useState(""); const [page, setPage] = useState(1); const [pageSize] = useState(20);
-  const [rows, setRows] = useState<Category[]>([]); const [total, setTotal] = useState(0);
+  const pageSize = 20;
+  const [keyword, setKeyword] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState<Category[]>([]);
+  const [total, setTotal] = useState(0);
   const [form, setForm] = useState({ name: "", slug: "", coverImage: "", description: "" });
+  const [reloadToken, setReloadToken] = useState(0);
 
-  const load = async () => {
-    const json = await getJSON<ListResp>(`/api/admin/categories?q=${encodeURIComponent(q)}&page=${page}&pageSize=${pageSize}`);
-    setRows(json.data); setTotal(json.meta.total);
+  const triggerReload = () => setReloadToken((token) => token + 1);
+
+  useEffect(() => {
+    let ignore = false;
+    const fetchCategories = async () => {
+      const params = new URLSearchParams({
+        q: searchQuery,
+        page: String(page),
+        pageSize: String(pageSize),
+      });
+      const json = await getJSON<ListResp>(`/api/admin/categories?${params.toString()}`);
+      if (ignore) return;
+      setRows(json.data);
+      setTotal(json.meta.total);
+    };
+
+    fetchCategories();
+    return () => {
+      ignore = true;
+    };
+  }, [page, pageSize, searchQuery, reloadToken]);
+
+  const handleSearch = () => {
+    const term = keyword.trim();
+    setPage(1);
+    if (term === searchQuery) {
+      triggerReload();
+    } else {
+      setSearchQuery(term);
+    }
   };
-  useEffect(()=>{ load(); /* eslint-disable-next-line */}, [page]);
 
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
-        <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Tìm danh mục..." className="border rounded px-3 py-2"/>
-        <button onClick={()=>{ setPage(1); load(); }} className="px-3 py-2 rounded bg-blue-600 text-white">Tìm</button>
+        <input
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          placeholder="Tìm danh mục..."
+          className="border rounded px-3 py-2"
+        />
+        <button onClick={handleSearch} className="px-3 py-2 rounded bg-blue-600 text-white">
+          Tìm
+        </button>
       </div>
 
       <div className="rounded border bg-white overflow-hidden">
@@ -39,7 +77,15 @@ export default function CategoriesPage() {
                 <td className="px-3 py-2 text-gray-500">{r.slug}</td>
                 <td className="px-3 py-2 text-center">{r.productCount}</td>
                 <td className="px-3 py-2 text-right">
-                  <button onClick={async()=>{ await del(`/api/admin/categories/${r.id}`); load(); }} className="text-red-600">Xóa</button>
+                  <button
+                    onClick={async () => {
+                      await del(`/api/admin/categories/${r.id}`);
+                      triggerReload();
+                    }}
+                    className="text-red-600"
+                  >
+                    Xóa
+                  </button>
                 </td>
               </tr>
             ))}
@@ -63,12 +109,13 @@ export default function CategoriesPage() {
             coverImage: form.coverImage || undefined,
             description: form.description || undefined,
           });
-          setForm({ name:"", slug:"", coverImage:"", description:"" }); load();
+          setForm({ name:"", slug:"", coverImage:"", description:"" });
+          triggerReload();
         }} className="px-3 py-2 rounded bg-green-600 text-white">Tạo</button>
       </div>
 
       <div className="flex items-center gap-2">
-        <button disabled={page<=1} onClick={()=>setPage(p=>p-1)} className="px-3 py-1 rounded border">Prev</button>
+        <button disabled={page<=1} onClick={()=>setPage(p=>Math.max(1, p-1))} className="px-3 py-1 rounded border">Prev</button>
         <div>Trang {page}</div>
         <button disabled={page*pageSize>=total} onClick={()=>setPage(p=>p+1)} className="px-3 py-1 rounded border">Next</button>
       </div>

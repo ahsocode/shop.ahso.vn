@@ -2,17 +2,20 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { z } from "zod";
+import type { Prisma, UserRole } from "@prisma/client";
 import { prisma } from "../../../../lib/prisma";
 import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../lib/auth";
 
-const addressSchema = z.object({
+const baseAddressSchema = z.object({
   line1: z.string().min(1),
   line2: z.string().optional(),
   city: z.string().min(1),
   state: z.string().optional(),
   postalCode: z.string().optional(),
   country: z.string().length(2),
-}).optional();
+});
+const addressSchema = baseAddressSchema.optional();
+type AddressPayload = z.infer<typeof baseAddressSchema>;
 
 const createUserSchema = z.object({
   // Cho phép hoa/thường, server sẽ lưu lowercase
@@ -34,8 +37,15 @@ const toE164VN = (input: string) => {
   return `+84${m[1]}`;
 };
 const normCountry2 = (s: string) => s.toUpperCase();
-const addressesEqual = (a: any, b: any) =>
-  a && b && a.line1 === b.line1 && (a.line2 ?? "") === (b.line2 ?? "") && a.city === b.city && (a.state ?? "") === (b.state ?? "") && (a.postalCode ?? "") === (b.postalCode ?? "") && normCountry2(a.country) === normCountry2(b.country);
+const addressesEqual = (a?: AddressPayload, b?: AddressPayload) =>
+  !!a &&
+  !!b &&
+  a.line1 === b.line1 &&
+  (a.line2 ?? "") === (b.line2 ?? "") &&
+  a.city === b.city &&
+  (a.state ?? "") === (b.state ?? "") &&
+  (a.postalCode ?? "") === (b.postalCode ?? "") &&
+  normCountry2(a.country) === normCountry2(b.country);
 
 function toInt(v: string | null, def = 1) {
   const n = v ? Number(v) : NaN;
@@ -53,8 +63,8 @@ export async function GET(req: NextRequest) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 20);
 
-    const where: any = {};
-    if (role) where.role = role as any;
+    const where: Prisma.UserWhereInput = {};
+    if (role) where.role = role as UserRole;
     if (q) where.OR = [
       { username: { contains: q } },
       { fullName: { contains: q } },
@@ -104,10 +114,26 @@ export async function POST(req: NextRequest) {
 
     const passwordHash = await bcrypt.hash(data.password, 12);
 
-    const shipping = data.shippingAddress ?? { line1: "Admin Created", city: "HCM", country: "VN" };
+    const shippingInput = data.shippingAddress ?? { line1: "Admin Created", city: "HCM", country: "VN" };
+    const shipNorm: AddressPayload = {
+      line1: shippingInput.line1,
+      line2: shippingInput.line2,
+      city: shippingInput.city,
+      state: shippingInput.state,
+      postalCode: shippingInput.postalCode,
+      country: normCountry2(shippingInput.country),
+    };
     const billingInput = data.billingAddress;
-    const shipNorm = { ...shipping, country: normCountry2(shipping.country) };
-    const billNorm = billingInput ? { ...billingInput, country: normCountry2(billingInput.country) } : undefined;
+    const billNorm: AddressPayload | undefined = billingInput
+      ? {
+          line1: billingInput.line1,
+          line2: billingInput.line2,
+          city: billingInput.city,
+          state: billingInput.state,
+          postalCode: billingInput.postalCode,
+          country: normCountry2(billingInput.country),
+        }
+      : undefined;
 
     const user = await prisma.$transaction(async (tx) => {
       const shipAddr = await tx.address.create({ data: { line1: shipNorm.line1, line2: shipNorm.line2 ?? null, city: shipNorm.city, state: shipNorm.state ?? null, postalCode: shipNorm.postalCode ?? null, country: shipNorm.country } });

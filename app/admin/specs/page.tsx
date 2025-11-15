@@ -6,21 +6,46 @@ type Row = { id: string; name: string; slug: string; };
 type ListResp = { data: Row[]; meta: { total: number; page: number; pageSize: number } };
 
 export default function SpecsPage() {
-  const [q, setQ] = useState(""); const [page, setPage] = useState(1);
+  const pageSize = 20;
+  const [keyword, setKeyword] = useState(""); const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
   const [rows, setRows] = useState<Row[]>([]); const [total, setTotal] = useState(0);
   const [form, setForm] = useState({ name: "", slug: "" });
+  const [reloadToken, setReloadToken] = useState(0);
 
-  const load = async () => {
-    const json = await getJSON<ListResp>(`/api/admin/spec-defs?q=${encodeURIComponent(q)}&page=${page}&pageSize=20`);
-    setRows(json.data); setTotal(json.meta.total);
+  const triggerReload = () => setReloadToken((token) => token + 1);
+
+  useEffect(() => {
+    let ignore = false;
+    const fetchSpecs = async () => {
+      const params = new URLSearchParams({
+        q: searchQuery,
+        page: String(page),
+        pageSize: String(pageSize),
+      });
+      const json = await getJSON<ListResp>(`/api/admin/spec-defs?${params.toString()}`);
+      if (ignore) return;
+      setRows(json.data); setTotal(json.meta.total);
+    };
+    fetchSpecs();
+    return () => { ignore = true; };
+  }, [page, pageSize, searchQuery, reloadToken]);
+
+  const handleSearch = () => {
+    const term = keyword.trim();
+    setPage(1);
+    if (term === searchQuery) {
+      triggerReload();
+    } else {
+      setSearchQuery(term);
+    }
   };
-  useEffect(()=>{ load(); /* eslint-disable-next-line */}, [page]);
 
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
-        <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Tìm thông số..." className="border rounded px-3 py-2"/>
-        <button onClick={()=>{ setPage(1); load(); }} className="px-3 py-2 rounded bg-blue-600 text-white">Tìm</button>
+        <input value={keyword} onChange={e=>setKeyword(e.target.value)} placeholder="Tìm thông số..." className="border rounded px-3 py-2"/>
+        <button onClick={handleSearch} className="px-3 py-2 rounded bg-blue-600 text-white">Tìm</button>
       </div>
 
       <div className="rounded border bg-white overflow-hidden">
@@ -37,7 +62,7 @@ export default function SpecsPage() {
                 <td className="px-3 py-2">{r.name}</td>
                 <td className="px-3 py-2 text-gray-500">{r.slug}</td>
                 <td className="px-3 py-2 text-right">
-                  <button onClick={async()=>{ await del(`/api/admin/spec-defs/${r.id}`); load(); }} className="text-red-600">Xóa</button>
+                  <button onClick={async()=>{ await del(`/api/admin/spec-defs/${r.id}`); triggerReload(); }} className="text-red-600">Xóa</button>
                 </td>
               </tr>
             ))}
@@ -54,7 +79,7 @@ export default function SpecsPage() {
         </div>
         <button onClick={async()=>{
           await postJSON("/api/admin/spec-defs", { name: form.name, slug: form.slug || undefined });
-          setForm({ name:"", slug:"" }); load();
+          setForm({ name:"", slug:"" }); triggerReload();
         }} className="px-3 py-2 rounded bg-green-600 text-white">Tạo</button>
       </div>
     </div>

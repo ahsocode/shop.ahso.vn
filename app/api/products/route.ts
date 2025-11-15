@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient, PublishStatus, Prisma } from "@prisma/client";
-const prisma = new PrismaClient();
+import { PublishStatus, Prisma } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 
 // Define the product with includes for type safety
 type ProductWithRelations = Prisma.ProductGetPayload<{

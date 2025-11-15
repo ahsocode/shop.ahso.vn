@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
-import { parsePaging, jsonOk, jsonError } from "@/lib/http";
+import { parsePaging, jsonOk, jsonError, toHttpError } from "@/lib/http";
 import { slugify } from "@/lib/slug";
 import { z } from "zod";
 
@@ -32,8 +32,9 @@ export async function GET(req: NextRequest) {
     ]);
 
     return jsonOk({ data, meta: { total, page, pageSize } });
-  } catch (e: any) {
-    return jsonError(e.message || "Internal Error", e.status || 500);
+  } catch (error) {
+    const err = toHttpError(error);
+    return jsonError(err.message || "Internal Error", err.status || 500);
   }
 }
 
@@ -54,7 +55,8 @@ export async function POST(req: NextRequest) {
     });
 
     return jsonOk({ data: created }, 201);
-  } catch (e: any) {
-    return jsonError(e.message || "Internal Error", e.status || 500);
+  } catch (error) {
+    const err = toHttpError(error);
+    return jsonError(err.message || "Internal Error", err.status || 500);
   }
 }

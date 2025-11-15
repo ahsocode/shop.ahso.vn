@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
-import { parsePaging, jsonOk, jsonError } from "@/lib/http";
+import { parsePaging, jsonOk, jsonError, toHttpError } from "@/lib/http";
 import { slugify } from "@/lib/slug";
 import { z } from "zod";
 
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
     const categoryId = searchParams.get("categoryId") || undefined;
     const { page, pageSize, skip, take } = parsePaging(req);
 
-    const where: any = {};
+    const where: Prisma.ProductTypeWhereInput = {};
     if (q) where.OR = [{ name: { contains: q, mode: "insensitive" } }, { slug: { contains: q, mode: "insensitive" } }];
     if (categoryId) where.categoryId = categoryId;
 
@@ -40,8 +41,9 @@ export async function GET(req: NextRequest) {
     ]);
 
     return jsonOk({ data, meta: { total, page, pageSize } });
-  } catch (e: any) {
-    return jsonError(e.message || "Internal Error", e.status || 500);
+  } catch (error) {
+    const err = toHttpError(error);
+    return jsonError(err.message || "Internal Error", err.status || 500);
   }
 }
 
@@ -76,7 +78,8 @@ export async function POST(req: NextRequest) {
     });
 
     return jsonOk({ data: created }, 201);
-  } catch (e: any) {
-    return jsonError(e.message || "Internal Error", e.status || 500);
+  } catch (error) {
+    const err = toHttpError(error);
+    return jsonError(err.message || "Internal Error", err.status || 500);
   }
 }

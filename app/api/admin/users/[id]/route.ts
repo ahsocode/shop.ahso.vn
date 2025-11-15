@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { z } from "zod";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "../../../../../lib/prisma";
 import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../../lib/auth";
 
@@ -35,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (!parsed.success) return NextResponse.json({ error: "VALIDATION_ERROR", details: parsed.error.flatten() }, { status: 400 });
 
     const data = parsed.data;
-    const updates: any = {};
+    const updates: Prisma.UserUpdateInput = {};
     if (data.fullName) updates.fullName = data.fullName;
     if (data.email) updates.email = data.email.toLowerCase();
     if (data.phone) updates.phoneE164 = data.phone;
@@ -64,4 +65,3 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
-

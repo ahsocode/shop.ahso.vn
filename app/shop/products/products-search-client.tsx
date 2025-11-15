@@ -1,8 +1,12 @@
+// app/shop/products/products-search-client.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { toast } from "sonner";
+import { useCart } from "@/lib/hooks/useCart";
 import {
   Search,
   Filter,
@@ -17,6 +21,10 @@ import {
   SlidersHorizontal,
   Package,
   TrendingUp,
+  Loader2,
+  Clock,
+  Award,
+  Grid as GridIcon,
 } from "lucide-react";
 
 // Types
@@ -40,6 +48,36 @@ type ProductCard = {
 
 type BrandOpt = { name: string; slug: string; productCount?: number };
 type CategoryOpt = { name: string; slug: string; productCount?: number };
+type ProductTypeOpt = {
+  name: string;
+  slug: string;
+  productCount?: number;
+  category?: { name: string; slug: string } | null;
+};
+
+type FiltersState = {
+  q: string;
+  brand: string;
+  category: string;
+  productType: string;
+  minPrice: string;
+  maxPrice: string;
+  inStock: boolean;
+  sort: string;
+  page: number;
+};
+
+type Suggestion = {
+  type: "product" | "brand" | "category" | "search" | "history";
+  text: string;
+  subtext?: string;
+  url?: string;
+  image?: string | null;
+  icon?: string;
+};
+
+const SEARCH_HISTORY_KEY = "search_history";
+const MAX_HISTORY = 5;
 
 // Hooks
 function useDebounced<T>(value: T, delay = 400) {
@@ -52,20 +90,12 @@ function useDebounced<T>(value: T, delay = 400) {
 }
 
 // Components
-function StarRating({
-  value = 0,
-  size = 14,
-  className = "text-amber-400",
-}: {
-  value?: number;
-  size?: number;
-  className?: string;
-}) {
+function StarRating({ value = 0, size = 14 }: { value?: number; size?: number }) {
   const full = Math.floor(value);
   const hasHalf = value - full >= 0.25 && value - full < 0.75;
   const rest = 5 - full - (hasHalf ? 1 : 0);
   return (
-    <div className={`inline-flex items-center gap-0.5 ${className}`}>
+    <div className="inline-flex items-center gap-0.5 text-amber-400">
       {Array.from({ length: full }).map((_, i) => (
         <Star key={`f-${i}`} width={size} height={size} fill="currentColor" />
       ))}
@@ -79,6 +109,8 @@ function StarRating({
 
 function AddToCartButton({ sku, name, image }: { sku: string; name: string; image: string }) {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { refresh: refreshCart } = useCart();
 
   async function handleAdd() {
     if (loading) return;
@@ -87,12 +119,49 @@ function AddToCartButton({ sku, name, image }: { sku: string; name: string; imag
       const res = await fetch("/api/cart/items", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ sku, qty: 1, name, image }),
       });
-      if (res.ok) {
-        alert("Đã thêm vào giỏ hàng!");
+      if (res.status === 401) {
+        const redirect = typeof window !== "undefined" ? window.location.pathname : "/shop/products";
+        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ.", {
+          action: {
+            label: "Đăng nhập",
+            onClick: () => router.push(`/login?redirect=${encodeURIComponent(redirect)}`),
+          },
+        });
+        return;
       }
+
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({} as any));
+        const err = (json?.error || json?.message || "").toUpperCase();
+        if (res.status === 409 || err.includes("OUT_OF_STOCK")) {
+          toast.error("Sản phẩm tạm hết hàng.");
+          return;
+        }
+        if (res.status === 422 || err.includes("VALIDATION")) {
+          toast.error("Dữ liệu không hợp lệ. Vui lòng thử lại.");
+          return;
+        }
+        throw new Error(json?.error || json?.message || `Add to cart failed (${res.status})`);
+      }
+
+      try {
+        await refreshCart();
+      } catch {
+        /* ignore */
+      }
+
+      toast.success("Đã thêm vào giỏ!", {
+        description: name || sku,
+        action: {
+          label: "Xem giỏ",
+          onClick: () => router.push("/cart"),
+        },
+      });
     } catch (e) {
+      toast.error("Không thể thêm sản phẩm. Vui lòng thử lại.");
       console.error(e);
     } finally {
       setLoading(false);
@@ -276,16 +345,327 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
   );
 }
 
+// Smart SearchBar Component
+function SmartSearchBar({ onSearch }: { onSearch: (query: string) => void }) {
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  // Load search history
+  useEffect(() => {
+    try {
+      const history = localStorage.getItem(SEARCH_HISTORY_KEY);
+      if (history) {
+        setSearchHistory(JSON.parse(history));
+      }
+    } catch (e) {
+      console.error("Failed to load search history:", e);
+    }
+  }, []);
+
+  // Save search to history
+  const saveToHistory = (searchQuery: string) => {
+    const trimmed = searchQuery.trim();
+    if (!trimmed || trimmed.length < 2) return;
+
+    try {
+      const newHistory = [
+        trimmed,
+        ...searchHistory.filter((h) => h !== trimmed),
+      ].slice(0, MAX_HISTORY);
+
+      setSearchHistory(newHistory);
+      localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(newHistory));
+    } catch (e) {
+      console.error("Failed to save search history:", e);
+    }
+  };
+
+  // Fetch suggestions
+  useEffect(() => {
+    if (!query || query.length < 2) {
+      if (searchHistory.length > 0) {
+        setSuggestions(
+          searchHistory.map((h) => ({
+            type: "history",
+            text: h,
+            icon: "clock",
+            url: `/shop/products?q=${encodeURIComponent(h)}`,
+          }))
+        );
+      } else {
+        setSuggestions([]);
+      }
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `/api/search/autocomplete?q=${encodeURIComponent(query)}&limit=10`
+        );
+        const data = await res.json();
+
+        if (data.success) {
+          setSuggestions(data.data.suggestions || []);
+        }
+      } catch (error) {
+        console.error("Autocomplete error:", error);
+      } finally {
+        setLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query, searchHistory]);
+
+  // Handle click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(e.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showSuggestions) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setSelectedIndex((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : prev
+        );
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+          handleSelectSuggestion(suggestions[selectedIndex]);
+        } else {
+          handleSearch();
+        }
+        break;
+      case "Escape":
+        setShowSuggestions(false);
+        break;
+    }
+  };
+
+  // Handle search
+  const handleSearch = () => {
+    if (!query.trim()) return;
+
+    saveToHistory(query);
+    setShowSuggestions(false);
+    onSearch(query);
+  };
+
+  // Handle suggestion selection
+  const handleSelectSuggestion = (suggestion: Suggestion) => {
+    if (suggestion.type === "search" || suggestion.type === "history") {
+      saveToHistory(suggestion.text);
+    }
+
+    setShowSuggestions(false);
+    setQuery(suggestion.text);
+
+    if (suggestion.url) {
+      router.push(suggestion.url);
+    }
+  };
+
+  // Clear search
+  const handleClear = () => {
+    setQuery("");
+    setSuggestions([]);
+    setSelectedIndex(-1);
+    inputRef.current?.focus();
+  };
+
+  // Clear history
+  const clearHistory = () => {
+    setSearchHistory([]);
+    localStorage.removeItem(SEARCH_HISTORY_KEY);
+    setSuggestions([]);
+  };
+
+  // Get icon component
+  const getIcon = (iconName?: string) => {
+    const iconProps = { className: "h-4 w-4" };
+    switch (iconName) {
+      case "trending":
+        return <TrendingUp {...iconProps} />;
+      case "package":
+        return <Package {...iconProps} />;
+      case "award":
+        return <Award {...iconProps} />;
+      case "grid":
+        return <GridIcon {...iconProps} />;
+      case "clock":
+        return <Clock {...iconProps} />;
+      default:
+        return <Search {...iconProps} />;
+    }
+  };
+
+  return (
+    <div className="relative">
+      {/* Search Input */}
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none z-10" />
+        
+        <input
+          ref={inputRef}
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => setShowSuggestions(true)}
+          onKeyDown={handleKeyDown}
+          placeholder="Tìm kiếm sản phẩm, thương hiệu, danh mục..."
+          className="w-full pl-12 pr-12 py-3.5 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all text-sm bg-white"
+        />
+
+        {/* Loading or Clear button */}
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
+          {loading ? (
+            <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
+          ) : query ? (
+            <button
+              onClick={handleClear}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+              type="button"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Suggestions Dropdown */}
+      {showSuggestions && suggestions.length > 0 && (
+        <div
+          ref={dropdownRef}
+          className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border-2 border-gray-200 shadow-2xl z-50 overflow-hidden"
+        >
+          <div className="max-h-96 overflow-y-auto">
+            {/* History header */}
+            {suggestions[0]?.type === "history" && (
+              <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-200">
+                <span className="text-xs font-medium text-gray-500">
+                  Tìm kiếm gần đây
+                </span>
+                <button
+                  onClick={clearHistory}
+                  className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  Xóa
+                </button>
+              </div>
+            )}
+
+            {/* Suggestions list */}
+            {suggestions.map((suggestion, index) => (
+              <button
+                key={`${suggestion.type}-${index}`}
+                onClick={() => handleSelectSuggestion(suggestion)}
+                className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left ${
+                  index === selectedIndex ? "bg-blue-50" : ""
+                }`}
+                type="button"
+              >
+                {/* Icon or Image */}
+                <div className="shrink-0 w-8 h-8 flex items-center justify-center">
+                  {suggestion.image ? (
+                    <Image
+                      src={suggestion.image}
+                      alt=""
+                      width={32}
+                      height={32}
+                      className="object-cover rounded"
+                    />
+                  ) : (
+                    <div className="text-gray-400">
+                      {getIcon(suggestion.icon)}
+                    </div>
+                  )}
+                </div>
+
+                {/* Text */}
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-gray-900 truncate">
+                    {suggestion.text}
+                  </div>
+                  {suggestion.subtext && (
+                    <div className="text-xs text-gray-500 truncate">
+                      {suggestion.subtext}
+                    </div>
+                  )}
+                </div>
+
+                {/* Type badge */}
+                {suggestion.type !== "search" &&
+                  suggestion.type !== "history" && (
+                    <div className="shrink-0">
+                      <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+                        {suggestion.type === "product"
+                          ? "Sản phẩm"
+                          : suggestion.type === "brand"
+                          ? "Thương hiệu"
+                          : "Danh mục"}
+                      </span>
+                    </div>
+                  )}
+              </button>
+            ))}
+          </div>
+
+          {/* Footer hint */}
+          <div className="px-4 py-2 bg-gray-50 border-t border-gray-200 text-xs text-gray-500 flex items-center justify-between">
+            <span>Sử dụng ↑ ↓ để điều hướng, Enter để chọn</span>
+            <span className="text-gray-400">ESC để đóng</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Main Component
 export default function ProductsSearchClient() {
-  const [q, setQ] = useState("");
-  const [brand, setBrand] = useState("");
-  const [category, setCategory] = useState("");
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-  const [inStock, setInStock] = useState(false);
-  const [sort, setSort] = useState("relevance");
-  const [page, setPage] = useState(1);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const [q, setQ] = useState(searchParams.get("q") || "");
+  const [brand, setBrand] = useState(searchParams.get("brand") || "");
+  const [category, setCategory] = useState(searchParams.get("category") || "");
+  const [productType, setProductType] = useState(searchParams.get("type") || "");
+  const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
+  const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
+  const [inStock, setInStock] = useState(searchParams.get("inStock") === "true");
+  const [sort, setSort] = useState(searchParams.get("sort") || "relevance");
+  const [page, setPage] = useState(parseInt(searchParams.get("page") || "1"));
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
   const pageSize = 12;
@@ -297,6 +677,45 @@ export default function ProductsSearchClient() {
   const [loading, setLoading] = useState(true);
   const [brands, setBrands] = useState<BrandOpt[]>([]);
   const [categories, setCategories] = useState<CategoryOpt[]>([]);
+  const [productTypes, setProductTypes] = useState<ProductTypeOpt[]>([]);
+
+  const syncFiltersToUrl = useCallback(
+    (overrides: Partial<FiltersState> = {}, options: { method?: "push" | "replace" } = {}) => {
+      const state: FiltersState = {
+        q,
+        brand,
+        category,
+        productType,
+        minPrice,
+        maxPrice,
+        inStock,
+        sort,
+        page,
+        ...overrides,
+      };
+
+      const params = new URLSearchParams();
+      if (state.q) params.set("q", state.q);
+      if (state.brand) params.set("brand", state.brand);
+      if (state.category) params.set("category", state.category);
+      if (state.productType) params.set("type", state.productType);
+      if (state.minPrice) params.set("minPrice", state.minPrice);
+      if (state.maxPrice) params.set("maxPrice", state.maxPrice);
+      if (state.inStock) params.set("inStock", "true");
+      if (state.sort && state.sort !== "relevance") params.set("sort", state.sort);
+
+      const normalizedPage = Math.max(1, Number(state.page) || 1);
+      if (normalizedPage > 1) {
+        params.set("page", String(normalizedPage));
+      }
+
+      const query = params.toString();
+      const nextUrl = query ? `/shop/products?${query}` : "/shop/products";
+      const method = options.method === "push" ? "push" : "replace";
+      router[method](nextUrl, { scroll: false });
+    },
+    [router, q, brand, category, productType, minPrice, maxPrice, inStock, sort, page]
+  );
 
   // Fetch brands and categories
   useEffect(() => {
@@ -305,7 +724,6 @@ export default function ProductsSearchClient() {
       fetch("/api/categories").then((r) => r.json()),
     ])
       .then(([brandsData, categoriesData]) => {
-        // API trả về { success: true, data: [...] }
         if (brandsData?.success && brandsData?.data) {
           setBrands(brandsData.data);
         }
@@ -318,6 +736,32 @@ export default function ProductsSearchClient() {
       });
   }, []);
 
+  // Fetch product types, optionally filtered by category
+  useEffect(() => {
+    const controller = new AbortController();
+    const params = new URLSearchParams();
+    if (category) params.set("category", category);
+    const query = params.toString();
+
+    fetch(`/api/product-types${query ? `?${query}` : ""}`, { signal: controller.signal })
+      .then((r) => r.json())
+      .then((json) => {
+        if (json?.success && Array.isArray(json.data)) {
+          setProductTypes(json.data);
+        } else {
+          console.warn("Unexpected product type response", json);
+          setProductTypes([]);
+        }
+      })
+      .catch((err) => {
+        if (err?.name === "AbortError") return;
+        console.error("Error fetching product types:", err);
+        setProductTypes([]);
+      });
+
+    return () => controller.abort();
+  }, [category]);
+
   // Fetch products
   useEffect(() => {
     const url = new URL("/api/products", window.location.origin);
@@ -326,6 +770,7 @@ export default function ProductsSearchClient() {
     if (dq) url.searchParams.set("q", dq);
     if (brand) url.searchParams.set("brand", brand);
     if (category) url.searchParams.set("category", category);
+    if (productType) url.searchParams.set("type", productType);
     if (minPrice) url.searchParams.set("minPrice", minPrice);
     if (maxPrice) url.searchParams.set("maxPrice", maxPrice);
     if (inStock) url.searchParams.set("inStock", "true");
@@ -348,7 +793,7 @@ export default function ProductsSearchClient() {
         setTotal(0);
       })
       .finally(() => setLoading(false));
-  }, [dq, brand, category, minPrice, maxPrice, inStock, sort, page]);
+  }, [dq, brand, category, productType, minPrice, maxPrice, inStock, sort, page]);
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total]);
 
@@ -356,14 +801,24 @@ export default function ProductsSearchClient() {
     setQ("");
     setBrand("");
     setCategory("");
+    setProductType("");
     setMinPrice("");
     setMaxPrice("");
     setInStock(false);
     setSort("relevance");
     setPage(1);
+    router.replace("/shop/products");
   }
 
-  const hasActiveFilters = q || brand || category || minPrice || maxPrice || inStock || sort !== "relevance";
+  const hasActiveFilters =
+    q || brand || category || productType || minPrice || maxPrice || inStock || sort !== "relevance";
+
+  // Handle smart search
+  const handleSearch = (searchQuery: string) => {
+    setQ(searchQuery);
+    setPage(1);
+    syncFiltersToUrl({ q: searchQuery, page: 1 }, { method: "push" });
+  };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50/30">
@@ -378,31 +833,9 @@ export default function ProductsSearchClient() {
           </p>
         </div> */}
 
-        {/* Search Bar */}
+        {/* Smart Search Bar */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-4">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
-              value={q}
-              onChange={(e) => {
-                setQ(e.target.value);
-                setPage(1);
-              }}
-              placeholder="Tìm kiếm sản phẩm theo tên, SKU..."
-              className="w-full pl-12 pr-12 py-3.5 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all text-sm"
-            />
-            {q && (
-              <button
-                onClick={() => {
-                  setQ("");
-                  setPage(1);
-                }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            )}
-          </div>
+          <SmartSearchBar onSearch={handleSearch} />
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
@@ -424,8 +857,10 @@ export default function ProductsSearchClient() {
                     className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-50 outline-none text-sm"
                     value={brand}
                     onChange={(e) => {
-                      setBrand(e.target.value);
+                      const value = e.target.value;
+                      setBrand(value);
                       setPage(1);
+                      syncFiltersToUrl({ brand: value, page: 1 });
                     }}
                   >
                     <option value="">Tất cả</option>
@@ -446,14 +881,43 @@ export default function ProductsSearchClient() {
                     className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-50 outline-none text-sm"
                     value={category}
                     onChange={(e) => {
-                      setCategory(e.target.value);
+                      const value = e.target.value;
+                      setCategory(value);
+                      setProductType("");
                       setPage(1);
+                      syncFiltersToUrl({ category: value, productType: "", page: 1 });
                     }}
                   >
                     <option value="">Tất cả</option>
                     {categories.map((c) => (
                       <option key={c.slug} value={c.slug}>
                         {c.name} {c.productCount ? `(${c.productCount})` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Product Type Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Loại sản phẩm
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-50 outline-none text-sm"
+                    value={productType}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setProductType(value);
+                      setPage(1);
+                      syncFiltersToUrl({ productType: value, page: 1 });
+                    }}
+                  >
+                    <option value="">Tất cả</option>
+                    {productTypes.map((t) => (
+                      <option key={t.slug} value={t.slug}>
+                        {`${t.name}${t.category?.name ? ` - ${t.category.name}` : ""}${
+                          t.productCount ? ` (${t.productCount})` : ""
+                        }`}
                       </option>
                     ))}
                   </select>
@@ -470,8 +934,10 @@ export default function ProductsSearchClient() {
                       placeholder="Từ"
                       value={minPrice}
                       onChange={(e) => {
-                        setMinPrice(e.target.value);
+                        const value = e.target.value;
+                        setMinPrice(value);
                         setPage(1);
+                        syncFiltersToUrl({ minPrice: value, page: 1 });
                       }}
                       className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-50 outline-none text-sm"
                     />
@@ -480,8 +946,10 @@ export default function ProductsSearchClient() {
                       placeholder="Đến"
                       value={maxPrice}
                       onChange={(e) => {
-                        setMaxPrice(e.target.value);
+                        const value = e.target.value;
+                        setMaxPrice(value);
                         setPage(1);
+                        syncFiltersToUrl({ maxPrice: value, page: 1 });
                       }}
                       className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-50 outline-none text-sm"
                     />
@@ -494,8 +962,10 @@ export default function ProductsSearchClient() {
                     type="checkbox"
                     checked={inStock}
                     onChange={(e) => {
-                      setInStock(e.target.checked);
+                      const checked = e.target.checked;
+                      setInStock(checked);
                       setPage(1);
+                      syncFiltersToUrl({ inStock: checked, page: 1 });
                     }}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
@@ -535,8 +1005,10 @@ export default function ProductsSearchClient() {
                     className="flex-1 sm:flex-initial px-4 py-2 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-50 outline-none text-sm"
                     value={sort}
                     onChange={(e) => {
-                      setSort(e.target.value);
+                      const value = e.target.value;
+                      setSort(value);
                       setPage(1);
+                      syncFiltersToUrl({ sort: value, page: 1 });
                     }}
                   >
                     <option value="relevance">Liên quan</option>
@@ -587,8 +1059,10 @@ export default function ProductsSearchClient() {
                     className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm"
                     value={brand}
                     onChange={(e) => {
-                      setBrand(e.target.value);
+                      const value = e.target.value;
+                      setBrand(value);
                       setPage(1);
+                      syncFiltersToUrl({ brand: value, page: 1 });
                     }}
                   >
                     <option value="">Tất cả thương hiệu</option>
@@ -603,8 +1077,11 @@ export default function ProductsSearchClient() {
                     className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm"
                     value={category}
                     onChange={(e) => {
-                      setCategory(e.target.value);
+                      const value = e.target.value;
+                      setCategory(value);
+                      setProductType("");
                       setPage(1);
+                      syncFiltersToUrl({ category: value, productType: "", page: 1 });
                     }}
                   >
                     <option value="">Tất cả danh mục</option>
@@ -615,13 +1092,33 @@ export default function ProductsSearchClient() {
                     ))}
                   </select>
 
+                  <select
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm"
+                    value={productType}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setProductType(value);
+                      setPage(1);
+                      syncFiltersToUrl({ productType: value, page: 1 });
+                    }}
+                  >
+                    <option value="">Tất cả loại sản phẩm</option>
+                    {productTypes.map((t) => (
+                      <option key={t.slug} value={t.slug}>
+                        {`${t.name}${t.category?.name ? ` - ${t.category.name}` : ""}`}
+                      </option>
+                    ))}
+                  </select>
+
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       checked={inStock}
                       onChange={(e) => {
-                        setInStock(e.target.checked);
+                        const checked = e.target.checked;
+                        setInStock(checked);
                         setPage(1);
+                        syncFiltersToUrl({ inStock: checked, page: 1 });
                       }}
                       className="w-4 h-4 text-blue-600 rounded"
                     />
@@ -678,7 +1175,12 @@ export default function ProductsSearchClient() {
             {totalPages > 1 && !loading && (
               <div className="mt-8 flex items-center justify-center gap-2">
                 <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  onClick={() => {
+                    if (page <= 1) return;
+                    const nextPage = Math.max(1, page - 1);
+                    setPage(nextPage);
+                    syncFiltersToUrl({ page: nextPage });
+                  }}
                   disabled={page <= 1}
                   className="p-2 rounded-xl border-2 border-gray-200 disabled:opacity-40 hover:bg-gray-50 transition-colors"
                 >
@@ -701,7 +1203,11 @@ export default function ProductsSearchClient() {
                     return (
                       <button
                         key={pageNum}
-                        onClick={() => setPage(pageNum)}
+                        onClick={() => {
+                          if (page === pageNum) return;
+                          setPage(pageNum);
+                          syncFiltersToUrl({ page: pageNum });
+                        }}
                         className={`min-w-10 h-10 rounded-xl font-medium transition-all ${
                           page === pageNum
                             ? "bg-blue-600 text-white shadow-lg"
@@ -715,7 +1221,12 @@ export default function ProductsSearchClient() {
                 </div>
 
                 <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() => {
+                    if (page >= totalPages) return;
+                    const nextPage = Math.min(totalPages, page + 1);
+                    setPage(nextPage);
+                    syncFiltersToUrl({ page: nextPage });
+                  }}
                   disabled={page >= totalPages}
                   className="p-2 rounded-xl border-2 border-gray-200 disabled:opacity-40 hover:bg-gray-50 transition-colors"
                 >
