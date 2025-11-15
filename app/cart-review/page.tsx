@@ -10,6 +10,7 @@ import type {
 } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   ShoppingCart,
   ArrowLeft,
@@ -318,7 +319,7 @@ export default function CartReviewPage() {
     setAppliedCode(code);
     promoRef.current = code;
     setErrors((e) => {
-      const { promo, ...rest } = e;
+      const { promo: _promo, ...rest } = e;
       return rest;
     });
   };
@@ -376,7 +377,7 @@ export default function CartReviewPage() {
       router.push("/checkout");
     } catch (error) {
       const message = error instanceof Error ? error.message : null;
-      alert(message ?? "Không thể đặt hàng. Vui lòng thử lại.");
+      toast.error(message ?? "Không thể đặt hàng. Vui lòng thử lại.");
     }
   };
 
@@ -716,7 +717,7 @@ function ShippingFromProfile({
       if (!r.ok) throw 0;
       setMode("view");
     } catch {
-      alert("Không thể lưu hồ sơ. Vui lòng thử lại.");
+      toast.error("Không thể lưu hồ sơ. Vui lòng thử lại.");
     }
   }
 

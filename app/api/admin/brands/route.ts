@@ -24,7 +24,16 @@ export async function GET(req: NextRequest) {
         orderBy: { name: "asc" },
         skip,
         take,
-        select: { id: true, slug: true, name: true, logoUrl: true, summary: true, productCount: true },
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          logoUrl: true,
+          summary: true,
+          productCount: true,
+          createdAt: true,
+          updatedAt: true,
+        },
       }),
     ]);
     return jsonOk({ data, meta: { total, page, pageSize } });

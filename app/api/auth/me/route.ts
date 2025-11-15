@@ -1,7 +1,8 @@
 // app/api/auth/me/route.ts
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import { prisma } from "../../../../lib/prisma";
+import type { Prisma } from "@prisma/client";
+import { prisma, prismaSupportsUserBlockField } from "../../../../lib/prisma";
 
 function getTokenFromRequest(req: Request): string | null {
   // 1. Check Authorization header
@@ -45,18 +46,34 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "INVALID_TOKEN" }, { status: 401 });
     }
 
+    const baseSelect: Record<string, true> = {
+      id: true,
+      username: true,
+      fullName: true,
+      email: true,
+      phoneE164: true,
+      role: true,
+      createdAt: true,
+      avatarUrl: true,
+    };
+    if (prismaSupportsUserBlockField) baseSelect.isBlocked = true;
+    const BASE_SELECT = {
+      id: true,
+      username: true,
+      fullName: true,
+      email: true,
+      phoneE164: true,
+      role: true,
+      createdAt: true,
+      avatarUrl: true,
+    } satisfies Prisma.UserSelect;
+    const select: Prisma.UserSelect = prismaSupportsUserBlockField
+      ? { ...BASE_SELECT, isBlocked: true }
+      : BASE_SELECT;
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: {
-        id: true,
-        username: true,
-        fullName: true,
-        email: true,
-        phoneE164: true,
-        role: true,
-        createdAt: true,
-        avatarUrl: true,
-      },
+      select,
     });
 
     if (!user) {
@@ -64,12 +81,23 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "USER_NOT_FOUND" }, { status: 404 });
     }
 
+    const isBlocked = prismaSupportsUserBlockField ? Boolean(user.isBlocked) : false;
+    if (isBlocked) {
+      return NextResponse.json({ error: "ACCOUNT_BLOCKED" }, { status: 403 });
+    }
+
     console.log("✅ User verified:", user.email);
 
     return NextResponse.json({
       user: {
-        ...user,
+        id: user.id,
+        username: user.username,
+        fullName: user.fullName,
+        email: user.email,
+        phoneE164: user.phoneE164,
         phone: user.phoneE164,
+        role: user.role,
+        createdAt: user.createdAt,
         avatarUrl: user.avatarUrl ?? "/logo.png",
       },
     });

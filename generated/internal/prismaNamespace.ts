@@ -1997,6 +1997,7 @@ export const UserScalarFieldEnum = {
   phoneE164: 'phoneE164',
   taxCode: 'taxCode',
   emailVerified: 'emailVerified',
+  isBlocked: 'isBlocked',
   role: 'role',
   avatarUrl: 'avatarUrl',
   createdAt: 'createdAt',

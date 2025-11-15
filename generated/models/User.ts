@@ -32,6 +32,7 @@ export type UserMinAggregateOutputType = {
   phoneE164: string | null
   taxCode: string | null
   emailVerified: boolean | null
+  isBlocked: boolean | null
   role: $Enums.Role | null
   avatarUrl: string | null
   createdAt: Date | null
@@ -49,6 +50,7 @@ export type UserMaxAggregateOutputType = {
   phoneE164: string | null
   taxCode: string | null
   emailVerified: boolean | null
+  isBlocked: boolean | null
   role: $Enums.Role | null
   avatarUrl: string | null
   createdAt: Date | null
@@ -66,6 +68,7 @@ export type UserCountAggregateOutputType = {
   phoneE164: number
   taxCode: number
   emailVerified: number
+  isBlocked: number
   role: number
   avatarUrl: number
   createdAt: number
@@ -85,6 +88,7 @@ export type UserMinAggregateInputType = {
   phoneE164?: true
   taxCode?: true
   emailVerified?: true
+  isBlocked?: true
   role?: true
   avatarUrl?: true
   createdAt?: true
@@ -102,6 +106,7 @@ export type UserMaxAggregateInputType = {
   phoneE164?: true
   taxCode?: true
   emailVerified?: true
+  isBlocked?: true
   role?: true
   avatarUrl?: true
   createdAt?: true
@@ -119,6 +124,7 @@ export type UserCountAggregateInputType = {
   phoneE164?: true
   taxCode?: true
   emailVerified?: true
+  isBlocked?: true
   role?: true
   avatarUrl?: true
   createdAt?: true
@@ -209,6 +215,7 @@ export type UserGroupByOutputType = {
   phoneE164: string
   taxCode: string | null
   emailVerified: boolean
+  isBlocked: boolean
   role: $Enums.Role
   avatarUrl: string | null
   createdAt: Date
@@ -247,6 +254,7 @@ export type UserWhereInput = {
   phoneE164?: Prisma.StringFilter<"User"> | string
   taxCode?: Prisma.StringNullableFilter<"User"> | string | null
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
+  isBlocked?: Prisma.BoolFilter<"User"> | boolean
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -268,6 +276,7 @@ export type UserOrderByWithRelationInput = {
   phoneE164?: Prisma.SortOrder
   taxCode?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
+  isBlocked?: Prisma.SortOrder
   role?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -295,6 +304,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   fullName?: Prisma.StringFilter<"User"> | string
   taxCode?: Prisma.StringNullableFilter<"User"> | string | null
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
+  isBlocked?: Prisma.BoolFilter<"User"> | boolean
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -314,6 +324,7 @@ export type UserOrderByWithAggregationInput = {
   phoneE164?: Prisma.SortOrder
   taxCode?: Prisma.SortOrderInput | Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
+  isBlocked?: Prisma.SortOrder
   role?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -337,6 +348,7 @@ export type UserScalarWhereWithAggregatesInput = {
   phoneE164?: Prisma.StringWithAggregatesFilter<"User"> | string
   taxCode?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   emailVerified?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  isBlocked?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   role?: Prisma.EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -354,6 +366,7 @@ export type UserCreateInput = {
   phoneE164: string
   taxCode?: string | null
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: $Enums.Role
   avatarUrl?: string | null
   createdAt?: Date | string
@@ -373,6 +386,7 @@ export type UserUncheckedCreateInput = {
   phoneE164: string
   taxCode?: string | null
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: $Enums.Role
   avatarUrl?: string | null
   createdAt?: Date | string
@@ -392,6 +406,7 @@ export type UserUpdateInput = {
   phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
   taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -411,6 +426,7 @@ export type UserUncheckedUpdateInput = {
   phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
   taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -430,6 +446,7 @@ export type UserCreateManyInput = {
   phoneE164: string
   taxCode?: string | null
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: $Enums.Role
   avatarUrl?: string | null
   createdAt?: Date | string
@@ -447,6 +464,7 @@ export type UserUpdateManyMutationInput = {
   phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
   taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -462,6 +480,7 @@ export type UserUncheckedUpdateManyInput = {
   phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
   taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -485,6 +504,7 @@ export type UserCountOrderByAggregateInput = {
   phoneE164?: Prisma.SortOrder
   taxCode?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
+  isBlocked?: Prisma.SortOrder
   role?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -502,6 +522,7 @@ export type UserMaxOrderByAggregateInput = {
   phoneE164?: Prisma.SortOrder
   taxCode?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
+  isBlocked?: Prisma.SortOrder
   role?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -519,6 +540,7 @@ export type UserMinOrderByAggregateInput = {
   phoneE164?: Prisma.SortOrder
   taxCode?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
+  isBlocked?: Prisma.SortOrder
   role?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -687,6 +709,7 @@ export type UserCreateWithoutShippingAddressInput = {
   phoneE164: string
   taxCode?: string | null
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: $Enums.Role
   avatarUrl?: string | null
   createdAt?: Date | string
@@ -705,6 +728,7 @@ export type UserUncheckedCreateWithoutShippingAddressInput = {
   phoneE164: string
   taxCode?: string | null
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: $Enums.Role
   avatarUrl?: string | null
   createdAt?: Date | string
@@ -733,6 +757,7 @@ export type UserCreateWithoutBillingAddressInput = {
   phoneE164: string
   taxCode?: string | null
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: $Enums.Role
   avatarUrl?: string | null
   createdAt?: Date | string
@@ -751,6 +776,7 @@ export type UserUncheckedCreateWithoutBillingAddressInput = {
   phoneE164: string
   taxCode?: string | null
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: $Enums.Role
   avatarUrl?: string | null
   createdAt?: Date | string
@@ -798,6 +824,7 @@ export type UserScalarWhereInput = {
   phoneE164?: Prisma.StringFilter<"User"> | string
   taxCode?: Prisma.StringNullableFilter<"User"> | string | null
   emailVerified?: Prisma.BoolFilter<"User"> | boolean
+  isBlocked?: Prisma.BoolFilter<"User"> | boolean
   role?: Prisma.EnumRoleFilter<"User"> | $Enums.Role
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -831,6 +858,7 @@ export type UserCreateWithoutOrdersInput = {
   phoneE164: string
   taxCode?: string | null
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: $Enums.Role
   avatarUrl?: string | null
   createdAt?: Date | string
@@ -849,6 +877,7 @@ export type UserUncheckedCreateWithoutOrdersInput = {
   phoneE164: string
   taxCode?: string | null
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: $Enums.Role
   avatarUrl?: string | null
   createdAt?: Date | string
@@ -883,6 +912,7 @@ export type UserUpdateWithoutOrdersInput = {
   phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
   taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -901,6 +931,7 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
   taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -919,6 +950,7 @@ export type UserCreateWithoutReviewInput = {
   phoneE164: string
   taxCode?: string | null
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: $Enums.Role
   avatarUrl?: string | null
   createdAt?: Date | string
@@ -937,6 +969,7 @@ export type UserUncheckedCreateWithoutReviewInput = {
   phoneE164: string
   taxCode?: string | null
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: $Enums.Role
   avatarUrl?: string | null
   createdAt?: Date | string
@@ -971,6 +1004,7 @@ export type UserUpdateWithoutReviewInput = {
   phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
   taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -989,6 +1023,7 @@ export type UserUncheckedUpdateWithoutReviewInput = {
   phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
   taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1007,6 +1042,7 @@ export type UserCreateManyShippingAddressInput = {
   phoneE164: string
   taxCode?: string | null
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: $Enums.Role
   avatarUrl?: string | null
   createdAt?: Date | string
@@ -1023,6 +1059,7 @@ export type UserCreateManyBillingAddressInput = {
   phoneE164: string
   taxCode?: string | null
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: $Enums.Role
   avatarUrl?: string | null
   createdAt?: Date | string
@@ -1039,6 +1076,7 @@ export type UserUpdateWithoutShippingAddressInput = {
   phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
   taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1057,6 +1095,7 @@ export type UserUncheckedUpdateWithoutShippingAddressInput = {
   phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
   taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1075,6 +1114,7 @@ export type UserUncheckedUpdateManyWithoutShippingAddressInput = {
   phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
   taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1091,6 +1131,7 @@ export type UserUpdateWithoutBillingAddressInput = {
   phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
   taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1109,6 +1150,7 @@ export type UserUncheckedUpdateWithoutBillingAddressInput = {
   phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
   taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1127,6 +1169,7 @@ export type UserUncheckedUpdateManyWithoutBillingAddressInput = {
   phoneE164?: Prisma.StringFieldUpdateOperationsInput | string
   taxCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isBlocked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1183,6 +1226,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   phoneE164?: boolean
   taxCode?: boolean
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: boolean
   avatarUrl?: boolean
   createdAt?: boolean
@@ -1207,6 +1251,7 @@ export type UserSelectScalar = {
   phoneE164?: boolean
   taxCode?: boolean
   emailVerified?: boolean
+  isBlocked?: boolean
   role?: boolean
   avatarUrl?: boolean
   createdAt?: boolean
@@ -1215,7 +1260,7 @@ export type UserSelectScalar = {
   billingAddressId?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "passwordHash" | "fullName" | "email" | "phoneE164" | "taxCode" | "emailVerified" | "role" | "avatarUrl" | "createdAt" | "updatedAt" | "shippingAddressId" | "billingAddressId", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "username" | "passwordHash" | "fullName" | "email" | "phoneE164" | "taxCode" | "emailVerified" | "isBlocked" | "role" | "avatarUrl" | "createdAt" | "updatedAt" | "shippingAddressId" | "billingAddressId", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   shippingAddress?: boolean | Prisma.AddressDefaultArgs<ExtArgs>
   billingAddress?: boolean | Prisma.User$billingAddressArgs<ExtArgs>
@@ -1241,6 +1286,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     phoneE164: string
     taxCode: string | null
     emailVerified: boolean
+    isBlocked: boolean
     role: $Enums.Role
     avatarUrl: string | null
     createdAt: Date
@@ -1628,6 +1674,7 @@ export interface UserFieldRefs {
   readonly phoneE164: Prisma.FieldRef<"User", 'String'>
   readonly taxCode: Prisma.FieldRef<"User", 'String'>
   readonly emailVerified: Prisma.FieldRef<"User", 'Boolean'>
+  readonly isBlocked: Prisma.FieldRef<"User", 'Boolean'>
   readonly role: Prisma.FieldRef<"User", 'Role'>
   readonly avatarUrl: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>

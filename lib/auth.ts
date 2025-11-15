@@ -2,6 +2,8 @@
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 import { z } from "zod";
+import type { Prisma, Role } from "@prisma/client";
+import { prisma, prismaSupportsUserBlockField } from "./prisma";
 
 /** Payload JWT (ký bằng jose trong login) */
 export const JwtPayloadSchema = z.object({
@@ -64,7 +66,10 @@ export async function verifyRequestUser(req: NextRequest): Promise<JwtPayload | 
     const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
     const parsed = JwtPayloadSchema.safeParse(payload);
     if (!parsed.success) return null;
-    return parsed.data;
+    const userRecord = await fetchUserRecord(parsed.data.sub);
+    if (!userRecord) return null;
+    if (userRecord.isBlocked) return null;
+    return { ...parsed.data, role: userRecord.role };
   } catch {
     return null;
   }
@@ -82,8 +87,12 @@ export async function verifyBearerAuth(req: NextRequest): Promise<JwtPayload> {
     const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
     const parsed = JwtPayloadSchema.safeParse(payload);
     if (!parsed.success) throw new UnauthorizedError();
-    return parsed.data;
-  } catch {
+    const userRecord = await fetchUserRecord(parsed.data.sub);
+    if (!userRecord) throw new UnauthorizedError();
+    if (userRecord.isBlocked) throw new ForbiddenError("ACCOUNT_BLOCKED");
+    return { ...parsed.data, role: userRecord.role };
+  } catch (error) {
+    if (error instanceof ForbiddenError) throw error;
     throw new UnauthorizedError();
   }
 }
@@ -92,4 +101,24 @@ export async function verifyBearerAuth(req: NextRequest): Promise<JwtPayload> {
 export function requireRole(user: JwtPayload, allowed: Array<"ADMIN" | "STAFF" | "USER">) {
   const role = user.role ?? "USER";
   if (!allowed.includes(role)) throw new ForbiddenError();
+}
+
+type ActiveUserRecord = { id: string; role: Role; isBlocked: boolean };
+
+async function fetchUserRecord(userId: string): Promise<ActiveUserRecord | null> {
+  if (!userId) return null;
+  const BASE_SELECT = { id: true, role: true } satisfies Prisma.UserSelect;
+  const select: Prisma.UserSelect = prismaSupportsUserBlockField
+    ? { ...BASE_SELECT, isBlocked: true }
+    : BASE_SELECT;
+  const record = await prisma.user.findUnique({
+    where: { id: userId },
+    select,
+  });
+  if (!record) return null;
+  return {
+    id: record.id,
+    role: record.role as Role,
+    isBlocked: prismaSupportsUserBlockField ? Boolean(record.isBlocked) : false,
+  };
 }

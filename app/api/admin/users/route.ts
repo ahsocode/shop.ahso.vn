@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import type { Prisma } from "@prisma/client";
-import { prisma } from "../../../../lib/prisma";
+import { prisma, prismaSupportsUserBlockField } from "../../../../lib/prisma";
 import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../lib/auth";
 
 const baseAddressSchema = z.object({
@@ -16,6 +16,31 @@ const baseAddressSchema = z.object({
 });
 const addressSchema = baseAddressSchema.optional();
 type AddressPayload = z.infer<typeof baseAddressSchema>;
+
+type AdminUserRow = {
+  id: string;
+  username: string;
+  fullName: string;
+  email: string;
+  phoneE164: string;
+  role: string;
+  createdAt: Date;
+  isBlocked: boolean;
+};
+
+const BASE_ADMIN_USER_SELECT = {
+  id: true,
+  username: true,
+  fullName: true,
+  email: true,
+  phoneE164: true,
+  role: true,
+  createdAt: true,
+} satisfies Prisma.UserSelect;
+
+const adminUserSelect: Prisma.UserSelect = prismaSupportsUserBlockField
+  ? { ...BASE_ADMIN_USER_SELECT, isBlocked: true }
+  : BASE_ADMIN_USER_SELECT;
 
 const createUserSchema = z.object({
   // Cho phép hoa/thường, server sẽ lưu lowercase
@@ -72,18 +97,22 @@ export async function GET(req: NextRequest) {
       { phoneE164: { contains: q } },
     ];
 
-    const [total, rows] = await Promise.all([
+    const [total, rawRows] = await Promise.all([
       prisma.user.count({ where }),
       prisma.user.findMany({
         where,
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * pageSize,
         take: pageSize,
-        select: { id: true, username: true, fullName: true, email: true, phoneE164: true, role: true, createdAt: true },
+        select: adminUserSelect,
       }),
     ]);
 
-    return NextResponse.json({ data: rows, meta: { total, page, pageSize } });
+    const rows: AdminUserRow[] = prismaSupportsUserBlockField
+      ? (rawRows as AdminUserRow[])
+      : (rawRows as Omit<AdminUserRow, "isBlocked">[]).map((row) => ({ ...row, isBlocked: false }));
+
+    return NextResponse.json({ data: rows, meta: { total, page, pageSize, blockable: prismaSupportsUserBlockField } });
   } catch (e) {
     if (e instanceof UnauthorizedError || e instanceof ForbiddenError) {
       return NextResponse.json({ error: e.message }, { status: e.status });
@@ -143,7 +172,7 @@ export async function POST(req: NextRequest) {
         billingAddrId = billAddr.id;
       }
 
-      return tx.user.create({
+      const created = await tx.user.create({
         data: {
           username,
           passwordHash,
@@ -155,11 +184,17 @@ export async function POST(req: NextRequest) {
           billingAddressId: billingAddrId,
           role: "USER",
         },
-        select: { id: true, username: true, fullName: true, email: true, phoneE164: true, role: true, createdAt: true },
+        select: adminUserSelect,
       });
+
+      return created;
     });
 
-    return NextResponse.json({ user }, { status: 201 });
+    const normalizedUser: AdminUserRow = prismaSupportsUserBlockField
+      ? (user as AdminUserRow)
+      : ({ ...(user as Omit<AdminUserRow, "isBlocked">), isBlocked: false } as AdminUserRow);
+
+    return NextResponse.json({ user: normalizedUser }, { status: 201 });
   } catch (e) {
     if (e instanceof UnauthorizedError || e instanceof ForbiddenError) {
       return NextResponse.json({ error: e.message }, { status: e.status });

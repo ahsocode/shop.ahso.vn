@@ -1,8 +1,11 @@
 "use client";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { AlertTriangle } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-type Row = { id: string; username: string; fullName: string; email: string; phoneE164: string; role: string; createdAt: string };
+type Row = { id: string; username: string; fullName: string; email: string; phoneE164: string; role: string; createdAt: string; isBlocked: boolean };
 
 export default function UsersAdminPage() {
   const [q, setQ] = useState("");
@@ -11,10 +14,12 @@ export default function UsersAdminPage() {
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<Row[]>([]);
   const [total, setTotal] = useState(0);
+  const [blockable, setBlockable] = useState(true);
 
   const params = useMemo(() => {
     const p = new URLSearchParams();
     if (q) p.set("q", q);
+    p.set("role", "USER");
     p.set("page", String(page));
     p.set("pageSize", String(pageSize));
     return p.toString();
@@ -31,6 +36,7 @@ export default function UsersAdminPage() {
         if (!aborted) {
           setRows(json.data || []);
           setTotal(json.meta?.total || 0);
+          setBlockable(json.meta?.blockable ?? true);
         }
       } finally {
         if (!aborted) setLoading(false);
@@ -44,6 +50,10 @@ export default function UsersAdminPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ username: "", password: "", fullName: "", email: "", phone: "" });
   const resetForm = () => setForm({ username: "", password: "", fullName: "", email: "", phone: "" });
+  const [pendingBlockId, setPendingBlockId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Row | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [blockConfirm, setBlockConfirm] = useState<{ row: Row; next: boolean } | null>(null);
 
   async function createUser(e: React.FormEvent) {
     e.preventDefault();
@@ -57,18 +67,68 @@ export default function UsersAdminPage() {
       setShowCreate(false);
       resetForm();
       setPage(1);
+      toast.success("Đã tạo người dùng mới");
     } else {
       const j = await r.json().catch(() => ({}));
-      alert(j.error || "Tạo người dùng thất bại");
+      toast.error(j.error || "Tạo người dùng thất bại");
     }
   }
 
-  async function remove(id: string) {
-    if (!confirm("Xóa người dùng này?")) return;
+  const requestRemove = (row: Row) => setDeleteTarget(row);
+
+  async function confirmRemove() {
+    if (!deleteTarget) return;
     const token = localStorage.getItem("token") || "";
-    const r = await fetch(`/api/admin/users/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
-    if (r.ok) setRows((s) => s.filter((x) => x.id !== id));
-    else alert("Xóa thất bại");
+    try {
+      setPendingDeleteId(deleteTarget.id);
+      const r = await fetch(`/api/admin/users/${deleteTarget.id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({}));
+        throw new Error(j.error || "Xóa thất bại");
+      }
+      setRows((s) => s.filter((x) => x.id !== deleteTarget.id));
+      toast.success(`Đã xóa ${deleteTarget.fullName || deleteTarget.username}`);
+      setDeleteTarget(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Không thể xóa người dùng";
+      toast.error(message);
+    } finally {
+      setPendingDeleteId(null);
+    }
+  }
+
+  const requestToggleBlock = (row: Row) => {
+    if (!blockable) {
+      toast.info("Tính năng khóa tài khoản đang được cập nhật. Vui lòng đồng bộ cơ sở dữ liệu (Prisma migrate + generate).");
+      return;
+    }
+    setBlockConfirm({ row, next: !row.isBlocked });
+  };
+
+  async function confirmToggleBlock() {
+    if (!blockConfirm) return;
+    const { row, next } = blockConfirm;
+    const token = localStorage.getItem("token") || "";
+    try {
+      setPendingBlockId(row.id);
+      const r = await fetch(`/api/admin/users/${row.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ isBlocked: next }),
+      });
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({}));
+        throw new Error(j.error || "Cập nhật trạng thái thất bại");
+      }
+      setRows((rows) => rows.map((current) => (current.id === row.id ? { ...current, isBlocked: next } : current)));
+      toast.success(next ? "Đã khóa tài khoản khách hàng" : "Đã mở khóa tài khoản");
+      setBlockConfirm(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Không thể cập nhật trạng thái tài khoản lúc này";
+      toast.error(message);
+    } finally {
+      setPendingBlockId(null);
+    }
   }
 
   const pages = Math.max(1, Math.ceil(total / pageSize));
@@ -86,6 +146,12 @@ export default function UsersAdminPage() {
           <span className="text-sm text-gray-600 self-center">Tổng: {total}</span>
         </div>
 
+        {!blockable && (
+          <div className="rounded-lg border border-yellow-300 bg-yellow-50 text-sm text-yellow-900 px-4 py-3">
+            Chức năng khóa/mở khóa tài khoản chưa khả dụng trên môi trường hiện tại. Vui lòng chạy <code className="font-mono">prisma migrate deploy</code> và <code className="font-mono">prisma generate</code> để đồng bộ.
+          </div>
+        )}
+
         <div className="rounded-lg border overflow-auto">
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50">
@@ -95,14 +161,15 @@ export default function UsersAdminPage() {
                 <th className="px-3 py-2 text-left">Email</th>
                 <th className="px-3 py-2 text-left">Điện thoại</th>
                 <th className="px-3 py-2">Vai trò</th>
+                <th className="px-3 py-2 text-center">Trạng thái</th>
                 <th className="px-3 py-2">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="px-3 py-6 text-center text-gray-500">Đang tải…</td></tr>
+                <tr><td colSpan={7} className="px-3 py-6 text-center text-gray-500">Đang tải…</td></tr>
               ) : rows.length === 0 ? (
-                <tr><td colSpan={6} className="px-3 py-6 text-center text-gray-500">Không có dữ liệu</td></tr>
+                <tr><td colSpan={7} className="px-3 py-6 text-center text-gray-500">Không có dữ liệu</td></tr>
               ) : (
                 rows.map((u) => (
                   <tr key={u.id} className="border-t">
@@ -112,7 +179,20 @@ export default function UsersAdminPage() {
                     <td className="px-3 py-2">{u.phoneE164}</td>
                     <td className="px-3 py-2 text-center">{u.role}</td>
                     <td className="px-3 py-2 text-center">
-                      <button onClick={() => remove(u.id)} className="text-red-600 hover:underline">Xóa</button>
+                      <span className={`inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${u.isBlocked ? "bg-red-50 text-red-700" : "bg-green-50 text-green-700"}`}>
+                        {u.isBlocked ? "Đã khóa" : "Hoạt động"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 text-center space-x-3">
+                      <button
+                        onClick={() => requestToggleBlock(u)}
+                        disabled={!blockable || pendingBlockId === u.id}
+                        className="text-blue-600 hover:underline disabled:opacity-50"
+                        title={blockable ? undefined : "Vui lòng đồng bộ Prisma để sử dụng chức năng này"}
+                      >
+                        {u.isBlocked ? "Mở khóa" : "Khóa"}
+                      </button>
+                      <button onClick={() => requestRemove(u)} className="text-red-600 hover:underline">Xóa</button>
                     </td>
                   </tr>
                 ))
@@ -148,6 +228,76 @@ export default function UsersAdminPage() {
           </div>
         )}
       </div>
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+              </div>
+              <DialogTitle>Xóa người dùng</DialogTitle>
+            </div>
+            <DialogDescription>
+              Bạn có chắc muốn xóa{" "}
+              <strong className="text-gray-900">{deleteTarget?.fullName || deleteTarget?.username}</strong>? Hành động này không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <button
+              type="button"
+              className="px-4 py-2 rounded-md border"
+              onClick={() => setDeleteTarget(null)}
+              disabled={pendingDeleteId === deleteTarget?.id}
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              className="px-4 py-2 rounded-md bg-red-600 text-white disabled:opacity-60"
+              onClick={confirmRemove}
+              disabled={pendingDeleteId === deleteTarget?.id}
+            >
+              Xóa
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!blockConfirm} onOpenChange={(open) => !open && setBlockConfirm(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100">
+                <AlertTriangle className="h-6 w-6 text-yellow-600" />
+              </div>
+              <DialogTitle>{blockConfirm?.next ? "Khóa tài khoản khách hàng" : "Mở khóa tài khoản"}</DialogTitle>
+            </div>
+            <DialogDescription>
+              {blockConfirm?.next
+                ? "Khách hàng sẽ không thể đăng nhập cho tới khi được mở khóa."
+                : "Sau khi mở khóa, khách hàng sẽ đăng nhập lại bình thường."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <button
+              type="button"
+              className="px-4 py-2 rounded-md border"
+              onClick={() => setBlockConfirm(null)}
+              disabled={pendingBlockId === blockConfirm?.row.id}
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              className="px-4 py-2 rounded-md bg-blue-600 text-white disabled:opacity-60"
+              onClick={confirmToggleBlock}
+              disabled={pendingBlockId === blockConfirm?.row.id}
+            >
+              {blockConfirm?.next ? "Khóa" : "Mở khóa"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminRoute>
   );
 }
