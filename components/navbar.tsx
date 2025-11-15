@@ -147,8 +147,8 @@ export function Navbar() {
     { href: "/about", label: "Về chúng tôi" },
     { href: "/policy", label: "Chính sách" },
     { href: "/contact", label: "Liên hệ" },
-    { href: "/solutions", label: "Giải pháp" },
-    { href: "/software", label: "Phần mềm" },
+    // { href: "/solutions", label: "Giải pháp" },
+    // { href: "/software", label: "Phần mềm" },
   ];
 
   return (
@@ -165,7 +165,7 @@ export function Navbar() {
               className="h-8 w-8 object-contain"
               priority
             />
-            <span>AHSO Industrial</span>
+            <span>AHSO Shop</span>
           </Link>
 
           {/* Desktop Nav */}
@@ -262,7 +262,7 @@ export function Navbar() {
                               onClick={() => setIsUserMenuOpen(false)}
                               className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                             >
-                              <ClipboardList className="h-4 w-4" /> Không gian Staff
+                              <ClipboardList className="h-4 w-4" /> Nhân viên
                             </Link>
                           )}
                           {user.role === "ADMIN" && (
@@ -328,7 +328,7 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
-            <Link
+            {/* <Link
               href="/solutions"
               onClick={() => setIsMenuOpen(false)}
               className={`block px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${
@@ -349,7 +349,7 @@ export function Navbar() {
               }`}
             >
               Phần mềm & Dịch vụ
-            </Link>
+            </Link> */}
 
             {hydrated && user ? (
               <>
