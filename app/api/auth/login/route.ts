@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
+import { prisma, prismaSupportsUserBlockField } from "@/lib/prisma";
 
 const loginSchema = z.object({
   identifier: z.string().optional(), // Support cả username/email/phone
@@ -172,6 +172,14 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "INVALID_CREDENTIALS" },
         { status: 401 }
+      );
+    }
+
+    const isBlocked = prismaSupportsUserBlockField ? Boolean(user.isBlocked) : false;
+    if (isBlocked) {
+      return NextResponse.json(
+        { error: "ACCOUNT_BLOCKED" },
+        { status: 403 }
       );
     }
 

@@ -98,6 +98,8 @@ function LoginClient() {
         const msg =
           data?.error === "INVALID_CREDENTIALS"
             ? "Tên đăng nhập/email hoặc mật khẩu không đúng"
+            : data?.error === "ACCOUNT_BLOCKED"
+            ? "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ"
             : data?.error === "VALIDATION_ERROR"
             ? "Vui lòng kiểm tra lại thông tin đăng nhập"
             : data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại!";

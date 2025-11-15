@@ -1,6 +1,7 @@
 "use client";
 
 import { Share2 } from "lucide-react";
+import { toast } from "sonner";
 
 type Props = {
   title: string;
@@ -14,12 +15,13 @@ export default function ShareButton({ title, summary, url, className }: Props) {
     try {
       if (navigator.share) {
         await navigator.share({ title, text: summary ?? title, url });
+        toast.success("Đã chia sẻ liên kết thành công");
       } else {
         await navigator.clipboard.writeText(url);
-        alert("Đã copy liên kết!");
+        toast.success("Đã sao chép liên kết vào clipboard");
       }
     } catch {
-      // ignore
+      toast.error("Không thể chia sẻ liên kết. Vui lòng thử lại sau.");
     }
   };
 

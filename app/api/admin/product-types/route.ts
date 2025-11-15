@@ -33,14 +33,26 @@ export async function GET(req: NextRequest) {
         orderBy: { name: "asc" },
         skip, take,
         select: {
-          id: true, slug: true, name: true,
-          categoryId: true, coverImage: true, description: true,
+          id: true,
+          slug: true,
+          name: true,
+          categoryId: true,
+          coverImage: true,
+          description: true,
           productCount: true,
+          createdAt: true,
+          updatedAt: true,
+          category: { select: { name: true } },
         },
       }),
     ]);
 
-    return jsonOk({ data, meta: { total, page, pageSize } });
+    const mapped = data.map(({ category, ...rest }) => ({
+      ...rest,
+      categoryName: category?.name ?? "",
+    }));
+
+    return jsonOk({ data: mapped, meta: { total, page, pageSize } });
   } catch (error) {
     const err = toHttpError(error);
     return jsonError(err.message || "Internal Error", err.status || 500);

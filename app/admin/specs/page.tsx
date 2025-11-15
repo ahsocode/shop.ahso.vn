@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getJSON, postJSON, del } from "../_lib/fetcher";
+import { getJSON, postJSON, del, patchJSON } from "../_lib/fetcher";
 
 type Row = { id: string; name: string; slug: string; };
 type ListResp = { data: Row[]; meta: { total: number; page: number; pageSize: number } };
@@ -12,6 +12,8 @@ export default function SpecsPage() {
   const [rows, setRows] = useState<Row[]>([]); const [total, setTotal] = useState(0);
   const [form, setForm] = useState({ name: "", slug: "" });
   const [reloadToken, setReloadToken] = useState(0);
+  const [editing, setEditing] = useState<Row | null>(null);
+  const [editForm, setEditForm] = useState({ name: "", slug: "" });
 
   const triggerReload = () => setReloadToken((token) => token + 1);
 
@@ -30,6 +32,11 @@ export default function SpecsPage() {
     fetchSpecs();
     return () => { ignore = true; };
   }, [page, pageSize, searchQuery, reloadToken]);
+
+  const openEdit = (row: Row) => {
+    setEditing(row);
+    setEditForm({ name: row.name, slug: row.slug });
+  };
 
   const handleSearch = () => {
     const term = keyword.trim();
@@ -61,7 +68,8 @@ export default function SpecsPage() {
               <tr key={r.id} className="border-t">
                 <td className="px-3 py-2">{r.name}</td>
                 <td className="px-3 py-2 text-gray-500">{r.slug}</td>
-                <td className="px-3 py-2 text-right">
+                <td className="px-3 py-2 text-right space-x-3">
+                  <button onClick={()=>openEdit(r)} className="text-blue-600 hover:underline">Sửa</button>
                   <button onClick={async()=>{ await del(`/api/admin/spec-defs/${r.id}`); triggerReload(); }} className="text-red-600">Xóa</button>
                 </td>
               </tr>
@@ -82,6 +90,31 @@ export default function SpecsPage() {
           setForm({ name:"", slug:"" }); triggerReload();
         }} className="px-3 py-2 rounded bg-green-600 text-white">Tạo</button>
       </div>
+      {editing && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-md space-y-4 p-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-lg">Chỉnh sửa thông số</h2>
+              <button onClick={()=>setEditing(null)} className="text-sm text-gray-500 hover:text-gray-700">Đóng</button>
+            </div>
+            <input className="border rounded px-3 py-2" value={editForm.name} onChange={(e)=>setEditForm({...editForm, name:e.target.value})} placeholder="Tên" />
+            <input className="border rounded px-3 py-2" value={editForm.slug} onChange={(e)=>setEditForm({...editForm, slug:e.target.value})} placeholder="Slug" />
+            <div className="flex justify-end gap-2">
+              <button onClick={()=>setEditing(null)} className="px-3 py-2 rounded border">Hủy</button>
+              <button
+                onClick={async()=>{
+                  await patchJSON(`/api/admin/spec-defs/${editing.id}`, { name: editForm.name, slug: editForm.slug || undefined });
+                  setEditing(null);
+                  triggerReload();
+                }}
+                className="px-3 py-2 rounded bg-blue-600 text-white"
+              >
+                Lưu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

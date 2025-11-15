@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import type { Prisma } from "@prisma/client";
-import { prisma } from "../../../../../lib/prisma";
+import { prisma, prismaSupportsUserBlockField } from "../../../../../lib/prisma";
 import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../../lib/auth";
 
 const createStaffSchema = z.object({
@@ -12,6 +12,31 @@ const createStaffSchema = z.object({
   password: z.string().min(8),
   fullName: z.string().min(1).max(128),
 });
+
+type StaffRow = {
+  id: string;
+  username: string;
+  fullName: string;
+  email: string;
+  phoneE164: string;
+  role: string;
+  createdAt: Date;
+  isBlocked: boolean;
+};
+
+const BASE_STAFF_SELECT = {
+  id: true,
+  username: true,
+  fullName: true,
+  email: true,
+  phoneE164: true,
+  role: true,
+  createdAt: true,
+} satisfies Prisma.UserSelect;
+
+const staffSelect: Prisma.UserSelect = prismaSupportsUserBlockField
+  ? { ...BASE_STAFF_SELECT, isBlocked: true }
+  : BASE_STAFF_SELECT;
 
 function toInt(v: string | null, def = 1) {
   const n = v ? Number(v) : NaN;
@@ -36,12 +61,22 @@ export async function GET(req: NextRequest) {
       { phoneE164: { contains: q } },
     ];
 
-    const [total, rows] = await Promise.all([
+    const [total, rawRows] = await Promise.all([
       prisma.user.count({ where }),
-      prisma.user.findMany({ where, orderBy: { createdAt: "desc" }, skip: (page - 1) * pageSize, take: pageSize, select: { id: true, username: true, fullName: true, email: true, phoneE164: true, role: true, createdAt: true } }),
+      prisma.user.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: staffSelect,
+      }),
     ]);
 
-    return NextResponse.json({ data: rows, meta: { total, page, pageSize } });
+    const rows: StaffRow[] = prismaSupportsUserBlockField
+      ? (rawRows as StaffRow[])
+      : (rawRows as Omit<StaffRow, "isBlocked">[]).map((row) => ({ ...row, isBlocked: false }));
+
+    return NextResponse.json({ data: rows, meta: { total, page, pageSize, blockable: prismaSupportsUserBlockField } });
   } catch (e) {
     if (e instanceof UnauthorizedError || e instanceof ForbiddenError) {
       return NextResponse.json({ error: e.message }, { status: e.status });
@@ -82,7 +117,7 @@ export async function POST(req: NextRequest) {
 
     const user = await prisma.$transaction(async (tx) => {
       const addr = await tx.address.create({ data: { line1: "Auto Staff", city: "HCM", country: "VN" } });
-      return tx.user.create({
+      const created = await tx.user.create({
         data: {
           username,
           passwordHash,
@@ -93,11 +128,16 @@ export async function POST(req: NextRequest) {
           billingAddressId: addr.id,
           role: "STAFF",
         },
-        select: { id: true, username: true, fullName: true, email: true, phoneE164: true, role: true, createdAt: true },
+        select: staffSelect,
       });
+      return created;
     });
 
-    return NextResponse.json({ user }, { status: 201 });
+    const normalized: StaffRow = prismaSupportsUserBlockField
+      ? (user as StaffRow)
+      : ({ ...(user as Omit<StaffRow, "isBlocked">), isBlocked: false } as StaffRow);
+
+    return NextResponse.json({ user: normalized }, { status: 201 });
   } catch (e) {
     if (e instanceof UnauthorizedError || e instanceof ForbiddenError) {
       return NextResponse.json({ error: e.message }, { status: e.status });

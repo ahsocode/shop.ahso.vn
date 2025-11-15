@@ -28,7 +28,8 @@ export async function GET(req: NextRequest) {
       prisma.productCategory.findMany({
         where,
         orderBy: { name: "asc" },
-        skip, take,
+        skip,
+        take,
         select: {
           id: true,
           slug: true,
@@ -36,6 +37,8 @@ export async function GET(req: NextRequest) {
           coverImage: true,
           description: true,
           productCount: true,
+          createdAt: true,
+          updatedAt: true,
         },
       }),
     ]);
