@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { Home, ArrowLeft, ShoppingCart, Star, StarHalf } from "lucide-react";
 import AddToCartClient from "./AddToCartClient";
+import { buildMetadata } from "@/lib/metadata";
 
 export const revalidate = 60;
 
@@ -82,12 +83,31 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const p = await getProduct(slug);
-  if (!p) return { title: "Sản phẩm - Không tìm thấy" };
-  return {
-    title: p.metaTitle || `${p.name}${p.brand ? ` | ${p.brand.name}` : ""}`,
-    description: p.metaDescription || p.description || "",
-    openGraph: { title: p.name, images: [{ url: p.coverImage || "/logo.png" }] },
-  };
+  if (!p) {
+    return buildMetadata({
+      title: "Sản phẩm không tồn tại",
+      description: "Không tìm thấy sản phẩm bạn yêu cầu trên AHSO Shop.",
+      path: `/shop/products/${slug}`,
+    });
+  }
+
+  const title = p.metaTitle || `${p.name}${p.brand ? ` | ${p.brand.name}` : ""}`;
+  const description = p.metaDescription || p.description || "";
+  const image = p.coverImage || p.images[0]?.url || "/logo.png";
+  const keywords = [
+    p.name,
+    p.brand?.name,
+    p.sku,
+    p.categoryLinks[0]?.category.name,
+  ].filter(Boolean) as string[];
+
+  return buildMetadata({
+    title,
+    description,
+    path: `/shop/products/${slug}`,
+    image,
+    keywords: keywords.length > 0 ? keywords : undefined,
+  });
 }
 
 /* ================== Helpers ================== */

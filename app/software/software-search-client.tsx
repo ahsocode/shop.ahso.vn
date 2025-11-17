@@ -6,23 +6,46 @@ import Link from "next/link";
 import Image from "next/image";
 import FilterLayout from "../shop/filterlayout";
 
+export type SoftwareCard = {
+  id: string;
+  slug: string;
+  title: string;
+  image?: string | null;
+  summary?: string | null;
+};
 
-type Software = { id: string; slug: string; title: string; image?: string | null; summary?: string | null };
-type Category = { id: string; slug: string; name: string };
+export type SoftwareCategoryOption = { id: string; slug: string; name: string };
 
-export default function SoftwareSearchClient() {
+type SoftwareSearchClientProps = {
+  initialData?: SoftwareCard[];
+  initialTotal?: number;
+  initialQuery?: { q?: string; category?: string; page?: number; pageSize?: number };
+  initialCategories?: SoftwareCategoryOption[];
+};
+
+export default function SoftwareSearchClient({
+  initialData = [],
+  initialTotal = 0,
+  initialQuery,
+  initialCategories = [],
+}: SoftwareSearchClientProps = {}) {
   const router = useRouter();
   const sp = useSearchParams();
 
-  const [q, setQ] = useState(sp.get("q") ?? "");
-  const [page, setPage] = useState(Number(sp.get("page") ?? "1"));
-  const [category, setCategory] = useState(sp.get("category") ?? "");
+  const defaultQ = sp.get("q") ?? initialQuery?.q ?? "";
+  const defaultCategory = sp.get("category") ?? initialQuery?.category ?? "";
+  const defaultPage = Number(sp.get("page") ?? initialQuery?.page ?? 1);
+  const pageSize = initialQuery?.pageSize ?? 12;
+
+  const [q, setQ] = useState(defaultQ);
+  const [page, setPage] = useState(defaultPage);
+  const [category, setCategory] = useState(defaultCategory);
 
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<Software[]>([]);
-  const [total, setTotal] = useState(0);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const pageSize = 12;
+  const [data, setData] = useState<SoftwareCard[]>(initialData);
+  const [total, setTotal] = useState(initialTotal);
+  const [categories, setCategories] =
+    useState<SoftwareCategoryOption[]>(initialCategories);
 
   const params = useMemo(() => {
     const p = new URLSearchParams();
@@ -31,7 +54,7 @@ export default function SoftwareSearchClient() {
     p.set("page", String(page));
     p.set("pageSize", String(pageSize));
     return p;
-  }, [q, category, page]);
+  }, [q, category, page, pageSize]);
 
   useEffect(() => {
     const url = `/api/software?${params.toString()}`;
@@ -62,15 +85,22 @@ export default function SoftwareSearchClient() {
     startTransition(() => setPage(1));
   }, [q, category]);
 
-  // Load categories once
+  // Load categories once if chưa có dữ liệu ban đầu
   useEffect(() => {
+    if (categories.length > 0) return;
     let aborted = false;
     fetch("/api/software/categories")
       .then((r) => r.json())
-      .then((json) => { if (!aborted) setCategories(json.data ?? []); })
-      .catch(() => { if (!aborted) setCategories([]); });
-    return () => { aborted = true; };
-  }, []);
+      .then((json) => {
+        if (!aborted) setCategories(json.data ?? []);
+      })
+      .catch(() => {
+        if (!aborted) setCategories([]);
+      });
+    return () => {
+      aborted = true;
+    };
+  }, [categories.length]);
 
   const pages = Math.max(1, Math.ceil(total / pageSize));
 

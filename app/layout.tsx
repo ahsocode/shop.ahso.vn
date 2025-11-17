@@ -4,6 +4,12 @@ import "./globals.css";
 import AppShell from "@/components/app-shell";
 import { Toaster } from "sonner";
 import { CartProvider } from "@/lib/hooks/useCart";
+import {
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TAGLINE,
+  SITE_URL,
+} from "@/lib/metadata";
 
 
 const geistSans = Geist({
@@ -17,11 +23,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AHSO Shop - Máy móc & Thiết bị Công nghiệp",
-  description:
-    "Cung cấp máy móc, thiết bị và linh kiện công nghiệp chất lượng cao",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} - ${SITE_TAGLINE}`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
   icons: {
     icon: "/logo.png",
+  },
+  openGraph: {
+    title: `${SITE_NAME} - ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    type: "website",
+    locale: "vi_VN",
+    images: [{ url: "/logo.png" }],
   },
 };
 
