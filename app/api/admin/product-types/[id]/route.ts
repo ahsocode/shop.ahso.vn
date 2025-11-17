@@ -17,12 +17,13 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
     const me = await verifyBearerAuth(req); requireRole(me, ["ADMIN"]);
     const { id } = await ctx.params;
 
-    const row = await prisma.productType.findUnique({
+    const row = await prisma.producttype.findUnique({
       where: { id },
-      include: { category: { select: { id: true, name: true, slug: true } } },
+      include: { productcategory: { select: { id: true, name: true, slug: true } } },
     });
     if (!row) return jsonError("Not Found", 404);
-    return jsonOk({ data: row });
+    const { productcategory, ...rest } = row;
+    return jsonOk({ data: { ...rest, category: productcategory } });
   } catch (error) {
     const err = toHttpError(error);
     return jsonError(err.message || "Internal Error", err.status || 500);
@@ -38,7 +39,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     const parsed = UpdateSchema.safeParse(body);
     if (!parsed.success) return jsonError("Validation Error", 400, { issues: parsed.error.issues });
 
-    const current = await prisma.productType.findUnique({ where: { id } });
+    const current = await prisma.producttype.findUnique({ where: { id } });
     if (!current) return jsonError("Not Found", 404);
 
     // Nếu đổi category hoặc slug, cần đảm bảo unique compound (categoryId, slug)
@@ -46,7 +47,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     const nextSlug = parsed.data.slug ?? current.slug;
 
     if (nextSlug !== current.slug || nextCategoryId !== current.categoryId) {
-      const dup = await prisma.productType.findUnique({
+      const dup = await prisma.producttype.findUnique({
         where: { categoryId_slug: { categoryId: nextCategoryId, slug: nextSlug } },
       });
       if (dup && dup.id !== id) return jsonError("Slug already exists in this category", 409);
@@ -54,11 +55,11 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
 
     // Nếu người dùng truyền categoryId mới, validate tồn tại
     if (parsed.data.categoryId) {
-      const cat = await prisma.productCategory.findUnique({ where: { id: parsed.data.categoryId } });
+      const cat = await prisma.productcategory.findUnique({ where: { id: parsed.data.categoryId } });
       if (!cat) return jsonError("categoryId not found", 400);
     }
 
-    const updated = await prisma.productType.update({
+    const updated = await prisma.producttype.update({
       where: { id },
       data: {
         ...parsed.data,
@@ -79,7 +80,7 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
     const me = await verifyBearerAuth(req); requireRole(me, ["ADMIN"]);
     const { id } = await ctx.params;
 
-    await prisma.productType.delete({ where: { id } });
+    await prisma.producttype.delete({ where: { id } });
     return jsonOk({ ok: true });
   } catch (error) {
     const err = toHttpError(error);

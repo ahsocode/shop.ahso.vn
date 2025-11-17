@@ -5,7 +5,7 @@ export const revalidate = 60;
 
 export async function GET() {
   try {
-    const rows = await prisma.softwareCategory.findMany({
+    const rows = await prisma.softwarecategory.findMany({
       where: { isActive: true },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
       select: { id: true, slug: true, name: true },
@@ -20,4 +20,3 @@ export async function GET() {
 export function OPTIONS() {
   return NextResponse.json(null, { status: 204 });
 }
-

@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
@@ -8,7 +9,7 @@ export async function GET(req: Request) {
 
   const where = q ? { OR: [{ name: { contains: q } }, { slug: { contains: q } }] } : {};
 
-  const items = await prisma.productSpecDefinition.findMany({
+  const items = await prisma.productspecdefinition.findMany({
     where,
     orderBy: [{ name: "asc" }],
     select: { id: true, slug: true, name: true }
@@ -23,10 +24,14 @@ export async function POST(req: Request) {
 
   const slug = body.slug ? String(body.slug) : slugify(body.name);
 
-  const created = await prisma.productSpecDefinition.create({
+  const now = new Date();
+  const created = await prisma.productspecdefinition.create({
     data: {
+      id: randomUUID(),
       slug,
-      name: body.name
+      name: body.name,
+      createdAt: now,
+      updatedAt: now,
     }
   });
 

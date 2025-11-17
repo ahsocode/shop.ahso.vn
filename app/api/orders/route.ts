@@ -6,13 +6,13 @@ import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
-type OrderWithItems = Prisma.OrderGetPayload<{
-  include: { items: true };
+type OrderWithItems = Prisma.orderGetPayload<{
+  include: { orderitem: true };
 }>;
 
 export async function GET() {
   const rows: OrderWithItems[] = await prisma.order.findMany({
-    include: { items: true },
+    include: { orderitem: true },
     orderBy: { createdAt: "desc" },
     take: 50,
   });
@@ -36,7 +36,7 @@ export async function GET() {
 
         note: r.note ?? undefined,
       },
-      r.items.map((it) => ({
+      r.orderitem.map((it) => ({
         sku: it.sku,
         name: it.name,
         quantity: it.quantity,

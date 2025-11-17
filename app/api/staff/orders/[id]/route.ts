@@ -41,7 +41,7 @@ export async function PATCH(
       return jsonError("Dữ liệu không hợp lệ", 400, { issues: parsed.error.issues });
     }
 
-    const updates: Prisma.OrderUpdateInput = {};
+    const updates: Prisma.orderUpdateInput = {};
     const { status, note, shippingMethod } = parsed.data;
 
     if (status) updates.status = status;

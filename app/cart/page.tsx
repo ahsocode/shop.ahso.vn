@@ -32,6 +32,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useCart } from "@/lib/hooks/useCart";
 
 /* ================= Types ================= */
 export type CartItem = {
@@ -46,34 +47,6 @@ export type CartItem = {
   qty: number;
   stock?: number;
 };
-
-type ServerCart = {
-  id: string;
-  items: Array<{
-    id: string;
-    cartId: string;
-    productId: string | null;
-    productName: string | null;
-    productSku: string | null;
-    productSlug: string | null;
-    productImage: string | null;
-    unitLabel: string | null;
-    quantityLabel: string | null;
-    unitPrice: DecimalLike;
-    currency: string | null;
-    taxIncluded: boolean | null;
-    quantity: number;
-    lineTotal: DecimalLike;
-  }>;
-  subtotal?: DecimalLike;
-  discountTotal?: DecimalLike;
-  taxTotal?: DecimalLike;
-  shippingFee?: DecimalLike;
-  grandTotal?: DecimalLike;
-};
-
-type DecimalLike = number | string | null;
-type CartApiResponse = ServerCart | { cart?: ServerCart | null };
 
 const STORAGE_SELECTED = "cart:selected:v1";
 const VAT_RATE = 0.1;
@@ -92,9 +65,25 @@ const clamp = (v: number, min: number, max: number) =>
 /* ================= Component ================= */
 export default function CartPage() {
   const router = useRouter();
-  const [items, setItems] = useState<CartItem[]>([]);
+  const { items: contextItems, loading: cartLoading, refresh } = useCart();
+  type ContextCartItem = (typeof contextItems)[number];
+  const mapContextItems = useCallback(
+    (source: ContextCartItem[]): CartItem[] =>
+      source.map((it) => ({
+        id: it.id,
+        cartItemId: it.id,
+        productId: undefined,
+        sku: it.sku ?? undefined,
+        name: it.name,
+        price: it.price,
+        imgUrl: it.image ?? undefined,
+        slug: it.slug ?? "",
+        qty: it.qty,
+      })),
+    []
+  );
+  const [items, setItems] = useState<CartItem[]>(() => mapContextItems(contextItems));
   const [selected, setSelected] = useState<Record<string, boolean>>({});
-  const [loading, setLoading] = useState(true);
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
     itemId: string | null;
@@ -102,53 +91,6 @@ export default function CartPage() {
     isLastQty: boolean;
   }>({ open: false, itemId: null, itemName: "", isLastQty: false });
   const [clearCartDialog, setClearCartDialog] = useState(false);
-
-  // ---- fetch cart from server ----
-  const fetchCart = useCallback(async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("/api/cart", { cache: "no-store" });
-      if (!res.ok) {
-        setItems([]);
-        return;
-      }
-      const data: CartApiResponse = await res.json();
-      const cart: ServerCart | undefined =
-        "cart" in data ? data.cart ?? undefined : (data as ServerCart);
-      const rawItems: ServerCart["items"] = cart?.items ?? [];
-
-      const mapped: CartItem[] = rawItems.map((it) => ({
-        id: it.id,
-        cartItemId: it.id,
-        productId: it.productId || undefined,
-        sku: it.productSku || undefined,
-        name: it.productName || it.productSku || "",
-        price: Number(it.unitPrice || 0),
-        imgUrl: it.productImage || undefined,
-        slug: it.productSlug || "",
-        qty: Number(it.quantity || 1),
-      }));
-
-      setItems(mapped);
-
-      setSelected((prev) => {
-        const next = { ...prev };
-        let changed = false;
-        for (const it of mapped) {
-          if (next[it.id] == null) {
-            next[it.id] = true;
-            changed = true;
-          }
-        }
-        return changed ? next : prev;
-      });
-    } catch (error) {
-      console.error("Fetch cart error:", error);
-      setItems([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   useEffect(() => {
     try {
@@ -159,8 +101,25 @@ export default function CartPage() {
         setSelected(map);
       }
     } catch {}
-    void fetchCart();
-  }, [fetchCart]);
+  }, []);
+
+  useEffect(() => {
+    setItems(mapContextItems(contextItems));
+  }, [contextItems, mapContextItems]);
+
+  useEffect(() => {
+    setSelected((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      for (const it of items) {
+        if (next[it.id] == null) {
+          next[it.id] = true;
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [items]);
 
   useEffect(() => {
     try {
@@ -170,6 +129,8 @@ export default function CartPage() {
       localStorage.setItem(STORAGE_SELECTED, JSON.stringify(ids));
     } catch {}
   }, [selected]);
+
+  const loading = cartLoading && items.length === 0;
 
   // ---- derived values ----
   const selectedItems = useMemo(
@@ -243,11 +204,11 @@ export default function CartPage() {
         }
       }
 
-      await fetchCart();
+      await refresh();
     } catch (error) {
       const message = error instanceof Error ? error.message : null;
       toast.error(message ?? "Không thể cập nhật số lượng.");
-      await fetchCart();
+      await refresh();
     }
   };
 
@@ -264,11 +225,11 @@ export default function CartPage() {
         throw new Error(j?.error || "Xoá thất bại");
       }
       toast.success(`Đã xoá "${item.name}" khỏi giỏ hàng.`);
-      await fetchCart();
+      await refresh();
     } catch (error) {
       const message = error instanceof Error ? error.message : null;
       toast.error(message ?? "Không thể xoá sản phẩm.");
-      await fetchCart();
+      await refresh();
     }
   };
 
@@ -306,7 +267,7 @@ export default function CartPage() {
     } catch {
       toast.error("Không thể xoá một số sản phẩm.");
     } finally {
-      await fetchCart();
+      await refresh();
     }
   };
 

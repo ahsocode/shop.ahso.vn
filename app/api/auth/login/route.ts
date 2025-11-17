@@ -1,4 +1,5 @@
 // app/api/auth/login/route.ts
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
@@ -42,7 +43,7 @@ async function mergeGuestCartToUser(guestCartId: string, userId: string) {
   try {
     const guestCart = await prisma.cart.findUnique({
       where: { id: guestCartId },
-      include: { items: true },
+      include: { cartitem: true },
     });
 
     // Không merge nếu cart không tồn tại hoặc đã thuộc user khác
@@ -53,26 +54,32 @@ async function mergeGuestCartToUser(guestCartId: string, userId: string) {
     // Tìm hoặc tạo user cart
     let userCart = await prisma.cart.findFirst({
       where: { userId, status: "ACTIVE" },
-      include: { items: true },
+      include: { cartitem: true },
     });
 
     if (!userCart) {
       userCart = await prisma.cart.create({
-        data: { userId, status: "ACTIVE" },
-        include: { items: true },
+        data: {
+          id: randomUUID(),
+          userId,
+          status: "ACTIVE",
+          updatedAt: new Date(),
+        },
+        include: { cartitem: true },
       });
     }
+    userCart.cartitem = userCart.cartitem ?? [];
 
     // Merge items
-    for (const guestItem of guestCart.items) {
-      const existingUserItem = userCart.items.find(
+    for (const guestItem of guestCart.cartitem) {
+      const existingUserItem = userCart.cartitem.find(
         (ui) => ui.productId === guestItem.productId
       );
 
       if (existingUserItem) {
         // Cộng dồn số lượng
         const newQty = existingUserItem.quantity + guestItem.quantity;
-        await prisma.cartItem.update({
+        await prisma.cartitem.update({
           where: { id: existingUserItem.id },
           data: {
             quantity: newQty,
@@ -81,8 +88,9 @@ async function mergeGuestCartToUser(guestCartId: string, userId: string) {
         });
       } else {
         // Tạo item mới
-        await prisma.cartItem.create({
+        const createdItem = await prisma.cartitem.create({
           data: {
+            id: randomUUID(),
             cartId: userCart.id,
             productId: guestItem.productId,
             productName: guestItem.productName,
@@ -99,14 +107,15 @@ async function mergeGuestCartToUser(guestCartId: string, userId: string) {
             lineTotal: guestItem.lineTotal,
           },
         });
+        userCart.cartitem.push(createdItem);
       }
     }
 
     // Tính lại tổng
-    const updatedItems = await prisma.cartItem.findMany({
+    const updatedItems = await prisma.cartitem.findMany({
       where: { cartId: userCart.id },
     });
-    const subtotal = updatedItems.reduce((s, it) => s + Number(it.lineTotal || 0), 0);
+    const subtotal = updatedItems.reduce((sum: number, item) => sum + Number(item.lineTotal ?? 0), 0);
 
     await prisma.cart.update({
       where: { id: userCart.id },
@@ -141,7 +150,7 @@ export async function POST(req: Request) {
     const data = parsed.data;
     
     // Xác định where clause
-    let where: Prisma.UserWhereInput;
+    let where: Prisma.userWhereInput;
     if (data.identifier) {
       const id = data.identifier.toLowerCase();
       where = {

@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
@@ -32,13 +33,13 @@ export async function GET(req: NextRequest) {
           summary: true,
           createdAt: true,
           updatedAt: true,
-          _count: { select: { products: true } },
+          _count: { select: { product: true } },
         },
       }),
     ]);
     const data = rows.map(({ _count, ...rest }) => ({
       ...rest,
-      productCount: _count.products,
+      productCount: _count.product,
     }));
     return jsonOk({ data, meta: { total, page, pageSize } });
   } catch (error) {
@@ -61,8 +62,17 @@ export async function POST(req: NextRequest) {
     const exists = await prisma.brand.findUnique({ where: { slug: finalSlug } });
     if (exists) return jsonError("Slug already exists", 409);
 
+    const now = new Date();
     const created = await prisma.brand.create({
-      data: { name, slug: finalSlug, logoUrl: logoUrl ?? null, summary: summary ?? null },
+      data: {
+        id: randomUUID(),
+        name,
+        slug: finalSlug,
+        logoUrl: logoUrl ?? null,
+        summary: summary ?? null,
+        createdAt: now,
+        updatedAt: now,
+      },
     });
     return jsonOk({ data: created }, 201);
   } catch (error) {

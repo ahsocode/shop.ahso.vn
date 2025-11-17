@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck 
 /*
- * This file exports the `UnitDefinition` model and its related types.
+ * This file exports the `unitdefinition` model and its related types.
  *
  * 🟢 You can import this file directly.
  */
@@ -12,28 +12,28 @@ import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
 /**
- * Model UnitDefinition
+ * Model unitdefinition
  * 
  */
-export type UnitDefinitionModel = runtime.Types.Result.DefaultSelection<Prisma.$UnitDefinitionPayload>
+export type unitdefinitionModel = runtime.Types.Result.DefaultSelection<Prisma.$unitdefinitionPayload>
 
-export type AggregateUnitDefinition = {
-  _count: UnitDefinitionCountAggregateOutputType | null
-  _avg: UnitDefinitionAvgAggregateOutputType | null
-  _sum: UnitDefinitionSumAggregateOutputType | null
-  _min: UnitDefinitionMinAggregateOutputType | null
-  _max: UnitDefinitionMaxAggregateOutputType | null
+export type AggregateUnitdefinition = {
+  _count: UnitdefinitionCountAggregateOutputType | null
+  _avg: UnitdefinitionAvgAggregateOutputType | null
+  _sum: UnitdefinitionSumAggregateOutputType | null
+  _min: UnitdefinitionMinAggregateOutputType | null
+  _max: UnitdefinitionMaxAggregateOutputType | null
 }
 
-export type UnitDefinitionAvgAggregateOutputType = {
+export type UnitdefinitionAvgAggregateOutputType = {
   factorToBase: runtime.Decimal | null
 }
 
-export type UnitDefinitionSumAggregateOutputType = {
+export type UnitdefinitionSumAggregateOutputType = {
   factorToBase: runtime.Decimal | null
 }
 
-export type UnitDefinitionMinAggregateOutputType = {
+export type UnitdefinitionMinAggregateOutputType = {
   id: string | null
   name: string | null
   symbol: string | null
@@ -44,7 +44,7 @@ export type UnitDefinitionMinAggregateOutputType = {
   updatedAt: Date | null
 }
 
-export type UnitDefinitionMaxAggregateOutputType = {
+export type UnitdefinitionMaxAggregateOutputType = {
   id: string | null
   name: string | null
   symbol: string | null
@@ -55,7 +55,7 @@ export type UnitDefinitionMaxAggregateOutputType = {
   updatedAt: Date | null
 }
 
-export type UnitDefinitionCountAggregateOutputType = {
+export type UnitdefinitionCountAggregateOutputType = {
   id: number
   name: number
   symbol: number
@@ -68,15 +68,15 @@ export type UnitDefinitionCountAggregateOutputType = {
 }
 
 
-export type UnitDefinitionAvgAggregateInputType = {
+export type UnitdefinitionAvgAggregateInputType = {
   factorToBase?: true
 }
 
-export type UnitDefinitionSumAggregateInputType = {
+export type UnitdefinitionSumAggregateInputType = {
   factorToBase?: true
 }
 
-export type UnitDefinitionMinAggregateInputType = {
+export type UnitdefinitionMinAggregateInputType = {
   id?: true
   name?: true
   symbol?: true
@@ -87,7 +87,7 @@ export type UnitDefinitionMinAggregateInputType = {
   updatedAt?: true
 }
 
-export type UnitDefinitionMaxAggregateInputType = {
+export type UnitdefinitionMaxAggregateInputType = {
   id?: true
   name?: true
   symbol?: true
@@ -98,7 +98,7 @@ export type UnitDefinitionMaxAggregateInputType = {
   updatedAt?: true
 }
 
-export type UnitDefinitionCountAggregateInputType = {
+export type UnitdefinitionCountAggregateInputType = {
   id?: true
   name?: true
   symbol?: true
@@ -110,93 +110,93 @@ export type UnitDefinitionCountAggregateInputType = {
   _all?: true
 }
 
-export type UnitDefinitionAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type UnitdefinitionAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which UnitDefinition to aggregate.
+   * Filter which unitdefinition to aggregate.
    */
-  where?: Prisma.UnitDefinitionWhereInput
+  where?: Prisma.unitdefinitionWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of UnitDefinitions to fetch.
+   * Determine the order of unitdefinitions to fetch.
    */
-  orderBy?: Prisma.UnitDefinitionOrderByWithRelationInput | Prisma.UnitDefinitionOrderByWithRelationInput[]
+  orderBy?: Prisma.unitdefinitionOrderByWithRelationInput | Prisma.unitdefinitionOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
    * Sets the start position
    */
-  cursor?: Prisma.UnitDefinitionWhereUniqueInput
+  cursor?: Prisma.unitdefinitionWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` UnitDefinitions from the position of the cursor.
+   * Take `±n` unitdefinitions from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` UnitDefinitions.
+   * Skip the first `n` unitdefinitions.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Count returned UnitDefinitions
+   * Count returned unitdefinitions
   **/
-  _count?: true | UnitDefinitionCountAggregateInputType
+  _count?: true | UnitdefinitionCountAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to average
   **/
-  _avg?: UnitDefinitionAvgAggregateInputType
+  _avg?: UnitdefinitionAvgAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to sum
   **/
-  _sum?: UnitDefinitionSumAggregateInputType
+  _sum?: UnitdefinitionSumAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the minimum value
   **/
-  _min?: UnitDefinitionMinAggregateInputType
+  _min?: UnitdefinitionMinAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the maximum value
   **/
-  _max?: UnitDefinitionMaxAggregateInputType
+  _max?: UnitdefinitionMaxAggregateInputType
 }
 
-export type GetUnitDefinitionAggregateType<T extends UnitDefinitionAggregateArgs> = {
-      [P in keyof T & keyof AggregateUnitDefinition]: P extends '_count' | 'count'
+export type GetUnitdefinitionAggregateType<T extends UnitdefinitionAggregateArgs> = {
+      [P in keyof T & keyof AggregateUnitdefinition]: P extends '_count' | 'count'
     ? T[P] extends true
       ? number
-      : Prisma.GetScalarType<T[P], AggregateUnitDefinition[P]>
-    : Prisma.GetScalarType<T[P], AggregateUnitDefinition[P]>
+      : Prisma.GetScalarType<T[P], AggregateUnitdefinition[P]>
+    : Prisma.GetScalarType<T[P], AggregateUnitdefinition[P]>
 }
 
 
 
 
-export type UnitDefinitionGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.UnitDefinitionWhereInput
-  orderBy?: Prisma.UnitDefinitionOrderByWithAggregationInput | Prisma.UnitDefinitionOrderByWithAggregationInput[]
-  by: Prisma.UnitDefinitionScalarFieldEnum[] | Prisma.UnitDefinitionScalarFieldEnum
-  having?: Prisma.UnitDefinitionScalarWhereWithAggregatesInput
+export type unitdefinitionGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.unitdefinitionWhereInput
+  orderBy?: Prisma.unitdefinitionOrderByWithAggregationInput | Prisma.unitdefinitionOrderByWithAggregationInput[]
+  by: Prisma.UnitdefinitionScalarFieldEnum[] | Prisma.UnitdefinitionScalarFieldEnum
+  having?: Prisma.unitdefinitionScalarWhereWithAggregatesInput
   take?: number
   skip?: number
-  _count?: UnitDefinitionCountAggregateInputType | true
-  _avg?: UnitDefinitionAvgAggregateInputType
-  _sum?: UnitDefinitionSumAggregateInputType
-  _min?: UnitDefinitionMinAggregateInputType
-  _max?: UnitDefinitionMaxAggregateInputType
+  _count?: UnitdefinitionCountAggregateInputType | true
+  _avg?: UnitdefinitionAvgAggregateInputType
+  _sum?: UnitdefinitionSumAggregateInputType
+  _min?: UnitdefinitionMinAggregateInputType
+  _max?: UnitdefinitionMaxAggregateInputType
 }
 
-export type UnitDefinitionGroupByOutputType = {
+export type UnitdefinitionGroupByOutputType = {
   id: string
   name: string
   symbol: string | null
@@ -205,45 +205,45 @@ export type UnitDefinitionGroupByOutputType = {
   factorToBase: runtime.Decimal | null
   createdAt: Date
   updatedAt: Date
-  _count: UnitDefinitionCountAggregateOutputType | null
-  _avg: UnitDefinitionAvgAggregateOutputType | null
-  _sum: UnitDefinitionSumAggregateOutputType | null
-  _min: UnitDefinitionMinAggregateOutputType | null
-  _max: UnitDefinitionMaxAggregateOutputType | null
+  _count: UnitdefinitionCountAggregateOutputType | null
+  _avg: UnitdefinitionAvgAggregateOutputType | null
+  _sum: UnitdefinitionSumAggregateOutputType | null
+  _min: UnitdefinitionMinAggregateOutputType | null
+  _max: UnitdefinitionMaxAggregateOutputType | null
 }
 
-type GetUnitDefinitionGroupByPayload<T extends UnitDefinitionGroupByArgs> = Prisma.PrismaPromise<
+type GetUnitdefinitionGroupByPayload<T extends unitdefinitionGroupByArgs> = Prisma.PrismaPromise<
   Array<
-    Prisma.PickEnumerable<UnitDefinitionGroupByOutputType, T['by']> &
+    Prisma.PickEnumerable<UnitdefinitionGroupByOutputType, T['by']> &
       {
-        [P in ((keyof T) & (keyof UnitDefinitionGroupByOutputType))]: P extends '_count'
+        [P in ((keyof T) & (keyof UnitdefinitionGroupByOutputType))]: P extends '_count'
           ? T[P] extends boolean
             ? number
-            : Prisma.GetScalarType<T[P], UnitDefinitionGroupByOutputType[P]>
-          : Prisma.GetScalarType<T[P], UnitDefinitionGroupByOutputType[P]>
+            : Prisma.GetScalarType<T[P], UnitdefinitionGroupByOutputType[P]>
+          : Prisma.GetScalarType<T[P], UnitdefinitionGroupByOutputType[P]>
       }
     >
   >
 
 
 
-export type UnitDefinitionWhereInput = {
-  AND?: Prisma.UnitDefinitionWhereInput | Prisma.UnitDefinitionWhereInput[]
-  OR?: Prisma.UnitDefinitionWhereInput[]
-  NOT?: Prisma.UnitDefinitionWhereInput | Prisma.UnitDefinitionWhereInput[]
-  id?: Prisma.StringFilter<"UnitDefinition"> | string
-  name?: Prisma.StringFilter<"UnitDefinition"> | string
-  symbol?: Prisma.StringNullableFilter<"UnitDefinition"> | string | null
-  dimension?: Prisma.StringNullableFilter<"UnitDefinition"> | string | null
-  baseName?: Prisma.StringNullableFilter<"UnitDefinition"> | string | null
-  factorToBase?: Prisma.DecimalNullableFilter<"UnitDefinition"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  createdAt?: Prisma.DateTimeFilter<"UnitDefinition"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"UnitDefinition"> | Date | string
-  productsByUnit?: Prisma.ProductListRelationFilter
-  productsByQtyUnit?: Prisma.ProductListRelationFilter
+export type unitdefinitionWhereInput = {
+  AND?: Prisma.unitdefinitionWhereInput | Prisma.unitdefinitionWhereInput[]
+  OR?: Prisma.unitdefinitionWhereInput[]
+  NOT?: Prisma.unitdefinitionWhereInput | Prisma.unitdefinitionWhereInput[]
+  id?: Prisma.StringFilter<"unitdefinition"> | string
+  name?: Prisma.StringFilter<"unitdefinition"> | string
+  symbol?: Prisma.StringNullableFilter<"unitdefinition"> | string | null
+  dimension?: Prisma.StringNullableFilter<"unitdefinition"> | string | null
+  baseName?: Prisma.StringNullableFilter<"unitdefinition"> | string | null
+  factorToBase?: Prisma.DecimalNullableFilter<"unitdefinition"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFilter<"unitdefinition"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"unitdefinition"> | Date | string
+  product_product_quantityUnitIdTounitdefinition?: Prisma.ProductListRelationFilter
+  product_product_unitIdTounitdefinition?: Prisma.ProductListRelationFilter
 }
 
-export type UnitDefinitionOrderByWithRelationInput = {
+export type unitdefinitionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   symbol?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -252,28 +252,28 @@ export type UnitDefinitionOrderByWithRelationInput = {
   factorToBase?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  productsByUnit?: Prisma.ProductOrderByRelationAggregateInput
-  productsByQtyUnit?: Prisma.ProductOrderByRelationAggregateInput
-  _relevance?: Prisma.UnitDefinitionOrderByRelevanceInput
+  product_product_quantityUnitIdTounitdefinition?: Prisma.productOrderByRelationAggregateInput
+  product_product_unitIdTounitdefinition?: Prisma.productOrderByRelationAggregateInput
+  _relevance?: Prisma.unitdefinitionOrderByRelevanceInput
 }
 
-export type UnitDefinitionWhereUniqueInput = Prisma.AtLeast<{
+export type unitdefinitionWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   name?: string
-  AND?: Prisma.UnitDefinitionWhereInput | Prisma.UnitDefinitionWhereInput[]
-  OR?: Prisma.UnitDefinitionWhereInput[]
-  NOT?: Prisma.UnitDefinitionWhereInput | Prisma.UnitDefinitionWhereInput[]
-  symbol?: Prisma.StringNullableFilter<"UnitDefinition"> | string | null
-  dimension?: Prisma.StringNullableFilter<"UnitDefinition"> | string | null
-  baseName?: Prisma.StringNullableFilter<"UnitDefinition"> | string | null
-  factorToBase?: Prisma.DecimalNullableFilter<"UnitDefinition"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  createdAt?: Prisma.DateTimeFilter<"UnitDefinition"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"UnitDefinition"> | Date | string
-  productsByUnit?: Prisma.ProductListRelationFilter
-  productsByQtyUnit?: Prisma.ProductListRelationFilter
+  AND?: Prisma.unitdefinitionWhereInput | Prisma.unitdefinitionWhereInput[]
+  OR?: Prisma.unitdefinitionWhereInput[]
+  NOT?: Prisma.unitdefinitionWhereInput | Prisma.unitdefinitionWhereInput[]
+  symbol?: Prisma.StringNullableFilter<"unitdefinition"> | string | null
+  dimension?: Prisma.StringNullableFilter<"unitdefinition"> | string | null
+  baseName?: Prisma.StringNullableFilter<"unitdefinition"> | string | null
+  factorToBase?: Prisma.DecimalNullableFilter<"unitdefinition"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFilter<"unitdefinition"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"unitdefinition"> | Date | string
+  product_product_quantityUnitIdTounitdefinition?: Prisma.ProductListRelationFilter
+  product_product_unitIdTounitdefinition?: Prisma.ProductListRelationFilter
 }, "id" | "name">
 
-export type UnitDefinitionOrderByWithAggregationInput = {
+export type unitdefinitionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   symbol?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -282,54 +282,54 @@ export type UnitDefinitionOrderByWithAggregationInput = {
   factorToBase?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  _count?: Prisma.UnitDefinitionCountOrderByAggregateInput
-  _avg?: Prisma.UnitDefinitionAvgOrderByAggregateInput
-  _max?: Prisma.UnitDefinitionMaxOrderByAggregateInput
-  _min?: Prisma.UnitDefinitionMinOrderByAggregateInput
-  _sum?: Prisma.UnitDefinitionSumOrderByAggregateInput
+  _count?: Prisma.unitdefinitionCountOrderByAggregateInput
+  _avg?: Prisma.unitdefinitionAvgOrderByAggregateInput
+  _max?: Prisma.unitdefinitionMaxOrderByAggregateInput
+  _min?: Prisma.unitdefinitionMinOrderByAggregateInput
+  _sum?: Prisma.unitdefinitionSumOrderByAggregateInput
 }
 
-export type UnitDefinitionScalarWhereWithAggregatesInput = {
-  AND?: Prisma.UnitDefinitionScalarWhereWithAggregatesInput | Prisma.UnitDefinitionScalarWhereWithAggregatesInput[]
-  OR?: Prisma.UnitDefinitionScalarWhereWithAggregatesInput[]
-  NOT?: Prisma.UnitDefinitionScalarWhereWithAggregatesInput | Prisma.UnitDefinitionScalarWhereWithAggregatesInput[]
-  id?: Prisma.StringWithAggregatesFilter<"UnitDefinition"> | string
-  name?: Prisma.StringWithAggregatesFilter<"UnitDefinition"> | string
-  symbol?: Prisma.StringNullableWithAggregatesFilter<"UnitDefinition"> | string | null
-  dimension?: Prisma.StringNullableWithAggregatesFilter<"UnitDefinition"> | string | null
-  baseName?: Prisma.StringNullableWithAggregatesFilter<"UnitDefinition"> | string | null
-  factorToBase?: Prisma.DecimalNullableWithAggregatesFilter<"UnitDefinition"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  createdAt?: Prisma.DateTimeWithAggregatesFilter<"UnitDefinition"> | Date | string
-  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"UnitDefinition"> | Date | string
+export type unitdefinitionScalarWhereWithAggregatesInput = {
+  AND?: Prisma.unitdefinitionScalarWhereWithAggregatesInput | Prisma.unitdefinitionScalarWhereWithAggregatesInput[]
+  OR?: Prisma.unitdefinitionScalarWhereWithAggregatesInput[]
+  NOT?: Prisma.unitdefinitionScalarWhereWithAggregatesInput | Prisma.unitdefinitionScalarWhereWithAggregatesInput[]
+  id?: Prisma.StringWithAggregatesFilter<"unitdefinition"> | string
+  name?: Prisma.StringWithAggregatesFilter<"unitdefinition"> | string
+  symbol?: Prisma.StringNullableWithAggregatesFilter<"unitdefinition"> | string | null
+  dimension?: Prisma.StringNullableWithAggregatesFilter<"unitdefinition"> | string | null
+  baseName?: Prisma.StringNullableWithAggregatesFilter<"unitdefinition"> | string | null
+  factorToBase?: Prisma.DecimalNullableWithAggregatesFilter<"unitdefinition"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"unitdefinition"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"unitdefinition"> | Date | string
 }
 
-export type UnitDefinitionCreateInput = {
-  id?: string
+export type unitdefinitionCreateInput = {
+  id: string
   name: string
   symbol?: string | null
   dimension?: string | null
   baseName?: string | null
   factorToBase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
-  updatedAt?: Date | string
-  productsByUnit?: Prisma.ProductCreateNestedManyWithoutUnitInput
-  productsByQtyUnit?: Prisma.ProductCreateNestedManyWithoutQuantityUnitInput
+  updatedAt: Date | string
+  product_product_quantityUnitIdTounitdefinition?: Prisma.productCreateNestedManyWithoutUnitdefinition_product_quantityUnitIdTounitdefinitionInput
+  product_product_unitIdTounitdefinition?: Prisma.productCreateNestedManyWithoutUnitdefinition_product_unitIdTounitdefinitionInput
 }
 
-export type UnitDefinitionUncheckedCreateInput = {
-  id?: string
+export type unitdefinitionUncheckedCreateInput = {
+  id: string
   name: string
   symbol?: string | null
   dimension?: string | null
   baseName?: string | null
   factorToBase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
-  updatedAt?: Date | string
-  productsByUnit?: Prisma.ProductUncheckedCreateNestedManyWithoutUnitInput
-  productsByQtyUnit?: Prisma.ProductUncheckedCreateNestedManyWithoutQuantityUnitInput
+  updatedAt: Date | string
+  product_product_quantityUnitIdTounitdefinition?: Prisma.productUncheckedCreateNestedManyWithoutUnitdefinition_product_quantityUnitIdTounitdefinitionInput
+  product_product_unitIdTounitdefinition?: Prisma.productUncheckedCreateNestedManyWithoutUnitdefinition_product_unitIdTounitdefinitionInput
 }
 
-export type UnitDefinitionUpdateInput = {
+export type unitdefinitionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -338,11 +338,11 @@ export type UnitDefinitionUpdateInput = {
   factorToBase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  productsByUnit?: Prisma.ProductUpdateManyWithoutUnitNestedInput
-  productsByQtyUnit?: Prisma.ProductUpdateManyWithoutQuantityUnitNestedInput
+  product_product_quantityUnitIdTounitdefinition?: Prisma.productUpdateManyWithoutUnitdefinition_product_quantityUnitIdTounitdefinitionNestedInput
+  product_product_unitIdTounitdefinition?: Prisma.productUpdateManyWithoutUnitdefinition_product_unitIdTounitdefinitionNestedInput
 }
 
-export type UnitDefinitionUncheckedUpdateInput = {
+export type unitdefinitionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -351,22 +351,22 @@ export type UnitDefinitionUncheckedUpdateInput = {
   factorToBase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  productsByUnit?: Prisma.ProductUncheckedUpdateManyWithoutUnitNestedInput
-  productsByQtyUnit?: Prisma.ProductUncheckedUpdateManyWithoutQuantityUnitNestedInput
+  product_product_quantityUnitIdTounitdefinition?: Prisma.productUncheckedUpdateManyWithoutUnitdefinition_product_quantityUnitIdTounitdefinitionNestedInput
+  product_product_unitIdTounitdefinition?: Prisma.productUncheckedUpdateManyWithoutUnitdefinition_product_unitIdTounitdefinitionNestedInput
 }
 
-export type UnitDefinitionCreateManyInput = {
-  id?: string
+export type unitdefinitionCreateManyInput = {
+  id: string
   name: string
   symbol?: string | null
   dimension?: string | null
   baseName?: string | null
   factorToBase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
-  updatedAt?: Date | string
+  updatedAt: Date | string
 }
 
-export type UnitDefinitionUpdateManyMutationInput = {
+export type unitdefinitionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -377,7 +377,7 @@ export type UnitDefinitionUpdateManyMutationInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type UnitDefinitionUncheckedUpdateManyInput = {
+export type unitdefinitionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -388,13 +388,18 @@ export type UnitDefinitionUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type UnitDefinitionOrderByRelevanceInput = {
-  fields: Prisma.UnitDefinitionOrderByRelevanceFieldEnum | Prisma.UnitDefinitionOrderByRelevanceFieldEnum[]
+export type UnitdefinitionNullableScalarRelationFilter = {
+  is?: Prisma.unitdefinitionWhereInput | null
+  isNot?: Prisma.unitdefinitionWhereInput | null
+}
+
+export type unitdefinitionOrderByRelevanceInput = {
+  fields: Prisma.unitdefinitionOrderByRelevanceFieldEnum | Prisma.unitdefinitionOrderByRelevanceFieldEnum[]
   sort: Prisma.SortOrder
   search: string
 }
 
-export type UnitDefinitionCountOrderByAggregateInput = {
+export type unitdefinitionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   symbol?: Prisma.SortOrder
@@ -405,11 +410,11 @@ export type UnitDefinitionCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type UnitDefinitionAvgOrderByAggregateInput = {
+export type unitdefinitionAvgOrderByAggregateInput = {
   factorToBase?: Prisma.SortOrder
 }
 
-export type UnitDefinitionMaxOrderByAggregateInput = {
+export type unitdefinitionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   symbol?: Prisma.SortOrder
@@ -420,7 +425,7 @@ export type UnitDefinitionMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type UnitDefinitionMinOrderByAggregateInput = {
+export type unitdefinitionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   symbol?: Prisma.SortOrder
@@ -431,125 +436,112 @@ export type UnitDefinitionMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type UnitDefinitionSumOrderByAggregateInput = {
+export type unitdefinitionSumOrderByAggregateInput = {
   factorToBase?: Prisma.SortOrder
 }
 
-export type UnitDefinitionNullableScalarRelationFilter = {
-  is?: Prisma.UnitDefinitionWhereInput | null
-  isNot?: Prisma.UnitDefinitionWhereInput | null
+export type unitdefinitionCreateNestedOneWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
+  create?: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
+  connectOrCreate?: Prisma.unitdefinitionCreateOrConnectWithoutProduct_product_quantityUnitIdTounitdefinitionInput
+  connect?: Prisma.unitdefinitionWhereUniqueInput
 }
 
-export type NullableDecimalFieldUpdateOperationsInput = {
-  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+export type unitdefinitionCreateNestedOneWithoutProduct_product_unitIdTounitdefinitionInput = {
+  create?: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_unitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_unitIdTounitdefinitionInput>
+  connectOrCreate?: Prisma.unitdefinitionCreateOrConnectWithoutProduct_product_unitIdTounitdefinitionInput
+  connect?: Prisma.unitdefinitionWhereUniqueInput
 }
 
-export type UnitDefinitionCreateNestedOneWithoutProductsByUnitInput = {
-  create?: Prisma.XOR<Prisma.UnitDefinitionCreateWithoutProductsByUnitInput, Prisma.UnitDefinitionUncheckedCreateWithoutProductsByUnitInput>
-  connectOrCreate?: Prisma.UnitDefinitionCreateOrConnectWithoutProductsByUnitInput
-  connect?: Prisma.UnitDefinitionWhereUniqueInput
+export type unitdefinitionUpdateOneWithoutProduct_product_quantityUnitIdTounitdefinitionNestedInput = {
+  create?: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
+  connectOrCreate?: Prisma.unitdefinitionCreateOrConnectWithoutProduct_product_quantityUnitIdTounitdefinitionInput
+  upsert?: Prisma.unitdefinitionUpsertWithoutProduct_product_quantityUnitIdTounitdefinitionInput
+  disconnect?: Prisma.unitdefinitionWhereInput | boolean
+  delete?: Prisma.unitdefinitionWhereInput | boolean
+  connect?: Prisma.unitdefinitionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.unitdefinitionUpdateToOneWithWhereWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>, Prisma.unitdefinitionUncheckedUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
 }
 
-export type UnitDefinitionCreateNestedOneWithoutProductsByQtyUnitInput = {
-  create?: Prisma.XOR<Prisma.UnitDefinitionCreateWithoutProductsByQtyUnitInput, Prisma.UnitDefinitionUncheckedCreateWithoutProductsByQtyUnitInput>
-  connectOrCreate?: Prisma.UnitDefinitionCreateOrConnectWithoutProductsByQtyUnitInput
-  connect?: Prisma.UnitDefinitionWhereUniqueInput
+export type unitdefinitionUpdateOneWithoutProduct_product_unitIdTounitdefinitionNestedInput = {
+  create?: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_unitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_unitIdTounitdefinitionInput>
+  connectOrCreate?: Prisma.unitdefinitionCreateOrConnectWithoutProduct_product_unitIdTounitdefinitionInput
+  upsert?: Prisma.unitdefinitionUpsertWithoutProduct_product_unitIdTounitdefinitionInput
+  disconnect?: Prisma.unitdefinitionWhereInput | boolean
+  delete?: Prisma.unitdefinitionWhereInput | boolean
+  connect?: Prisma.unitdefinitionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.unitdefinitionUpdateToOneWithWhereWithoutProduct_product_unitIdTounitdefinitionInput, Prisma.unitdefinitionUpdateWithoutProduct_product_unitIdTounitdefinitionInput>, Prisma.unitdefinitionUncheckedUpdateWithoutProduct_product_unitIdTounitdefinitionInput>
 }
 
-export type UnitDefinitionUpdateOneWithoutProductsByUnitNestedInput = {
-  create?: Prisma.XOR<Prisma.UnitDefinitionCreateWithoutProductsByUnitInput, Prisma.UnitDefinitionUncheckedCreateWithoutProductsByUnitInput>
-  connectOrCreate?: Prisma.UnitDefinitionCreateOrConnectWithoutProductsByUnitInput
-  upsert?: Prisma.UnitDefinitionUpsertWithoutProductsByUnitInput
-  disconnect?: Prisma.UnitDefinitionWhereInput | boolean
-  delete?: Prisma.UnitDefinitionWhereInput | boolean
-  connect?: Prisma.UnitDefinitionWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UnitDefinitionUpdateToOneWithWhereWithoutProductsByUnitInput, Prisma.UnitDefinitionUpdateWithoutProductsByUnitInput>, Prisma.UnitDefinitionUncheckedUpdateWithoutProductsByUnitInput>
-}
-
-export type UnitDefinitionUpdateOneWithoutProductsByQtyUnitNestedInput = {
-  create?: Prisma.XOR<Prisma.UnitDefinitionCreateWithoutProductsByQtyUnitInput, Prisma.UnitDefinitionUncheckedCreateWithoutProductsByQtyUnitInput>
-  connectOrCreate?: Prisma.UnitDefinitionCreateOrConnectWithoutProductsByQtyUnitInput
-  upsert?: Prisma.UnitDefinitionUpsertWithoutProductsByQtyUnitInput
-  disconnect?: Prisma.UnitDefinitionWhereInput | boolean
-  delete?: Prisma.UnitDefinitionWhereInput | boolean
-  connect?: Prisma.UnitDefinitionWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UnitDefinitionUpdateToOneWithWhereWithoutProductsByQtyUnitInput, Prisma.UnitDefinitionUpdateWithoutProductsByQtyUnitInput>, Prisma.UnitDefinitionUncheckedUpdateWithoutProductsByQtyUnitInput>
-}
-
-export type UnitDefinitionCreateWithoutProductsByUnitInput = {
-  id?: string
+export type unitdefinitionCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
+  id: string
   name: string
   symbol?: string | null
   dimension?: string | null
   baseName?: string | null
   factorToBase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
-  updatedAt?: Date | string
-  productsByQtyUnit?: Prisma.ProductCreateNestedManyWithoutQuantityUnitInput
+  updatedAt: Date | string
+  product_product_unitIdTounitdefinition?: Prisma.productCreateNestedManyWithoutUnitdefinition_product_unitIdTounitdefinitionInput
 }
 
-export type UnitDefinitionUncheckedCreateWithoutProductsByUnitInput = {
-  id?: string
+export type unitdefinitionUncheckedCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
+  id: string
   name: string
   symbol?: string | null
   dimension?: string | null
   baseName?: string | null
   factorToBase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
-  updatedAt?: Date | string
-  productsByQtyUnit?: Prisma.ProductUncheckedCreateNestedManyWithoutQuantityUnitInput
+  updatedAt: Date | string
+  product_product_unitIdTounitdefinition?: Prisma.productUncheckedCreateNestedManyWithoutUnitdefinition_product_unitIdTounitdefinitionInput
 }
 
-export type UnitDefinitionCreateOrConnectWithoutProductsByUnitInput = {
-  where: Prisma.UnitDefinitionWhereUniqueInput
-  create: Prisma.XOR<Prisma.UnitDefinitionCreateWithoutProductsByUnitInput, Prisma.UnitDefinitionUncheckedCreateWithoutProductsByUnitInput>
+export type unitdefinitionCreateOrConnectWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
+  where: Prisma.unitdefinitionWhereUniqueInput
+  create: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
 }
 
-export type UnitDefinitionCreateWithoutProductsByQtyUnitInput = {
-  id?: string
+export type unitdefinitionCreateWithoutProduct_product_unitIdTounitdefinitionInput = {
+  id: string
   name: string
   symbol?: string | null
   dimension?: string | null
   baseName?: string | null
   factorToBase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
-  updatedAt?: Date | string
-  productsByUnit?: Prisma.ProductCreateNestedManyWithoutUnitInput
+  updatedAt: Date | string
+  product_product_quantityUnitIdTounitdefinition?: Prisma.productCreateNestedManyWithoutUnitdefinition_product_quantityUnitIdTounitdefinitionInput
 }
 
-export type UnitDefinitionUncheckedCreateWithoutProductsByQtyUnitInput = {
-  id?: string
+export type unitdefinitionUncheckedCreateWithoutProduct_product_unitIdTounitdefinitionInput = {
+  id: string
   name: string
   symbol?: string | null
   dimension?: string | null
   baseName?: string | null
   factorToBase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
-  updatedAt?: Date | string
-  productsByUnit?: Prisma.ProductUncheckedCreateNestedManyWithoutUnitInput
+  updatedAt: Date | string
+  product_product_quantityUnitIdTounitdefinition?: Prisma.productUncheckedCreateNestedManyWithoutUnitdefinition_product_quantityUnitIdTounitdefinitionInput
 }
 
-export type UnitDefinitionCreateOrConnectWithoutProductsByQtyUnitInput = {
-  where: Prisma.UnitDefinitionWhereUniqueInput
-  create: Prisma.XOR<Prisma.UnitDefinitionCreateWithoutProductsByQtyUnitInput, Prisma.UnitDefinitionUncheckedCreateWithoutProductsByQtyUnitInput>
+export type unitdefinitionCreateOrConnectWithoutProduct_product_unitIdTounitdefinitionInput = {
+  where: Prisma.unitdefinitionWhereUniqueInput
+  create: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_unitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_unitIdTounitdefinitionInput>
 }
 
-export type UnitDefinitionUpsertWithoutProductsByUnitInput = {
-  update: Prisma.XOR<Prisma.UnitDefinitionUpdateWithoutProductsByUnitInput, Prisma.UnitDefinitionUncheckedUpdateWithoutProductsByUnitInput>
-  create: Prisma.XOR<Prisma.UnitDefinitionCreateWithoutProductsByUnitInput, Prisma.UnitDefinitionUncheckedCreateWithoutProductsByUnitInput>
-  where?: Prisma.UnitDefinitionWhereInput
+export type unitdefinitionUpsertWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
+  update: Prisma.XOR<Prisma.unitdefinitionUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
+  create: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
+  where?: Prisma.unitdefinitionWhereInput
 }
 
-export type UnitDefinitionUpdateToOneWithWhereWithoutProductsByUnitInput = {
-  where?: Prisma.UnitDefinitionWhereInput
-  data: Prisma.XOR<Prisma.UnitDefinitionUpdateWithoutProductsByUnitInput, Prisma.UnitDefinitionUncheckedUpdateWithoutProductsByUnitInput>
+export type unitdefinitionUpdateToOneWithWhereWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
+  where?: Prisma.unitdefinitionWhereInput
+  data: Prisma.XOR<Prisma.unitdefinitionUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
 }
 
-export type UnitDefinitionUpdateWithoutProductsByUnitInput = {
+export type unitdefinitionUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -558,10 +550,10 @@ export type UnitDefinitionUpdateWithoutProductsByUnitInput = {
   factorToBase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  productsByQtyUnit?: Prisma.ProductUpdateManyWithoutQuantityUnitNestedInput
+  product_product_unitIdTounitdefinition?: Prisma.productUpdateManyWithoutUnitdefinition_product_unitIdTounitdefinitionNestedInput
 }
 
-export type UnitDefinitionUncheckedUpdateWithoutProductsByUnitInput = {
+export type unitdefinitionUncheckedUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -570,21 +562,21 @@ export type UnitDefinitionUncheckedUpdateWithoutProductsByUnitInput = {
   factorToBase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  productsByQtyUnit?: Prisma.ProductUncheckedUpdateManyWithoutQuantityUnitNestedInput
+  product_product_unitIdTounitdefinition?: Prisma.productUncheckedUpdateManyWithoutUnitdefinition_product_unitIdTounitdefinitionNestedInput
 }
 
-export type UnitDefinitionUpsertWithoutProductsByQtyUnitInput = {
-  update: Prisma.XOR<Prisma.UnitDefinitionUpdateWithoutProductsByQtyUnitInput, Prisma.UnitDefinitionUncheckedUpdateWithoutProductsByQtyUnitInput>
-  create: Prisma.XOR<Prisma.UnitDefinitionCreateWithoutProductsByQtyUnitInput, Prisma.UnitDefinitionUncheckedCreateWithoutProductsByQtyUnitInput>
-  where?: Prisma.UnitDefinitionWhereInput
+export type unitdefinitionUpsertWithoutProduct_product_unitIdTounitdefinitionInput = {
+  update: Prisma.XOR<Prisma.unitdefinitionUpdateWithoutProduct_product_unitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedUpdateWithoutProduct_product_unitIdTounitdefinitionInput>
+  create: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_unitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_unitIdTounitdefinitionInput>
+  where?: Prisma.unitdefinitionWhereInput
 }
 
-export type UnitDefinitionUpdateToOneWithWhereWithoutProductsByQtyUnitInput = {
-  where?: Prisma.UnitDefinitionWhereInput
-  data: Prisma.XOR<Prisma.UnitDefinitionUpdateWithoutProductsByQtyUnitInput, Prisma.UnitDefinitionUncheckedUpdateWithoutProductsByQtyUnitInput>
+export type unitdefinitionUpdateToOneWithWhereWithoutProduct_product_unitIdTounitdefinitionInput = {
+  where?: Prisma.unitdefinitionWhereInput
+  data: Prisma.XOR<Prisma.unitdefinitionUpdateWithoutProduct_product_unitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedUpdateWithoutProduct_product_unitIdTounitdefinitionInput>
 }
 
-export type UnitDefinitionUpdateWithoutProductsByQtyUnitInput = {
+export type unitdefinitionUpdateWithoutProduct_product_unitIdTounitdefinitionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -593,10 +585,10 @@ export type UnitDefinitionUpdateWithoutProductsByQtyUnitInput = {
   factorToBase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  productsByUnit?: Prisma.ProductUpdateManyWithoutUnitNestedInput
+  product_product_quantityUnitIdTounitdefinition?: Prisma.productUpdateManyWithoutUnitdefinition_product_quantityUnitIdTounitdefinitionNestedInput
 }
 
-export type UnitDefinitionUncheckedUpdateWithoutProductsByQtyUnitInput = {
+export type unitdefinitionUncheckedUpdateWithoutProduct_product_unitIdTounitdefinitionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -605,50 +597,50 @@ export type UnitDefinitionUncheckedUpdateWithoutProductsByQtyUnitInput = {
   factorToBase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  productsByUnit?: Prisma.ProductUncheckedUpdateManyWithoutUnitNestedInput
+  product_product_quantityUnitIdTounitdefinition?: Prisma.productUncheckedUpdateManyWithoutUnitdefinition_product_quantityUnitIdTounitdefinitionNestedInput
 }
 
 
 /**
- * Count Type UnitDefinitionCountOutputType
+ * Count Type UnitdefinitionCountOutputType
  */
 
-export type UnitDefinitionCountOutputType = {
-  productsByUnit: number
-  productsByQtyUnit: number
+export type UnitdefinitionCountOutputType = {
+  product_product_quantityUnitIdTounitdefinition: number
+  product_product_unitIdTounitdefinition: number
 }
 
-export type UnitDefinitionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  productsByUnit?: boolean | UnitDefinitionCountOutputTypeCountProductsByUnitArgs
-  productsByQtyUnit?: boolean | UnitDefinitionCountOutputTypeCountProductsByQtyUnitArgs
+export type UnitdefinitionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  product_product_quantityUnitIdTounitdefinition?: boolean | UnitdefinitionCountOutputTypeCountProduct_product_quantityUnitIdTounitdefinitionArgs
+  product_product_unitIdTounitdefinition?: boolean | UnitdefinitionCountOutputTypeCountProduct_product_unitIdTounitdefinitionArgs
 }
 
 /**
- * UnitDefinitionCountOutputType without action
+ * UnitdefinitionCountOutputType without action
  */
-export type UnitDefinitionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type UnitdefinitionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UnitDefinitionCountOutputType
+   * Select specific fields to fetch from the UnitdefinitionCountOutputType
    */
-  select?: Prisma.UnitDefinitionCountOutputTypeSelect<ExtArgs> | null
+  select?: Prisma.UnitdefinitionCountOutputTypeSelect<ExtArgs> | null
 }
 
 /**
- * UnitDefinitionCountOutputType without action
+ * UnitdefinitionCountOutputType without action
  */
-export type UnitDefinitionCountOutputTypeCountProductsByUnitArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProductWhereInput
+export type UnitdefinitionCountOutputTypeCountProduct_product_quantityUnitIdTounitdefinitionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.productWhereInput
 }
 
 /**
- * UnitDefinitionCountOutputType without action
+ * UnitdefinitionCountOutputType without action
  */
-export type UnitDefinitionCountOutputTypeCountProductsByQtyUnitArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProductWhereInput
+export type UnitdefinitionCountOutputTypeCountProduct_product_unitIdTounitdefinitionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.productWhereInput
 }
 
 
-export type UnitDefinitionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+export type unitdefinitionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   symbol?: boolean
@@ -657,14 +649,14 @@ export type UnitDefinitionSelect<ExtArgs extends runtime.Types.Extensions.Intern
   factorToBase?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  productsByUnit?: boolean | Prisma.UnitDefinition$productsByUnitArgs<ExtArgs>
-  productsByQtyUnit?: boolean | Prisma.UnitDefinition$productsByQtyUnitArgs<ExtArgs>
-  _count?: boolean | Prisma.UnitDefinitionCountOutputTypeDefaultArgs<ExtArgs>
-}, ExtArgs["result"]["unitDefinition"]>
+  product_product_quantityUnitIdTounitdefinition?: boolean | Prisma.unitdefinition$product_product_quantityUnitIdTounitdefinitionArgs<ExtArgs>
+  product_product_unitIdTounitdefinition?: boolean | Prisma.unitdefinition$product_product_unitIdTounitdefinitionArgs<ExtArgs>
+  _count?: boolean | Prisma.UnitdefinitionCountOutputTypeDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["unitdefinition"]>
 
 
 
-export type UnitDefinitionSelectScalar = {
+export type unitdefinitionSelectScalar = {
   id?: boolean
   name?: boolean
   symbol?: boolean
@@ -675,18 +667,18 @@ export type UnitDefinitionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UnitDefinitionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "symbol" | "dimension" | "baseName" | "factorToBase" | "createdAt" | "updatedAt", ExtArgs["result"]["unitDefinition"]>
-export type UnitDefinitionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  productsByUnit?: boolean | Prisma.UnitDefinition$productsByUnitArgs<ExtArgs>
-  productsByQtyUnit?: boolean | Prisma.UnitDefinition$productsByQtyUnitArgs<ExtArgs>
-  _count?: boolean | Prisma.UnitDefinitionCountOutputTypeDefaultArgs<ExtArgs>
+export type unitdefinitionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "symbol" | "dimension" | "baseName" | "factorToBase" | "createdAt" | "updatedAt", ExtArgs["result"]["unitdefinition"]>
+export type unitdefinitionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  product_product_quantityUnitIdTounitdefinition?: boolean | Prisma.unitdefinition$product_product_quantityUnitIdTounitdefinitionArgs<ExtArgs>
+  product_product_unitIdTounitdefinition?: boolean | Prisma.unitdefinition$product_product_unitIdTounitdefinitionArgs<ExtArgs>
+  _count?: boolean | Prisma.UnitdefinitionCountOutputTypeDefaultArgs<ExtArgs>
 }
 
-export type $UnitDefinitionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  name: "UnitDefinition"
+export type $unitdefinitionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  name: "unitdefinition"
   objects: {
-    productsByUnit: Prisma.$ProductPayload<ExtArgs>[]
-    productsByQtyUnit: Prisma.$ProductPayload<ExtArgs>[]
+    product_product_quantityUnitIdTounitdefinition: Prisma.$productPayload<ExtArgs>[]
+    product_product_unitIdTounitdefinition: Prisma.$productPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -697,143 +689,143 @@ export type $UnitDefinitionPayload<ExtArgs extends runtime.Types.Extensions.Inte
     factorToBase: runtime.Decimal | null
     createdAt: Date
     updatedAt: Date
-  }, ExtArgs["result"]["unitDefinition"]>
+  }, ExtArgs["result"]["unitdefinition"]>
   composites: {}
 }
 
-export type UnitDefinitionGetPayload<S extends boolean | null | undefined | UnitDefinitionDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$UnitDefinitionPayload, S>
+export type unitdefinitionGetPayload<S extends boolean | null | undefined | unitdefinitionDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$unitdefinitionPayload, S>
 
-export type UnitDefinitionCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<UnitDefinitionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-    select?: UnitDefinitionCountAggregateInputType | true
+export type unitdefinitionCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
+  Omit<unitdefinitionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+    select?: UnitdefinitionCountAggregateInputType | true
   }
 
-export interface UnitDefinitionDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UnitDefinition'], meta: { name: 'UnitDefinition' } }
+export interface unitdefinitionDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['unitdefinition'], meta: { name: 'unitdefinition' } }
   /**
-   * Find zero or one UnitDefinition that matches the filter.
-   * @param {UnitDefinitionFindUniqueArgs} args - Arguments to find a UnitDefinition
+   * Find zero or one Unitdefinition that matches the filter.
+   * @param {unitdefinitionFindUniqueArgs} args - Arguments to find a Unitdefinition
    * @example
-   * // Get one UnitDefinition
-   * const unitDefinition = await prisma.unitDefinition.findUnique({
+   * // Get one Unitdefinition
+   * const unitdefinition = await prisma.unitdefinition.findUnique({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUnique<T extends UnitDefinitionFindUniqueArgs>(args: Prisma.SelectSubset<T, UnitDefinitionFindUniqueArgs<ExtArgs>>): Prisma.Prisma__UnitDefinitionClient<runtime.Types.Result.GetResult<Prisma.$UnitDefinitionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findUnique<T extends unitdefinitionFindUniqueArgs>(args: Prisma.SelectSubset<T, unitdefinitionFindUniqueArgs<ExtArgs>>): Prisma.Prisma__unitdefinitionClient<runtime.Types.Result.GetResult<Prisma.$unitdefinitionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find one UnitDefinition that matches the filter or throw an error with `error.code='P2025'`
+   * Find one Unitdefinition that matches the filter or throw an error with `error.code='P2025'`
    * if no matches were found.
-   * @param {UnitDefinitionFindUniqueOrThrowArgs} args - Arguments to find a UnitDefinition
+   * @param {unitdefinitionFindUniqueOrThrowArgs} args - Arguments to find a Unitdefinition
    * @example
-   * // Get one UnitDefinition
-   * const unitDefinition = await prisma.unitDefinition.findUniqueOrThrow({
+   * // Get one Unitdefinition
+   * const unitdefinition = await prisma.unitdefinition.findUniqueOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUniqueOrThrow<T extends UnitDefinitionFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, UnitDefinitionFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__UnitDefinitionClient<runtime.Types.Result.GetResult<Prisma.$UnitDefinitionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findUniqueOrThrow<T extends unitdefinitionFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, unitdefinitionFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__unitdefinitionClient<runtime.Types.Result.GetResult<Prisma.$unitdefinitionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first UnitDefinition that matches the filter.
+   * Find the first Unitdefinition that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {UnitDefinitionFindFirstArgs} args - Arguments to find a UnitDefinition
+   * @param {unitdefinitionFindFirstArgs} args - Arguments to find a Unitdefinition
    * @example
-   * // Get one UnitDefinition
-   * const unitDefinition = await prisma.unitDefinition.findFirst({
+   * // Get one Unitdefinition
+   * const unitdefinition = await prisma.unitdefinition.findFirst({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirst<T extends UnitDefinitionFindFirstArgs>(args?: Prisma.SelectSubset<T, UnitDefinitionFindFirstArgs<ExtArgs>>): Prisma.Prisma__UnitDefinitionClient<runtime.Types.Result.GetResult<Prisma.$UnitDefinitionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findFirst<T extends unitdefinitionFindFirstArgs>(args?: Prisma.SelectSubset<T, unitdefinitionFindFirstArgs<ExtArgs>>): Prisma.Prisma__unitdefinitionClient<runtime.Types.Result.GetResult<Prisma.$unitdefinitionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first UnitDefinition that matches the filter or
+   * Find the first Unitdefinition that matches the filter or
    * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {UnitDefinitionFindFirstOrThrowArgs} args - Arguments to find a UnitDefinition
+   * @param {unitdefinitionFindFirstOrThrowArgs} args - Arguments to find a Unitdefinition
    * @example
-   * // Get one UnitDefinition
-   * const unitDefinition = await prisma.unitDefinition.findFirstOrThrow({
+   * // Get one Unitdefinition
+   * const unitdefinition = await prisma.unitdefinition.findFirstOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirstOrThrow<T extends UnitDefinitionFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, UnitDefinitionFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__UnitDefinitionClient<runtime.Types.Result.GetResult<Prisma.$UnitDefinitionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findFirstOrThrow<T extends unitdefinitionFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, unitdefinitionFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__unitdefinitionClient<runtime.Types.Result.GetResult<Prisma.$unitdefinitionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find zero or more UnitDefinitions that matches the filter.
+   * Find zero or more Unitdefinitions that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {UnitDefinitionFindManyArgs} args - Arguments to filter and select certain fields only.
+   * @param {unitdefinitionFindManyArgs} args - Arguments to filter and select certain fields only.
    * @example
-   * // Get all UnitDefinitions
-   * const unitDefinitions = await prisma.unitDefinition.findMany()
+   * // Get all Unitdefinitions
+   * const unitdefinitions = await prisma.unitdefinition.findMany()
    * 
-   * // Get first 10 UnitDefinitions
-   * const unitDefinitions = await prisma.unitDefinition.findMany({ take: 10 })
+   * // Get first 10 Unitdefinitions
+   * const unitdefinitions = await prisma.unitdefinition.findMany({ take: 10 })
    * 
    * // Only select the `id`
-   * const unitDefinitionWithIdOnly = await prisma.unitDefinition.findMany({ select: { id: true } })
+   * const unitdefinitionWithIdOnly = await prisma.unitdefinition.findMany({ select: { id: true } })
    * 
    */
-  findMany<T extends UnitDefinitionFindManyArgs>(args?: Prisma.SelectSubset<T, UnitDefinitionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UnitDefinitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+  findMany<T extends unitdefinitionFindManyArgs>(args?: Prisma.SelectSubset<T, unitdefinitionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$unitdefinitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
   /**
-   * Create a UnitDefinition.
-   * @param {UnitDefinitionCreateArgs} args - Arguments to create a UnitDefinition.
+   * Create a Unitdefinition.
+   * @param {unitdefinitionCreateArgs} args - Arguments to create a Unitdefinition.
    * @example
-   * // Create one UnitDefinition
-   * const UnitDefinition = await prisma.unitDefinition.create({
+   * // Create one Unitdefinition
+   * const Unitdefinition = await prisma.unitdefinition.create({
    *   data: {
-   *     // ... data to create a UnitDefinition
+   *     // ... data to create a Unitdefinition
    *   }
    * })
    * 
    */
-  create<T extends UnitDefinitionCreateArgs>(args: Prisma.SelectSubset<T, UnitDefinitionCreateArgs<ExtArgs>>): Prisma.Prisma__UnitDefinitionClient<runtime.Types.Result.GetResult<Prisma.$UnitDefinitionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  create<T extends unitdefinitionCreateArgs>(args: Prisma.SelectSubset<T, unitdefinitionCreateArgs<ExtArgs>>): Prisma.Prisma__unitdefinitionClient<runtime.Types.Result.GetResult<Prisma.$unitdefinitionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Create many UnitDefinitions.
-   * @param {UnitDefinitionCreateManyArgs} args - Arguments to create many UnitDefinitions.
+   * Create many Unitdefinitions.
+   * @param {unitdefinitionCreateManyArgs} args - Arguments to create many Unitdefinitions.
    * @example
-   * // Create many UnitDefinitions
-   * const unitDefinition = await prisma.unitDefinition.createMany({
+   * // Create many Unitdefinitions
+   * const unitdefinition = await prisma.unitdefinition.createMany({
    *   data: [
    *     // ... provide data here
    *   ]
    * })
    *     
    */
-  createMany<T extends UnitDefinitionCreateManyArgs>(args?: Prisma.SelectSubset<T, UnitDefinitionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  createMany<T extends unitdefinitionCreateManyArgs>(args?: Prisma.SelectSubset<T, unitdefinitionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Delete a UnitDefinition.
-   * @param {UnitDefinitionDeleteArgs} args - Arguments to delete one UnitDefinition.
+   * Delete a Unitdefinition.
+   * @param {unitdefinitionDeleteArgs} args - Arguments to delete one Unitdefinition.
    * @example
-   * // Delete one UnitDefinition
-   * const UnitDefinition = await prisma.unitDefinition.delete({
+   * // Delete one Unitdefinition
+   * const Unitdefinition = await prisma.unitdefinition.delete({
    *   where: {
-   *     // ... filter to delete one UnitDefinition
+   *     // ... filter to delete one Unitdefinition
    *   }
    * })
    * 
    */
-  delete<T extends UnitDefinitionDeleteArgs>(args: Prisma.SelectSubset<T, UnitDefinitionDeleteArgs<ExtArgs>>): Prisma.Prisma__UnitDefinitionClient<runtime.Types.Result.GetResult<Prisma.$UnitDefinitionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  delete<T extends unitdefinitionDeleteArgs>(args: Prisma.SelectSubset<T, unitdefinitionDeleteArgs<ExtArgs>>): Prisma.Prisma__unitdefinitionClient<runtime.Types.Result.GetResult<Prisma.$unitdefinitionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Update one UnitDefinition.
-   * @param {UnitDefinitionUpdateArgs} args - Arguments to update one UnitDefinition.
+   * Update one Unitdefinition.
+   * @param {unitdefinitionUpdateArgs} args - Arguments to update one Unitdefinition.
    * @example
-   * // Update one UnitDefinition
-   * const unitDefinition = await prisma.unitDefinition.update({
+   * // Update one Unitdefinition
+   * const unitdefinition = await prisma.unitdefinition.update({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -843,30 +835,30 @@ export interface UnitDefinitionDelegate<ExtArgs extends runtime.Types.Extensions
    * })
    * 
    */
-  update<T extends UnitDefinitionUpdateArgs>(args: Prisma.SelectSubset<T, UnitDefinitionUpdateArgs<ExtArgs>>): Prisma.Prisma__UnitDefinitionClient<runtime.Types.Result.GetResult<Prisma.$UnitDefinitionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  update<T extends unitdefinitionUpdateArgs>(args: Prisma.SelectSubset<T, unitdefinitionUpdateArgs<ExtArgs>>): Prisma.Prisma__unitdefinitionClient<runtime.Types.Result.GetResult<Prisma.$unitdefinitionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Delete zero or more UnitDefinitions.
-   * @param {UnitDefinitionDeleteManyArgs} args - Arguments to filter UnitDefinitions to delete.
+   * Delete zero or more Unitdefinitions.
+   * @param {unitdefinitionDeleteManyArgs} args - Arguments to filter Unitdefinitions to delete.
    * @example
-   * // Delete a few UnitDefinitions
-   * const { count } = await prisma.unitDefinition.deleteMany({
+   * // Delete a few Unitdefinitions
+   * const { count } = await prisma.unitdefinition.deleteMany({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    * 
    */
-  deleteMany<T extends UnitDefinitionDeleteManyArgs>(args?: Prisma.SelectSubset<T, UnitDefinitionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  deleteMany<T extends unitdefinitionDeleteManyArgs>(args?: Prisma.SelectSubset<T, unitdefinitionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Update zero or more UnitDefinitions.
+   * Update zero or more Unitdefinitions.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {UnitDefinitionUpdateManyArgs} args - Arguments to update one or more rows.
+   * @param {unitdefinitionUpdateManyArgs} args - Arguments to update one or more rows.
    * @example
-   * // Update many UnitDefinitions
-   * const unitDefinition = await prisma.unitDefinition.updateMany({
+   * // Update many Unitdefinitions
+   * const unitdefinition = await prisma.unitdefinition.updateMany({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -876,56 +868,56 @@ export interface UnitDefinitionDelegate<ExtArgs extends runtime.Types.Extensions
    * })
    * 
    */
-  updateMany<T extends UnitDefinitionUpdateManyArgs>(args: Prisma.SelectSubset<T, UnitDefinitionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  updateMany<T extends unitdefinitionUpdateManyArgs>(args: Prisma.SelectSubset<T, unitdefinitionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Create or update one UnitDefinition.
-   * @param {UnitDefinitionUpsertArgs} args - Arguments to update or create a UnitDefinition.
+   * Create or update one Unitdefinition.
+   * @param {unitdefinitionUpsertArgs} args - Arguments to update or create a Unitdefinition.
    * @example
-   * // Update or create a UnitDefinition
-   * const unitDefinition = await prisma.unitDefinition.upsert({
+   * // Update or create a Unitdefinition
+   * const unitdefinition = await prisma.unitdefinition.upsert({
    *   create: {
-   *     // ... data to create a UnitDefinition
+   *     // ... data to create a Unitdefinition
    *   },
    *   update: {
    *     // ... in case it already exists, update
    *   },
    *   where: {
-   *     // ... the filter for the UnitDefinition we want to update
+   *     // ... the filter for the Unitdefinition we want to update
    *   }
    * })
    */
-  upsert<T extends UnitDefinitionUpsertArgs>(args: Prisma.SelectSubset<T, UnitDefinitionUpsertArgs<ExtArgs>>): Prisma.Prisma__UnitDefinitionClient<runtime.Types.Result.GetResult<Prisma.$UnitDefinitionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  upsert<T extends unitdefinitionUpsertArgs>(args: Prisma.SelectSubset<T, unitdefinitionUpsertArgs<ExtArgs>>): Prisma.Prisma__unitdefinitionClient<runtime.Types.Result.GetResult<Prisma.$unitdefinitionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
   /**
-   * Count the number of UnitDefinitions.
+   * Count the number of Unitdefinitions.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {UnitDefinitionCountArgs} args - Arguments to filter UnitDefinitions to count.
+   * @param {unitdefinitionCountArgs} args - Arguments to filter Unitdefinitions to count.
    * @example
-   * // Count the number of UnitDefinitions
-   * const count = await prisma.unitDefinition.count({
+   * // Count the number of Unitdefinitions
+   * const count = await prisma.unitdefinition.count({
    *   where: {
-   *     // ... the filter for the UnitDefinitions we want to count
+   *     // ... the filter for the Unitdefinitions we want to count
    *   }
    * })
   **/
-  count<T extends UnitDefinitionCountArgs>(
-    args?: Prisma.Subset<T, UnitDefinitionCountArgs>,
+  count<T extends unitdefinitionCountArgs>(
+    args?: Prisma.Subset<T, unitdefinitionCountArgs>,
   ): Prisma.PrismaPromise<
     T extends runtime.Types.Utils.Record<'select', any>
       ? T['select'] extends true
         ? number
-        : Prisma.GetScalarType<T['select'], UnitDefinitionCountAggregateOutputType>
+        : Prisma.GetScalarType<T['select'], UnitdefinitionCountAggregateOutputType>
       : number
   >
 
   /**
-   * Allows you to perform aggregations operations on a UnitDefinition.
+   * Allows you to perform aggregations operations on a Unitdefinition.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {UnitDefinitionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+   * @param {UnitdefinitionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
    * @example
    * // Ordered by age ascending
    * // Where email contains prisma.io
@@ -945,13 +937,13 @@ export interface UnitDefinitionDelegate<ExtArgs extends runtime.Types.Extensions
    *   take: 10,
    * })
   **/
-  aggregate<T extends UnitDefinitionAggregateArgs>(args: Prisma.Subset<T, UnitDefinitionAggregateArgs>): Prisma.PrismaPromise<GetUnitDefinitionAggregateType<T>>
+  aggregate<T extends UnitdefinitionAggregateArgs>(args: Prisma.Subset<T, UnitdefinitionAggregateArgs>): Prisma.PrismaPromise<GetUnitdefinitionAggregateType<T>>
 
   /**
-   * Group by UnitDefinition.
+   * Group by Unitdefinition.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {UnitDefinitionGroupByArgs} args - Group by arguments.
+   * @param {unitdefinitionGroupByArgs} args - Group by arguments.
    * @example
    * // Group by city, order by createdAt, get count
    * const result = await prisma.user.groupBy({
@@ -966,14 +958,14 @@ export interface UnitDefinitionDelegate<ExtArgs extends runtime.Types.Extensions
    * 
   **/
   groupBy<
-    T extends UnitDefinitionGroupByArgs,
+    T extends unitdefinitionGroupByArgs,
     HasSelectOrTake extends Prisma.Or<
       Prisma.Extends<'skip', Prisma.Keys<T>>,
       Prisma.Extends<'take', Prisma.Keys<T>>
     >,
     OrderByArg extends Prisma.True extends HasSelectOrTake
-      ? { orderBy: UnitDefinitionGroupByArgs['orderBy'] }
-      : { orderBy?: UnitDefinitionGroupByArgs['orderBy'] },
+      ? { orderBy: unitdefinitionGroupByArgs['orderBy'] }
+      : { orderBy?: unitdefinitionGroupByArgs['orderBy'] },
     OrderFields extends Prisma.ExcludeUnderscoreKeys<Prisma.Keys<Prisma.MaybeTupleToUnion<T['orderBy']>>>,
     ByFields extends Prisma.MaybeTupleToUnion<T['by']>,
     ByValid extends Prisma.Has<ByFields, OrderFields>,
@@ -1022,23 +1014,23 @@ export interface UnitDefinitionDelegate<ExtArgs extends runtime.Types.Extensions
           ? never
           : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
       }[OrderFields]
-  >(args: Prisma.SubsetIntersection<T, UnitDefinitionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUnitDefinitionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  >(args: Prisma.SubsetIntersection<T, unitdefinitionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUnitdefinitionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
 /**
- * Fields of the UnitDefinition model
+ * Fields of the unitdefinition model
  */
-readonly fields: UnitDefinitionFieldRefs;
+readonly fields: unitdefinitionFieldRefs;
 }
 
 /**
- * The delegate class that acts as a "Promise-like" for UnitDefinition.
+ * The delegate class that acts as a "Promise-like" for unitdefinition.
  * Why is this prefixed with `Prisma__`?
  * Because we want to prevent naming conflicts as mentioned in
  * https://github.com/prisma/prisma-client-js/issues/707
  */
-export interface Prisma__UnitDefinitionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+export interface Prisma__unitdefinitionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  productsByUnit<T extends Prisma.UnitDefinition$productsByUnitArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UnitDefinition$productsByUnitArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  productsByQtyUnit<T extends Prisma.UnitDefinition$productsByQtyUnitArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UnitDefinition$productsByQtyUnitArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  product_product_quantityUnitIdTounitdefinition<T extends Prisma.unitdefinition$product_product_quantityUnitIdTounitdefinitionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.unitdefinition$product_product_quantityUnitIdTounitdefinitionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$productPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  product_product_unitIdTounitdefinition<T extends Prisma.unitdefinition$product_product_unitIdTounitdefinitionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.unitdefinition$product_product_unitIdTounitdefinitionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$productPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1065,421 +1057,421 @@ export interface Prisma__UnitDefinitionClient<T, Null = never, ExtArgs extends r
 
 
 /**
- * Fields of the UnitDefinition model
+ * Fields of the unitdefinition model
  */
-export interface UnitDefinitionFieldRefs {
-  readonly id: Prisma.FieldRef<"UnitDefinition", 'String'>
-  readonly name: Prisma.FieldRef<"UnitDefinition", 'String'>
-  readonly symbol: Prisma.FieldRef<"UnitDefinition", 'String'>
-  readonly dimension: Prisma.FieldRef<"UnitDefinition", 'String'>
-  readonly baseName: Prisma.FieldRef<"UnitDefinition", 'String'>
-  readonly factorToBase: Prisma.FieldRef<"UnitDefinition", 'Decimal'>
-  readonly createdAt: Prisma.FieldRef<"UnitDefinition", 'DateTime'>
-  readonly updatedAt: Prisma.FieldRef<"UnitDefinition", 'DateTime'>
+export interface unitdefinitionFieldRefs {
+  readonly id: Prisma.FieldRef<"unitdefinition", 'String'>
+  readonly name: Prisma.FieldRef<"unitdefinition", 'String'>
+  readonly symbol: Prisma.FieldRef<"unitdefinition", 'String'>
+  readonly dimension: Prisma.FieldRef<"unitdefinition", 'String'>
+  readonly baseName: Prisma.FieldRef<"unitdefinition", 'String'>
+  readonly factorToBase: Prisma.FieldRef<"unitdefinition", 'Decimal'>
+  readonly createdAt: Prisma.FieldRef<"unitdefinition", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"unitdefinition", 'DateTime'>
 }
     
 
 // Custom InputTypes
 /**
- * UnitDefinition findUnique
+ * unitdefinition findUnique
  */
-export type UnitDefinitionFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinitionFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UnitDefinition
+   * Select specific fields to fetch from the unitdefinition
    */
-  select?: Prisma.UnitDefinitionSelect<ExtArgs> | null
+  select?: Prisma.unitdefinitionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the UnitDefinition
+   * Omit specific fields from the unitdefinition
    */
-  omit?: Prisma.UnitDefinitionOmit<ExtArgs> | null
+  omit?: Prisma.unitdefinitionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UnitDefinitionInclude<ExtArgs> | null
+  include?: Prisma.unitdefinitionInclude<ExtArgs> | null
   /**
-   * Filter, which UnitDefinition to fetch.
+   * Filter, which unitdefinition to fetch.
    */
-  where: Prisma.UnitDefinitionWhereUniqueInput
+  where: Prisma.unitdefinitionWhereUniqueInput
 }
 
 /**
- * UnitDefinition findUniqueOrThrow
+ * unitdefinition findUniqueOrThrow
  */
-export type UnitDefinitionFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinitionFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UnitDefinition
+   * Select specific fields to fetch from the unitdefinition
    */
-  select?: Prisma.UnitDefinitionSelect<ExtArgs> | null
+  select?: Prisma.unitdefinitionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the UnitDefinition
+   * Omit specific fields from the unitdefinition
    */
-  omit?: Prisma.UnitDefinitionOmit<ExtArgs> | null
+  omit?: Prisma.unitdefinitionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UnitDefinitionInclude<ExtArgs> | null
+  include?: Prisma.unitdefinitionInclude<ExtArgs> | null
   /**
-   * Filter, which UnitDefinition to fetch.
+   * Filter, which unitdefinition to fetch.
    */
-  where: Prisma.UnitDefinitionWhereUniqueInput
+  where: Prisma.unitdefinitionWhereUniqueInput
 }
 
 /**
- * UnitDefinition findFirst
+ * unitdefinition findFirst
  */
-export type UnitDefinitionFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinitionFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UnitDefinition
+   * Select specific fields to fetch from the unitdefinition
    */
-  select?: Prisma.UnitDefinitionSelect<ExtArgs> | null
+  select?: Prisma.unitdefinitionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the UnitDefinition
+   * Omit specific fields from the unitdefinition
    */
-  omit?: Prisma.UnitDefinitionOmit<ExtArgs> | null
+  omit?: Prisma.unitdefinitionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UnitDefinitionInclude<ExtArgs> | null
+  include?: Prisma.unitdefinitionInclude<ExtArgs> | null
   /**
-   * Filter, which UnitDefinition to fetch.
+   * Filter, which unitdefinition to fetch.
    */
-  where?: Prisma.UnitDefinitionWhereInput
+  where?: Prisma.unitdefinitionWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of UnitDefinitions to fetch.
+   * Determine the order of unitdefinitions to fetch.
    */
-  orderBy?: Prisma.UnitDefinitionOrderByWithRelationInput | Prisma.UnitDefinitionOrderByWithRelationInput[]
+  orderBy?: Prisma.unitdefinitionOrderByWithRelationInput | Prisma.unitdefinitionOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for UnitDefinitions.
+   * Sets the position for searching for unitdefinitions.
    */
-  cursor?: Prisma.UnitDefinitionWhereUniqueInput
+  cursor?: Prisma.unitdefinitionWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` UnitDefinitions from the position of the cursor.
+   * Take `±n` unitdefinitions from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` UnitDefinitions.
+   * Skip the first `n` unitdefinitions.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of UnitDefinitions.
+   * Filter by unique combinations of unitdefinitions.
    */
-  distinct?: Prisma.UnitDefinitionScalarFieldEnum | Prisma.UnitDefinitionScalarFieldEnum[]
+  distinct?: Prisma.UnitdefinitionScalarFieldEnum | Prisma.UnitdefinitionScalarFieldEnum[]
 }
 
 /**
- * UnitDefinition findFirstOrThrow
+ * unitdefinition findFirstOrThrow
  */
-export type UnitDefinitionFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinitionFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UnitDefinition
+   * Select specific fields to fetch from the unitdefinition
    */
-  select?: Prisma.UnitDefinitionSelect<ExtArgs> | null
+  select?: Prisma.unitdefinitionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the UnitDefinition
+   * Omit specific fields from the unitdefinition
    */
-  omit?: Prisma.UnitDefinitionOmit<ExtArgs> | null
+  omit?: Prisma.unitdefinitionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UnitDefinitionInclude<ExtArgs> | null
+  include?: Prisma.unitdefinitionInclude<ExtArgs> | null
   /**
-   * Filter, which UnitDefinition to fetch.
+   * Filter, which unitdefinition to fetch.
    */
-  where?: Prisma.UnitDefinitionWhereInput
+  where?: Prisma.unitdefinitionWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of UnitDefinitions to fetch.
+   * Determine the order of unitdefinitions to fetch.
    */
-  orderBy?: Prisma.UnitDefinitionOrderByWithRelationInput | Prisma.UnitDefinitionOrderByWithRelationInput[]
+  orderBy?: Prisma.unitdefinitionOrderByWithRelationInput | Prisma.unitdefinitionOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for UnitDefinitions.
+   * Sets the position for searching for unitdefinitions.
    */
-  cursor?: Prisma.UnitDefinitionWhereUniqueInput
+  cursor?: Prisma.unitdefinitionWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` UnitDefinitions from the position of the cursor.
+   * Take `±n` unitdefinitions from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` UnitDefinitions.
+   * Skip the first `n` unitdefinitions.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of UnitDefinitions.
+   * Filter by unique combinations of unitdefinitions.
    */
-  distinct?: Prisma.UnitDefinitionScalarFieldEnum | Prisma.UnitDefinitionScalarFieldEnum[]
+  distinct?: Prisma.UnitdefinitionScalarFieldEnum | Prisma.UnitdefinitionScalarFieldEnum[]
 }
 
 /**
- * UnitDefinition findMany
+ * unitdefinition findMany
  */
-export type UnitDefinitionFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinitionFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UnitDefinition
+   * Select specific fields to fetch from the unitdefinition
    */
-  select?: Prisma.UnitDefinitionSelect<ExtArgs> | null
+  select?: Prisma.unitdefinitionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the UnitDefinition
+   * Omit specific fields from the unitdefinition
    */
-  omit?: Prisma.UnitDefinitionOmit<ExtArgs> | null
+  omit?: Prisma.unitdefinitionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UnitDefinitionInclude<ExtArgs> | null
+  include?: Prisma.unitdefinitionInclude<ExtArgs> | null
   /**
-   * Filter, which UnitDefinitions to fetch.
+   * Filter, which unitdefinitions to fetch.
    */
-  where?: Prisma.UnitDefinitionWhereInput
+  where?: Prisma.unitdefinitionWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of UnitDefinitions to fetch.
+   * Determine the order of unitdefinitions to fetch.
    */
-  orderBy?: Prisma.UnitDefinitionOrderByWithRelationInput | Prisma.UnitDefinitionOrderByWithRelationInput[]
+  orderBy?: Prisma.unitdefinitionOrderByWithRelationInput | Prisma.unitdefinitionOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for listing UnitDefinitions.
+   * Sets the position for listing unitdefinitions.
    */
-  cursor?: Prisma.UnitDefinitionWhereUniqueInput
+  cursor?: Prisma.unitdefinitionWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` UnitDefinitions from the position of the cursor.
+   * Take `±n` unitdefinitions from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` UnitDefinitions.
+   * Skip the first `n` unitdefinitions.
    */
   skip?: number
-  distinct?: Prisma.UnitDefinitionScalarFieldEnum | Prisma.UnitDefinitionScalarFieldEnum[]
+  distinct?: Prisma.UnitdefinitionScalarFieldEnum | Prisma.UnitdefinitionScalarFieldEnum[]
 }
 
 /**
- * UnitDefinition create
+ * unitdefinition create
  */
-export type UnitDefinitionCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinitionCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UnitDefinition
+   * Select specific fields to fetch from the unitdefinition
    */
-  select?: Prisma.UnitDefinitionSelect<ExtArgs> | null
+  select?: Prisma.unitdefinitionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the UnitDefinition
+   * Omit specific fields from the unitdefinition
    */
-  omit?: Prisma.UnitDefinitionOmit<ExtArgs> | null
+  omit?: Prisma.unitdefinitionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UnitDefinitionInclude<ExtArgs> | null
+  include?: Prisma.unitdefinitionInclude<ExtArgs> | null
   /**
-   * The data needed to create a UnitDefinition.
+   * The data needed to create a unitdefinition.
    */
-  data: Prisma.XOR<Prisma.UnitDefinitionCreateInput, Prisma.UnitDefinitionUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.unitdefinitionCreateInput, Prisma.unitdefinitionUncheckedCreateInput>
 }
 
 /**
- * UnitDefinition createMany
+ * unitdefinition createMany
  */
-export type UnitDefinitionCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinitionCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to create many UnitDefinitions.
+   * The data used to create many unitdefinitions.
    */
-  data: Prisma.UnitDefinitionCreateManyInput | Prisma.UnitDefinitionCreateManyInput[]
+  data: Prisma.unitdefinitionCreateManyInput | Prisma.unitdefinitionCreateManyInput[]
   skipDuplicates?: boolean
 }
 
 /**
- * UnitDefinition update
+ * unitdefinition update
  */
-export type UnitDefinitionUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinitionUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UnitDefinition
+   * Select specific fields to fetch from the unitdefinition
    */
-  select?: Prisma.UnitDefinitionSelect<ExtArgs> | null
+  select?: Prisma.unitdefinitionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the UnitDefinition
+   * Omit specific fields from the unitdefinition
    */
-  omit?: Prisma.UnitDefinitionOmit<ExtArgs> | null
+  omit?: Prisma.unitdefinitionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UnitDefinitionInclude<ExtArgs> | null
+  include?: Prisma.unitdefinitionInclude<ExtArgs> | null
   /**
-   * The data needed to update a UnitDefinition.
+   * The data needed to update a unitdefinition.
    */
-  data: Prisma.XOR<Prisma.UnitDefinitionUpdateInput, Prisma.UnitDefinitionUncheckedUpdateInput>
+  data: Prisma.XOR<Prisma.unitdefinitionUpdateInput, Prisma.unitdefinitionUncheckedUpdateInput>
   /**
-   * Choose, which UnitDefinition to update.
+   * Choose, which unitdefinition to update.
    */
-  where: Prisma.UnitDefinitionWhereUniqueInput
+  where: Prisma.unitdefinitionWhereUniqueInput
 }
 
 /**
- * UnitDefinition updateMany
+ * unitdefinition updateMany
  */
-export type UnitDefinitionUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinitionUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to update UnitDefinitions.
+   * The data used to update unitdefinitions.
    */
-  data: Prisma.XOR<Prisma.UnitDefinitionUpdateManyMutationInput, Prisma.UnitDefinitionUncheckedUpdateManyInput>
+  data: Prisma.XOR<Prisma.unitdefinitionUpdateManyMutationInput, Prisma.unitdefinitionUncheckedUpdateManyInput>
   /**
-   * Filter which UnitDefinitions to update
+   * Filter which unitdefinitions to update
    */
-  where?: Prisma.UnitDefinitionWhereInput
+  where?: Prisma.unitdefinitionWhereInput
   /**
-   * Limit how many UnitDefinitions to update.
+   * Limit how many unitdefinitions to update.
    */
   limit?: number
 }
 
 /**
- * UnitDefinition upsert
+ * unitdefinition upsert
  */
-export type UnitDefinitionUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinitionUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UnitDefinition
+   * Select specific fields to fetch from the unitdefinition
    */
-  select?: Prisma.UnitDefinitionSelect<ExtArgs> | null
+  select?: Prisma.unitdefinitionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the UnitDefinition
+   * Omit specific fields from the unitdefinition
    */
-  omit?: Prisma.UnitDefinitionOmit<ExtArgs> | null
+  omit?: Prisma.unitdefinitionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UnitDefinitionInclude<ExtArgs> | null
+  include?: Prisma.unitdefinitionInclude<ExtArgs> | null
   /**
-   * The filter to search for the UnitDefinition to update in case it exists.
+   * The filter to search for the unitdefinition to update in case it exists.
    */
-  where: Prisma.UnitDefinitionWhereUniqueInput
+  where: Prisma.unitdefinitionWhereUniqueInput
   /**
-   * In case the UnitDefinition found by the `where` argument doesn't exist, create a new UnitDefinition with this data.
+   * In case the unitdefinition found by the `where` argument doesn't exist, create a new unitdefinition with this data.
    */
-  create: Prisma.XOR<Prisma.UnitDefinitionCreateInput, Prisma.UnitDefinitionUncheckedCreateInput>
+  create: Prisma.XOR<Prisma.unitdefinitionCreateInput, Prisma.unitdefinitionUncheckedCreateInput>
   /**
-   * In case the UnitDefinition was found with the provided `where` argument, update it with this data.
+   * In case the unitdefinition was found with the provided `where` argument, update it with this data.
    */
-  update: Prisma.XOR<Prisma.UnitDefinitionUpdateInput, Prisma.UnitDefinitionUncheckedUpdateInput>
+  update: Prisma.XOR<Prisma.unitdefinitionUpdateInput, Prisma.unitdefinitionUncheckedUpdateInput>
 }
 
 /**
- * UnitDefinition delete
+ * unitdefinition delete
  */
-export type UnitDefinitionDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinitionDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UnitDefinition
+   * Select specific fields to fetch from the unitdefinition
    */
-  select?: Prisma.UnitDefinitionSelect<ExtArgs> | null
+  select?: Prisma.unitdefinitionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the UnitDefinition
+   * Omit specific fields from the unitdefinition
    */
-  omit?: Prisma.UnitDefinitionOmit<ExtArgs> | null
+  omit?: Prisma.unitdefinitionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UnitDefinitionInclude<ExtArgs> | null
+  include?: Prisma.unitdefinitionInclude<ExtArgs> | null
   /**
-   * Filter which UnitDefinition to delete.
+   * Filter which unitdefinition to delete.
    */
-  where: Prisma.UnitDefinitionWhereUniqueInput
+  where: Prisma.unitdefinitionWhereUniqueInput
 }
 
 /**
- * UnitDefinition deleteMany
+ * unitdefinition deleteMany
  */
-export type UnitDefinitionDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinitionDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which UnitDefinitions to delete
+   * Filter which unitdefinitions to delete
    */
-  where?: Prisma.UnitDefinitionWhereInput
+  where?: Prisma.unitdefinitionWhereInput
   /**
-   * Limit how many UnitDefinitions to delete.
+   * Limit how many unitdefinitions to delete.
    */
   limit?: number
 }
 
 /**
- * UnitDefinition.productsByUnit
+ * unitdefinition.product_product_quantityUnitIdTounitdefinition
  */
-export type UnitDefinition$productsByUnitArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinition$product_product_quantityUnitIdTounitdefinitionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Product
+   * Select specific fields to fetch from the product
    */
-  select?: Prisma.ProductSelect<ExtArgs> | null
+  select?: Prisma.productSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Product
+   * Omit specific fields from the product
    */
-  omit?: Prisma.ProductOmit<ExtArgs> | null
+  omit?: Prisma.productOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductInclude<ExtArgs> | null
-  where?: Prisma.ProductWhereInput
-  orderBy?: Prisma.ProductOrderByWithRelationInput | Prisma.ProductOrderByWithRelationInput[]
-  cursor?: Prisma.ProductWhereUniqueInput
+  include?: Prisma.productInclude<ExtArgs> | null
+  where?: Prisma.productWhereInput
+  orderBy?: Prisma.productOrderByWithRelationInput | Prisma.productOrderByWithRelationInput[]
+  cursor?: Prisma.productWhereUniqueInput
   take?: number
   skip?: number
   distinct?: Prisma.ProductScalarFieldEnum | Prisma.ProductScalarFieldEnum[]
 }
 
 /**
- * UnitDefinition.productsByQtyUnit
+ * unitdefinition.product_product_unitIdTounitdefinition
  */
-export type UnitDefinition$productsByQtyUnitArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinition$product_product_unitIdTounitdefinitionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Product
+   * Select specific fields to fetch from the product
    */
-  select?: Prisma.ProductSelect<ExtArgs> | null
+  select?: Prisma.productSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Product
+   * Omit specific fields from the product
    */
-  omit?: Prisma.ProductOmit<ExtArgs> | null
+  omit?: Prisma.productOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductInclude<ExtArgs> | null
-  where?: Prisma.ProductWhereInput
-  orderBy?: Prisma.ProductOrderByWithRelationInput | Prisma.ProductOrderByWithRelationInput[]
-  cursor?: Prisma.ProductWhereUniqueInput
+  include?: Prisma.productInclude<ExtArgs> | null
+  where?: Prisma.productWhereInput
+  orderBy?: Prisma.productOrderByWithRelationInput | Prisma.productOrderByWithRelationInput[]
+  cursor?: Prisma.productWhereUniqueInput
   take?: number
   skip?: number
   distinct?: Prisma.ProductScalarFieldEnum | Prisma.ProductScalarFieldEnum[]
 }
 
 /**
- * UnitDefinition without action
+ * unitdefinition without action
  */
-export type UnitDefinitionDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type unitdefinitionDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UnitDefinition
+   * Select specific fields to fetch from the unitdefinition
    */
-  select?: Prisma.UnitDefinitionSelect<ExtArgs> | null
+  select?: Prisma.unitdefinitionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the UnitDefinition
+   * Omit specific fields from the unitdefinition
    */
-  omit?: Prisma.UnitDefinitionOmit<ExtArgs> | null
+  omit?: Prisma.unitdefinitionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UnitDefinitionInclude<ExtArgs> | null
+  include?: Prisma.unitdefinitionInclude<ExtArgs> | null
 }

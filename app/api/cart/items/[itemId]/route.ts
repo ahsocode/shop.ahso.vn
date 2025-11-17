@@ -42,8 +42,8 @@ async function verifyCartItemOwnership(
 
 /** Tính lại tổng tiền của cart */
 async function recalcCart(cartId: string) {
-  const items = await prisma.cartItem.findMany({ where: { cartId } });
-  const subtotal = items.reduce((s, it) => s + Number(it.lineTotal || 0), 0);
+  const items = await prisma.cartitem.findMany({ where: { cartId } });
+  const subtotal = items.reduce((sum, item) => sum + Number(item.lineTotal ?? 0), 0);
 
   const cart = await prisma.cart.findUnique({
     where: { id: cartId },
@@ -76,7 +76,7 @@ export async function PATCH(
     }
 
     // Tìm cart item
-    const existing = await prisma.cartItem.findUnique({
+    const existing = await prisma.cartitem.findUnique({
       where: { id: itemId },
       include: {
         product: { select: { price: true, stockOnHand: true, stockReserved: true } },
@@ -95,7 +95,7 @@ export async function PATCH(
 
     // Xóa nếu quantity = 0
     if (quantity === 0) {
-      await prisma.cartItem.delete({ where: { id: itemId } });
+      await prisma.cartitem.delete({ where: { id: itemId } });
       await recalcCart(existing.cartId);
       return NextResponse.json({ ok: true, deleted: true });
     }
@@ -121,7 +121,7 @@ export async function PATCH(
 
     const lineTotal = unitPrice * quantity;
 
-    const updated = await prisma.cartItem.update({
+    const updated = await prisma.cartitem.update({
       where: { id: itemId },
       data: { quantity, unitPrice, lineTotal },
     });
@@ -151,7 +151,7 @@ export async function DELETE(
   try {
     const { itemId } = await context.params;
 
-    const existing = await prisma.cartItem.findUnique({ where: { id: itemId } });
+    const existing = await prisma.cartitem.findUnique({ where: { id: itemId } });
 
     if (!existing) {
       return NextResponse.json({ ok: true, deleted: true });
@@ -163,7 +163,7 @@ export async function DELETE(
       return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
     }
 
-    await prisma.cartItem.delete({ where: { id: itemId } });
+    await prisma.cartitem.delete({ where: { id: itemId } });
     await recalcCart(existing.cartId);
 
     return NextResponse.json({ ok: true, deleted: true });

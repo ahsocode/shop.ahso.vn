@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -22,13 +23,13 @@ export async function GET(req: NextRequest) {
     const categoryId = searchParams.get("categoryId") || undefined;
     const { page, pageSize, skip, take } = parsePaging(req);
 
-    const where: Prisma.ProductTypeWhereInput = {};
+    const where: Prisma.producttypeWhereInput = {};
     if (q) where.OR = [{ name: { contains: q } }, { slug: { contains: q } }];
     if (categoryId) where.categoryId = categoryId;
 
     const [total, rows] = await Promise.all([
-      prisma.productType.count({ where }),
-      prisma.productType.findMany({
+      prisma.producttype.count({ where }),
+      prisma.producttype.findMany({
         where,
         orderBy: { name: "asc" },
         skip, take,
@@ -41,16 +42,16 @@ export async function GET(req: NextRequest) {
           description: true,
           createdAt: true,
           updatedAt: true,
-          category: { select: { name: true } },
-          _count: { select: { products: true } },
+          productcategory: { select: { name: true } },
+          _count: { select: { product: true } },
         },
       }),
     ]);
 
-    const mapped = rows.map(({ category, _count, ...rest }) => ({
+    const mapped = rows.map(({ productcategory, _count, ...rest }) => ({
       ...rest,
-      categoryName: category?.name ?? "",
-      productCount: _count.products,
+      categoryName: productcategory?.name ?? "",
+      productCount: _count.product,
     }));
 
     return jsonOk({ data: mapped, meta: { total, page, pageSize } });
@@ -71,22 +72,26 @@ export async function POST(req: NextRequest) {
     const finalSlug = (slug?.trim() || slugify(name));
 
     // 1) check category tồn tại
-    const cate = await prisma.productCategory.findUnique({ where: { id: categoryId } });
+    const cate = await prisma.productcategory.findUnique({ where: { id: categoryId } });
     if (!cate) return jsonError("categoryId not found", 400);
 
     // 2) check unique compound (categoryId + slug)
-    const dup = await prisma.productType.findUnique({
+    const dup = await prisma.producttype.findUnique({
       where: { categoryId_slug: { categoryId, slug: finalSlug } },
     });
     if (dup) return jsonError("Slug already exists in this category", 409);
 
-    const created = await prisma.productType.create({
+    const now = new Date();
+    const created = await prisma.producttype.create({
       data: {
+        id: randomUUID(),
         name,
         slug: finalSlug,
         categoryId,
         coverImage: coverImage ?? null,
         description: description ?? null,
+        createdAt: now,
+        updatedAt: now,
       },
     });
 

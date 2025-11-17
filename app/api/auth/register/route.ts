@@ -1,4 +1,5 @@
 // app/api/auth/register/route.ts
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
@@ -95,7 +96,6 @@ async function mergeGuestCartToNewUser(guestCartId: string, userId: string) {
   try {
     const guestCart = await prisma.cart.findUnique({
       where: { id: guestCartId },
-      include: { items: true },
     });
 
     if (!guestCart || guestCart.userId) {
@@ -105,7 +105,7 @@ async function mergeGuestCartToNewUser(guestCartId: string, userId: string) {
     // Gán cart này cho user mới
     await prisma.cart.update({
       where: { id: guestCartId },
-      data: { userId },
+      data: { userId, updatedAt: new Date() },
     });
 
     console.log(`✅ Assigned guest cart ${guestCartId} to new user ${userId}`);
@@ -155,14 +155,17 @@ export async function POST(req: Request) {
     const passwordHash = await bcrypt.hash(data.password, 12);
 
     const user = await prisma.$transaction(async (tx) => {
+      const now = new Date();
       const shipAddr = await tx.address.create({
         data: {
+          id: randomUUID(),
           line1: shipping.line1,
           line2: shipping.line2 ?? null,
           city: shipping.city,
           state: shipping.state ?? null,
           postalCode: shipping.postalCode ?? null,
           country: shipping.country,
+          updatedAt: now,
         },
       });
 
@@ -170,12 +173,14 @@ export async function POST(req: Request) {
       if (billingInput && !addressesEqual(shipping, billingInput)) {
         const billAddr = await tx.address.create({
           data: {
+            id: randomUUID(),
             line1: billingInput.line1,
             line2: billingInput.line2 ?? null,
             city: billingInput.city,
             state: billingInput.state ?? null,
             postalCode: billingInput.postalCode ?? null,
             country: billingInput.country,
+            updatedAt: now,
           },
         });
         billingAddrId = billAddr.id;
@@ -183,6 +188,7 @@ export async function POST(req: Request) {
 
       return tx.user.create({
         data: {
+          id: randomUUID(),
           username,
           passwordHash,
           fullName: data.fullName,
@@ -192,6 +198,7 @@ export async function POST(req: Request) {
           shippingAddressId: shipAddr.id,
           billingAddressId: billingAddrId,
           role: "USER",
+          updatedAt: now,
         },
         select: {
           id: true,

@@ -24,7 +24,7 @@ function splitWords(query: string): string[] {
 // Helper: Build search conditions (MySQL compatible - no mode)
 function buildSearchConditions(query: string) {
   // Exact match conditions (case-insensitive by default in MySQL)
-  const exactConditions: Prisma.ProductWhereInput[] = [
+  const exactConditions: Prisma.productWhereInput[] = [
     { name: { contains: query } },
     { sku: { contains: query } },
     { description: { contains: query } },
@@ -32,24 +32,24 @@ function buildSearchConditions(query: string) {
 
   // Word-by-word match conditions
   const words = splitWords(query);
-  const wordConditions: Prisma.ProductWhereInput[] = words.flatMap((word) => [
+  const wordConditions: Prisma.productWhereInput[] = words.flatMap((word) => [
     { name: { contains: word } },
     { description: { contains: word } },
   ]);
 
   // Brand name search
-  const brandConditions: Prisma.ProductWhereInput[] = [
+  const brandConditions: Prisma.productWhereInput[] = [
     { brand: { is: { name: { contains: query } } } },
     { brand: { is: { slug: { contains: query } } } },
   ];
 
   // Category search
-  const categoryConditions: Prisma.ProductWhereInput[] = [
-    { type: { is: { name: { contains: query } } } },
+  const categoryConditions: Prisma.productWhereInput[] = [
+    { producttype: { is: { name: { contains: query } } } },
     {
-      type: {
+      producttype: {
         is: {
-          category: {
+          productcategory: {
             is: { name: { contains: query } },
           },
         },
@@ -68,7 +68,7 @@ function buildSearchConditions(query: string) {
 }
 
 // Helper: Calculate relevance score
-type ProductForSearch = Prisma.ProductGetPayload<{
+type ProductRecord = Prisma.productGetPayload<{
   select: {
     id: true;
     slug: true;
@@ -89,11 +89,11 @@ type ProductForSearch = Prisma.ProductGetPayload<{
         logoUrl: true;
       };
     };
-    type: {
+    producttype: {
       select: {
         name: true;
         slug: true;
-        category: {
+        productcategory: {
           select: {
             name: true;
             slug: true;
@@ -103,6 +103,27 @@ type ProductForSearch = Prisma.ProductGetPayload<{
     };
   };
 }>;
+
+type ProductForSearch = ReturnType<typeof mapProductRecord>;
+
+function mapProductRecord(record: ProductRecord) {
+  const { producttype, ...rest } = record;
+  return {
+    ...rest,
+    type: producttype
+      ? {
+          name: producttype.name,
+          slug: producttype.slug,
+          category: producttype.productcategory
+            ? {
+                name: producttype.productcategory.name,
+                slug: producttype.productcategory.slug,
+              }
+            : null,
+        }
+      : null,
+  };
+}
 
 type ProductSearchSummary = {
   id: string;
@@ -241,7 +262,7 @@ export async function GET(req: NextRequest) {
         ? {}
         : { stockOnHand: { gt: 0 } };
 
-      const products = await prisma.product.findMany({
+      const productRecords = await prisma.product.findMany({
         where: {
           AND: [
             searchConditions,
@@ -270,11 +291,11 @@ export async function GET(req: NextRequest) {
               logoUrl: true,
             },
           },
-          type: {
+          producttype: {
             select: {
               name: true,
               slug: true,
-              category: {
+              productcategory: {
                 select: {
                   name: true,
                   slug: true,
@@ -284,6 +305,8 @@ export async function GET(req: NextRequest) {
           },
         },
       });
+
+      const products = productRecords.map(mapProductRecord);
 
       // Calculate relevance and sort
       const scoredProducts = products
@@ -343,10 +366,10 @@ export async function GET(req: NextRequest) {
           name: true,
           logoUrl: true,
           summary: true,
-          _count: { select: { products: true } },
+          _count: { select: { product: true } },
         },
         orderBy: [
-          { products: { _count: "desc" } },
+          { product: { _count: "desc" } },
           { name: "asc" },
         ],
       });
@@ -357,13 +380,13 @@ export async function GET(req: NextRequest) {
         name: b.name,
         logo: b.logoUrl,
         summary: b.summary,
-        productCount: b._count.products ?? 0,
+        productCount: b._count.product ?? 0,
       }));
     }
 
     // Search Categories
     if (type === "categories" || type === "all") {
-      const categories = await prisma.productCategory.findMany({
+      const categories = await prisma.productcategory.findMany({
         where: {
           OR: [
             { name: { contains: query } },
@@ -378,10 +401,10 @@ export async function GET(req: NextRequest) {
           name: true,
           coverImage: true,
           description: true,
-          _count: { select: { productLinks: true } },
+          _count: { select: { productcategorylink: true } },
         },
         orderBy: [
-          { productLinks: { _count: "desc" } },
+          { productcategorylink: { _count: "desc" } },
           { name: "asc" },
         ],
       });
@@ -392,7 +415,7 @@ export async function GET(req: NextRequest) {
         name: c.name,
         image: c.coverImage,
         description: c.description,
-        productCount: c._count.productLinks ?? 0,
+        productCount: c._count.productcategorylink ?? 0,
       }));
     }
 

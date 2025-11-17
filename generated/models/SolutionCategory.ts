@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck 
 /*
- * This file exports the `SolutionCategory` model and its related types.
+ * This file exports the `solutioncategory` model and its related types.
  *
  * 🟢 You can import this file directly.
  */
@@ -12,28 +12,28 @@ import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
 /**
- * Model SolutionCategory
+ * Model solutioncategory
  * 
  */
-export type SolutionCategoryModel = runtime.Types.Result.DefaultSelection<Prisma.$SolutionCategoryPayload>
+export type solutioncategoryModel = runtime.Types.Result.DefaultSelection<Prisma.$solutioncategoryPayload>
 
-export type AggregateSolutionCategory = {
-  _count: SolutionCategoryCountAggregateOutputType | null
-  _avg: SolutionCategoryAvgAggregateOutputType | null
-  _sum: SolutionCategorySumAggregateOutputType | null
-  _min: SolutionCategoryMinAggregateOutputType | null
-  _max: SolutionCategoryMaxAggregateOutputType | null
+export type AggregateSolutioncategory = {
+  _count: SolutioncategoryCountAggregateOutputType | null
+  _avg: SolutioncategoryAvgAggregateOutputType | null
+  _sum: SolutioncategorySumAggregateOutputType | null
+  _min: SolutioncategoryMinAggregateOutputType | null
+  _max: SolutioncategoryMaxAggregateOutputType | null
 }
 
-export type SolutionCategoryAvgAggregateOutputType = {
+export type SolutioncategoryAvgAggregateOutputType = {
   sortOrder: number | null
 }
 
-export type SolutionCategorySumAggregateOutputType = {
+export type SolutioncategorySumAggregateOutputType = {
   sortOrder: number | null
 }
 
-export type SolutionCategoryMinAggregateOutputType = {
+export type SolutioncategoryMinAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
@@ -46,7 +46,7 @@ export type SolutionCategoryMinAggregateOutputType = {
   updatedAt: Date | null
 }
 
-export type SolutionCategoryMaxAggregateOutputType = {
+export type SolutioncategoryMaxAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
@@ -59,7 +59,7 @@ export type SolutionCategoryMaxAggregateOutputType = {
   updatedAt: Date | null
 }
 
-export type SolutionCategoryCountAggregateOutputType = {
+export type SolutioncategoryCountAggregateOutputType = {
   id: number
   name: number
   slug: number
@@ -74,15 +74,15 @@ export type SolutionCategoryCountAggregateOutputType = {
 }
 
 
-export type SolutionCategoryAvgAggregateInputType = {
+export type SolutioncategoryAvgAggregateInputType = {
   sortOrder?: true
 }
 
-export type SolutionCategorySumAggregateInputType = {
+export type SolutioncategorySumAggregateInputType = {
   sortOrder?: true
 }
 
-export type SolutionCategoryMinAggregateInputType = {
+export type SolutioncategoryMinAggregateInputType = {
   id?: true
   name?: true
   slug?: true
@@ -95,7 +95,7 @@ export type SolutionCategoryMinAggregateInputType = {
   updatedAt?: true
 }
 
-export type SolutionCategoryMaxAggregateInputType = {
+export type SolutioncategoryMaxAggregateInputType = {
   id?: true
   name?: true
   slug?: true
@@ -108,7 +108,7 @@ export type SolutionCategoryMaxAggregateInputType = {
   updatedAt?: true
 }
 
-export type SolutionCategoryCountAggregateInputType = {
+export type SolutioncategoryCountAggregateInputType = {
   id?: true
   name?: true
   slug?: true
@@ -122,93 +122,93 @@ export type SolutionCategoryCountAggregateInputType = {
   _all?: true
 }
 
-export type SolutionCategoryAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type SolutioncategoryAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which SolutionCategory to aggregate.
+   * Filter which solutioncategory to aggregate.
    */
-  where?: Prisma.SolutionCategoryWhereInput
+  where?: Prisma.solutioncategoryWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of SolutionCategories to fetch.
+   * Determine the order of solutioncategories to fetch.
    */
-  orderBy?: Prisma.SolutionCategoryOrderByWithRelationInput | Prisma.SolutionCategoryOrderByWithRelationInput[]
+  orderBy?: Prisma.solutioncategoryOrderByWithRelationInput | Prisma.solutioncategoryOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
    * Sets the start position
    */
-  cursor?: Prisma.SolutionCategoryWhereUniqueInput
+  cursor?: Prisma.solutioncategoryWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` SolutionCategories from the position of the cursor.
+   * Take `±n` solutioncategories from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` SolutionCategories.
+   * Skip the first `n` solutioncategories.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Count returned SolutionCategories
+   * Count returned solutioncategories
   **/
-  _count?: true | SolutionCategoryCountAggregateInputType
+  _count?: true | SolutioncategoryCountAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to average
   **/
-  _avg?: SolutionCategoryAvgAggregateInputType
+  _avg?: SolutioncategoryAvgAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to sum
   **/
-  _sum?: SolutionCategorySumAggregateInputType
+  _sum?: SolutioncategorySumAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the minimum value
   **/
-  _min?: SolutionCategoryMinAggregateInputType
+  _min?: SolutioncategoryMinAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the maximum value
   **/
-  _max?: SolutionCategoryMaxAggregateInputType
+  _max?: SolutioncategoryMaxAggregateInputType
 }
 
-export type GetSolutionCategoryAggregateType<T extends SolutionCategoryAggregateArgs> = {
-      [P in keyof T & keyof AggregateSolutionCategory]: P extends '_count' | 'count'
+export type GetSolutioncategoryAggregateType<T extends SolutioncategoryAggregateArgs> = {
+      [P in keyof T & keyof AggregateSolutioncategory]: P extends '_count' | 'count'
     ? T[P] extends true
       ? number
-      : Prisma.GetScalarType<T[P], AggregateSolutionCategory[P]>
-    : Prisma.GetScalarType<T[P], AggregateSolutionCategory[P]>
+      : Prisma.GetScalarType<T[P], AggregateSolutioncategory[P]>
+    : Prisma.GetScalarType<T[P], AggregateSolutioncategory[P]>
 }
 
 
 
 
-export type SolutionCategoryGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SolutionCategoryWhereInput
-  orderBy?: Prisma.SolutionCategoryOrderByWithAggregationInput | Prisma.SolutionCategoryOrderByWithAggregationInput[]
-  by: Prisma.SolutionCategoryScalarFieldEnum[] | Prisma.SolutionCategoryScalarFieldEnum
-  having?: Prisma.SolutionCategoryScalarWhereWithAggregatesInput
+export type solutioncategoryGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.solutioncategoryWhereInput
+  orderBy?: Prisma.solutioncategoryOrderByWithAggregationInput | Prisma.solutioncategoryOrderByWithAggregationInput[]
+  by: Prisma.SolutioncategoryScalarFieldEnum[] | Prisma.SolutioncategoryScalarFieldEnum
+  having?: Prisma.solutioncategoryScalarWhereWithAggregatesInput
   take?: number
   skip?: number
-  _count?: SolutionCategoryCountAggregateInputType | true
-  _avg?: SolutionCategoryAvgAggregateInputType
-  _sum?: SolutionCategorySumAggregateInputType
-  _min?: SolutionCategoryMinAggregateInputType
-  _max?: SolutionCategoryMaxAggregateInputType
+  _count?: SolutioncategoryCountAggregateInputType | true
+  _avg?: SolutioncategoryAvgAggregateInputType
+  _sum?: SolutioncategorySumAggregateInputType
+  _min?: SolutioncategoryMinAggregateInputType
+  _max?: SolutioncategoryMaxAggregateInputType
 }
 
-export type SolutionCategoryGroupByOutputType = {
+export type SolutioncategoryGroupByOutputType = {
   id: string
   name: string
   slug: string
@@ -219,48 +219,48 @@ export type SolutionCategoryGroupByOutputType = {
   isActive: boolean
   createdAt: Date
   updatedAt: Date
-  _count: SolutionCategoryCountAggregateOutputType | null
-  _avg: SolutionCategoryAvgAggregateOutputType | null
-  _sum: SolutionCategorySumAggregateOutputType | null
-  _min: SolutionCategoryMinAggregateOutputType | null
-  _max: SolutionCategoryMaxAggregateOutputType | null
+  _count: SolutioncategoryCountAggregateOutputType | null
+  _avg: SolutioncategoryAvgAggregateOutputType | null
+  _sum: SolutioncategorySumAggregateOutputType | null
+  _min: SolutioncategoryMinAggregateOutputType | null
+  _max: SolutioncategoryMaxAggregateOutputType | null
 }
 
-type GetSolutionCategoryGroupByPayload<T extends SolutionCategoryGroupByArgs> = Prisma.PrismaPromise<
+type GetSolutioncategoryGroupByPayload<T extends solutioncategoryGroupByArgs> = Prisma.PrismaPromise<
   Array<
-    Prisma.PickEnumerable<SolutionCategoryGroupByOutputType, T['by']> &
+    Prisma.PickEnumerable<SolutioncategoryGroupByOutputType, T['by']> &
       {
-        [P in ((keyof T) & (keyof SolutionCategoryGroupByOutputType))]: P extends '_count'
+        [P in ((keyof T) & (keyof SolutioncategoryGroupByOutputType))]: P extends '_count'
           ? T[P] extends boolean
             ? number
-            : Prisma.GetScalarType<T[P], SolutionCategoryGroupByOutputType[P]>
-          : Prisma.GetScalarType<T[P], SolutionCategoryGroupByOutputType[P]>
+            : Prisma.GetScalarType<T[P], SolutioncategoryGroupByOutputType[P]>
+          : Prisma.GetScalarType<T[P], SolutioncategoryGroupByOutputType[P]>
       }
     >
   >
 
 
 
-export type SolutionCategoryWhereInput = {
-  AND?: Prisma.SolutionCategoryWhereInput | Prisma.SolutionCategoryWhereInput[]
-  OR?: Prisma.SolutionCategoryWhereInput[]
-  NOT?: Prisma.SolutionCategoryWhereInput | Prisma.SolutionCategoryWhereInput[]
-  id?: Prisma.StringFilter<"SolutionCategory"> | string
-  name?: Prisma.StringFilter<"SolutionCategory"> | string
-  slug?: Prisma.StringFilter<"SolutionCategory"> | string
-  description?: Prisma.StringNullableFilter<"SolutionCategory"> | string | null
-  image?: Prisma.StringNullableFilter<"SolutionCategory"> | string | null
-  parentId?: Prisma.StringNullableFilter<"SolutionCategory"> | string | null
-  sortOrder?: Prisma.IntFilter<"SolutionCategory"> | number
-  isActive?: Prisma.BoolFilter<"SolutionCategory"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"SolutionCategory"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"SolutionCategory"> | Date | string
-  parent?: Prisma.XOR<Prisma.SolutionCategoryNullableScalarRelationFilter, Prisma.SolutionCategoryWhereInput> | null
-  children?: Prisma.SolutionCategoryListRelationFilter
-  solutions?: Prisma.SolutionListRelationFilter
+export type solutioncategoryWhereInput = {
+  AND?: Prisma.solutioncategoryWhereInput | Prisma.solutioncategoryWhereInput[]
+  OR?: Prisma.solutioncategoryWhereInput[]
+  NOT?: Prisma.solutioncategoryWhereInput | Prisma.solutioncategoryWhereInput[]
+  id?: Prisma.StringFilter<"solutioncategory"> | string
+  name?: Prisma.StringFilter<"solutioncategory"> | string
+  slug?: Prisma.StringFilter<"solutioncategory"> | string
+  description?: Prisma.StringNullableFilter<"solutioncategory"> | string | null
+  image?: Prisma.StringNullableFilter<"solutioncategory"> | string | null
+  parentId?: Prisma.StringNullableFilter<"solutioncategory"> | string | null
+  sortOrder?: Prisma.IntFilter<"solutioncategory"> | number
+  isActive?: Prisma.BoolFilter<"solutioncategory"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"solutioncategory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"solutioncategory"> | Date | string
+  solution?: Prisma.SolutionListRelationFilter
+  solutioncategory?: Prisma.XOR<Prisma.SolutioncategoryNullableScalarRelationFilter, Prisma.solutioncategoryWhereInput> | null
+  other_solutioncategory?: Prisma.SolutioncategoryListRelationFilter
 }
 
-export type SolutionCategoryOrderByWithRelationInput = {
+export type solutioncategoryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -271,32 +271,32 @@ export type SolutionCategoryOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  parent?: Prisma.SolutionCategoryOrderByWithRelationInput
-  children?: Prisma.SolutionCategoryOrderByRelationAggregateInput
-  solutions?: Prisma.SolutionOrderByRelationAggregateInput
-  _relevance?: Prisma.SolutionCategoryOrderByRelevanceInput
+  solution?: Prisma.solutionOrderByRelationAggregateInput
+  solutioncategory?: Prisma.solutioncategoryOrderByWithRelationInput
+  other_solutioncategory?: Prisma.solutioncategoryOrderByRelationAggregateInput
+  _relevance?: Prisma.solutioncategoryOrderByRelevanceInput
 }
 
-export type SolutionCategoryWhereUniqueInput = Prisma.AtLeast<{
+export type solutioncategoryWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   slug?: string
-  AND?: Prisma.SolutionCategoryWhereInput | Prisma.SolutionCategoryWhereInput[]
-  OR?: Prisma.SolutionCategoryWhereInput[]
-  NOT?: Prisma.SolutionCategoryWhereInput | Prisma.SolutionCategoryWhereInput[]
-  name?: Prisma.StringFilter<"SolutionCategory"> | string
-  description?: Prisma.StringNullableFilter<"SolutionCategory"> | string | null
-  image?: Prisma.StringNullableFilter<"SolutionCategory"> | string | null
-  parentId?: Prisma.StringNullableFilter<"SolutionCategory"> | string | null
-  sortOrder?: Prisma.IntFilter<"SolutionCategory"> | number
-  isActive?: Prisma.BoolFilter<"SolutionCategory"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"SolutionCategory"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"SolutionCategory"> | Date | string
-  parent?: Prisma.XOR<Prisma.SolutionCategoryNullableScalarRelationFilter, Prisma.SolutionCategoryWhereInput> | null
-  children?: Prisma.SolutionCategoryListRelationFilter
-  solutions?: Prisma.SolutionListRelationFilter
+  AND?: Prisma.solutioncategoryWhereInput | Prisma.solutioncategoryWhereInput[]
+  OR?: Prisma.solutioncategoryWhereInput[]
+  NOT?: Prisma.solutioncategoryWhereInput | Prisma.solutioncategoryWhereInput[]
+  name?: Prisma.StringFilter<"solutioncategory"> | string
+  description?: Prisma.StringNullableFilter<"solutioncategory"> | string | null
+  image?: Prisma.StringNullableFilter<"solutioncategory"> | string | null
+  parentId?: Prisma.StringNullableFilter<"solutioncategory"> | string | null
+  sortOrder?: Prisma.IntFilter<"solutioncategory"> | number
+  isActive?: Prisma.BoolFilter<"solutioncategory"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"solutioncategory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"solutioncategory"> | Date | string
+  solution?: Prisma.SolutionListRelationFilter
+  solutioncategory?: Prisma.XOR<Prisma.SolutioncategoryNullableScalarRelationFilter, Prisma.solutioncategoryWhereInput> | null
+  other_solutioncategory?: Prisma.SolutioncategoryListRelationFilter
 }, "id" | "slug">
 
-export type SolutionCategoryOrderByWithAggregationInput = {
+export type solutioncategoryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -307,31 +307,31 @@ export type SolutionCategoryOrderByWithAggregationInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  _count?: Prisma.SolutionCategoryCountOrderByAggregateInput
-  _avg?: Prisma.SolutionCategoryAvgOrderByAggregateInput
-  _max?: Prisma.SolutionCategoryMaxOrderByAggregateInput
-  _min?: Prisma.SolutionCategoryMinOrderByAggregateInput
-  _sum?: Prisma.SolutionCategorySumOrderByAggregateInput
+  _count?: Prisma.solutioncategoryCountOrderByAggregateInput
+  _avg?: Prisma.solutioncategoryAvgOrderByAggregateInput
+  _max?: Prisma.solutioncategoryMaxOrderByAggregateInput
+  _min?: Prisma.solutioncategoryMinOrderByAggregateInput
+  _sum?: Prisma.solutioncategorySumOrderByAggregateInput
 }
 
-export type SolutionCategoryScalarWhereWithAggregatesInput = {
-  AND?: Prisma.SolutionCategoryScalarWhereWithAggregatesInput | Prisma.SolutionCategoryScalarWhereWithAggregatesInput[]
-  OR?: Prisma.SolutionCategoryScalarWhereWithAggregatesInput[]
-  NOT?: Prisma.SolutionCategoryScalarWhereWithAggregatesInput | Prisma.SolutionCategoryScalarWhereWithAggregatesInput[]
-  id?: Prisma.StringWithAggregatesFilter<"SolutionCategory"> | string
-  name?: Prisma.StringWithAggregatesFilter<"SolutionCategory"> | string
-  slug?: Prisma.StringWithAggregatesFilter<"SolutionCategory"> | string
-  description?: Prisma.StringNullableWithAggregatesFilter<"SolutionCategory"> | string | null
-  image?: Prisma.StringNullableWithAggregatesFilter<"SolutionCategory"> | string | null
-  parentId?: Prisma.StringNullableWithAggregatesFilter<"SolutionCategory"> | string | null
-  sortOrder?: Prisma.IntWithAggregatesFilter<"SolutionCategory"> | number
-  isActive?: Prisma.BoolWithAggregatesFilter<"SolutionCategory"> | boolean
-  createdAt?: Prisma.DateTimeWithAggregatesFilter<"SolutionCategory"> | Date | string
-  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SolutionCategory"> | Date | string
+export type solutioncategoryScalarWhereWithAggregatesInput = {
+  AND?: Prisma.solutioncategoryScalarWhereWithAggregatesInput | Prisma.solutioncategoryScalarWhereWithAggregatesInput[]
+  OR?: Prisma.solutioncategoryScalarWhereWithAggregatesInput[]
+  NOT?: Prisma.solutioncategoryScalarWhereWithAggregatesInput | Prisma.solutioncategoryScalarWhereWithAggregatesInput[]
+  id?: Prisma.StringWithAggregatesFilter<"solutioncategory"> | string
+  name?: Prisma.StringWithAggregatesFilter<"solutioncategory"> | string
+  slug?: Prisma.StringWithAggregatesFilter<"solutioncategory"> | string
+  description?: Prisma.StringNullableWithAggregatesFilter<"solutioncategory"> | string | null
+  image?: Prisma.StringNullableWithAggregatesFilter<"solutioncategory"> | string | null
+  parentId?: Prisma.StringNullableWithAggregatesFilter<"solutioncategory"> | string | null
+  sortOrder?: Prisma.IntWithAggregatesFilter<"solutioncategory"> | number
+  isActive?: Prisma.BoolWithAggregatesFilter<"solutioncategory"> | boolean
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"solutioncategory"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"solutioncategory"> | Date | string
 }
 
-export type SolutionCategoryCreateInput = {
-  id?: string
+export type solutioncategoryCreateInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -339,14 +339,14 @@ export type SolutionCategoryCreateInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
-  parent?: Prisma.SolutionCategoryCreateNestedOneWithoutChildrenInput
-  children?: Prisma.SolutionCategoryCreateNestedManyWithoutParentInput
-  solutions?: Prisma.SolutionCreateNestedManyWithoutCategoryInput
+  updatedAt: Date | string
+  solution?: Prisma.solutionCreateNestedManyWithoutSolutioncategoryInput
+  solutioncategory?: Prisma.solutioncategoryCreateNestedOneWithoutOther_solutioncategoryInput
+  other_solutioncategory?: Prisma.solutioncategoryCreateNestedManyWithoutSolutioncategoryInput
 }
 
-export type SolutionCategoryUncheckedCreateInput = {
-  id?: string
+export type solutioncategoryUncheckedCreateInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -355,12 +355,12 @@ export type SolutionCategoryUncheckedCreateInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
-  children?: Prisma.SolutionCategoryUncheckedCreateNestedManyWithoutParentInput
-  solutions?: Prisma.SolutionUncheckedCreateNestedManyWithoutCategoryInput
+  updatedAt: Date | string
+  solution?: Prisma.solutionUncheckedCreateNestedManyWithoutSolutioncategoryInput
+  other_solutioncategory?: Prisma.solutioncategoryUncheckedCreateNestedManyWithoutSolutioncategoryInput
 }
 
-export type SolutionCategoryUpdateInput = {
+export type solutioncategoryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -370,12 +370,12 @@ export type SolutionCategoryUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  parent?: Prisma.SolutionCategoryUpdateOneWithoutChildrenNestedInput
-  children?: Prisma.SolutionCategoryUpdateManyWithoutParentNestedInput
-  solutions?: Prisma.SolutionUpdateManyWithoutCategoryNestedInput
+  solution?: Prisma.solutionUpdateManyWithoutSolutioncategoryNestedInput
+  solutioncategory?: Prisma.solutioncategoryUpdateOneWithoutOther_solutioncategoryNestedInput
+  other_solutioncategory?: Prisma.solutioncategoryUpdateManyWithoutSolutioncategoryNestedInput
 }
 
-export type SolutionCategoryUncheckedUpdateInput = {
+export type solutioncategoryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -386,12 +386,12 @@ export type SolutionCategoryUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  children?: Prisma.SolutionCategoryUncheckedUpdateManyWithoutParentNestedInput
-  solutions?: Prisma.SolutionUncheckedUpdateManyWithoutCategoryNestedInput
+  solution?: Prisma.solutionUncheckedUpdateManyWithoutSolutioncategoryNestedInput
+  other_solutioncategory?: Prisma.solutioncategoryUncheckedUpdateManyWithoutSolutioncategoryNestedInput
 }
 
-export type SolutionCategoryCreateManyInput = {
-  id?: string
+export type solutioncategoryCreateManyInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -400,10 +400,10 @@ export type SolutionCategoryCreateManyInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
+  updatedAt: Date | string
 }
 
-export type SolutionCategoryUpdateManyMutationInput = {
+export type solutioncategoryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -415,7 +415,7 @@ export type SolutionCategoryUpdateManyMutationInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SolutionCategoryUncheckedUpdateManyInput = {
+export type solutioncategoryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -428,28 +428,33 @@ export type SolutionCategoryUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SolutionCategoryNullableScalarRelationFilter = {
-  is?: Prisma.SolutionCategoryWhereInput | null
-  isNot?: Prisma.SolutionCategoryWhereInput | null
+export type SolutioncategoryScalarRelationFilter = {
+  is?: Prisma.solutioncategoryWhereInput
+  isNot?: Prisma.solutioncategoryWhereInput
 }
 
-export type SolutionCategoryListRelationFilter = {
-  every?: Prisma.SolutionCategoryWhereInput
-  some?: Prisma.SolutionCategoryWhereInput
-  none?: Prisma.SolutionCategoryWhereInput
+export type SolutioncategoryNullableScalarRelationFilter = {
+  is?: Prisma.solutioncategoryWhereInput | null
+  isNot?: Prisma.solutioncategoryWhereInput | null
 }
 
-export type SolutionCategoryOrderByRelationAggregateInput = {
+export type SolutioncategoryListRelationFilter = {
+  every?: Prisma.solutioncategoryWhereInput
+  some?: Prisma.solutioncategoryWhereInput
+  none?: Prisma.solutioncategoryWhereInput
+}
+
+export type solutioncategoryOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type SolutionCategoryOrderByRelevanceInput = {
-  fields: Prisma.SolutionCategoryOrderByRelevanceFieldEnum | Prisma.SolutionCategoryOrderByRelevanceFieldEnum[]
+export type solutioncategoryOrderByRelevanceInput = {
+  fields: Prisma.solutioncategoryOrderByRelevanceFieldEnum | Prisma.solutioncategoryOrderByRelevanceFieldEnum[]
   sort: Prisma.SortOrder
   search: string
 }
 
-export type SolutionCategoryCountOrderByAggregateInput = {
+export type solutioncategoryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -462,11 +467,11 @@ export type SolutionCategoryCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type SolutionCategoryAvgOrderByAggregateInput = {
+export type solutioncategoryAvgOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
-export type SolutionCategoryMaxOrderByAggregateInput = {
+export type solutioncategoryMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -479,7 +484,7 @@ export type SolutionCategoryMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type SolutionCategoryMinOrderByAggregateInput = {
+export type solutioncategoryMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -492,89 +497,84 @@ export type SolutionCategoryMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type SolutionCategorySumOrderByAggregateInput = {
+export type solutioncategorySumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
-export type SolutionCategoryScalarRelationFilter = {
-  is?: Prisma.SolutionCategoryWhereInput
-  isNot?: Prisma.SolutionCategoryWhereInput
+export type solutioncategoryCreateNestedOneWithoutSolutionInput = {
+  create?: Prisma.XOR<Prisma.solutioncategoryCreateWithoutSolutionInput, Prisma.solutioncategoryUncheckedCreateWithoutSolutionInput>
+  connectOrCreate?: Prisma.solutioncategoryCreateOrConnectWithoutSolutionInput
+  connect?: Prisma.solutioncategoryWhereUniqueInput
 }
 
-export type SolutionCategoryCreateNestedOneWithoutChildrenInput = {
-  create?: Prisma.XOR<Prisma.SolutionCategoryCreateWithoutChildrenInput, Prisma.SolutionCategoryUncheckedCreateWithoutChildrenInput>
-  connectOrCreate?: Prisma.SolutionCategoryCreateOrConnectWithoutChildrenInput
-  connect?: Prisma.SolutionCategoryWhereUniqueInput
+export type solutioncategoryUpdateOneRequiredWithoutSolutionNestedInput = {
+  create?: Prisma.XOR<Prisma.solutioncategoryCreateWithoutSolutionInput, Prisma.solutioncategoryUncheckedCreateWithoutSolutionInput>
+  connectOrCreate?: Prisma.solutioncategoryCreateOrConnectWithoutSolutionInput
+  upsert?: Prisma.solutioncategoryUpsertWithoutSolutionInput
+  connect?: Prisma.solutioncategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.solutioncategoryUpdateToOneWithWhereWithoutSolutionInput, Prisma.solutioncategoryUpdateWithoutSolutionInput>, Prisma.solutioncategoryUncheckedUpdateWithoutSolutionInput>
 }
 
-export type SolutionCategoryCreateNestedManyWithoutParentInput = {
-  create?: Prisma.XOR<Prisma.SolutionCategoryCreateWithoutParentInput, Prisma.SolutionCategoryUncheckedCreateWithoutParentInput> | Prisma.SolutionCategoryCreateWithoutParentInput[] | Prisma.SolutionCategoryUncheckedCreateWithoutParentInput[]
-  connectOrCreate?: Prisma.SolutionCategoryCreateOrConnectWithoutParentInput | Prisma.SolutionCategoryCreateOrConnectWithoutParentInput[]
-  createMany?: Prisma.SolutionCategoryCreateManyParentInputEnvelope
-  connect?: Prisma.SolutionCategoryWhereUniqueInput | Prisma.SolutionCategoryWhereUniqueInput[]
+export type solutioncategoryCreateNestedOneWithoutOther_solutioncategoryInput = {
+  create?: Prisma.XOR<Prisma.solutioncategoryCreateWithoutOther_solutioncategoryInput, Prisma.solutioncategoryUncheckedCreateWithoutOther_solutioncategoryInput>
+  connectOrCreate?: Prisma.solutioncategoryCreateOrConnectWithoutOther_solutioncategoryInput
+  connect?: Prisma.solutioncategoryWhereUniqueInput
 }
 
-export type SolutionCategoryUncheckedCreateNestedManyWithoutParentInput = {
-  create?: Prisma.XOR<Prisma.SolutionCategoryCreateWithoutParentInput, Prisma.SolutionCategoryUncheckedCreateWithoutParentInput> | Prisma.SolutionCategoryCreateWithoutParentInput[] | Prisma.SolutionCategoryUncheckedCreateWithoutParentInput[]
-  connectOrCreate?: Prisma.SolutionCategoryCreateOrConnectWithoutParentInput | Prisma.SolutionCategoryCreateOrConnectWithoutParentInput[]
-  createMany?: Prisma.SolutionCategoryCreateManyParentInputEnvelope
-  connect?: Prisma.SolutionCategoryWhereUniqueInput | Prisma.SolutionCategoryWhereUniqueInput[]
+export type solutioncategoryCreateNestedManyWithoutSolutioncategoryInput = {
+  create?: Prisma.XOR<Prisma.solutioncategoryCreateWithoutSolutioncategoryInput, Prisma.solutioncategoryUncheckedCreateWithoutSolutioncategoryInput> | Prisma.solutioncategoryCreateWithoutSolutioncategoryInput[] | Prisma.solutioncategoryUncheckedCreateWithoutSolutioncategoryInput[]
+  connectOrCreate?: Prisma.solutioncategoryCreateOrConnectWithoutSolutioncategoryInput | Prisma.solutioncategoryCreateOrConnectWithoutSolutioncategoryInput[]
+  createMany?: Prisma.solutioncategoryCreateManySolutioncategoryInputEnvelope
+  connect?: Prisma.solutioncategoryWhereUniqueInput | Prisma.solutioncategoryWhereUniqueInput[]
 }
 
-export type SolutionCategoryUpdateOneWithoutChildrenNestedInput = {
-  create?: Prisma.XOR<Prisma.SolutionCategoryCreateWithoutChildrenInput, Prisma.SolutionCategoryUncheckedCreateWithoutChildrenInput>
-  connectOrCreate?: Prisma.SolutionCategoryCreateOrConnectWithoutChildrenInput
-  upsert?: Prisma.SolutionCategoryUpsertWithoutChildrenInput
-  disconnect?: Prisma.SolutionCategoryWhereInput | boolean
-  delete?: Prisma.SolutionCategoryWhereInput | boolean
-  connect?: Prisma.SolutionCategoryWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.SolutionCategoryUpdateToOneWithWhereWithoutChildrenInput, Prisma.SolutionCategoryUpdateWithoutChildrenInput>, Prisma.SolutionCategoryUncheckedUpdateWithoutChildrenInput>
+export type solutioncategoryUncheckedCreateNestedManyWithoutSolutioncategoryInput = {
+  create?: Prisma.XOR<Prisma.solutioncategoryCreateWithoutSolutioncategoryInput, Prisma.solutioncategoryUncheckedCreateWithoutSolutioncategoryInput> | Prisma.solutioncategoryCreateWithoutSolutioncategoryInput[] | Prisma.solutioncategoryUncheckedCreateWithoutSolutioncategoryInput[]
+  connectOrCreate?: Prisma.solutioncategoryCreateOrConnectWithoutSolutioncategoryInput | Prisma.solutioncategoryCreateOrConnectWithoutSolutioncategoryInput[]
+  createMany?: Prisma.solutioncategoryCreateManySolutioncategoryInputEnvelope
+  connect?: Prisma.solutioncategoryWhereUniqueInput | Prisma.solutioncategoryWhereUniqueInput[]
 }
 
-export type SolutionCategoryUpdateManyWithoutParentNestedInput = {
-  create?: Prisma.XOR<Prisma.SolutionCategoryCreateWithoutParentInput, Prisma.SolutionCategoryUncheckedCreateWithoutParentInput> | Prisma.SolutionCategoryCreateWithoutParentInput[] | Prisma.SolutionCategoryUncheckedCreateWithoutParentInput[]
-  connectOrCreate?: Prisma.SolutionCategoryCreateOrConnectWithoutParentInput | Prisma.SolutionCategoryCreateOrConnectWithoutParentInput[]
-  upsert?: Prisma.SolutionCategoryUpsertWithWhereUniqueWithoutParentInput | Prisma.SolutionCategoryUpsertWithWhereUniqueWithoutParentInput[]
-  createMany?: Prisma.SolutionCategoryCreateManyParentInputEnvelope
-  set?: Prisma.SolutionCategoryWhereUniqueInput | Prisma.SolutionCategoryWhereUniqueInput[]
-  disconnect?: Prisma.SolutionCategoryWhereUniqueInput | Prisma.SolutionCategoryWhereUniqueInput[]
-  delete?: Prisma.SolutionCategoryWhereUniqueInput | Prisma.SolutionCategoryWhereUniqueInput[]
-  connect?: Prisma.SolutionCategoryWhereUniqueInput | Prisma.SolutionCategoryWhereUniqueInput[]
-  update?: Prisma.SolutionCategoryUpdateWithWhereUniqueWithoutParentInput | Prisma.SolutionCategoryUpdateWithWhereUniqueWithoutParentInput[]
-  updateMany?: Prisma.SolutionCategoryUpdateManyWithWhereWithoutParentInput | Prisma.SolutionCategoryUpdateManyWithWhereWithoutParentInput[]
-  deleteMany?: Prisma.SolutionCategoryScalarWhereInput | Prisma.SolutionCategoryScalarWhereInput[]
+export type solutioncategoryUpdateOneWithoutOther_solutioncategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.solutioncategoryCreateWithoutOther_solutioncategoryInput, Prisma.solutioncategoryUncheckedCreateWithoutOther_solutioncategoryInput>
+  connectOrCreate?: Prisma.solutioncategoryCreateOrConnectWithoutOther_solutioncategoryInput
+  upsert?: Prisma.solutioncategoryUpsertWithoutOther_solutioncategoryInput
+  disconnect?: Prisma.solutioncategoryWhereInput | boolean
+  delete?: Prisma.solutioncategoryWhereInput | boolean
+  connect?: Prisma.solutioncategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.solutioncategoryUpdateToOneWithWhereWithoutOther_solutioncategoryInput, Prisma.solutioncategoryUpdateWithoutOther_solutioncategoryInput>, Prisma.solutioncategoryUncheckedUpdateWithoutOther_solutioncategoryInput>
 }
 
-export type SolutionCategoryUncheckedUpdateManyWithoutParentNestedInput = {
-  create?: Prisma.XOR<Prisma.SolutionCategoryCreateWithoutParentInput, Prisma.SolutionCategoryUncheckedCreateWithoutParentInput> | Prisma.SolutionCategoryCreateWithoutParentInput[] | Prisma.SolutionCategoryUncheckedCreateWithoutParentInput[]
-  connectOrCreate?: Prisma.SolutionCategoryCreateOrConnectWithoutParentInput | Prisma.SolutionCategoryCreateOrConnectWithoutParentInput[]
-  upsert?: Prisma.SolutionCategoryUpsertWithWhereUniqueWithoutParentInput | Prisma.SolutionCategoryUpsertWithWhereUniqueWithoutParentInput[]
-  createMany?: Prisma.SolutionCategoryCreateManyParentInputEnvelope
-  set?: Prisma.SolutionCategoryWhereUniqueInput | Prisma.SolutionCategoryWhereUniqueInput[]
-  disconnect?: Prisma.SolutionCategoryWhereUniqueInput | Prisma.SolutionCategoryWhereUniqueInput[]
-  delete?: Prisma.SolutionCategoryWhereUniqueInput | Prisma.SolutionCategoryWhereUniqueInput[]
-  connect?: Prisma.SolutionCategoryWhereUniqueInput | Prisma.SolutionCategoryWhereUniqueInput[]
-  update?: Prisma.SolutionCategoryUpdateWithWhereUniqueWithoutParentInput | Prisma.SolutionCategoryUpdateWithWhereUniqueWithoutParentInput[]
-  updateMany?: Prisma.SolutionCategoryUpdateManyWithWhereWithoutParentInput | Prisma.SolutionCategoryUpdateManyWithWhereWithoutParentInput[]
-  deleteMany?: Prisma.SolutionCategoryScalarWhereInput | Prisma.SolutionCategoryScalarWhereInput[]
+export type solutioncategoryUpdateManyWithoutSolutioncategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.solutioncategoryCreateWithoutSolutioncategoryInput, Prisma.solutioncategoryUncheckedCreateWithoutSolutioncategoryInput> | Prisma.solutioncategoryCreateWithoutSolutioncategoryInput[] | Prisma.solutioncategoryUncheckedCreateWithoutSolutioncategoryInput[]
+  connectOrCreate?: Prisma.solutioncategoryCreateOrConnectWithoutSolutioncategoryInput | Prisma.solutioncategoryCreateOrConnectWithoutSolutioncategoryInput[]
+  upsert?: Prisma.solutioncategoryUpsertWithWhereUniqueWithoutSolutioncategoryInput | Prisma.solutioncategoryUpsertWithWhereUniqueWithoutSolutioncategoryInput[]
+  createMany?: Prisma.solutioncategoryCreateManySolutioncategoryInputEnvelope
+  set?: Prisma.solutioncategoryWhereUniqueInput | Prisma.solutioncategoryWhereUniqueInput[]
+  disconnect?: Prisma.solutioncategoryWhereUniqueInput | Prisma.solutioncategoryWhereUniqueInput[]
+  delete?: Prisma.solutioncategoryWhereUniqueInput | Prisma.solutioncategoryWhereUniqueInput[]
+  connect?: Prisma.solutioncategoryWhereUniqueInput | Prisma.solutioncategoryWhereUniqueInput[]
+  update?: Prisma.solutioncategoryUpdateWithWhereUniqueWithoutSolutioncategoryInput | Prisma.solutioncategoryUpdateWithWhereUniqueWithoutSolutioncategoryInput[]
+  updateMany?: Prisma.solutioncategoryUpdateManyWithWhereWithoutSolutioncategoryInput | Prisma.solutioncategoryUpdateManyWithWhereWithoutSolutioncategoryInput[]
+  deleteMany?: Prisma.solutioncategoryScalarWhereInput | Prisma.solutioncategoryScalarWhereInput[]
 }
 
-export type SolutionCategoryCreateNestedOneWithoutSolutionsInput = {
-  create?: Prisma.XOR<Prisma.SolutionCategoryCreateWithoutSolutionsInput, Prisma.SolutionCategoryUncheckedCreateWithoutSolutionsInput>
-  connectOrCreate?: Prisma.SolutionCategoryCreateOrConnectWithoutSolutionsInput
-  connect?: Prisma.SolutionCategoryWhereUniqueInput
+export type solutioncategoryUncheckedUpdateManyWithoutSolutioncategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.solutioncategoryCreateWithoutSolutioncategoryInput, Prisma.solutioncategoryUncheckedCreateWithoutSolutioncategoryInput> | Prisma.solutioncategoryCreateWithoutSolutioncategoryInput[] | Prisma.solutioncategoryUncheckedCreateWithoutSolutioncategoryInput[]
+  connectOrCreate?: Prisma.solutioncategoryCreateOrConnectWithoutSolutioncategoryInput | Prisma.solutioncategoryCreateOrConnectWithoutSolutioncategoryInput[]
+  upsert?: Prisma.solutioncategoryUpsertWithWhereUniqueWithoutSolutioncategoryInput | Prisma.solutioncategoryUpsertWithWhereUniqueWithoutSolutioncategoryInput[]
+  createMany?: Prisma.solutioncategoryCreateManySolutioncategoryInputEnvelope
+  set?: Prisma.solutioncategoryWhereUniqueInput | Prisma.solutioncategoryWhereUniqueInput[]
+  disconnect?: Prisma.solutioncategoryWhereUniqueInput | Prisma.solutioncategoryWhereUniqueInput[]
+  delete?: Prisma.solutioncategoryWhereUniqueInput | Prisma.solutioncategoryWhereUniqueInput[]
+  connect?: Prisma.solutioncategoryWhereUniqueInput | Prisma.solutioncategoryWhereUniqueInput[]
+  update?: Prisma.solutioncategoryUpdateWithWhereUniqueWithoutSolutioncategoryInput | Prisma.solutioncategoryUpdateWithWhereUniqueWithoutSolutioncategoryInput[]
+  updateMany?: Prisma.solutioncategoryUpdateManyWithWhereWithoutSolutioncategoryInput | Prisma.solutioncategoryUpdateManyWithWhereWithoutSolutioncategoryInput[]
+  deleteMany?: Prisma.solutioncategoryScalarWhereInput | Prisma.solutioncategoryScalarWhereInput[]
 }
 
-export type SolutionCategoryUpdateOneRequiredWithoutSolutionsNestedInput = {
-  create?: Prisma.XOR<Prisma.SolutionCategoryCreateWithoutSolutionsInput, Prisma.SolutionCategoryUncheckedCreateWithoutSolutionsInput>
-  connectOrCreate?: Prisma.SolutionCategoryCreateOrConnectWithoutSolutionsInput
-  upsert?: Prisma.SolutionCategoryUpsertWithoutSolutionsInput
-  connect?: Prisma.SolutionCategoryWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.SolutionCategoryUpdateToOneWithWhereWithoutSolutionsInput, Prisma.SolutionCategoryUpdateWithoutSolutionsInput>, Prisma.SolutionCategoryUncheckedUpdateWithoutSolutionsInput>
-}
-
-export type SolutionCategoryCreateWithoutChildrenInput = {
-  id?: string
+export type solutioncategoryCreateWithoutSolutionInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -582,13 +582,13 @@ export type SolutionCategoryCreateWithoutChildrenInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
-  parent?: Prisma.SolutionCategoryCreateNestedOneWithoutChildrenInput
-  solutions?: Prisma.SolutionCreateNestedManyWithoutCategoryInput
+  updatedAt: Date | string
+  solutioncategory?: Prisma.solutioncategoryCreateNestedOneWithoutOther_solutioncategoryInput
+  other_solutioncategory?: Prisma.solutioncategoryCreateNestedManyWithoutSolutioncategoryInput
 }
 
-export type SolutionCategoryUncheckedCreateWithoutChildrenInput = {
-  id?: string
+export type solutioncategoryUncheckedCreateWithoutSolutionInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -597,17 +597,56 @@ export type SolutionCategoryUncheckedCreateWithoutChildrenInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
-  solutions?: Prisma.SolutionUncheckedCreateNestedManyWithoutCategoryInput
+  updatedAt: Date | string
+  other_solutioncategory?: Prisma.solutioncategoryUncheckedCreateNestedManyWithoutSolutioncategoryInput
 }
 
-export type SolutionCategoryCreateOrConnectWithoutChildrenInput = {
-  where: Prisma.SolutionCategoryWhereUniqueInput
-  create: Prisma.XOR<Prisma.SolutionCategoryCreateWithoutChildrenInput, Prisma.SolutionCategoryUncheckedCreateWithoutChildrenInput>
+export type solutioncategoryCreateOrConnectWithoutSolutionInput = {
+  where: Prisma.solutioncategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.solutioncategoryCreateWithoutSolutionInput, Prisma.solutioncategoryUncheckedCreateWithoutSolutionInput>
 }
 
-export type SolutionCategoryCreateWithoutParentInput = {
-  id?: string
+export type solutioncategoryUpsertWithoutSolutionInput = {
+  update: Prisma.XOR<Prisma.solutioncategoryUpdateWithoutSolutionInput, Prisma.solutioncategoryUncheckedUpdateWithoutSolutionInput>
+  create: Prisma.XOR<Prisma.solutioncategoryCreateWithoutSolutionInput, Prisma.solutioncategoryUncheckedCreateWithoutSolutionInput>
+  where?: Prisma.solutioncategoryWhereInput
+}
+
+export type solutioncategoryUpdateToOneWithWhereWithoutSolutionInput = {
+  where?: Prisma.solutioncategoryWhereInput
+  data: Prisma.XOR<Prisma.solutioncategoryUpdateWithoutSolutionInput, Prisma.solutioncategoryUncheckedUpdateWithoutSolutionInput>
+}
+
+export type solutioncategoryUpdateWithoutSolutionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  solutioncategory?: Prisma.solutioncategoryUpdateOneWithoutOther_solutioncategoryNestedInput
+  other_solutioncategory?: Prisma.solutioncategoryUpdateManyWithoutSolutioncategoryNestedInput
+}
+
+export type solutioncategoryUncheckedUpdateWithoutSolutionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  other_solutioncategory?: Prisma.solutioncategoryUncheckedUpdateManyWithoutSolutioncategoryNestedInput
+}
+
+export type solutioncategoryCreateWithoutOther_solutioncategoryInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -615,13 +654,32 @@ export type SolutionCategoryCreateWithoutParentInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
-  children?: Prisma.SolutionCategoryCreateNestedManyWithoutParentInput
-  solutions?: Prisma.SolutionCreateNestedManyWithoutCategoryInput
+  updatedAt: Date | string
+  solution?: Prisma.solutionCreateNestedManyWithoutSolutioncategoryInput
+  solutioncategory?: Prisma.solutioncategoryCreateNestedOneWithoutOther_solutioncategoryInput
 }
 
-export type SolutionCategoryUncheckedCreateWithoutParentInput = {
-  id?: string
+export type solutioncategoryUncheckedCreateWithoutOther_solutioncategoryInput = {
+  id: string
+  name: string
+  slug: string
+  description?: string | null
+  image?: string | null
+  parentId?: string | null
+  sortOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt: Date | string
+  solution?: Prisma.solutionUncheckedCreateNestedManyWithoutSolutioncategoryInput
+}
+
+export type solutioncategoryCreateOrConnectWithoutOther_solutioncategoryInput = {
+  where: Prisma.solutioncategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.solutioncategoryCreateWithoutOther_solutioncategoryInput, Prisma.solutioncategoryUncheckedCreateWithoutOther_solutioncategoryInput>
+}
+
+export type solutioncategoryCreateWithoutSolutioncategoryInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -629,33 +687,47 @@ export type SolutionCategoryUncheckedCreateWithoutParentInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
-  children?: Prisma.SolutionCategoryUncheckedCreateNestedManyWithoutParentInput
-  solutions?: Prisma.SolutionUncheckedCreateNestedManyWithoutCategoryInput
+  updatedAt: Date | string
+  solution?: Prisma.solutionCreateNestedManyWithoutSolutioncategoryInput
+  other_solutioncategory?: Prisma.solutioncategoryCreateNestedManyWithoutSolutioncategoryInput
 }
 
-export type SolutionCategoryCreateOrConnectWithoutParentInput = {
-  where: Prisma.SolutionCategoryWhereUniqueInput
-  create: Prisma.XOR<Prisma.SolutionCategoryCreateWithoutParentInput, Prisma.SolutionCategoryUncheckedCreateWithoutParentInput>
+export type solutioncategoryUncheckedCreateWithoutSolutioncategoryInput = {
+  id: string
+  name: string
+  slug: string
+  description?: string | null
+  image?: string | null
+  sortOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt: Date | string
+  solution?: Prisma.solutionUncheckedCreateNestedManyWithoutSolutioncategoryInput
+  other_solutioncategory?: Prisma.solutioncategoryUncheckedCreateNestedManyWithoutSolutioncategoryInput
 }
 
-export type SolutionCategoryCreateManyParentInputEnvelope = {
-  data: Prisma.SolutionCategoryCreateManyParentInput | Prisma.SolutionCategoryCreateManyParentInput[]
+export type solutioncategoryCreateOrConnectWithoutSolutioncategoryInput = {
+  where: Prisma.solutioncategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.solutioncategoryCreateWithoutSolutioncategoryInput, Prisma.solutioncategoryUncheckedCreateWithoutSolutioncategoryInput>
+}
+
+export type solutioncategoryCreateManySolutioncategoryInputEnvelope = {
+  data: Prisma.solutioncategoryCreateManySolutioncategoryInput | Prisma.solutioncategoryCreateManySolutioncategoryInput[]
   skipDuplicates?: boolean
 }
 
-export type SolutionCategoryUpsertWithoutChildrenInput = {
-  update: Prisma.XOR<Prisma.SolutionCategoryUpdateWithoutChildrenInput, Prisma.SolutionCategoryUncheckedUpdateWithoutChildrenInput>
-  create: Prisma.XOR<Prisma.SolutionCategoryCreateWithoutChildrenInput, Prisma.SolutionCategoryUncheckedCreateWithoutChildrenInput>
-  where?: Prisma.SolutionCategoryWhereInput
+export type solutioncategoryUpsertWithoutOther_solutioncategoryInput = {
+  update: Prisma.XOR<Prisma.solutioncategoryUpdateWithoutOther_solutioncategoryInput, Prisma.solutioncategoryUncheckedUpdateWithoutOther_solutioncategoryInput>
+  create: Prisma.XOR<Prisma.solutioncategoryCreateWithoutOther_solutioncategoryInput, Prisma.solutioncategoryUncheckedCreateWithoutOther_solutioncategoryInput>
+  where?: Prisma.solutioncategoryWhereInput
 }
 
-export type SolutionCategoryUpdateToOneWithWhereWithoutChildrenInput = {
-  where?: Prisma.SolutionCategoryWhereInput
-  data: Prisma.XOR<Prisma.SolutionCategoryUpdateWithoutChildrenInput, Prisma.SolutionCategoryUncheckedUpdateWithoutChildrenInput>
+export type solutioncategoryUpdateToOneWithWhereWithoutOther_solutioncategoryInput = {
+  where?: Prisma.solutioncategoryWhereInput
+  data: Prisma.XOR<Prisma.solutioncategoryUpdateWithoutOther_solutioncategoryInput, Prisma.solutioncategoryUncheckedUpdateWithoutOther_solutioncategoryInput>
 }
 
-export type SolutionCategoryUpdateWithoutChildrenInput = {
+export type solutioncategoryUpdateWithoutOther_solutioncategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -665,115 +737,11 @@ export type SolutionCategoryUpdateWithoutChildrenInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  parent?: Prisma.SolutionCategoryUpdateOneWithoutChildrenNestedInput
-  solutions?: Prisma.SolutionUpdateManyWithoutCategoryNestedInput
+  solution?: Prisma.solutionUpdateManyWithoutSolutioncategoryNestedInput
+  solutioncategory?: Prisma.solutioncategoryUpdateOneWithoutOther_solutioncategoryNestedInput
 }
 
-export type SolutionCategoryUncheckedUpdateWithoutChildrenInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  solutions?: Prisma.SolutionUncheckedUpdateManyWithoutCategoryNestedInput
-}
-
-export type SolutionCategoryUpsertWithWhereUniqueWithoutParentInput = {
-  where: Prisma.SolutionCategoryWhereUniqueInput
-  update: Prisma.XOR<Prisma.SolutionCategoryUpdateWithoutParentInput, Prisma.SolutionCategoryUncheckedUpdateWithoutParentInput>
-  create: Prisma.XOR<Prisma.SolutionCategoryCreateWithoutParentInput, Prisma.SolutionCategoryUncheckedCreateWithoutParentInput>
-}
-
-export type SolutionCategoryUpdateWithWhereUniqueWithoutParentInput = {
-  where: Prisma.SolutionCategoryWhereUniqueInput
-  data: Prisma.XOR<Prisma.SolutionCategoryUpdateWithoutParentInput, Prisma.SolutionCategoryUncheckedUpdateWithoutParentInput>
-}
-
-export type SolutionCategoryUpdateManyWithWhereWithoutParentInput = {
-  where: Prisma.SolutionCategoryScalarWhereInput
-  data: Prisma.XOR<Prisma.SolutionCategoryUpdateManyMutationInput, Prisma.SolutionCategoryUncheckedUpdateManyWithoutParentInput>
-}
-
-export type SolutionCategoryScalarWhereInput = {
-  AND?: Prisma.SolutionCategoryScalarWhereInput | Prisma.SolutionCategoryScalarWhereInput[]
-  OR?: Prisma.SolutionCategoryScalarWhereInput[]
-  NOT?: Prisma.SolutionCategoryScalarWhereInput | Prisma.SolutionCategoryScalarWhereInput[]
-  id?: Prisma.StringFilter<"SolutionCategory"> | string
-  name?: Prisma.StringFilter<"SolutionCategory"> | string
-  slug?: Prisma.StringFilter<"SolutionCategory"> | string
-  description?: Prisma.StringNullableFilter<"SolutionCategory"> | string | null
-  image?: Prisma.StringNullableFilter<"SolutionCategory"> | string | null
-  parentId?: Prisma.StringNullableFilter<"SolutionCategory"> | string | null
-  sortOrder?: Prisma.IntFilter<"SolutionCategory"> | number
-  isActive?: Prisma.BoolFilter<"SolutionCategory"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"SolutionCategory"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"SolutionCategory"> | Date | string
-}
-
-export type SolutionCategoryCreateWithoutSolutionsInput = {
-  id?: string
-  name: string
-  slug: string
-  description?: string | null
-  image?: string | null
-  sortOrder?: number
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  parent?: Prisma.SolutionCategoryCreateNestedOneWithoutChildrenInput
-  children?: Prisma.SolutionCategoryCreateNestedManyWithoutParentInput
-}
-
-export type SolutionCategoryUncheckedCreateWithoutSolutionsInput = {
-  id?: string
-  name: string
-  slug: string
-  description?: string | null
-  image?: string | null
-  parentId?: string | null
-  sortOrder?: number
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  children?: Prisma.SolutionCategoryUncheckedCreateNestedManyWithoutParentInput
-}
-
-export type SolutionCategoryCreateOrConnectWithoutSolutionsInput = {
-  where: Prisma.SolutionCategoryWhereUniqueInput
-  create: Prisma.XOR<Prisma.SolutionCategoryCreateWithoutSolutionsInput, Prisma.SolutionCategoryUncheckedCreateWithoutSolutionsInput>
-}
-
-export type SolutionCategoryUpsertWithoutSolutionsInput = {
-  update: Prisma.XOR<Prisma.SolutionCategoryUpdateWithoutSolutionsInput, Prisma.SolutionCategoryUncheckedUpdateWithoutSolutionsInput>
-  create: Prisma.XOR<Prisma.SolutionCategoryCreateWithoutSolutionsInput, Prisma.SolutionCategoryUncheckedCreateWithoutSolutionsInput>
-  where?: Prisma.SolutionCategoryWhereInput
-}
-
-export type SolutionCategoryUpdateToOneWithWhereWithoutSolutionsInput = {
-  where?: Prisma.SolutionCategoryWhereInput
-  data: Prisma.XOR<Prisma.SolutionCategoryUpdateWithoutSolutionsInput, Prisma.SolutionCategoryUncheckedUpdateWithoutSolutionsInput>
-}
-
-export type SolutionCategoryUpdateWithoutSolutionsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  parent?: Prisma.SolutionCategoryUpdateOneWithoutChildrenNestedInput
-  children?: Prisma.SolutionCategoryUpdateManyWithoutParentNestedInput
-}
-
-export type SolutionCategoryUncheckedUpdateWithoutSolutionsInput = {
+export type solutioncategoryUncheckedUpdateWithoutOther_solutioncategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -784,11 +752,43 @@ export type SolutionCategoryUncheckedUpdateWithoutSolutionsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  children?: Prisma.SolutionCategoryUncheckedUpdateManyWithoutParentNestedInput
+  solution?: Prisma.solutionUncheckedUpdateManyWithoutSolutioncategoryNestedInput
 }
 
-export type SolutionCategoryCreateManyParentInput = {
-  id?: string
+export type solutioncategoryUpsertWithWhereUniqueWithoutSolutioncategoryInput = {
+  where: Prisma.solutioncategoryWhereUniqueInput
+  update: Prisma.XOR<Prisma.solutioncategoryUpdateWithoutSolutioncategoryInput, Prisma.solutioncategoryUncheckedUpdateWithoutSolutioncategoryInput>
+  create: Prisma.XOR<Prisma.solutioncategoryCreateWithoutSolutioncategoryInput, Prisma.solutioncategoryUncheckedCreateWithoutSolutioncategoryInput>
+}
+
+export type solutioncategoryUpdateWithWhereUniqueWithoutSolutioncategoryInput = {
+  where: Prisma.solutioncategoryWhereUniqueInput
+  data: Prisma.XOR<Prisma.solutioncategoryUpdateWithoutSolutioncategoryInput, Prisma.solutioncategoryUncheckedUpdateWithoutSolutioncategoryInput>
+}
+
+export type solutioncategoryUpdateManyWithWhereWithoutSolutioncategoryInput = {
+  where: Prisma.solutioncategoryScalarWhereInput
+  data: Prisma.XOR<Prisma.solutioncategoryUpdateManyMutationInput, Prisma.solutioncategoryUncheckedUpdateManyWithoutSolutioncategoryInput>
+}
+
+export type solutioncategoryScalarWhereInput = {
+  AND?: Prisma.solutioncategoryScalarWhereInput | Prisma.solutioncategoryScalarWhereInput[]
+  OR?: Prisma.solutioncategoryScalarWhereInput[]
+  NOT?: Prisma.solutioncategoryScalarWhereInput | Prisma.solutioncategoryScalarWhereInput[]
+  id?: Prisma.StringFilter<"solutioncategory"> | string
+  name?: Prisma.StringFilter<"solutioncategory"> | string
+  slug?: Prisma.StringFilter<"solutioncategory"> | string
+  description?: Prisma.StringNullableFilter<"solutioncategory"> | string | null
+  image?: Prisma.StringNullableFilter<"solutioncategory"> | string | null
+  parentId?: Prisma.StringNullableFilter<"solutioncategory"> | string | null
+  sortOrder?: Prisma.IntFilter<"solutioncategory"> | number
+  isActive?: Prisma.BoolFilter<"solutioncategory"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"solutioncategory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"solutioncategory"> | Date | string
+}
+
+export type solutioncategoryCreateManySolutioncategoryInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -796,10 +796,10 @@ export type SolutionCategoryCreateManyParentInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
+  updatedAt: Date | string
 }
 
-export type SolutionCategoryUpdateWithoutParentInput = {
+export type solutioncategoryUpdateWithoutSolutioncategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -809,11 +809,11 @@ export type SolutionCategoryUpdateWithoutParentInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  children?: Prisma.SolutionCategoryUpdateManyWithoutParentNestedInput
-  solutions?: Prisma.SolutionUpdateManyWithoutCategoryNestedInput
+  solution?: Prisma.solutionUpdateManyWithoutSolutioncategoryNestedInput
+  other_solutioncategory?: Prisma.solutioncategoryUpdateManyWithoutSolutioncategoryNestedInput
 }
 
-export type SolutionCategoryUncheckedUpdateWithoutParentInput = {
+export type solutioncategoryUncheckedUpdateWithoutSolutioncategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -823,11 +823,11 @@ export type SolutionCategoryUncheckedUpdateWithoutParentInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  children?: Prisma.SolutionCategoryUncheckedUpdateManyWithoutParentNestedInput
-  solutions?: Prisma.SolutionUncheckedUpdateManyWithoutCategoryNestedInput
+  solution?: Prisma.solutionUncheckedUpdateManyWithoutSolutioncategoryNestedInput
+  other_solutioncategory?: Prisma.solutioncategoryUncheckedUpdateManyWithoutSolutioncategoryNestedInput
 }
 
-export type SolutionCategoryUncheckedUpdateManyWithoutParentInput = {
+export type solutioncategoryUncheckedUpdateManyWithoutSolutioncategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -841,45 +841,45 @@ export type SolutionCategoryUncheckedUpdateManyWithoutParentInput = {
 
 
 /**
- * Count Type SolutionCategoryCountOutputType
+ * Count Type SolutioncategoryCountOutputType
  */
 
-export type SolutionCategoryCountOutputType = {
-  children: number
-  solutions: number
+export type SolutioncategoryCountOutputType = {
+  solution: number
+  other_solutioncategory: number
 }
 
-export type SolutionCategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  children?: boolean | SolutionCategoryCountOutputTypeCountChildrenArgs
-  solutions?: boolean | SolutionCategoryCountOutputTypeCountSolutionsArgs
+export type SolutioncategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  solution?: boolean | SolutioncategoryCountOutputTypeCountSolutionArgs
+  other_solutioncategory?: boolean | SolutioncategoryCountOutputTypeCountOther_solutioncategoryArgs
 }
 
 /**
- * SolutionCategoryCountOutputType without action
+ * SolutioncategoryCountOutputType without action
  */
-export type SolutionCategoryCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type SolutioncategoryCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionCategoryCountOutputType
+   * Select specific fields to fetch from the SolutioncategoryCountOutputType
    */
-  select?: Prisma.SolutionCategoryCountOutputTypeSelect<ExtArgs> | null
+  select?: Prisma.SolutioncategoryCountOutputTypeSelect<ExtArgs> | null
 }
 
 /**
- * SolutionCategoryCountOutputType without action
+ * SolutioncategoryCountOutputType without action
  */
-export type SolutionCategoryCountOutputTypeCountChildrenArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SolutionCategoryWhereInput
+export type SolutioncategoryCountOutputTypeCountSolutionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.solutionWhereInput
 }
 
 /**
- * SolutionCategoryCountOutputType without action
+ * SolutioncategoryCountOutputType without action
  */
-export type SolutionCategoryCountOutputTypeCountSolutionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SolutionWhereInput
+export type SolutioncategoryCountOutputTypeCountOther_solutioncategoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.solutioncategoryWhereInput
 }
 
 
-export type SolutionCategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+export type solutioncategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   slug?: boolean
@@ -890,15 +890,15 @@ export type SolutionCategorySelect<ExtArgs extends runtime.Types.Extensions.Inte
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  parent?: boolean | Prisma.SolutionCategory$parentArgs<ExtArgs>
-  children?: boolean | Prisma.SolutionCategory$childrenArgs<ExtArgs>
-  solutions?: boolean | Prisma.SolutionCategory$solutionsArgs<ExtArgs>
-  _count?: boolean | Prisma.SolutionCategoryCountOutputTypeDefaultArgs<ExtArgs>
-}, ExtArgs["result"]["solutionCategory"]>
+  solution?: boolean | Prisma.solutioncategory$solutionArgs<ExtArgs>
+  solutioncategory?: boolean | Prisma.solutioncategory$solutioncategoryArgs<ExtArgs>
+  other_solutioncategory?: boolean | Prisma.solutioncategory$other_solutioncategoryArgs<ExtArgs>
+  _count?: boolean | Prisma.SolutioncategoryCountOutputTypeDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["solutioncategory"]>
 
 
 
-export type SolutionCategorySelectScalar = {
+export type solutioncategorySelectScalar = {
   id?: boolean
   name?: boolean
   slug?: boolean
@@ -911,20 +911,20 @@ export type SolutionCategorySelectScalar = {
   updatedAt?: boolean
 }
 
-export type SolutionCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "description" | "image" | "parentId" | "sortOrder" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["solutionCategory"]>
-export type SolutionCategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  parent?: boolean | Prisma.SolutionCategory$parentArgs<ExtArgs>
-  children?: boolean | Prisma.SolutionCategory$childrenArgs<ExtArgs>
-  solutions?: boolean | Prisma.SolutionCategory$solutionsArgs<ExtArgs>
-  _count?: boolean | Prisma.SolutionCategoryCountOutputTypeDefaultArgs<ExtArgs>
+export type solutioncategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "description" | "image" | "parentId" | "sortOrder" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["solutioncategory"]>
+export type solutioncategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  solution?: boolean | Prisma.solutioncategory$solutionArgs<ExtArgs>
+  solutioncategory?: boolean | Prisma.solutioncategory$solutioncategoryArgs<ExtArgs>
+  other_solutioncategory?: boolean | Prisma.solutioncategory$other_solutioncategoryArgs<ExtArgs>
+  _count?: boolean | Prisma.SolutioncategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 
-export type $SolutionCategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  name: "SolutionCategory"
+export type $solutioncategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  name: "solutioncategory"
   objects: {
-    parent: Prisma.$SolutionCategoryPayload<ExtArgs> | null
-    children: Prisma.$SolutionCategoryPayload<ExtArgs>[]
-    solutions: Prisma.$SolutionPayload<ExtArgs>[]
+    solution: Prisma.$solutionPayload<ExtArgs>[]
+    solutioncategory: Prisma.$solutioncategoryPayload<ExtArgs> | null
+    other_solutioncategory: Prisma.$solutioncategoryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -937,143 +937,143 @@ export type $SolutionCategoryPayload<ExtArgs extends runtime.Types.Extensions.In
     isActive: boolean
     createdAt: Date
     updatedAt: Date
-  }, ExtArgs["result"]["solutionCategory"]>
+  }, ExtArgs["result"]["solutioncategory"]>
   composites: {}
 }
 
-export type SolutionCategoryGetPayload<S extends boolean | null | undefined | SolutionCategoryDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$SolutionCategoryPayload, S>
+export type solutioncategoryGetPayload<S extends boolean | null | undefined | solutioncategoryDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$solutioncategoryPayload, S>
 
-export type SolutionCategoryCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<SolutionCategoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-    select?: SolutionCategoryCountAggregateInputType | true
+export type solutioncategoryCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
+  Omit<solutioncategoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+    select?: SolutioncategoryCountAggregateInputType | true
   }
 
-export interface SolutionCategoryDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SolutionCategory'], meta: { name: 'SolutionCategory' } }
+export interface solutioncategoryDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['solutioncategory'], meta: { name: 'solutioncategory' } }
   /**
-   * Find zero or one SolutionCategory that matches the filter.
-   * @param {SolutionCategoryFindUniqueArgs} args - Arguments to find a SolutionCategory
+   * Find zero or one Solutioncategory that matches the filter.
+   * @param {solutioncategoryFindUniqueArgs} args - Arguments to find a Solutioncategory
    * @example
-   * // Get one SolutionCategory
-   * const solutionCategory = await prisma.solutionCategory.findUnique({
+   * // Get one Solutioncategory
+   * const solutioncategory = await prisma.solutioncategory.findUnique({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUnique<T extends SolutionCategoryFindUniqueArgs>(args: Prisma.SelectSubset<T, SolutionCategoryFindUniqueArgs<ExtArgs>>): Prisma.Prisma__SolutionCategoryClient<runtime.Types.Result.GetResult<Prisma.$SolutionCategoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findUnique<T extends solutioncategoryFindUniqueArgs>(args: Prisma.SelectSubset<T, solutioncategoryFindUniqueArgs<ExtArgs>>): Prisma.Prisma__solutioncategoryClient<runtime.Types.Result.GetResult<Prisma.$solutioncategoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find one SolutionCategory that matches the filter or throw an error with `error.code='P2025'`
+   * Find one Solutioncategory that matches the filter or throw an error with `error.code='P2025'`
    * if no matches were found.
-   * @param {SolutionCategoryFindUniqueOrThrowArgs} args - Arguments to find a SolutionCategory
+   * @param {solutioncategoryFindUniqueOrThrowArgs} args - Arguments to find a Solutioncategory
    * @example
-   * // Get one SolutionCategory
-   * const solutionCategory = await prisma.solutionCategory.findUniqueOrThrow({
+   * // Get one Solutioncategory
+   * const solutioncategory = await prisma.solutioncategory.findUniqueOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUniqueOrThrow<T extends SolutionCategoryFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, SolutionCategoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__SolutionCategoryClient<runtime.Types.Result.GetResult<Prisma.$SolutionCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findUniqueOrThrow<T extends solutioncategoryFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, solutioncategoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__solutioncategoryClient<runtime.Types.Result.GetResult<Prisma.$solutioncategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first SolutionCategory that matches the filter.
+   * Find the first Solutioncategory that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionCategoryFindFirstArgs} args - Arguments to find a SolutionCategory
+   * @param {solutioncategoryFindFirstArgs} args - Arguments to find a Solutioncategory
    * @example
-   * // Get one SolutionCategory
-   * const solutionCategory = await prisma.solutionCategory.findFirst({
+   * // Get one Solutioncategory
+   * const solutioncategory = await prisma.solutioncategory.findFirst({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirst<T extends SolutionCategoryFindFirstArgs>(args?: Prisma.SelectSubset<T, SolutionCategoryFindFirstArgs<ExtArgs>>): Prisma.Prisma__SolutionCategoryClient<runtime.Types.Result.GetResult<Prisma.$SolutionCategoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findFirst<T extends solutioncategoryFindFirstArgs>(args?: Prisma.SelectSubset<T, solutioncategoryFindFirstArgs<ExtArgs>>): Prisma.Prisma__solutioncategoryClient<runtime.Types.Result.GetResult<Prisma.$solutioncategoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first SolutionCategory that matches the filter or
+   * Find the first Solutioncategory that matches the filter or
    * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionCategoryFindFirstOrThrowArgs} args - Arguments to find a SolutionCategory
+   * @param {solutioncategoryFindFirstOrThrowArgs} args - Arguments to find a Solutioncategory
    * @example
-   * // Get one SolutionCategory
-   * const solutionCategory = await prisma.solutionCategory.findFirstOrThrow({
+   * // Get one Solutioncategory
+   * const solutioncategory = await prisma.solutioncategory.findFirstOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirstOrThrow<T extends SolutionCategoryFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, SolutionCategoryFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__SolutionCategoryClient<runtime.Types.Result.GetResult<Prisma.$SolutionCategoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findFirstOrThrow<T extends solutioncategoryFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, solutioncategoryFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__solutioncategoryClient<runtime.Types.Result.GetResult<Prisma.$solutioncategoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find zero or more SolutionCategories that matches the filter.
+   * Find zero or more Solutioncategories that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionCategoryFindManyArgs} args - Arguments to filter and select certain fields only.
+   * @param {solutioncategoryFindManyArgs} args - Arguments to filter and select certain fields only.
    * @example
-   * // Get all SolutionCategories
-   * const solutionCategories = await prisma.solutionCategory.findMany()
+   * // Get all Solutioncategories
+   * const solutioncategories = await prisma.solutioncategory.findMany()
    * 
-   * // Get first 10 SolutionCategories
-   * const solutionCategories = await prisma.solutionCategory.findMany({ take: 10 })
+   * // Get first 10 Solutioncategories
+   * const solutioncategories = await prisma.solutioncategory.findMany({ take: 10 })
    * 
    * // Only select the `id`
-   * const solutionCategoryWithIdOnly = await prisma.solutionCategory.findMany({ select: { id: true } })
+   * const solutioncategoryWithIdOnly = await prisma.solutioncategory.findMany({ select: { id: true } })
    * 
    */
-  findMany<T extends SolutionCategoryFindManyArgs>(args?: Prisma.SelectSubset<T, SolutionCategoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SolutionCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+  findMany<T extends solutioncategoryFindManyArgs>(args?: Prisma.SelectSubset<T, solutioncategoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$solutioncategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
   /**
-   * Create a SolutionCategory.
-   * @param {SolutionCategoryCreateArgs} args - Arguments to create a SolutionCategory.
+   * Create a Solutioncategory.
+   * @param {solutioncategoryCreateArgs} args - Arguments to create a Solutioncategory.
    * @example
-   * // Create one SolutionCategory
-   * const SolutionCategory = await prisma.solutionCategory.create({
+   * // Create one Solutioncategory
+   * const Solutioncategory = await prisma.solutioncategory.create({
    *   data: {
-   *     // ... data to create a SolutionCategory
+   *     // ... data to create a Solutioncategory
    *   }
    * })
    * 
    */
-  create<T extends SolutionCategoryCreateArgs>(args: Prisma.SelectSubset<T, SolutionCategoryCreateArgs<ExtArgs>>): Prisma.Prisma__SolutionCategoryClient<runtime.Types.Result.GetResult<Prisma.$SolutionCategoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  create<T extends solutioncategoryCreateArgs>(args: Prisma.SelectSubset<T, solutioncategoryCreateArgs<ExtArgs>>): Prisma.Prisma__solutioncategoryClient<runtime.Types.Result.GetResult<Prisma.$solutioncategoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Create many SolutionCategories.
-   * @param {SolutionCategoryCreateManyArgs} args - Arguments to create many SolutionCategories.
+   * Create many Solutioncategories.
+   * @param {solutioncategoryCreateManyArgs} args - Arguments to create many Solutioncategories.
    * @example
-   * // Create many SolutionCategories
-   * const solutionCategory = await prisma.solutionCategory.createMany({
+   * // Create many Solutioncategories
+   * const solutioncategory = await prisma.solutioncategory.createMany({
    *   data: [
    *     // ... provide data here
    *   ]
    * })
    *     
    */
-  createMany<T extends SolutionCategoryCreateManyArgs>(args?: Prisma.SelectSubset<T, SolutionCategoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  createMany<T extends solutioncategoryCreateManyArgs>(args?: Prisma.SelectSubset<T, solutioncategoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Delete a SolutionCategory.
-   * @param {SolutionCategoryDeleteArgs} args - Arguments to delete one SolutionCategory.
+   * Delete a Solutioncategory.
+   * @param {solutioncategoryDeleteArgs} args - Arguments to delete one Solutioncategory.
    * @example
-   * // Delete one SolutionCategory
-   * const SolutionCategory = await prisma.solutionCategory.delete({
+   * // Delete one Solutioncategory
+   * const Solutioncategory = await prisma.solutioncategory.delete({
    *   where: {
-   *     // ... filter to delete one SolutionCategory
+   *     // ... filter to delete one Solutioncategory
    *   }
    * })
    * 
    */
-  delete<T extends SolutionCategoryDeleteArgs>(args: Prisma.SelectSubset<T, SolutionCategoryDeleteArgs<ExtArgs>>): Prisma.Prisma__SolutionCategoryClient<runtime.Types.Result.GetResult<Prisma.$SolutionCategoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  delete<T extends solutioncategoryDeleteArgs>(args: Prisma.SelectSubset<T, solutioncategoryDeleteArgs<ExtArgs>>): Prisma.Prisma__solutioncategoryClient<runtime.Types.Result.GetResult<Prisma.$solutioncategoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Update one SolutionCategory.
-   * @param {SolutionCategoryUpdateArgs} args - Arguments to update one SolutionCategory.
+   * Update one Solutioncategory.
+   * @param {solutioncategoryUpdateArgs} args - Arguments to update one Solutioncategory.
    * @example
-   * // Update one SolutionCategory
-   * const solutionCategory = await prisma.solutionCategory.update({
+   * // Update one Solutioncategory
+   * const solutioncategory = await prisma.solutioncategory.update({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1083,30 +1083,30 @@ export interface SolutionCategoryDelegate<ExtArgs extends runtime.Types.Extensio
    * })
    * 
    */
-  update<T extends SolutionCategoryUpdateArgs>(args: Prisma.SelectSubset<T, SolutionCategoryUpdateArgs<ExtArgs>>): Prisma.Prisma__SolutionCategoryClient<runtime.Types.Result.GetResult<Prisma.$SolutionCategoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  update<T extends solutioncategoryUpdateArgs>(args: Prisma.SelectSubset<T, solutioncategoryUpdateArgs<ExtArgs>>): Prisma.Prisma__solutioncategoryClient<runtime.Types.Result.GetResult<Prisma.$solutioncategoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Delete zero or more SolutionCategories.
-   * @param {SolutionCategoryDeleteManyArgs} args - Arguments to filter SolutionCategories to delete.
+   * Delete zero or more Solutioncategories.
+   * @param {solutioncategoryDeleteManyArgs} args - Arguments to filter Solutioncategories to delete.
    * @example
-   * // Delete a few SolutionCategories
-   * const { count } = await prisma.solutionCategory.deleteMany({
+   * // Delete a few Solutioncategories
+   * const { count } = await prisma.solutioncategory.deleteMany({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    * 
    */
-  deleteMany<T extends SolutionCategoryDeleteManyArgs>(args?: Prisma.SelectSubset<T, SolutionCategoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  deleteMany<T extends solutioncategoryDeleteManyArgs>(args?: Prisma.SelectSubset<T, solutioncategoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Update zero or more SolutionCategories.
+   * Update zero or more Solutioncategories.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionCategoryUpdateManyArgs} args - Arguments to update one or more rows.
+   * @param {solutioncategoryUpdateManyArgs} args - Arguments to update one or more rows.
    * @example
-   * // Update many SolutionCategories
-   * const solutionCategory = await prisma.solutionCategory.updateMany({
+   * // Update many Solutioncategories
+   * const solutioncategory = await prisma.solutioncategory.updateMany({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1116,56 +1116,56 @@ export interface SolutionCategoryDelegate<ExtArgs extends runtime.Types.Extensio
    * })
    * 
    */
-  updateMany<T extends SolutionCategoryUpdateManyArgs>(args: Prisma.SelectSubset<T, SolutionCategoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  updateMany<T extends solutioncategoryUpdateManyArgs>(args: Prisma.SelectSubset<T, solutioncategoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Create or update one SolutionCategory.
-   * @param {SolutionCategoryUpsertArgs} args - Arguments to update or create a SolutionCategory.
+   * Create or update one Solutioncategory.
+   * @param {solutioncategoryUpsertArgs} args - Arguments to update or create a Solutioncategory.
    * @example
-   * // Update or create a SolutionCategory
-   * const solutionCategory = await prisma.solutionCategory.upsert({
+   * // Update or create a Solutioncategory
+   * const solutioncategory = await prisma.solutioncategory.upsert({
    *   create: {
-   *     // ... data to create a SolutionCategory
+   *     // ... data to create a Solutioncategory
    *   },
    *   update: {
    *     // ... in case it already exists, update
    *   },
    *   where: {
-   *     // ... the filter for the SolutionCategory we want to update
+   *     // ... the filter for the Solutioncategory we want to update
    *   }
    * })
    */
-  upsert<T extends SolutionCategoryUpsertArgs>(args: Prisma.SelectSubset<T, SolutionCategoryUpsertArgs<ExtArgs>>): Prisma.Prisma__SolutionCategoryClient<runtime.Types.Result.GetResult<Prisma.$SolutionCategoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  upsert<T extends solutioncategoryUpsertArgs>(args: Prisma.SelectSubset<T, solutioncategoryUpsertArgs<ExtArgs>>): Prisma.Prisma__solutioncategoryClient<runtime.Types.Result.GetResult<Prisma.$solutioncategoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
   /**
-   * Count the number of SolutionCategories.
+   * Count the number of Solutioncategories.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionCategoryCountArgs} args - Arguments to filter SolutionCategories to count.
+   * @param {solutioncategoryCountArgs} args - Arguments to filter Solutioncategories to count.
    * @example
-   * // Count the number of SolutionCategories
-   * const count = await prisma.solutionCategory.count({
+   * // Count the number of Solutioncategories
+   * const count = await prisma.solutioncategory.count({
    *   where: {
-   *     // ... the filter for the SolutionCategories we want to count
+   *     // ... the filter for the Solutioncategories we want to count
    *   }
    * })
   **/
-  count<T extends SolutionCategoryCountArgs>(
-    args?: Prisma.Subset<T, SolutionCategoryCountArgs>,
+  count<T extends solutioncategoryCountArgs>(
+    args?: Prisma.Subset<T, solutioncategoryCountArgs>,
   ): Prisma.PrismaPromise<
     T extends runtime.Types.Utils.Record<'select', any>
       ? T['select'] extends true
         ? number
-        : Prisma.GetScalarType<T['select'], SolutionCategoryCountAggregateOutputType>
+        : Prisma.GetScalarType<T['select'], SolutioncategoryCountAggregateOutputType>
       : number
   >
 
   /**
-   * Allows you to perform aggregations operations on a SolutionCategory.
+   * Allows you to perform aggregations operations on a Solutioncategory.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionCategoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+   * @param {SolutioncategoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
    * @example
    * // Ordered by age ascending
    * // Where email contains prisma.io
@@ -1185,13 +1185,13 @@ export interface SolutionCategoryDelegate<ExtArgs extends runtime.Types.Extensio
    *   take: 10,
    * })
   **/
-  aggregate<T extends SolutionCategoryAggregateArgs>(args: Prisma.Subset<T, SolutionCategoryAggregateArgs>): Prisma.PrismaPromise<GetSolutionCategoryAggregateType<T>>
+  aggregate<T extends SolutioncategoryAggregateArgs>(args: Prisma.Subset<T, SolutioncategoryAggregateArgs>): Prisma.PrismaPromise<GetSolutioncategoryAggregateType<T>>
 
   /**
-   * Group by SolutionCategory.
+   * Group by Solutioncategory.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionCategoryGroupByArgs} args - Group by arguments.
+   * @param {solutioncategoryGroupByArgs} args - Group by arguments.
    * @example
    * // Group by city, order by createdAt, get count
    * const result = await prisma.user.groupBy({
@@ -1206,14 +1206,14 @@ export interface SolutionCategoryDelegate<ExtArgs extends runtime.Types.Extensio
    * 
   **/
   groupBy<
-    T extends SolutionCategoryGroupByArgs,
+    T extends solutioncategoryGroupByArgs,
     HasSelectOrTake extends Prisma.Or<
       Prisma.Extends<'skip', Prisma.Keys<T>>,
       Prisma.Extends<'take', Prisma.Keys<T>>
     >,
     OrderByArg extends Prisma.True extends HasSelectOrTake
-      ? { orderBy: SolutionCategoryGroupByArgs['orderBy'] }
-      : { orderBy?: SolutionCategoryGroupByArgs['orderBy'] },
+      ? { orderBy: solutioncategoryGroupByArgs['orderBy'] }
+      : { orderBy?: solutioncategoryGroupByArgs['orderBy'] },
     OrderFields extends Prisma.ExcludeUnderscoreKeys<Prisma.Keys<Prisma.MaybeTupleToUnion<T['orderBy']>>>,
     ByFields extends Prisma.MaybeTupleToUnion<T['by']>,
     ByValid extends Prisma.Has<ByFields, OrderFields>,
@@ -1262,24 +1262,24 @@ export interface SolutionCategoryDelegate<ExtArgs extends runtime.Types.Extensio
           ? never
           : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
       }[OrderFields]
-  >(args: Prisma.SubsetIntersection<T, SolutionCategoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSolutionCategoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  >(args: Prisma.SubsetIntersection<T, solutioncategoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSolutioncategoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
 /**
- * Fields of the SolutionCategory model
+ * Fields of the solutioncategory model
  */
-readonly fields: SolutionCategoryFieldRefs;
+readonly fields: solutioncategoryFieldRefs;
 }
 
 /**
- * The delegate class that acts as a "Promise-like" for SolutionCategory.
+ * The delegate class that acts as a "Promise-like" for solutioncategory.
  * Why is this prefixed with `Prisma__`?
  * Because we want to prevent naming conflicts as mentioned in
  * https://github.com/prisma/prisma-client-js/issues/707
  */
-export interface Prisma__SolutionCategoryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+export interface Prisma__solutioncategoryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  parent<T extends Prisma.SolutionCategory$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SolutionCategory$parentArgs<ExtArgs>>): Prisma.Prisma__SolutionCategoryClient<runtime.Types.Result.GetResult<Prisma.$SolutionCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  children<T extends Prisma.SolutionCategory$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SolutionCategory$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SolutionCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  solutions<T extends Prisma.SolutionCategory$solutionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SolutionCategory$solutionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SolutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  solution<T extends Prisma.solutioncategory$solutionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.solutioncategory$solutionArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$solutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  solutioncategory<T extends Prisma.solutioncategory$solutioncategoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.solutioncategory$solutioncategoryArgs<ExtArgs>>): Prisma.Prisma__solutioncategoryClient<runtime.Types.Result.GetResult<Prisma.$solutioncategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  other_solutioncategory<T extends Prisma.solutioncategory$other_solutioncategoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.solutioncategory$other_solutioncategoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$solutioncategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1306,442 +1306,442 @@ export interface Prisma__SolutionCategoryClient<T, Null = never, ExtArgs extends
 
 
 /**
- * Fields of the SolutionCategory model
+ * Fields of the solutioncategory model
  */
-export interface SolutionCategoryFieldRefs {
-  readonly id: Prisma.FieldRef<"SolutionCategory", 'String'>
-  readonly name: Prisma.FieldRef<"SolutionCategory", 'String'>
-  readonly slug: Prisma.FieldRef<"SolutionCategory", 'String'>
-  readonly description: Prisma.FieldRef<"SolutionCategory", 'String'>
-  readonly image: Prisma.FieldRef<"SolutionCategory", 'String'>
-  readonly parentId: Prisma.FieldRef<"SolutionCategory", 'String'>
-  readonly sortOrder: Prisma.FieldRef<"SolutionCategory", 'Int'>
-  readonly isActive: Prisma.FieldRef<"SolutionCategory", 'Boolean'>
-  readonly createdAt: Prisma.FieldRef<"SolutionCategory", 'DateTime'>
-  readonly updatedAt: Prisma.FieldRef<"SolutionCategory", 'DateTime'>
+export interface solutioncategoryFieldRefs {
+  readonly id: Prisma.FieldRef<"solutioncategory", 'String'>
+  readonly name: Prisma.FieldRef<"solutioncategory", 'String'>
+  readonly slug: Prisma.FieldRef<"solutioncategory", 'String'>
+  readonly description: Prisma.FieldRef<"solutioncategory", 'String'>
+  readonly image: Prisma.FieldRef<"solutioncategory", 'String'>
+  readonly parentId: Prisma.FieldRef<"solutioncategory", 'String'>
+  readonly sortOrder: Prisma.FieldRef<"solutioncategory", 'Int'>
+  readonly isActive: Prisma.FieldRef<"solutioncategory", 'Boolean'>
+  readonly createdAt: Prisma.FieldRef<"solutioncategory", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"solutioncategory", 'DateTime'>
 }
     
 
 // Custom InputTypes
 /**
- * SolutionCategory findUnique
+ * solutioncategory findUnique
  */
-export type SolutionCategoryFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutioncategoryFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionCategory
+   * Select specific fields to fetch from the solutioncategory
    */
-  select?: Prisma.SolutionCategorySelect<ExtArgs> | null
+  select?: Prisma.solutioncategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionCategory
+   * Omit specific fields from the solutioncategory
    */
-  omit?: Prisma.SolutionCategoryOmit<ExtArgs> | null
+  omit?: Prisma.solutioncategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionCategoryInclude<ExtArgs> | null
+  include?: Prisma.solutioncategoryInclude<ExtArgs> | null
   /**
-   * Filter, which SolutionCategory to fetch.
+   * Filter, which solutioncategory to fetch.
    */
-  where: Prisma.SolutionCategoryWhereUniqueInput
+  where: Prisma.solutioncategoryWhereUniqueInput
 }
 
 /**
- * SolutionCategory findUniqueOrThrow
+ * solutioncategory findUniqueOrThrow
  */
-export type SolutionCategoryFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutioncategoryFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionCategory
+   * Select specific fields to fetch from the solutioncategory
    */
-  select?: Prisma.SolutionCategorySelect<ExtArgs> | null
+  select?: Prisma.solutioncategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionCategory
+   * Omit specific fields from the solutioncategory
    */
-  omit?: Prisma.SolutionCategoryOmit<ExtArgs> | null
+  omit?: Prisma.solutioncategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionCategoryInclude<ExtArgs> | null
+  include?: Prisma.solutioncategoryInclude<ExtArgs> | null
   /**
-   * Filter, which SolutionCategory to fetch.
+   * Filter, which solutioncategory to fetch.
    */
-  where: Prisma.SolutionCategoryWhereUniqueInput
+  where: Prisma.solutioncategoryWhereUniqueInput
 }
 
 /**
- * SolutionCategory findFirst
+ * solutioncategory findFirst
  */
-export type SolutionCategoryFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutioncategoryFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionCategory
+   * Select specific fields to fetch from the solutioncategory
    */
-  select?: Prisma.SolutionCategorySelect<ExtArgs> | null
+  select?: Prisma.solutioncategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionCategory
+   * Omit specific fields from the solutioncategory
    */
-  omit?: Prisma.SolutionCategoryOmit<ExtArgs> | null
+  omit?: Prisma.solutioncategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionCategoryInclude<ExtArgs> | null
+  include?: Prisma.solutioncategoryInclude<ExtArgs> | null
   /**
-   * Filter, which SolutionCategory to fetch.
+   * Filter, which solutioncategory to fetch.
    */
-  where?: Prisma.SolutionCategoryWhereInput
+  where?: Prisma.solutioncategoryWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of SolutionCategories to fetch.
+   * Determine the order of solutioncategories to fetch.
    */
-  orderBy?: Prisma.SolutionCategoryOrderByWithRelationInput | Prisma.SolutionCategoryOrderByWithRelationInput[]
+  orderBy?: Prisma.solutioncategoryOrderByWithRelationInput | Prisma.solutioncategoryOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for SolutionCategories.
+   * Sets the position for searching for solutioncategories.
    */
-  cursor?: Prisma.SolutionCategoryWhereUniqueInput
+  cursor?: Prisma.solutioncategoryWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` SolutionCategories from the position of the cursor.
+   * Take `±n` solutioncategories from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` SolutionCategories.
+   * Skip the first `n` solutioncategories.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of SolutionCategories.
+   * Filter by unique combinations of solutioncategories.
    */
-  distinct?: Prisma.SolutionCategoryScalarFieldEnum | Prisma.SolutionCategoryScalarFieldEnum[]
+  distinct?: Prisma.SolutioncategoryScalarFieldEnum | Prisma.SolutioncategoryScalarFieldEnum[]
 }
 
 /**
- * SolutionCategory findFirstOrThrow
+ * solutioncategory findFirstOrThrow
  */
-export type SolutionCategoryFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutioncategoryFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionCategory
+   * Select specific fields to fetch from the solutioncategory
    */
-  select?: Prisma.SolutionCategorySelect<ExtArgs> | null
+  select?: Prisma.solutioncategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionCategory
+   * Omit specific fields from the solutioncategory
    */
-  omit?: Prisma.SolutionCategoryOmit<ExtArgs> | null
+  omit?: Prisma.solutioncategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionCategoryInclude<ExtArgs> | null
+  include?: Prisma.solutioncategoryInclude<ExtArgs> | null
   /**
-   * Filter, which SolutionCategory to fetch.
+   * Filter, which solutioncategory to fetch.
    */
-  where?: Prisma.SolutionCategoryWhereInput
+  where?: Prisma.solutioncategoryWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of SolutionCategories to fetch.
+   * Determine the order of solutioncategories to fetch.
    */
-  orderBy?: Prisma.SolutionCategoryOrderByWithRelationInput | Prisma.SolutionCategoryOrderByWithRelationInput[]
+  orderBy?: Prisma.solutioncategoryOrderByWithRelationInput | Prisma.solutioncategoryOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for SolutionCategories.
+   * Sets the position for searching for solutioncategories.
    */
-  cursor?: Prisma.SolutionCategoryWhereUniqueInput
+  cursor?: Prisma.solutioncategoryWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` SolutionCategories from the position of the cursor.
+   * Take `±n` solutioncategories from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` SolutionCategories.
+   * Skip the first `n` solutioncategories.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of SolutionCategories.
+   * Filter by unique combinations of solutioncategories.
    */
-  distinct?: Prisma.SolutionCategoryScalarFieldEnum | Prisma.SolutionCategoryScalarFieldEnum[]
+  distinct?: Prisma.SolutioncategoryScalarFieldEnum | Prisma.SolutioncategoryScalarFieldEnum[]
 }
 
 /**
- * SolutionCategory findMany
+ * solutioncategory findMany
  */
-export type SolutionCategoryFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutioncategoryFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionCategory
+   * Select specific fields to fetch from the solutioncategory
    */
-  select?: Prisma.SolutionCategorySelect<ExtArgs> | null
+  select?: Prisma.solutioncategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionCategory
+   * Omit specific fields from the solutioncategory
    */
-  omit?: Prisma.SolutionCategoryOmit<ExtArgs> | null
+  omit?: Prisma.solutioncategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionCategoryInclude<ExtArgs> | null
+  include?: Prisma.solutioncategoryInclude<ExtArgs> | null
   /**
-   * Filter, which SolutionCategories to fetch.
+   * Filter, which solutioncategories to fetch.
    */
-  where?: Prisma.SolutionCategoryWhereInput
+  where?: Prisma.solutioncategoryWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of SolutionCategories to fetch.
+   * Determine the order of solutioncategories to fetch.
    */
-  orderBy?: Prisma.SolutionCategoryOrderByWithRelationInput | Prisma.SolutionCategoryOrderByWithRelationInput[]
+  orderBy?: Prisma.solutioncategoryOrderByWithRelationInput | Prisma.solutioncategoryOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for listing SolutionCategories.
+   * Sets the position for listing solutioncategories.
    */
-  cursor?: Prisma.SolutionCategoryWhereUniqueInput
+  cursor?: Prisma.solutioncategoryWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` SolutionCategories from the position of the cursor.
+   * Take `±n` solutioncategories from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` SolutionCategories.
+   * Skip the first `n` solutioncategories.
    */
   skip?: number
-  distinct?: Prisma.SolutionCategoryScalarFieldEnum | Prisma.SolutionCategoryScalarFieldEnum[]
+  distinct?: Prisma.SolutioncategoryScalarFieldEnum | Prisma.SolutioncategoryScalarFieldEnum[]
 }
 
 /**
- * SolutionCategory create
+ * solutioncategory create
  */
-export type SolutionCategoryCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutioncategoryCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionCategory
+   * Select specific fields to fetch from the solutioncategory
    */
-  select?: Prisma.SolutionCategorySelect<ExtArgs> | null
+  select?: Prisma.solutioncategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionCategory
+   * Omit specific fields from the solutioncategory
    */
-  omit?: Prisma.SolutionCategoryOmit<ExtArgs> | null
+  omit?: Prisma.solutioncategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionCategoryInclude<ExtArgs> | null
+  include?: Prisma.solutioncategoryInclude<ExtArgs> | null
   /**
-   * The data needed to create a SolutionCategory.
+   * The data needed to create a solutioncategory.
    */
-  data: Prisma.XOR<Prisma.SolutionCategoryCreateInput, Prisma.SolutionCategoryUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.solutioncategoryCreateInput, Prisma.solutioncategoryUncheckedCreateInput>
 }
 
 /**
- * SolutionCategory createMany
+ * solutioncategory createMany
  */
-export type SolutionCategoryCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutioncategoryCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to create many SolutionCategories.
+   * The data used to create many solutioncategories.
    */
-  data: Prisma.SolutionCategoryCreateManyInput | Prisma.SolutionCategoryCreateManyInput[]
+  data: Prisma.solutioncategoryCreateManyInput | Prisma.solutioncategoryCreateManyInput[]
   skipDuplicates?: boolean
 }
 
 /**
- * SolutionCategory update
+ * solutioncategory update
  */
-export type SolutionCategoryUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutioncategoryUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionCategory
+   * Select specific fields to fetch from the solutioncategory
    */
-  select?: Prisma.SolutionCategorySelect<ExtArgs> | null
+  select?: Prisma.solutioncategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionCategory
+   * Omit specific fields from the solutioncategory
    */
-  omit?: Prisma.SolutionCategoryOmit<ExtArgs> | null
+  omit?: Prisma.solutioncategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionCategoryInclude<ExtArgs> | null
+  include?: Prisma.solutioncategoryInclude<ExtArgs> | null
   /**
-   * The data needed to update a SolutionCategory.
+   * The data needed to update a solutioncategory.
    */
-  data: Prisma.XOR<Prisma.SolutionCategoryUpdateInput, Prisma.SolutionCategoryUncheckedUpdateInput>
+  data: Prisma.XOR<Prisma.solutioncategoryUpdateInput, Prisma.solutioncategoryUncheckedUpdateInput>
   /**
-   * Choose, which SolutionCategory to update.
+   * Choose, which solutioncategory to update.
    */
-  where: Prisma.SolutionCategoryWhereUniqueInput
+  where: Prisma.solutioncategoryWhereUniqueInput
 }
 
 /**
- * SolutionCategory updateMany
+ * solutioncategory updateMany
  */
-export type SolutionCategoryUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutioncategoryUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to update SolutionCategories.
+   * The data used to update solutioncategories.
    */
-  data: Prisma.XOR<Prisma.SolutionCategoryUpdateManyMutationInput, Prisma.SolutionCategoryUncheckedUpdateManyInput>
+  data: Prisma.XOR<Prisma.solutioncategoryUpdateManyMutationInput, Prisma.solutioncategoryUncheckedUpdateManyInput>
   /**
-   * Filter which SolutionCategories to update
+   * Filter which solutioncategories to update
    */
-  where?: Prisma.SolutionCategoryWhereInput
+  where?: Prisma.solutioncategoryWhereInput
   /**
-   * Limit how many SolutionCategories to update.
+   * Limit how many solutioncategories to update.
    */
   limit?: number
 }
 
 /**
- * SolutionCategory upsert
+ * solutioncategory upsert
  */
-export type SolutionCategoryUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutioncategoryUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionCategory
+   * Select specific fields to fetch from the solutioncategory
    */
-  select?: Prisma.SolutionCategorySelect<ExtArgs> | null
+  select?: Prisma.solutioncategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionCategory
+   * Omit specific fields from the solutioncategory
    */
-  omit?: Prisma.SolutionCategoryOmit<ExtArgs> | null
+  omit?: Prisma.solutioncategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionCategoryInclude<ExtArgs> | null
+  include?: Prisma.solutioncategoryInclude<ExtArgs> | null
   /**
-   * The filter to search for the SolutionCategory to update in case it exists.
+   * The filter to search for the solutioncategory to update in case it exists.
    */
-  where: Prisma.SolutionCategoryWhereUniqueInput
+  where: Prisma.solutioncategoryWhereUniqueInput
   /**
-   * In case the SolutionCategory found by the `where` argument doesn't exist, create a new SolutionCategory with this data.
+   * In case the solutioncategory found by the `where` argument doesn't exist, create a new solutioncategory with this data.
    */
-  create: Prisma.XOR<Prisma.SolutionCategoryCreateInput, Prisma.SolutionCategoryUncheckedCreateInput>
+  create: Prisma.XOR<Prisma.solutioncategoryCreateInput, Prisma.solutioncategoryUncheckedCreateInput>
   /**
-   * In case the SolutionCategory was found with the provided `where` argument, update it with this data.
+   * In case the solutioncategory was found with the provided `where` argument, update it with this data.
    */
-  update: Prisma.XOR<Prisma.SolutionCategoryUpdateInput, Prisma.SolutionCategoryUncheckedUpdateInput>
+  update: Prisma.XOR<Prisma.solutioncategoryUpdateInput, Prisma.solutioncategoryUncheckedUpdateInput>
 }
 
 /**
- * SolutionCategory delete
+ * solutioncategory delete
  */
-export type SolutionCategoryDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutioncategoryDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionCategory
+   * Select specific fields to fetch from the solutioncategory
    */
-  select?: Prisma.SolutionCategorySelect<ExtArgs> | null
+  select?: Prisma.solutioncategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionCategory
+   * Omit specific fields from the solutioncategory
    */
-  omit?: Prisma.SolutionCategoryOmit<ExtArgs> | null
+  omit?: Prisma.solutioncategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionCategoryInclude<ExtArgs> | null
+  include?: Prisma.solutioncategoryInclude<ExtArgs> | null
   /**
-   * Filter which SolutionCategory to delete.
+   * Filter which solutioncategory to delete.
    */
-  where: Prisma.SolutionCategoryWhereUniqueInput
+  where: Prisma.solutioncategoryWhereUniqueInput
 }
 
 /**
- * SolutionCategory deleteMany
+ * solutioncategory deleteMany
  */
-export type SolutionCategoryDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutioncategoryDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which SolutionCategories to delete
+   * Filter which solutioncategories to delete
    */
-  where?: Prisma.SolutionCategoryWhereInput
+  where?: Prisma.solutioncategoryWhereInput
   /**
-   * Limit how many SolutionCategories to delete.
+   * Limit how many solutioncategories to delete.
    */
   limit?: number
 }
 
 /**
- * SolutionCategory.parent
+ * solutioncategory.solution
  */
-export type SolutionCategory$parentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutioncategory$solutionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionCategory
+   * Select specific fields to fetch from the solution
    */
-  select?: Prisma.SolutionCategorySelect<ExtArgs> | null
+  select?: Prisma.solutionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionCategory
+   * Omit specific fields from the solution
    */
-  omit?: Prisma.SolutionCategoryOmit<ExtArgs> | null
+  omit?: Prisma.solutionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionCategoryInclude<ExtArgs> | null
-  where?: Prisma.SolutionCategoryWhereInput
-}
-
-/**
- * SolutionCategory.children
- */
-export type SolutionCategory$childrenArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the SolutionCategory
-   */
-  select?: Prisma.SolutionCategorySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the SolutionCategory
-   */
-  omit?: Prisma.SolutionCategoryOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SolutionCategoryInclude<ExtArgs> | null
-  where?: Prisma.SolutionCategoryWhereInput
-  orderBy?: Prisma.SolutionCategoryOrderByWithRelationInput | Prisma.SolutionCategoryOrderByWithRelationInput[]
-  cursor?: Prisma.SolutionCategoryWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.SolutionCategoryScalarFieldEnum | Prisma.SolutionCategoryScalarFieldEnum[]
-}
-
-/**
- * SolutionCategory.solutions
- */
-export type SolutionCategory$solutionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Solution
-   */
-  select?: Prisma.SolutionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Solution
-   */
-  omit?: Prisma.SolutionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SolutionInclude<ExtArgs> | null
-  where?: Prisma.SolutionWhereInput
-  orderBy?: Prisma.SolutionOrderByWithRelationInput | Prisma.SolutionOrderByWithRelationInput[]
-  cursor?: Prisma.SolutionWhereUniqueInput
+  include?: Prisma.solutionInclude<ExtArgs> | null
+  where?: Prisma.solutionWhereInput
+  orderBy?: Prisma.solutionOrderByWithRelationInput | Prisma.solutionOrderByWithRelationInput[]
+  cursor?: Prisma.solutionWhereUniqueInput
   take?: number
   skip?: number
   distinct?: Prisma.SolutionScalarFieldEnum | Prisma.SolutionScalarFieldEnum[]
 }
 
 /**
- * SolutionCategory without action
+ * solutioncategory.solutioncategory
  */
-export type SolutionCategoryDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutioncategory$solutioncategoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionCategory
+   * Select specific fields to fetch from the solutioncategory
    */
-  select?: Prisma.SolutionCategorySelect<ExtArgs> | null
+  select?: Prisma.solutioncategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionCategory
+   * Omit specific fields from the solutioncategory
    */
-  omit?: Prisma.SolutionCategoryOmit<ExtArgs> | null
+  omit?: Prisma.solutioncategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionCategoryInclude<ExtArgs> | null
+  include?: Prisma.solutioncategoryInclude<ExtArgs> | null
+  where?: Prisma.solutioncategoryWhereInput
+}
+
+/**
+ * solutioncategory.other_solutioncategory
+ */
+export type solutioncategory$other_solutioncategoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the solutioncategory
+   */
+  select?: Prisma.solutioncategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the solutioncategory
+   */
+  omit?: Prisma.solutioncategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.solutioncategoryInclude<ExtArgs> | null
+  where?: Prisma.solutioncategoryWhereInput
+  orderBy?: Prisma.solutioncategoryOrderByWithRelationInput | Prisma.solutioncategoryOrderByWithRelationInput[]
+  cursor?: Prisma.solutioncategoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SolutioncategoryScalarFieldEnum | Prisma.SolutioncategoryScalarFieldEnum[]
+}
+
+/**
+ * solutioncategory without action
+ */
+export type solutioncategoryDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the solutioncategory
+   */
+  select?: Prisma.solutioncategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the solutioncategory
+   */
+  omit?: Prisma.solutioncategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.solutioncategoryInclude<ExtArgs> | null
 }

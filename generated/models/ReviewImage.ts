@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck 
 /*
- * This file exports the `ReviewImage` model and its related types.
+ * This file exports the `reviewimage` model and its related types.
  *
  * 🟢 You can import this file directly.
  */
@@ -12,28 +12,28 @@ import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
 /**
- * Model ReviewImage
+ * Model reviewimage
  * 
  */
-export type ReviewImageModel = runtime.Types.Result.DefaultSelection<Prisma.$ReviewImagePayload>
+export type reviewimageModel = runtime.Types.Result.DefaultSelection<Prisma.$reviewimagePayload>
 
-export type AggregateReviewImage = {
-  _count: ReviewImageCountAggregateOutputType | null
-  _avg: ReviewImageAvgAggregateOutputType | null
-  _sum: ReviewImageSumAggregateOutputType | null
-  _min: ReviewImageMinAggregateOutputType | null
-  _max: ReviewImageMaxAggregateOutputType | null
+export type AggregateReviewimage = {
+  _count: ReviewimageCountAggregateOutputType | null
+  _avg: ReviewimageAvgAggregateOutputType | null
+  _sum: ReviewimageSumAggregateOutputType | null
+  _min: ReviewimageMinAggregateOutputType | null
+  _max: ReviewimageMaxAggregateOutputType | null
 }
 
-export type ReviewImageAvgAggregateOutputType = {
+export type ReviewimageAvgAggregateOutputType = {
   sortOrder: number | null
 }
 
-export type ReviewImageSumAggregateOutputType = {
+export type ReviewimageSumAggregateOutputType = {
   sortOrder: number | null
 }
 
-export type ReviewImageMinAggregateOutputType = {
+export type ReviewimageMinAggregateOutputType = {
   id: string | null
   reviewId: string | null
   url: string | null
@@ -42,7 +42,7 @@ export type ReviewImageMinAggregateOutputType = {
   createdAt: Date | null
 }
 
-export type ReviewImageMaxAggregateOutputType = {
+export type ReviewimageMaxAggregateOutputType = {
   id: string | null
   reviewId: string | null
   url: string | null
@@ -51,7 +51,7 @@ export type ReviewImageMaxAggregateOutputType = {
   createdAt: Date | null
 }
 
-export type ReviewImageCountAggregateOutputType = {
+export type ReviewimageCountAggregateOutputType = {
   id: number
   reviewId: number
   url: number
@@ -62,15 +62,15 @@ export type ReviewImageCountAggregateOutputType = {
 }
 
 
-export type ReviewImageAvgAggregateInputType = {
+export type ReviewimageAvgAggregateInputType = {
   sortOrder?: true
 }
 
-export type ReviewImageSumAggregateInputType = {
+export type ReviewimageSumAggregateInputType = {
   sortOrder?: true
 }
 
-export type ReviewImageMinAggregateInputType = {
+export type ReviewimageMinAggregateInputType = {
   id?: true
   reviewId?: true
   url?: true
@@ -79,7 +79,7 @@ export type ReviewImageMinAggregateInputType = {
   createdAt?: true
 }
 
-export type ReviewImageMaxAggregateInputType = {
+export type ReviewimageMaxAggregateInputType = {
   id?: true
   reviewId?: true
   url?: true
@@ -88,7 +88,7 @@ export type ReviewImageMaxAggregateInputType = {
   createdAt?: true
 }
 
-export type ReviewImageCountAggregateInputType = {
+export type ReviewimageCountAggregateInputType = {
   id?: true
   reviewId?: true
   url?: true
@@ -98,195 +98,195 @@ export type ReviewImageCountAggregateInputType = {
   _all?: true
 }
 
-export type ReviewImageAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ReviewimageAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which ReviewImage to aggregate.
+   * Filter which reviewimage to aggregate.
    */
-  where?: Prisma.ReviewImageWhereInput
+  where?: Prisma.reviewimageWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of ReviewImages to fetch.
+   * Determine the order of reviewimages to fetch.
    */
-  orderBy?: Prisma.ReviewImageOrderByWithRelationInput | Prisma.ReviewImageOrderByWithRelationInput[]
+  orderBy?: Prisma.reviewimageOrderByWithRelationInput | Prisma.reviewimageOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
    * Sets the start position
    */
-  cursor?: Prisma.ReviewImageWhereUniqueInput
+  cursor?: Prisma.reviewimageWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` ReviewImages from the position of the cursor.
+   * Take `±n` reviewimages from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` ReviewImages.
+   * Skip the first `n` reviewimages.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Count returned ReviewImages
+   * Count returned reviewimages
   **/
-  _count?: true | ReviewImageCountAggregateInputType
+  _count?: true | ReviewimageCountAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to average
   **/
-  _avg?: ReviewImageAvgAggregateInputType
+  _avg?: ReviewimageAvgAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to sum
   **/
-  _sum?: ReviewImageSumAggregateInputType
+  _sum?: ReviewimageSumAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the minimum value
   **/
-  _min?: ReviewImageMinAggregateInputType
+  _min?: ReviewimageMinAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the maximum value
   **/
-  _max?: ReviewImageMaxAggregateInputType
+  _max?: ReviewimageMaxAggregateInputType
 }
 
-export type GetReviewImageAggregateType<T extends ReviewImageAggregateArgs> = {
-      [P in keyof T & keyof AggregateReviewImage]: P extends '_count' | 'count'
+export type GetReviewimageAggregateType<T extends ReviewimageAggregateArgs> = {
+      [P in keyof T & keyof AggregateReviewimage]: P extends '_count' | 'count'
     ? T[P] extends true
       ? number
-      : Prisma.GetScalarType<T[P], AggregateReviewImage[P]>
-    : Prisma.GetScalarType<T[P], AggregateReviewImage[P]>
+      : Prisma.GetScalarType<T[P], AggregateReviewimage[P]>
+    : Prisma.GetScalarType<T[P], AggregateReviewimage[P]>
 }
 
 
 
 
-export type ReviewImageGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ReviewImageWhereInput
-  orderBy?: Prisma.ReviewImageOrderByWithAggregationInput | Prisma.ReviewImageOrderByWithAggregationInput[]
-  by: Prisma.ReviewImageScalarFieldEnum[] | Prisma.ReviewImageScalarFieldEnum
-  having?: Prisma.ReviewImageScalarWhereWithAggregatesInput
+export type reviewimageGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.reviewimageWhereInput
+  orderBy?: Prisma.reviewimageOrderByWithAggregationInput | Prisma.reviewimageOrderByWithAggregationInput[]
+  by: Prisma.ReviewimageScalarFieldEnum[] | Prisma.ReviewimageScalarFieldEnum
+  having?: Prisma.reviewimageScalarWhereWithAggregatesInput
   take?: number
   skip?: number
-  _count?: ReviewImageCountAggregateInputType | true
-  _avg?: ReviewImageAvgAggregateInputType
-  _sum?: ReviewImageSumAggregateInputType
-  _min?: ReviewImageMinAggregateInputType
-  _max?: ReviewImageMaxAggregateInputType
+  _count?: ReviewimageCountAggregateInputType | true
+  _avg?: ReviewimageAvgAggregateInputType
+  _sum?: ReviewimageSumAggregateInputType
+  _min?: ReviewimageMinAggregateInputType
+  _max?: ReviewimageMaxAggregateInputType
 }
 
-export type ReviewImageGroupByOutputType = {
+export type ReviewimageGroupByOutputType = {
   id: string
   reviewId: string
   url: string
   alt: string | null
   sortOrder: number
   createdAt: Date
-  _count: ReviewImageCountAggregateOutputType | null
-  _avg: ReviewImageAvgAggregateOutputType | null
-  _sum: ReviewImageSumAggregateOutputType | null
-  _min: ReviewImageMinAggregateOutputType | null
-  _max: ReviewImageMaxAggregateOutputType | null
+  _count: ReviewimageCountAggregateOutputType | null
+  _avg: ReviewimageAvgAggregateOutputType | null
+  _sum: ReviewimageSumAggregateOutputType | null
+  _min: ReviewimageMinAggregateOutputType | null
+  _max: ReviewimageMaxAggregateOutputType | null
 }
 
-type GetReviewImageGroupByPayload<T extends ReviewImageGroupByArgs> = Prisma.PrismaPromise<
+type GetReviewimageGroupByPayload<T extends reviewimageGroupByArgs> = Prisma.PrismaPromise<
   Array<
-    Prisma.PickEnumerable<ReviewImageGroupByOutputType, T['by']> &
+    Prisma.PickEnumerable<ReviewimageGroupByOutputType, T['by']> &
       {
-        [P in ((keyof T) & (keyof ReviewImageGroupByOutputType))]: P extends '_count'
+        [P in ((keyof T) & (keyof ReviewimageGroupByOutputType))]: P extends '_count'
           ? T[P] extends boolean
             ? number
-            : Prisma.GetScalarType<T[P], ReviewImageGroupByOutputType[P]>
-          : Prisma.GetScalarType<T[P], ReviewImageGroupByOutputType[P]>
+            : Prisma.GetScalarType<T[P], ReviewimageGroupByOutputType[P]>
+          : Prisma.GetScalarType<T[P], ReviewimageGroupByOutputType[P]>
       }
     >
   >
 
 
 
-export type ReviewImageWhereInput = {
-  AND?: Prisma.ReviewImageWhereInput | Prisma.ReviewImageWhereInput[]
-  OR?: Prisma.ReviewImageWhereInput[]
-  NOT?: Prisma.ReviewImageWhereInput | Prisma.ReviewImageWhereInput[]
-  id?: Prisma.StringFilter<"ReviewImage"> | string
-  reviewId?: Prisma.StringFilter<"ReviewImage"> | string
-  url?: Prisma.StringFilter<"ReviewImage"> | string
-  alt?: Prisma.StringNullableFilter<"ReviewImage"> | string | null
-  sortOrder?: Prisma.IntFilter<"ReviewImage"> | number
-  createdAt?: Prisma.DateTimeFilter<"ReviewImage"> | Date | string
-  review?: Prisma.XOR<Prisma.ReviewScalarRelationFilter, Prisma.ReviewWhereInput>
+export type reviewimageWhereInput = {
+  AND?: Prisma.reviewimageWhereInput | Prisma.reviewimageWhereInput[]
+  OR?: Prisma.reviewimageWhereInput[]
+  NOT?: Prisma.reviewimageWhereInput | Prisma.reviewimageWhereInput[]
+  id?: Prisma.StringFilter<"reviewimage"> | string
+  reviewId?: Prisma.StringFilter<"reviewimage"> | string
+  url?: Prisma.StringFilter<"reviewimage"> | string
+  alt?: Prisma.StringNullableFilter<"reviewimage"> | string | null
+  sortOrder?: Prisma.IntFilter<"reviewimage"> | number
+  createdAt?: Prisma.DateTimeFilter<"reviewimage"> | Date | string
+  review?: Prisma.XOR<Prisma.ReviewScalarRelationFilter, Prisma.reviewWhereInput>
 }
 
-export type ReviewImageOrderByWithRelationInput = {
+export type reviewimageOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   reviewId?: Prisma.SortOrder
   url?: Prisma.SortOrder
   alt?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  review?: Prisma.ReviewOrderByWithRelationInput
-  _relevance?: Prisma.ReviewImageOrderByRelevanceInput
+  review?: Prisma.reviewOrderByWithRelationInput
+  _relevance?: Prisma.reviewimageOrderByRelevanceInput
 }
 
-export type ReviewImageWhereUniqueInput = Prisma.AtLeast<{
+export type reviewimageWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  AND?: Prisma.ReviewImageWhereInput | Prisma.ReviewImageWhereInput[]
-  OR?: Prisma.ReviewImageWhereInput[]
-  NOT?: Prisma.ReviewImageWhereInput | Prisma.ReviewImageWhereInput[]
-  reviewId?: Prisma.StringFilter<"ReviewImage"> | string
-  url?: Prisma.StringFilter<"ReviewImage"> | string
-  alt?: Prisma.StringNullableFilter<"ReviewImage"> | string | null
-  sortOrder?: Prisma.IntFilter<"ReviewImage"> | number
-  createdAt?: Prisma.DateTimeFilter<"ReviewImage"> | Date | string
-  review?: Prisma.XOR<Prisma.ReviewScalarRelationFilter, Prisma.ReviewWhereInput>
+  AND?: Prisma.reviewimageWhereInput | Prisma.reviewimageWhereInput[]
+  OR?: Prisma.reviewimageWhereInput[]
+  NOT?: Prisma.reviewimageWhereInput | Prisma.reviewimageWhereInput[]
+  reviewId?: Prisma.StringFilter<"reviewimage"> | string
+  url?: Prisma.StringFilter<"reviewimage"> | string
+  alt?: Prisma.StringNullableFilter<"reviewimage"> | string | null
+  sortOrder?: Prisma.IntFilter<"reviewimage"> | number
+  createdAt?: Prisma.DateTimeFilter<"reviewimage"> | Date | string
+  review?: Prisma.XOR<Prisma.ReviewScalarRelationFilter, Prisma.reviewWhereInput>
 }, "id">
 
-export type ReviewImageOrderByWithAggregationInput = {
+export type reviewimageOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   reviewId?: Prisma.SortOrder
   url?: Prisma.SortOrder
   alt?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  _count?: Prisma.ReviewImageCountOrderByAggregateInput
-  _avg?: Prisma.ReviewImageAvgOrderByAggregateInput
-  _max?: Prisma.ReviewImageMaxOrderByAggregateInput
-  _min?: Prisma.ReviewImageMinOrderByAggregateInput
-  _sum?: Prisma.ReviewImageSumOrderByAggregateInput
+  _count?: Prisma.reviewimageCountOrderByAggregateInput
+  _avg?: Prisma.reviewimageAvgOrderByAggregateInput
+  _max?: Prisma.reviewimageMaxOrderByAggregateInput
+  _min?: Prisma.reviewimageMinOrderByAggregateInput
+  _sum?: Prisma.reviewimageSumOrderByAggregateInput
 }
 
-export type ReviewImageScalarWhereWithAggregatesInput = {
-  AND?: Prisma.ReviewImageScalarWhereWithAggregatesInput | Prisma.ReviewImageScalarWhereWithAggregatesInput[]
-  OR?: Prisma.ReviewImageScalarWhereWithAggregatesInput[]
-  NOT?: Prisma.ReviewImageScalarWhereWithAggregatesInput | Prisma.ReviewImageScalarWhereWithAggregatesInput[]
-  id?: Prisma.StringWithAggregatesFilter<"ReviewImage"> | string
-  reviewId?: Prisma.StringWithAggregatesFilter<"ReviewImage"> | string
-  url?: Prisma.StringWithAggregatesFilter<"ReviewImage"> | string
-  alt?: Prisma.StringNullableWithAggregatesFilter<"ReviewImage"> | string | null
-  sortOrder?: Prisma.IntWithAggregatesFilter<"ReviewImage"> | number
-  createdAt?: Prisma.DateTimeWithAggregatesFilter<"ReviewImage"> | Date | string
+export type reviewimageScalarWhereWithAggregatesInput = {
+  AND?: Prisma.reviewimageScalarWhereWithAggregatesInput | Prisma.reviewimageScalarWhereWithAggregatesInput[]
+  OR?: Prisma.reviewimageScalarWhereWithAggregatesInput[]
+  NOT?: Prisma.reviewimageScalarWhereWithAggregatesInput | Prisma.reviewimageScalarWhereWithAggregatesInput[]
+  id?: Prisma.StringWithAggregatesFilter<"reviewimage"> | string
+  reviewId?: Prisma.StringWithAggregatesFilter<"reviewimage"> | string
+  url?: Prisma.StringWithAggregatesFilter<"reviewimage"> | string
+  alt?: Prisma.StringNullableWithAggregatesFilter<"reviewimage"> | string | null
+  sortOrder?: Prisma.IntWithAggregatesFilter<"reviewimage"> | number
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"reviewimage"> | Date | string
 }
 
-export type ReviewImageCreateInput = {
-  id?: string
+export type reviewimageCreateInput = {
+  id: string
   url: string
   alt?: string | null
   sortOrder?: number
   createdAt?: Date | string
-  review: Prisma.ReviewCreateNestedOneWithoutImagesInput
+  review: Prisma.reviewCreateNestedOneWithoutReviewimageInput
 }
 
-export type ReviewImageUncheckedCreateInput = {
-  id?: string
+export type reviewimageUncheckedCreateInput = {
+  id: string
   reviewId: string
   url: string
   alt?: string | null
@@ -294,16 +294,16 @@ export type ReviewImageUncheckedCreateInput = {
   createdAt?: Date | string
 }
 
-export type ReviewImageUpdateInput = {
+export type reviewimageUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  review?: Prisma.ReviewUpdateOneRequiredWithoutImagesNestedInput
+  review?: Prisma.reviewUpdateOneRequiredWithoutReviewimageNestedInput
 }
 
-export type ReviewImageUncheckedUpdateInput = {
+export type reviewimageUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   reviewId?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
@@ -312,8 +312,8 @@ export type ReviewImageUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ReviewImageCreateManyInput = {
-  id?: string
+export type reviewimageCreateManyInput = {
+  id: string
   reviewId: string
   url: string
   alt?: string | null
@@ -321,7 +321,7 @@ export type ReviewImageCreateManyInput = {
   createdAt?: Date | string
 }
 
-export type ReviewImageUpdateManyMutationInput = {
+export type reviewimageUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -329,7 +329,7 @@ export type ReviewImageUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ReviewImageUncheckedUpdateManyInput = {
+export type reviewimageUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   reviewId?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
@@ -338,23 +338,23 @@ export type ReviewImageUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ReviewImageListRelationFilter = {
-  every?: Prisma.ReviewImageWhereInput
-  some?: Prisma.ReviewImageWhereInput
-  none?: Prisma.ReviewImageWhereInput
+export type ReviewimageListRelationFilter = {
+  every?: Prisma.reviewimageWhereInput
+  some?: Prisma.reviewimageWhereInput
+  none?: Prisma.reviewimageWhereInput
 }
 
-export type ReviewImageOrderByRelationAggregateInput = {
+export type reviewimageOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type ReviewImageOrderByRelevanceInput = {
-  fields: Prisma.ReviewImageOrderByRelevanceFieldEnum | Prisma.ReviewImageOrderByRelevanceFieldEnum[]
+export type reviewimageOrderByRelevanceInput = {
+  fields: Prisma.reviewimageOrderByRelevanceFieldEnum | Prisma.reviewimageOrderByRelevanceFieldEnum[]
   sort: Prisma.SortOrder
   search: string
 }
 
-export type ReviewImageCountOrderByAggregateInput = {
+export type reviewimageCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   reviewId?: Prisma.SortOrder
   url?: Prisma.SortOrder
@@ -363,11 +363,11 @@ export type ReviewImageCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
-export type ReviewImageAvgOrderByAggregateInput = {
+export type reviewimageAvgOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
-export type ReviewImageMaxOrderByAggregateInput = {
+export type reviewimageMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   reviewId?: Prisma.SortOrder
   url?: Prisma.SortOrder
@@ -376,7 +376,7 @@ export type ReviewImageMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
-export type ReviewImageMinOrderByAggregateInput = {
+export type reviewimageMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   reviewId?: Prisma.SortOrder
   url?: Prisma.SortOrder
@@ -385,115 +385,115 @@ export type ReviewImageMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
-export type ReviewImageSumOrderByAggregateInput = {
+export type reviewimageSumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
-export type ReviewImageCreateNestedManyWithoutReviewInput = {
-  create?: Prisma.XOR<Prisma.ReviewImageCreateWithoutReviewInput, Prisma.ReviewImageUncheckedCreateWithoutReviewInput> | Prisma.ReviewImageCreateWithoutReviewInput[] | Prisma.ReviewImageUncheckedCreateWithoutReviewInput[]
-  connectOrCreate?: Prisma.ReviewImageCreateOrConnectWithoutReviewInput | Prisma.ReviewImageCreateOrConnectWithoutReviewInput[]
-  createMany?: Prisma.ReviewImageCreateManyReviewInputEnvelope
-  connect?: Prisma.ReviewImageWhereUniqueInput | Prisma.ReviewImageWhereUniqueInput[]
+export type reviewimageCreateNestedManyWithoutReviewInput = {
+  create?: Prisma.XOR<Prisma.reviewimageCreateWithoutReviewInput, Prisma.reviewimageUncheckedCreateWithoutReviewInput> | Prisma.reviewimageCreateWithoutReviewInput[] | Prisma.reviewimageUncheckedCreateWithoutReviewInput[]
+  connectOrCreate?: Prisma.reviewimageCreateOrConnectWithoutReviewInput | Prisma.reviewimageCreateOrConnectWithoutReviewInput[]
+  createMany?: Prisma.reviewimageCreateManyReviewInputEnvelope
+  connect?: Prisma.reviewimageWhereUniqueInput | Prisma.reviewimageWhereUniqueInput[]
 }
 
-export type ReviewImageUncheckedCreateNestedManyWithoutReviewInput = {
-  create?: Prisma.XOR<Prisma.ReviewImageCreateWithoutReviewInput, Prisma.ReviewImageUncheckedCreateWithoutReviewInput> | Prisma.ReviewImageCreateWithoutReviewInput[] | Prisma.ReviewImageUncheckedCreateWithoutReviewInput[]
-  connectOrCreate?: Prisma.ReviewImageCreateOrConnectWithoutReviewInput | Prisma.ReviewImageCreateOrConnectWithoutReviewInput[]
-  createMany?: Prisma.ReviewImageCreateManyReviewInputEnvelope
-  connect?: Prisma.ReviewImageWhereUniqueInput | Prisma.ReviewImageWhereUniqueInput[]
+export type reviewimageUncheckedCreateNestedManyWithoutReviewInput = {
+  create?: Prisma.XOR<Prisma.reviewimageCreateWithoutReviewInput, Prisma.reviewimageUncheckedCreateWithoutReviewInput> | Prisma.reviewimageCreateWithoutReviewInput[] | Prisma.reviewimageUncheckedCreateWithoutReviewInput[]
+  connectOrCreate?: Prisma.reviewimageCreateOrConnectWithoutReviewInput | Prisma.reviewimageCreateOrConnectWithoutReviewInput[]
+  createMany?: Prisma.reviewimageCreateManyReviewInputEnvelope
+  connect?: Prisma.reviewimageWhereUniqueInput | Prisma.reviewimageWhereUniqueInput[]
 }
 
-export type ReviewImageUpdateManyWithoutReviewNestedInput = {
-  create?: Prisma.XOR<Prisma.ReviewImageCreateWithoutReviewInput, Prisma.ReviewImageUncheckedCreateWithoutReviewInput> | Prisma.ReviewImageCreateWithoutReviewInput[] | Prisma.ReviewImageUncheckedCreateWithoutReviewInput[]
-  connectOrCreate?: Prisma.ReviewImageCreateOrConnectWithoutReviewInput | Prisma.ReviewImageCreateOrConnectWithoutReviewInput[]
-  upsert?: Prisma.ReviewImageUpsertWithWhereUniqueWithoutReviewInput | Prisma.ReviewImageUpsertWithWhereUniqueWithoutReviewInput[]
-  createMany?: Prisma.ReviewImageCreateManyReviewInputEnvelope
-  set?: Prisma.ReviewImageWhereUniqueInput | Prisma.ReviewImageWhereUniqueInput[]
-  disconnect?: Prisma.ReviewImageWhereUniqueInput | Prisma.ReviewImageWhereUniqueInput[]
-  delete?: Prisma.ReviewImageWhereUniqueInput | Prisma.ReviewImageWhereUniqueInput[]
-  connect?: Prisma.ReviewImageWhereUniqueInput | Prisma.ReviewImageWhereUniqueInput[]
-  update?: Prisma.ReviewImageUpdateWithWhereUniqueWithoutReviewInput | Prisma.ReviewImageUpdateWithWhereUniqueWithoutReviewInput[]
-  updateMany?: Prisma.ReviewImageUpdateManyWithWhereWithoutReviewInput | Prisma.ReviewImageUpdateManyWithWhereWithoutReviewInput[]
-  deleteMany?: Prisma.ReviewImageScalarWhereInput | Prisma.ReviewImageScalarWhereInput[]
+export type reviewimageUpdateManyWithoutReviewNestedInput = {
+  create?: Prisma.XOR<Prisma.reviewimageCreateWithoutReviewInput, Prisma.reviewimageUncheckedCreateWithoutReviewInput> | Prisma.reviewimageCreateWithoutReviewInput[] | Prisma.reviewimageUncheckedCreateWithoutReviewInput[]
+  connectOrCreate?: Prisma.reviewimageCreateOrConnectWithoutReviewInput | Prisma.reviewimageCreateOrConnectWithoutReviewInput[]
+  upsert?: Prisma.reviewimageUpsertWithWhereUniqueWithoutReviewInput | Prisma.reviewimageUpsertWithWhereUniqueWithoutReviewInput[]
+  createMany?: Prisma.reviewimageCreateManyReviewInputEnvelope
+  set?: Prisma.reviewimageWhereUniqueInput | Prisma.reviewimageWhereUniqueInput[]
+  disconnect?: Prisma.reviewimageWhereUniqueInput | Prisma.reviewimageWhereUniqueInput[]
+  delete?: Prisma.reviewimageWhereUniqueInput | Prisma.reviewimageWhereUniqueInput[]
+  connect?: Prisma.reviewimageWhereUniqueInput | Prisma.reviewimageWhereUniqueInput[]
+  update?: Prisma.reviewimageUpdateWithWhereUniqueWithoutReviewInput | Prisma.reviewimageUpdateWithWhereUniqueWithoutReviewInput[]
+  updateMany?: Prisma.reviewimageUpdateManyWithWhereWithoutReviewInput | Prisma.reviewimageUpdateManyWithWhereWithoutReviewInput[]
+  deleteMany?: Prisma.reviewimageScalarWhereInput | Prisma.reviewimageScalarWhereInput[]
 }
 
-export type ReviewImageUncheckedUpdateManyWithoutReviewNestedInput = {
-  create?: Prisma.XOR<Prisma.ReviewImageCreateWithoutReviewInput, Prisma.ReviewImageUncheckedCreateWithoutReviewInput> | Prisma.ReviewImageCreateWithoutReviewInput[] | Prisma.ReviewImageUncheckedCreateWithoutReviewInput[]
-  connectOrCreate?: Prisma.ReviewImageCreateOrConnectWithoutReviewInput | Prisma.ReviewImageCreateOrConnectWithoutReviewInput[]
-  upsert?: Prisma.ReviewImageUpsertWithWhereUniqueWithoutReviewInput | Prisma.ReviewImageUpsertWithWhereUniqueWithoutReviewInput[]
-  createMany?: Prisma.ReviewImageCreateManyReviewInputEnvelope
-  set?: Prisma.ReviewImageWhereUniqueInput | Prisma.ReviewImageWhereUniqueInput[]
-  disconnect?: Prisma.ReviewImageWhereUniqueInput | Prisma.ReviewImageWhereUniqueInput[]
-  delete?: Prisma.ReviewImageWhereUniqueInput | Prisma.ReviewImageWhereUniqueInput[]
-  connect?: Prisma.ReviewImageWhereUniqueInput | Prisma.ReviewImageWhereUniqueInput[]
-  update?: Prisma.ReviewImageUpdateWithWhereUniqueWithoutReviewInput | Prisma.ReviewImageUpdateWithWhereUniqueWithoutReviewInput[]
-  updateMany?: Prisma.ReviewImageUpdateManyWithWhereWithoutReviewInput | Prisma.ReviewImageUpdateManyWithWhereWithoutReviewInput[]
-  deleteMany?: Prisma.ReviewImageScalarWhereInput | Prisma.ReviewImageScalarWhereInput[]
+export type reviewimageUncheckedUpdateManyWithoutReviewNestedInput = {
+  create?: Prisma.XOR<Prisma.reviewimageCreateWithoutReviewInput, Prisma.reviewimageUncheckedCreateWithoutReviewInput> | Prisma.reviewimageCreateWithoutReviewInput[] | Prisma.reviewimageUncheckedCreateWithoutReviewInput[]
+  connectOrCreate?: Prisma.reviewimageCreateOrConnectWithoutReviewInput | Prisma.reviewimageCreateOrConnectWithoutReviewInput[]
+  upsert?: Prisma.reviewimageUpsertWithWhereUniqueWithoutReviewInput | Prisma.reviewimageUpsertWithWhereUniqueWithoutReviewInput[]
+  createMany?: Prisma.reviewimageCreateManyReviewInputEnvelope
+  set?: Prisma.reviewimageWhereUniqueInput | Prisma.reviewimageWhereUniqueInput[]
+  disconnect?: Prisma.reviewimageWhereUniqueInput | Prisma.reviewimageWhereUniqueInput[]
+  delete?: Prisma.reviewimageWhereUniqueInput | Prisma.reviewimageWhereUniqueInput[]
+  connect?: Prisma.reviewimageWhereUniqueInput | Prisma.reviewimageWhereUniqueInput[]
+  update?: Prisma.reviewimageUpdateWithWhereUniqueWithoutReviewInput | Prisma.reviewimageUpdateWithWhereUniqueWithoutReviewInput[]
+  updateMany?: Prisma.reviewimageUpdateManyWithWhereWithoutReviewInput | Prisma.reviewimageUpdateManyWithWhereWithoutReviewInput[]
+  deleteMany?: Prisma.reviewimageScalarWhereInput | Prisma.reviewimageScalarWhereInput[]
 }
 
-export type ReviewImageCreateWithoutReviewInput = {
-  id?: string
+export type reviewimageCreateWithoutReviewInput = {
+  id: string
   url: string
   alt?: string | null
   sortOrder?: number
   createdAt?: Date | string
 }
 
-export type ReviewImageUncheckedCreateWithoutReviewInput = {
-  id?: string
+export type reviewimageUncheckedCreateWithoutReviewInput = {
+  id: string
   url: string
   alt?: string | null
   sortOrder?: number
   createdAt?: Date | string
 }
 
-export type ReviewImageCreateOrConnectWithoutReviewInput = {
-  where: Prisma.ReviewImageWhereUniqueInput
-  create: Prisma.XOR<Prisma.ReviewImageCreateWithoutReviewInput, Prisma.ReviewImageUncheckedCreateWithoutReviewInput>
+export type reviewimageCreateOrConnectWithoutReviewInput = {
+  where: Prisma.reviewimageWhereUniqueInput
+  create: Prisma.XOR<Prisma.reviewimageCreateWithoutReviewInput, Prisma.reviewimageUncheckedCreateWithoutReviewInput>
 }
 
-export type ReviewImageCreateManyReviewInputEnvelope = {
-  data: Prisma.ReviewImageCreateManyReviewInput | Prisma.ReviewImageCreateManyReviewInput[]
+export type reviewimageCreateManyReviewInputEnvelope = {
+  data: Prisma.reviewimageCreateManyReviewInput | Prisma.reviewimageCreateManyReviewInput[]
   skipDuplicates?: boolean
 }
 
-export type ReviewImageUpsertWithWhereUniqueWithoutReviewInput = {
-  where: Prisma.ReviewImageWhereUniqueInput
-  update: Prisma.XOR<Prisma.ReviewImageUpdateWithoutReviewInput, Prisma.ReviewImageUncheckedUpdateWithoutReviewInput>
-  create: Prisma.XOR<Prisma.ReviewImageCreateWithoutReviewInput, Prisma.ReviewImageUncheckedCreateWithoutReviewInput>
+export type reviewimageUpsertWithWhereUniqueWithoutReviewInput = {
+  where: Prisma.reviewimageWhereUniqueInput
+  update: Prisma.XOR<Prisma.reviewimageUpdateWithoutReviewInput, Prisma.reviewimageUncheckedUpdateWithoutReviewInput>
+  create: Prisma.XOR<Prisma.reviewimageCreateWithoutReviewInput, Prisma.reviewimageUncheckedCreateWithoutReviewInput>
 }
 
-export type ReviewImageUpdateWithWhereUniqueWithoutReviewInput = {
-  where: Prisma.ReviewImageWhereUniqueInput
-  data: Prisma.XOR<Prisma.ReviewImageUpdateWithoutReviewInput, Prisma.ReviewImageUncheckedUpdateWithoutReviewInput>
+export type reviewimageUpdateWithWhereUniqueWithoutReviewInput = {
+  where: Prisma.reviewimageWhereUniqueInput
+  data: Prisma.XOR<Prisma.reviewimageUpdateWithoutReviewInput, Prisma.reviewimageUncheckedUpdateWithoutReviewInput>
 }
 
-export type ReviewImageUpdateManyWithWhereWithoutReviewInput = {
-  where: Prisma.ReviewImageScalarWhereInput
-  data: Prisma.XOR<Prisma.ReviewImageUpdateManyMutationInput, Prisma.ReviewImageUncheckedUpdateManyWithoutReviewInput>
+export type reviewimageUpdateManyWithWhereWithoutReviewInput = {
+  where: Prisma.reviewimageScalarWhereInput
+  data: Prisma.XOR<Prisma.reviewimageUpdateManyMutationInput, Prisma.reviewimageUncheckedUpdateManyWithoutReviewInput>
 }
 
-export type ReviewImageScalarWhereInput = {
-  AND?: Prisma.ReviewImageScalarWhereInput | Prisma.ReviewImageScalarWhereInput[]
-  OR?: Prisma.ReviewImageScalarWhereInput[]
-  NOT?: Prisma.ReviewImageScalarWhereInput | Prisma.ReviewImageScalarWhereInput[]
-  id?: Prisma.StringFilter<"ReviewImage"> | string
-  reviewId?: Prisma.StringFilter<"ReviewImage"> | string
-  url?: Prisma.StringFilter<"ReviewImage"> | string
-  alt?: Prisma.StringNullableFilter<"ReviewImage"> | string | null
-  sortOrder?: Prisma.IntFilter<"ReviewImage"> | number
-  createdAt?: Prisma.DateTimeFilter<"ReviewImage"> | Date | string
+export type reviewimageScalarWhereInput = {
+  AND?: Prisma.reviewimageScalarWhereInput | Prisma.reviewimageScalarWhereInput[]
+  OR?: Prisma.reviewimageScalarWhereInput[]
+  NOT?: Prisma.reviewimageScalarWhereInput | Prisma.reviewimageScalarWhereInput[]
+  id?: Prisma.StringFilter<"reviewimage"> | string
+  reviewId?: Prisma.StringFilter<"reviewimage"> | string
+  url?: Prisma.StringFilter<"reviewimage"> | string
+  alt?: Prisma.StringNullableFilter<"reviewimage"> | string | null
+  sortOrder?: Prisma.IntFilter<"reviewimage"> | number
+  createdAt?: Prisma.DateTimeFilter<"reviewimage"> | Date | string
 }
 
-export type ReviewImageCreateManyReviewInput = {
-  id?: string
+export type reviewimageCreateManyReviewInput = {
+  id: string
   url: string
   alt?: string | null
   sortOrder?: number
   createdAt?: Date | string
 }
 
-export type ReviewImageUpdateWithoutReviewInput = {
+export type reviewimageUpdateWithoutReviewInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -501,7 +501,7 @@ export type ReviewImageUpdateWithoutReviewInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ReviewImageUncheckedUpdateWithoutReviewInput = {
+export type reviewimageUncheckedUpdateWithoutReviewInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -509,7 +509,7 @@ export type ReviewImageUncheckedUpdateWithoutReviewInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ReviewImageUncheckedUpdateManyWithoutReviewInput = {
+export type reviewimageUncheckedUpdateManyWithoutReviewInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -519,19 +519,19 @@ export type ReviewImageUncheckedUpdateManyWithoutReviewInput = {
 
 
 
-export type ReviewImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+export type reviewimageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   reviewId?: boolean
   url?: boolean
   alt?: boolean
   sortOrder?: boolean
   createdAt?: boolean
-  review?: boolean | Prisma.ReviewDefaultArgs<ExtArgs>
-}, ExtArgs["result"]["reviewImage"]>
+  review?: boolean | Prisma.reviewDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["reviewimage"]>
 
 
 
-export type ReviewImageSelectScalar = {
+export type reviewimageSelectScalar = {
   id?: boolean
   reviewId?: boolean
   url?: boolean
@@ -540,15 +540,15 @@ export type ReviewImageSelectScalar = {
   createdAt?: boolean
 }
 
-export type ReviewImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reviewId" | "url" | "alt" | "sortOrder" | "createdAt", ExtArgs["result"]["reviewImage"]>
-export type ReviewImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  review?: boolean | Prisma.ReviewDefaultArgs<ExtArgs>
+export type reviewimageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reviewId" | "url" | "alt" | "sortOrder" | "createdAt", ExtArgs["result"]["reviewimage"]>
+export type reviewimageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  review?: boolean | Prisma.reviewDefaultArgs<ExtArgs>
 }
 
-export type $ReviewImagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  name: "ReviewImage"
+export type $reviewimagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  name: "reviewimage"
   objects: {
-    review: Prisma.$ReviewPayload<ExtArgs>
+    review: Prisma.$reviewPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -557,143 +557,143 @@ export type $ReviewImagePayload<ExtArgs extends runtime.Types.Extensions.Interna
     alt: string | null
     sortOrder: number
     createdAt: Date
-  }, ExtArgs["result"]["reviewImage"]>
+  }, ExtArgs["result"]["reviewimage"]>
   composites: {}
 }
 
-export type ReviewImageGetPayload<S extends boolean | null | undefined | ReviewImageDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$ReviewImagePayload, S>
+export type reviewimageGetPayload<S extends boolean | null | undefined | reviewimageDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$reviewimagePayload, S>
 
-export type ReviewImageCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<ReviewImageFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-    select?: ReviewImageCountAggregateInputType | true
+export type reviewimageCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
+  Omit<reviewimageFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+    select?: ReviewimageCountAggregateInputType | true
   }
 
-export interface ReviewImageDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ReviewImage'], meta: { name: 'ReviewImage' } }
+export interface reviewimageDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['reviewimage'], meta: { name: 'reviewimage' } }
   /**
-   * Find zero or one ReviewImage that matches the filter.
-   * @param {ReviewImageFindUniqueArgs} args - Arguments to find a ReviewImage
+   * Find zero or one Reviewimage that matches the filter.
+   * @param {reviewimageFindUniqueArgs} args - Arguments to find a Reviewimage
    * @example
-   * // Get one ReviewImage
-   * const reviewImage = await prisma.reviewImage.findUnique({
+   * // Get one Reviewimage
+   * const reviewimage = await prisma.reviewimage.findUnique({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUnique<T extends ReviewImageFindUniqueArgs>(args: Prisma.SelectSubset<T, ReviewImageFindUniqueArgs<ExtArgs>>): Prisma.Prisma__ReviewImageClient<runtime.Types.Result.GetResult<Prisma.$ReviewImagePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findUnique<T extends reviewimageFindUniqueArgs>(args: Prisma.SelectSubset<T, reviewimageFindUniqueArgs<ExtArgs>>): Prisma.Prisma__reviewimageClient<runtime.Types.Result.GetResult<Prisma.$reviewimagePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find one ReviewImage that matches the filter or throw an error with `error.code='P2025'`
+   * Find one Reviewimage that matches the filter or throw an error with `error.code='P2025'`
    * if no matches were found.
-   * @param {ReviewImageFindUniqueOrThrowArgs} args - Arguments to find a ReviewImage
+   * @param {reviewimageFindUniqueOrThrowArgs} args - Arguments to find a Reviewimage
    * @example
-   * // Get one ReviewImage
-   * const reviewImage = await prisma.reviewImage.findUniqueOrThrow({
+   * // Get one Reviewimage
+   * const reviewimage = await prisma.reviewimage.findUniqueOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUniqueOrThrow<T extends ReviewImageFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, ReviewImageFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__ReviewImageClient<runtime.Types.Result.GetResult<Prisma.$ReviewImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findUniqueOrThrow<T extends reviewimageFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, reviewimageFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__reviewimageClient<runtime.Types.Result.GetResult<Prisma.$reviewimagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first ReviewImage that matches the filter.
+   * Find the first Reviewimage that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {ReviewImageFindFirstArgs} args - Arguments to find a ReviewImage
+   * @param {reviewimageFindFirstArgs} args - Arguments to find a Reviewimage
    * @example
-   * // Get one ReviewImage
-   * const reviewImage = await prisma.reviewImage.findFirst({
+   * // Get one Reviewimage
+   * const reviewimage = await prisma.reviewimage.findFirst({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirst<T extends ReviewImageFindFirstArgs>(args?: Prisma.SelectSubset<T, ReviewImageFindFirstArgs<ExtArgs>>): Prisma.Prisma__ReviewImageClient<runtime.Types.Result.GetResult<Prisma.$ReviewImagePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findFirst<T extends reviewimageFindFirstArgs>(args?: Prisma.SelectSubset<T, reviewimageFindFirstArgs<ExtArgs>>): Prisma.Prisma__reviewimageClient<runtime.Types.Result.GetResult<Prisma.$reviewimagePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first ReviewImage that matches the filter or
+   * Find the first Reviewimage that matches the filter or
    * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {ReviewImageFindFirstOrThrowArgs} args - Arguments to find a ReviewImage
+   * @param {reviewimageFindFirstOrThrowArgs} args - Arguments to find a Reviewimage
    * @example
-   * // Get one ReviewImage
-   * const reviewImage = await prisma.reviewImage.findFirstOrThrow({
+   * // Get one Reviewimage
+   * const reviewimage = await prisma.reviewimage.findFirstOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirstOrThrow<T extends ReviewImageFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, ReviewImageFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__ReviewImageClient<runtime.Types.Result.GetResult<Prisma.$ReviewImagePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findFirstOrThrow<T extends reviewimageFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, reviewimageFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__reviewimageClient<runtime.Types.Result.GetResult<Prisma.$reviewimagePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find zero or more ReviewImages that matches the filter.
+   * Find zero or more Reviewimages that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {ReviewImageFindManyArgs} args - Arguments to filter and select certain fields only.
+   * @param {reviewimageFindManyArgs} args - Arguments to filter and select certain fields only.
    * @example
-   * // Get all ReviewImages
-   * const reviewImages = await prisma.reviewImage.findMany()
+   * // Get all Reviewimages
+   * const reviewimages = await prisma.reviewimage.findMany()
    * 
-   * // Get first 10 ReviewImages
-   * const reviewImages = await prisma.reviewImage.findMany({ take: 10 })
+   * // Get first 10 Reviewimages
+   * const reviewimages = await prisma.reviewimage.findMany({ take: 10 })
    * 
    * // Only select the `id`
-   * const reviewImageWithIdOnly = await prisma.reviewImage.findMany({ select: { id: true } })
+   * const reviewimageWithIdOnly = await prisma.reviewimage.findMany({ select: { id: true } })
    * 
    */
-  findMany<T extends ReviewImageFindManyArgs>(args?: Prisma.SelectSubset<T, ReviewImageFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReviewImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+  findMany<T extends reviewimageFindManyArgs>(args?: Prisma.SelectSubset<T, reviewimageFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$reviewimagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
   /**
-   * Create a ReviewImage.
-   * @param {ReviewImageCreateArgs} args - Arguments to create a ReviewImage.
+   * Create a Reviewimage.
+   * @param {reviewimageCreateArgs} args - Arguments to create a Reviewimage.
    * @example
-   * // Create one ReviewImage
-   * const ReviewImage = await prisma.reviewImage.create({
+   * // Create one Reviewimage
+   * const Reviewimage = await prisma.reviewimage.create({
    *   data: {
-   *     // ... data to create a ReviewImage
+   *     // ... data to create a Reviewimage
    *   }
    * })
    * 
    */
-  create<T extends ReviewImageCreateArgs>(args: Prisma.SelectSubset<T, ReviewImageCreateArgs<ExtArgs>>): Prisma.Prisma__ReviewImageClient<runtime.Types.Result.GetResult<Prisma.$ReviewImagePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  create<T extends reviewimageCreateArgs>(args: Prisma.SelectSubset<T, reviewimageCreateArgs<ExtArgs>>): Prisma.Prisma__reviewimageClient<runtime.Types.Result.GetResult<Prisma.$reviewimagePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Create many ReviewImages.
-   * @param {ReviewImageCreateManyArgs} args - Arguments to create many ReviewImages.
+   * Create many Reviewimages.
+   * @param {reviewimageCreateManyArgs} args - Arguments to create many Reviewimages.
    * @example
-   * // Create many ReviewImages
-   * const reviewImage = await prisma.reviewImage.createMany({
+   * // Create many Reviewimages
+   * const reviewimage = await prisma.reviewimage.createMany({
    *   data: [
    *     // ... provide data here
    *   ]
    * })
    *     
    */
-  createMany<T extends ReviewImageCreateManyArgs>(args?: Prisma.SelectSubset<T, ReviewImageCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  createMany<T extends reviewimageCreateManyArgs>(args?: Prisma.SelectSubset<T, reviewimageCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Delete a ReviewImage.
-   * @param {ReviewImageDeleteArgs} args - Arguments to delete one ReviewImage.
+   * Delete a Reviewimage.
+   * @param {reviewimageDeleteArgs} args - Arguments to delete one Reviewimage.
    * @example
-   * // Delete one ReviewImage
-   * const ReviewImage = await prisma.reviewImage.delete({
+   * // Delete one Reviewimage
+   * const Reviewimage = await prisma.reviewimage.delete({
    *   where: {
-   *     // ... filter to delete one ReviewImage
+   *     // ... filter to delete one Reviewimage
    *   }
    * })
    * 
    */
-  delete<T extends ReviewImageDeleteArgs>(args: Prisma.SelectSubset<T, ReviewImageDeleteArgs<ExtArgs>>): Prisma.Prisma__ReviewImageClient<runtime.Types.Result.GetResult<Prisma.$ReviewImagePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  delete<T extends reviewimageDeleteArgs>(args: Prisma.SelectSubset<T, reviewimageDeleteArgs<ExtArgs>>): Prisma.Prisma__reviewimageClient<runtime.Types.Result.GetResult<Prisma.$reviewimagePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Update one ReviewImage.
-   * @param {ReviewImageUpdateArgs} args - Arguments to update one ReviewImage.
+   * Update one Reviewimage.
+   * @param {reviewimageUpdateArgs} args - Arguments to update one Reviewimage.
    * @example
-   * // Update one ReviewImage
-   * const reviewImage = await prisma.reviewImage.update({
+   * // Update one Reviewimage
+   * const reviewimage = await prisma.reviewimage.update({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -703,30 +703,30 @@ export interface ReviewImageDelegate<ExtArgs extends runtime.Types.Extensions.In
    * })
    * 
    */
-  update<T extends ReviewImageUpdateArgs>(args: Prisma.SelectSubset<T, ReviewImageUpdateArgs<ExtArgs>>): Prisma.Prisma__ReviewImageClient<runtime.Types.Result.GetResult<Prisma.$ReviewImagePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  update<T extends reviewimageUpdateArgs>(args: Prisma.SelectSubset<T, reviewimageUpdateArgs<ExtArgs>>): Prisma.Prisma__reviewimageClient<runtime.Types.Result.GetResult<Prisma.$reviewimagePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Delete zero or more ReviewImages.
-   * @param {ReviewImageDeleteManyArgs} args - Arguments to filter ReviewImages to delete.
+   * Delete zero or more Reviewimages.
+   * @param {reviewimageDeleteManyArgs} args - Arguments to filter Reviewimages to delete.
    * @example
-   * // Delete a few ReviewImages
-   * const { count } = await prisma.reviewImage.deleteMany({
+   * // Delete a few Reviewimages
+   * const { count } = await prisma.reviewimage.deleteMany({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    * 
    */
-  deleteMany<T extends ReviewImageDeleteManyArgs>(args?: Prisma.SelectSubset<T, ReviewImageDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  deleteMany<T extends reviewimageDeleteManyArgs>(args?: Prisma.SelectSubset<T, reviewimageDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Update zero or more ReviewImages.
+   * Update zero or more Reviewimages.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {ReviewImageUpdateManyArgs} args - Arguments to update one or more rows.
+   * @param {reviewimageUpdateManyArgs} args - Arguments to update one or more rows.
    * @example
-   * // Update many ReviewImages
-   * const reviewImage = await prisma.reviewImage.updateMany({
+   * // Update many Reviewimages
+   * const reviewimage = await prisma.reviewimage.updateMany({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -736,56 +736,56 @@ export interface ReviewImageDelegate<ExtArgs extends runtime.Types.Extensions.In
    * })
    * 
    */
-  updateMany<T extends ReviewImageUpdateManyArgs>(args: Prisma.SelectSubset<T, ReviewImageUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  updateMany<T extends reviewimageUpdateManyArgs>(args: Prisma.SelectSubset<T, reviewimageUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Create or update one ReviewImage.
-   * @param {ReviewImageUpsertArgs} args - Arguments to update or create a ReviewImage.
+   * Create or update one Reviewimage.
+   * @param {reviewimageUpsertArgs} args - Arguments to update or create a Reviewimage.
    * @example
-   * // Update or create a ReviewImage
-   * const reviewImage = await prisma.reviewImage.upsert({
+   * // Update or create a Reviewimage
+   * const reviewimage = await prisma.reviewimage.upsert({
    *   create: {
-   *     // ... data to create a ReviewImage
+   *     // ... data to create a Reviewimage
    *   },
    *   update: {
    *     // ... in case it already exists, update
    *   },
    *   where: {
-   *     // ... the filter for the ReviewImage we want to update
+   *     // ... the filter for the Reviewimage we want to update
    *   }
    * })
    */
-  upsert<T extends ReviewImageUpsertArgs>(args: Prisma.SelectSubset<T, ReviewImageUpsertArgs<ExtArgs>>): Prisma.Prisma__ReviewImageClient<runtime.Types.Result.GetResult<Prisma.$ReviewImagePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  upsert<T extends reviewimageUpsertArgs>(args: Prisma.SelectSubset<T, reviewimageUpsertArgs<ExtArgs>>): Prisma.Prisma__reviewimageClient<runtime.Types.Result.GetResult<Prisma.$reviewimagePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
   /**
-   * Count the number of ReviewImages.
+   * Count the number of Reviewimages.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {ReviewImageCountArgs} args - Arguments to filter ReviewImages to count.
+   * @param {reviewimageCountArgs} args - Arguments to filter Reviewimages to count.
    * @example
-   * // Count the number of ReviewImages
-   * const count = await prisma.reviewImage.count({
+   * // Count the number of Reviewimages
+   * const count = await prisma.reviewimage.count({
    *   where: {
-   *     // ... the filter for the ReviewImages we want to count
+   *     // ... the filter for the Reviewimages we want to count
    *   }
    * })
   **/
-  count<T extends ReviewImageCountArgs>(
-    args?: Prisma.Subset<T, ReviewImageCountArgs>,
+  count<T extends reviewimageCountArgs>(
+    args?: Prisma.Subset<T, reviewimageCountArgs>,
   ): Prisma.PrismaPromise<
     T extends runtime.Types.Utils.Record<'select', any>
       ? T['select'] extends true
         ? number
-        : Prisma.GetScalarType<T['select'], ReviewImageCountAggregateOutputType>
+        : Prisma.GetScalarType<T['select'], ReviewimageCountAggregateOutputType>
       : number
   >
 
   /**
-   * Allows you to perform aggregations operations on a ReviewImage.
+   * Allows you to perform aggregations operations on a Reviewimage.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {ReviewImageAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+   * @param {ReviewimageAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
    * @example
    * // Ordered by age ascending
    * // Where email contains prisma.io
@@ -805,13 +805,13 @@ export interface ReviewImageDelegate<ExtArgs extends runtime.Types.Extensions.In
    *   take: 10,
    * })
   **/
-  aggregate<T extends ReviewImageAggregateArgs>(args: Prisma.Subset<T, ReviewImageAggregateArgs>): Prisma.PrismaPromise<GetReviewImageAggregateType<T>>
+  aggregate<T extends ReviewimageAggregateArgs>(args: Prisma.Subset<T, ReviewimageAggregateArgs>): Prisma.PrismaPromise<GetReviewimageAggregateType<T>>
 
   /**
-   * Group by ReviewImage.
+   * Group by Reviewimage.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {ReviewImageGroupByArgs} args - Group by arguments.
+   * @param {reviewimageGroupByArgs} args - Group by arguments.
    * @example
    * // Group by city, order by createdAt, get count
    * const result = await prisma.user.groupBy({
@@ -826,14 +826,14 @@ export interface ReviewImageDelegate<ExtArgs extends runtime.Types.Extensions.In
    * 
   **/
   groupBy<
-    T extends ReviewImageGroupByArgs,
+    T extends reviewimageGroupByArgs,
     HasSelectOrTake extends Prisma.Or<
       Prisma.Extends<'skip', Prisma.Keys<T>>,
       Prisma.Extends<'take', Prisma.Keys<T>>
     >,
     OrderByArg extends Prisma.True extends HasSelectOrTake
-      ? { orderBy: ReviewImageGroupByArgs['orderBy'] }
-      : { orderBy?: ReviewImageGroupByArgs['orderBy'] },
+      ? { orderBy: reviewimageGroupByArgs['orderBy'] }
+      : { orderBy?: reviewimageGroupByArgs['orderBy'] },
     OrderFields extends Prisma.ExcludeUnderscoreKeys<Prisma.Keys<Prisma.MaybeTupleToUnion<T['orderBy']>>>,
     ByFields extends Prisma.MaybeTupleToUnion<T['by']>,
     ByValid extends Prisma.Has<ByFields, OrderFields>,
@@ -882,22 +882,22 @@ export interface ReviewImageDelegate<ExtArgs extends runtime.Types.Extensions.In
           ? never
           : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
       }[OrderFields]
-  >(args: Prisma.SubsetIntersection<T, ReviewImageGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReviewImageGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  >(args: Prisma.SubsetIntersection<T, reviewimageGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReviewimageGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
 /**
- * Fields of the ReviewImage model
+ * Fields of the reviewimage model
  */
-readonly fields: ReviewImageFieldRefs;
+readonly fields: reviewimageFieldRefs;
 }
 
 /**
- * The delegate class that acts as a "Promise-like" for ReviewImage.
+ * The delegate class that acts as a "Promise-like" for reviewimage.
  * Why is this prefixed with `Prisma__`?
  * Because we want to prevent naming conflicts as mentioned in
  * https://github.com/prisma/prisma-client-js/issues/707
  */
-export interface Prisma__ReviewImageClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+export interface Prisma__reviewimageClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  review<T extends Prisma.ReviewDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReviewDefaultArgs<ExtArgs>>): Prisma.Prisma__ReviewClient<runtime.Types.Result.GetResult<Prisma.$ReviewPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  review<T extends Prisma.reviewDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.reviewDefaultArgs<ExtArgs>>): Prisma.Prisma__reviewClient<runtime.Types.Result.GetResult<Prisma.$reviewPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -924,371 +924,371 @@ export interface Prisma__ReviewImageClient<T, Null = never, ExtArgs extends runt
 
 
 /**
- * Fields of the ReviewImage model
+ * Fields of the reviewimage model
  */
-export interface ReviewImageFieldRefs {
-  readonly id: Prisma.FieldRef<"ReviewImage", 'String'>
-  readonly reviewId: Prisma.FieldRef<"ReviewImage", 'String'>
-  readonly url: Prisma.FieldRef<"ReviewImage", 'String'>
-  readonly alt: Prisma.FieldRef<"ReviewImage", 'String'>
-  readonly sortOrder: Prisma.FieldRef<"ReviewImage", 'Int'>
-  readonly createdAt: Prisma.FieldRef<"ReviewImage", 'DateTime'>
+export interface reviewimageFieldRefs {
+  readonly id: Prisma.FieldRef<"reviewimage", 'String'>
+  readonly reviewId: Prisma.FieldRef<"reviewimage", 'String'>
+  readonly url: Prisma.FieldRef<"reviewimage", 'String'>
+  readonly alt: Prisma.FieldRef<"reviewimage", 'String'>
+  readonly sortOrder: Prisma.FieldRef<"reviewimage", 'Int'>
+  readonly createdAt: Prisma.FieldRef<"reviewimage", 'DateTime'>
 }
     
 
 // Custom InputTypes
 /**
- * ReviewImage findUnique
+ * reviewimage findUnique
  */
-export type ReviewImageFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type reviewimageFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ReviewImage
+   * Select specific fields to fetch from the reviewimage
    */
-  select?: Prisma.ReviewImageSelect<ExtArgs> | null
+  select?: Prisma.reviewimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ReviewImage
+   * Omit specific fields from the reviewimage
    */
-  omit?: Prisma.ReviewImageOmit<ExtArgs> | null
+  omit?: Prisma.reviewimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ReviewImageInclude<ExtArgs> | null
+  include?: Prisma.reviewimageInclude<ExtArgs> | null
   /**
-   * Filter, which ReviewImage to fetch.
+   * Filter, which reviewimage to fetch.
    */
-  where: Prisma.ReviewImageWhereUniqueInput
+  where: Prisma.reviewimageWhereUniqueInput
 }
 
 /**
- * ReviewImage findUniqueOrThrow
+ * reviewimage findUniqueOrThrow
  */
-export type ReviewImageFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type reviewimageFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ReviewImage
+   * Select specific fields to fetch from the reviewimage
    */
-  select?: Prisma.ReviewImageSelect<ExtArgs> | null
+  select?: Prisma.reviewimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ReviewImage
+   * Omit specific fields from the reviewimage
    */
-  omit?: Prisma.ReviewImageOmit<ExtArgs> | null
+  omit?: Prisma.reviewimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ReviewImageInclude<ExtArgs> | null
+  include?: Prisma.reviewimageInclude<ExtArgs> | null
   /**
-   * Filter, which ReviewImage to fetch.
+   * Filter, which reviewimage to fetch.
    */
-  where: Prisma.ReviewImageWhereUniqueInput
+  where: Prisma.reviewimageWhereUniqueInput
 }
 
 /**
- * ReviewImage findFirst
+ * reviewimage findFirst
  */
-export type ReviewImageFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type reviewimageFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ReviewImage
+   * Select specific fields to fetch from the reviewimage
    */
-  select?: Prisma.ReviewImageSelect<ExtArgs> | null
+  select?: Prisma.reviewimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ReviewImage
+   * Omit specific fields from the reviewimage
    */
-  omit?: Prisma.ReviewImageOmit<ExtArgs> | null
+  omit?: Prisma.reviewimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ReviewImageInclude<ExtArgs> | null
+  include?: Prisma.reviewimageInclude<ExtArgs> | null
   /**
-   * Filter, which ReviewImage to fetch.
+   * Filter, which reviewimage to fetch.
    */
-  where?: Prisma.ReviewImageWhereInput
+  where?: Prisma.reviewimageWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of ReviewImages to fetch.
+   * Determine the order of reviewimages to fetch.
    */
-  orderBy?: Prisma.ReviewImageOrderByWithRelationInput | Prisma.ReviewImageOrderByWithRelationInput[]
+  orderBy?: Prisma.reviewimageOrderByWithRelationInput | Prisma.reviewimageOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for ReviewImages.
+   * Sets the position for searching for reviewimages.
    */
-  cursor?: Prisma.ReviewImageWhereUniqueInput
+  cursor?: Prisma.reviewimageWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` ReviewImages from the position of the cursor.
+   * Take `±n` reviewimages from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` ReviewImages.
+   * Skip the first `n` reviewimages.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of ReviewImages.
+   * Filter by unique combinations of reviewimages.
    */
-  distinct?: Prisma.ReviewImageScalarFieldEnum | Prisma.ReviewImageScalarFieldEnum[]
+  distinct?: Prisma.ReviewimageScalarFieldEnum | Prisma.ReviewimageScalarFieldEnum[]
 }
 
 /**
- * ReviewImage findFirstOrThrow
+ * reviewimage findFirstOrThrow
  */
-export type ReviewImageFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type reviewimageFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ReviewImage
+   * Select specific fields to fetch from the reviewimage
    */
-  select?: Prisma.ReviewImageSelect<ExtArgs> | null
+  select?: Prisma.reviewimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ReviewImage
+   * Omit specific fields from the reviewimage
    */
-  omit?: Prisma.ReviewImageOmit<ExtArgs> | null
+  omit?: Prisma.reviewimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ReviewImageInclude<ExtArgs> | null
+  include?: Prisma.reviewimageInclude<ExtArgs> | null
   /**
-   * Filter, which ReviewImage to fetch.
+   * Filter, which reviewimage to fetch.
    */
-  where?: Prisma.ReviewImageWhereInput
+  where?: Prisma.reviewimageWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of ReviewImages to fetch.
+   * Determine the order of reviewimages to fetch.
    */
-  orderBy?: Prisma.ReviewImageOrderByWithRelationInput | Prisma.ReviewImageOrderByWithRelationInput[]
+  orderBy?: Prisma.reviewimageOrderByWithRelationInput | Prisma.reviewimageOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for ReviewImages.
+   * Sets the position for searching for reviewimages.
    */
-  cursor?: Prisma.ReviewImageWhereUniqueInput
+  cursor?: Prisma.reviewimageWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` ReviewImages from the position of the cursor.
+   * Take `±n` reviewimages from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` ReviewImages.
+   * Skip the first `n` reviewimages.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of ReviewImages.
+   * Filter by unique combinations of reviewimages.
    */
-  distinct?: Prisma.ReviewImageScalarFieldEnum | Prisma.ReviewImageScalarFieldEnum[]
+  distinct?: Prisma.ReviewimageScalarFieldEnum | Prisma.ReviewimageScalarFieldEnum[]
 }
 
 /**
- * ReviewImage findMany
+ * reviewimage findMany
  */
-export type ReviewImageFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type reviewimageFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ReviewImage
+   * Select specific fields to fetch from the reviewimage
    */
-  select?: Prisma.ReviewImageSelect<ExtArgs> | null
+  select?: Prisma.reviewimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ReviewImage
+   * Omit specific fields from the reviewimage
    */
-  omit?: Prisma.ReviewImageOmit<ExtArgs> | null
+  omit?: Prisma.reviewimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ReviewImageInclude<ExtArgs> | null
+  include?: Prisma.reviewimageInclude<ExtArgs> | null
   /**
-   * Filter, which ReviewImages to fetch.
+   * Filter, which reviewimages to fetch.
    */
-  where?: Prisma.ReviewImageWhereInput
+  where?: Prisma.reviewimageWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of ReviewImages to fetch.
+   * Determine the order of reviewimages to fetch.
    */
-  orderBy?: Prisma.ReviewImageOrderByWithRelationInput | Prisma.ReviewImageOrderByWithRelationInput[]
+  orderBy?: Prisma.reviewimageOrderByWithRelationInput | Prisma.reviewimageOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for listing ReviewImages.
+   * Sets the position for listing reviewimages.
    */
-  cursor?: Prisma.ReviewImageWhereUniqueInput
+  cursor?: Prisma.reviewimageWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` ReviewImages from the position of the cursor.
+   * Take `±n` reviewimages from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` ReviewImages.
+   * Skip the first `n` reviewimages.
    */
   skip?: number
-  distinct?: Prisma.ReviewImageScalarFieldEnum | Prisma.ReviewImageScalarFieldEnum[]
+  distinct?: Prisma.ReviewimageScalarFieldEnum | Prisma.ReviewimageScalarFieldEnum[]
 }
 
 /**
- * ReviewImage create
+ * reviewimage create
  */
-export type ReviewImageCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type reviewimageCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ReviewImage
+   * Select specific fields to fetch from the reviewimage
    */
-  select?: Prisma.ReviewImageSelect<ExtArgs> | null
+  select?: Prisma.reviewimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ReviewImage
+   * Omit specific fields from the reviewimage
    */
-  omit?: Prisma.ReviewImageOmit<ExtArgs> | null
+  omit?: Prisma.reviewimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ReviewImageInclude<ExtArgs> | null
+  include?: Prisma.reviewimageInclude<ExtArgs> | null
   /**
-   * The data needed to create a ReviewImage.
+   * The data needed to create a reviewimage.
    */
-  data: Prisma.XOR<Prisma.ReviewImageCreateInput, Prisma.ReviewImageUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.reviewimageCreateInput, Prisma.reviewimageUncheckedCreateInput>
 }
 
 /**
- * ReviewImage createMany
+ * reviewimage createMany
  */
-export type ReviewImageCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type reviewimageCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to create many ReviewImages.
+   * The data used to create many reviewimages.
    */
-  data: Prisma.ReviewImageCreateManyInput | Prisma.ReviewImageCreateManyInput[]
+  data: Prisma.reviewimageCreateManyInput | Prisma.reviewimageCreateManyInput[]
   skipDuplicates?: boolean
 }
 
 /**
- * ReviewImage update
+ * reviewimage update
  */
-export type ReviewImageUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type reviewimageUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ReviewImage
+   * Select specific fields to fetch from the reviewimage
    */
-  select?: Prisma.ReviewImageSelect<ExtArgs> | null
+  select?: Prisma.reviewimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ReviewImage
+   * Omit specific fields from the reviewimage
    */
-  omit?: Prisma.ReviewImageOmit<ExtArgs> | null
+  omit?: Prisma.reviewimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ReviewImageInclude<ExtArgs> | null
+  include?: Prisma.reviewimageInclude<ExtArgs> | null
   /**
-   * The data needed to update a ReviewImage.
+   * The data needed to update a reviewimage.
    */
-  data: Prisma.XOR<Prisma.ReviewImageUpdateInput, Prisma.ReviewImageUncheckedUpdateInput>
+  data: Prisma.XOR<Prisma.reviewimageUpdateInput, Prisma.reviewimageUncheckedUpdateInput>
   /**
-   * Choose, which ReviewImage to update.
+   * Choose, which reviewimage to update.
    */
-  where: Prisma.ReviewImageWhereUniqueInput
+  where: Prisma.reviewimageWhereUniqueInput
 }
 
 /**
- * ReviewImage updateMany
+ * reviewimage updateMany
  */
-export type ReviewImageUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type reviewimageUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to update ReviewImages.
+   * The data used to update reviewimages.
    */
-  data: Prisma.XOR<Prisma.ReviewImageUpdateManyMutationInput, Prisma.ReviewImageUncheckedUpdateManyInput>
+  data: Prisma.XOR<Prisma.reviewimageUpdateManyMutationInput, Prisma.reviewimageUncheckedUpdateManyInput>
   /**
-   * Filter which ReviewImages to update
+   * Filter which reviewimages to update
    */
-  where?: Prisma.ReviewImageWhereInput
+  where?: Prisma.reviewimageWhereInput
   /**
-   * Limit how many ReviewImages to update.
+   * Limit how many reviewimages to update.
    */
   limit?: number
 }
 
 /**
- * ReviewImage upsert
+ * reviewimage upsert
  */
-export type ReviewImageUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type reviewimageUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ReviewImage
+   * Select specific fields to fetch from the reviewimage
    */
-  select?: Prisma.ReviewImageSelect<ExtArgs> | null
+  select?: Prisma.reviewimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ReviewImage
+   * Omit specific fields from the reviewimage
    */
-  omit?: Prisma.ReviewImageOmit<ExtArgs> | null
+  omit?: Prisma.reviewimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ReviewImageInclude<ExtArgs> | null
+  include?: Prisma.reviewimageInclude<ExtArgs> | null
   /**
-   * The filter to search for the ReviewImage to update in case it exists.
+   * The filter to search for the reviewimage to update in case it exists.
    */
-  where: Prisma.ReviewImageWhereUniqueInput
+  where: Prisma.reviewimageWhereUniqueInput
   /**
-   * In case the ReviewImage found by the `where` argument doesn't exist, create a new ReviewImage with this data.
+   * In case the reviewimage found by the `where` argument doesn't exist, create a new reviewimage with this data.
    */
-  create: Prisma.XOR<Prisma.ReviewImageCreateInput, Prisma.ReviewImageUncheckedCreateInput>
+  create: Prisma.XOR<Prisma.reviewimageCreateInput, Prisma.reviewimageUncheckedCreateInput>
   /**
-   * In case the ReviewImage was found with the provided `where` argument, update it with this data.
+   * In case the reviewimage was found with the provided `where` argument, update it with this data.
    */
-  update: Prisma.XOR<Prisma.ReviewImageUpdateInput, Prisma.ReviewImageUncheckedUpdateInput>
+  update: Prisma.XOR<Prisma.reviewimageUpdateInput, Prisma.reviewimageUncheckedUpdateInput>
 }
 
 /**
- * ReviewImage delete
+ * reviewimage delete
  */
-export type ReviewImageDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type reviewimageDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ReviewImage
+   * Select specific fields to fetch from the reviewimage
    */
-  select?: Prisma.ReviewImageSelect<ExtArgs> | null
+  select?: Prisma.reviewimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ReviewImage
+   * Omit specific fields from the reviewimage
    */
-  omit?: Prisma.ReviewImageOmit<ExtArgs> | null
+  omit?: Prisma.reviewimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ReviewImageInclude<ExtArgs> | null
+  include?: Prisma.reviewimageInclude<ExtArgs> | null
   /**
-   * Filter which ReviewImage to delete.
+   * Filter which reviewimage to delete.
    */
-  where: Prisma.ReviewImageWhereUniqueInput
+  where: Prisma.reviewimageWhereUniqueInput
 }
 
 /**
- * ReviewImage deleteMany
+ * reviewimage deleteMany
  */
-export type ReviewImageDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type reviewimageDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which ReviewImages to delete
+   * Filter which reviewimages to delete
    */
-  where?: Prisma.ReviewImageWhereInput
+  where?: Prisma.reviewimageWhereInput
   /**
-   * Limit how many ReviewImages to delete.
+   * Limit how many reviewimages to delete.
    */
   limit?: number
 }
 
 /**
- * ReviewImage without action
+ * reviewimage without action
  */
-export type ReviewImageDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type reviewimageDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ReviewImage
+   * Select specific fields to fetch from the reviewimage
    */
-  select?: Prisma.ReviewImageSelect<ExtArgs> | null
+  select?: Prisma.reviewimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ReviewImage
+   * Omit specific fields from the reviewimage
    */
-  omit?: Prisma.ReviewImageOmit<ExtArgs> | null
+  omit?: Prisma.reviewimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ReviewImageInclude<ExtArgs> | null
+  include?: Prisma.reviewimageInclude<ExtArgs> | null
 }

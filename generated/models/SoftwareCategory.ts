@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck 
 /*
- * This file exports the `SoftwareCategory` model and its related types.
+ * This file exports the `softwarecategory` model and its related types.
  *
  * 🟢 You can import this file directly.
  */
@@ -12,28 +12,28 @@ import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
 /**
- * Model SoftwareCategory
+ * Model softwarecategory
  * 
  */
-export type SoftwareCategoryModel = runtime.Types.Result.DefaultSelection<Prisma.$SoftwareCategoryPayload>
+export type softwarecategoryModel = runtime.Types.Result.DefaultSelection<Prisma.$softwarecategoryPayload>
 
-export type AggregateSoftwareCategory = {
-  _count: SoftwareCategoryCountAggregateOutputType | null
-  _avg: SoftwareCategoryAvgAggregateOutputType | null
-  _sum: SoftwareCategorySumAggregateOutputType | null
-  _min: SoftwareCategoryMinAggregateOutputType | null
-  _max: SoftwareCategoryMaxAggregateOutputType | null
+export type AggregateSoftwarecategory = {
+  _count: SoftwarecategoryCountAggregateOutputType | null
+  _avg: SoftwarecategoryAvgAggregateOutputType | null
+  _sum: SoftwarecategorySumAggregateOutputType | null
+  _min: SoftwarecategoryMinAggregateOutputType | null
+  _max: SoftwarecategoryMaxAggregateOutputType | null
 }
 
-export type SoftwareCategoryAvgAggregateOutputType = {
+export type SoftwarecategoryAvgAggregateOutputType = {
   sortOrder: number | null
 }
 
-export type SoftwareCategorySumAggregateOutputType = {
+export type SoftwarecategorySumAggregateOutputType = {
   sortOrder: number | null
 }
 
-export type SoftwareCategoryMinAggregateOutputType = {
+export type SoftwarecategoryMinAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
@@ -46,7 +46,7 @@ export type SoftwareCategoryMinAggregateOutputType = {
   updatedAt: Date | null
 }
 
-export type SoftwareCategoryMaxAggregateOutputType = {
+export type SoftwarecategoryMaxAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
@@ -59,7 +59,7 @@ export type SoftwareCategoryMaxAggregateOutputType = {
   updatedAt: Date | null
 }
 
-export type SoftwareCategoryCountAggregateOutputType = {
+export type SoftwarecategoryCountAggregateOutputType = {
   id: number
   name: number
   slug: number
@@ -74,15 +74,15 @@ export type SoftwareCategoryCountAggregateOutputType = {
 }
 
 
-export type SoftwareCategoryAvgAggregateInputType = {
+export type SoftwarecategoryAvgAggregateInputType = {
   sortOrder?: true
 }
 
-export type SoftwareCategorySumAggregateInputType = {
+export type SoftwarecategorySumAggregateInputType = {
   sortOrder?: true
 }
 
-export type SoftwareCategoryMinAggregateInputType = {
+export type SoftwarecategoryMinAggregateInputType = {
   id?: true
   name?: true
   slug?: true
@@ -95,7 +95,7 @@ export type SoftwareCategoryMinAggregateInputType = {
   updatedAt?: true
 }
 
-export type SoftwareCategoryMaxAggregateInputType = {
+export type SoftwarecategoryMaxAggregateInputType = {
   id?: true
   name?: true
   slug?: true
@@ -108,7 +108,7 @@ export type SoftwareCategoryMaxAggregateInputType = {
   updatedAt?: true
 }
 
-export type SoftwareCategoryCountAggregateInputType = {
+export type SoftwarecategoryCountAggregateInputType = {
   id?: true
   name?: true
   slug?: true
@@ -122,93 +122,93 @@ export type SoftwareCategoryCountAggregateInputType = {
   _all?: true
 }
 
-export type SoftwareCategoryAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type SoftwarecategoryAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which SoftwareCategory to aggregate.
+   * Filter which softwarecategory to aggregate.
    */
-  where?: Prisma.SoftwareCategoryWhereInput
+  where?: Prisma.softwarecategoryWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of SoftwareCategories to fetch.
+   * Determine the order of softwarecategories to fetch.
    */
-  orderBy?: Prisma.SoftwareCategoryOrderByWithRelationInput | Prisma.SoftwareCategoryOrderByWithRelationInput[]
+  orderBy?: Prisma.softwarecategoryOrderByWithRelationInput | Prisma.softwarecategoryOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
    * Sets the start position
    */
-  cursor?: Prisma.SoftwareCategoryWhereUniqueInput
+  cursor?: Prisma.softwarecategoryWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` SoftwareCategories from the position of the cursor.
+   * Take `±n` softwarecategories from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` SoftwareCategories.
+   * Skip the first `n` softwarecategories.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Count returned SoftwareCategories
+   * Count returned softwarecategories
   **/
-  _count?: true | SoftwareCategoryCountAggregateInputType
+  _count?: true | SoftwarecategoryCountAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to average
   **/
-  _avg?: SoftwareCategoryAvgAggregateInputType
+  _avg?: SoftwarecategoryAvgAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to sum
   **/
-  _sum?: SoftwareCategorySumAggregateInputType
+  _sum?: SoftwarecategorySumAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the minimum value
   **/
-  _min?: SoftwareCategoryMinAggregateInputType
+  _min?: SoftwarecategoryMinAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the maximum value
   **/
-  _max?: SoftwareCategoryMaxAggregateInputType
+  _max?: SoftwarecategoryMaxAggregateInputType
 }
 
-export type GetSoftwareCategoryAggregateType<T extends SoftwareCategoryAggregateArgs> = {
-      [P in keyof T & keyof AggregateSoftwareCategory]: P extends '_count' | 'count'
+export type GetSoftwarecategoryAggregateType<T extends SoftwarecategoryAggregateArgs> = {
+      [P in keyof T & keyof AggregateSoftwarecategory]: P extends '_count' | 'count'
     ? T[P] extends true
       ? number
-      : Prisma.GetScalarType<T[P], AggregateSoftwareCategory[P]>
-    : Prisma.GetScalarType<T[P], AggregateSoftwareCategory[P]>
+      : Prisma.GetScalarType<T[P], AggregateSoftwarecategory[P]>
+    : Prisma.GetScalarType<T[P], AggregateSoftwarecategory[P]>
 }
 
 
 
 
-export type SoftwareCategoryGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SoftwareCategoryWhereInput
-  orderBy?: Prisma.SoftwareCategoryOrderByWithAggregationInput | Prisma.SoftwareCategoryOrderByWithAggregationInput[]
-  by: Prisma.SoftwareCategoryScalarFieldEnum[] | Prisma.SoftwareCategoryScalarFieldEnum
-  having?: Prisma.SoftwareCategoryScalarWhereWithAggregatesInput
+export type softwarecategoryGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.softwarecategoryWhereInput
+  orderBy?: Prisma.softwarecategoryOrderByWithAggregationInput | Prisma.softwarecategoryOrderByWithAggregationInput[]
+  by: Prisma.SoftwarecategoryScalarFieldEnum[] | Prisma.SoftwarecategoryScalarFieldEnum
+  having?: Prisma.softwarecategoryScalarWhereWithAggregatesInput
   take?: number
   skip?: number
-  _count?: SoftwareCategoryCountAggregateInputType | true
-  _avg?: SoftwareCategoryAvgAggregateInputType
-  _sum?: SoftwareCategorySumAggregateInputType
-  _min?: SoftwareCategoryMinAggregateInputType
-  _max?: SoftwareCategoryMaxAggregateInputType
+  _count?: SoftwarecategoryCountAggregateInputType | true
+  _avg?: SoftwarecategoryAvgAggregateInputType
+  _sum?: SoftwarecategorySumAggregateInputType
+  _min?: SoftwarecategoryMinAggregateInputType
+  _max?: SoftwarecategoryMaxAggregateInputType
 }
 
-export type SoftwareCategoryGroupByOutputType = {
+export type SoftwarecategoryGroupByOutputType = {
   id: string
   name: string
   slug: string
@@ -219,48 +219,48 @@ export type SoftwareCategoryGroupByOutputType = {
   isActive: boolean
   createdAt: Date
   updatedAt: Date
-  _count: SoftwareCategoryCountAggregateOutputType | null
-  _avg: SoftwareCategoryAvgAggregateOutputType | null
-  _sum: SoftwareCategorySumAggregateOutputType | null
-  _min: SoftwareCategoryMinAggregateOutputType | null
-  _max: SoftwareCategoryMaxAggregateOutputType | null
+  _count: SoftwarecategoryCountAggregateOutputType | null
+  _avg: SoftwarecategoryAvgAggregateOutputType | null
+  _sum: SoftwarecategorySumAggregateOutputType | null
+  _min: SoftwarecategoryMinAggregateOutputType | null
+  _max: SoftwarecategoryMaxAggregateOutputType | null
 }
 
-type GetSoftwareCategoryGroupByPayload<T extends SoftwareCategoryGroupByArgs> = Prisma.PrismaPromise<
+type GetSoftwarecategoryGroupByPayload<T extends softwarecategoryGroupByArgs> = Prisma.PrismaPromise<
   Array<
-    Prisma.PickEnumerable<SoftwareCategoryGroupByOutputType, T['by']> &
+    Prisma.PickEnumerable<SoftwarecategoryGroupByOutputType, T['by']> &
       {
-        [P in ((keyof T) & (keyof SoftwareCategoryGroupByOutputType))]: P extends '_count'
+        [P in ((keyof T) & (keyof SoftwarecategoryGroupByOutputType))]: P extends '_count'
           ? T[P] extends boolean
             ? number
-            : Prisma.GetScalarType<T[P], SoftwareCategoryGroupByOutputType[P]>
-          : Prisma.GetScalarType<T[P], SoftwareCategoryGroupByOutputType[P]>
+            : Prisma.GetScalarType<T[P], SoftwarecategoryGroupByOutputType[P]>
+          : Prisma.GetScalarType<T[P], SoftwarecategoryGroupByOutputType[P]>
       }
     >
   >
 
 
 
-export type SoftwareCategoryWhereInput = {
-  AND?: Prisma.SoftwareCategoryWhereInput | Prisma.SoftwareCategoryWhereInput[]
-  OR?: Prisma.SoftwareCategoryWhereInput[]
-  NOT?: Prisma.SoftwareCategoryWhereInput | Prisma.SoftwareCategoryWhereInput[]
-  id?: Prisma.StringFilter<"SoftwareCategory"> | string
-  name?: Prisma.StringFilter<"SoftwareCategory"> | string
-  slug?: Prisma.StringFilter<"SoftwareCategory"> | string
-  description?: Prisma.StringNullableFilter<"SoftwareCategory"> | string | null
-  image?: Prisma.StringNullableFilter<"SoftwareCategory"> | string | null
-  parentId?: Prisma.StringNullableFilter<"SoftwareCategory"> | string | null
-  sortOrder?: Prisma.IntFilter<"SoftwareCategory"> | number
-  isActive?: Prisma.BoolFilter<"SoftwareCategory"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"SoftwareCategory"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"SoftwareCategory"> | Date | string
-  parent?: Prisma.XOR<Prisma.SoftwareCategoryNullableScalarRelationFilter, Prisma.SoftwareCategoryWhereInput> | null
-  children?: Prisma.SoftwareCategoryListRelationFilter
-  softwares?: Prisma.SoftwareListRelationFilter
+export type softwarecategoryWhereInput = {
+  AND?: Prisma.softwarecategoryWhereInput | Prisma.softwarecategoryWhereInput[]
+  OR?: Prisma.softwarecategoryWhereInput[]
+  NOT?: Prisma.softwarecategoryWhereInput | Prisma.softwarecategoryWhereInput[]
+  id?: Prisma.StringFilter<"softwarecategory"> | string
+  name?: Prisma.StringFilter<"softwarecategory"> | string
+  slug?: Prisma.StringFilter<"softwarecategory"> | string
+  description?: Prisma.StringNullableFilter<"softwarecategory"> | string | null
+  image?: Prisma.StringNullableFilter<"softwarecategory"> | string | null
+  parentId?: Prisma.StringNullableFilter<"softwarecategory"> | string | null
+  sortOrder?: Prisma.IntFilter<"softwarecategory"> | number
+  isActive?: Prisma.BoolFilter<"softwarecategory"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"softwarecategory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"softwarecategory"> | Date | string
+  software?: Prisma.SoftwareListRelationFilter
+  softwarecategory?: Prisma.XOR<Prisma.SoftwarecategoryNullableScalarRelationFilter, Prisma.softwarecategoryWhereInput> | null
+  other_softwarecategory?: Prisma.SoftwarecategoryListRelationFilter
 }
 
-export type SoftwareCategoryOrderByWithRelationInput = {
+export type softwarecategoryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -271,32 +271,32 @@ export type SoftwareCategoryOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  parent?: Prisma.SoftwareCategoryOrderByWithRelationInput
-  children?: Prisma.SoftwareCategoryOrderByRelationAggregateInput
-  softwares?: Prisma.SoftwareOrderByRelationAggregateInput
-  _relevance?: Prisma.SoftwareCategoryOrderByRelevanceInput
+  software?: Prisma.softwareOrderByRelationAggregateInput
+  softwarecategory?: Prisma.softwarecategoryOrderByWithRelationInput
+  other_softwarecategory?: Prisma.softwarecategoryOrderByRelationAggregateInput
+  _relevance?: Prisma.softwarecategoryOrderByRelevanceInput
 }
 
-export type SoftwareCategoryWhereUniqueInput = Prisma.AtLeast<{
+export type softwarecategoryWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   slug?: string
-  AND?: Prisma.SoftwareCategoryWhereInput | Prisma.SoftwareCategoryWhereInput[]
-  OR?: Prisma.SoftwareCategoryWhereInput[]
-  NOT?: Prisma.SoftwareCategoryWhereInput | Prisma.SoftwareCategoryWhereInput[]
-  name?: Prisma.StringFilter<"SoftwareCategory"> | string
-  description?: Prisma.StringNullableFilter<"SoftwareCategory"> | string | null
-  image?: Prisma.StringNullableFilter<"SoftwareCategory"> | string | null
-  parentId?: Prisma.StringNullableFilter<"SoftwareCategory"> | string | null
-  sortOrder?: Prisma.IntFilter<"SoftwareCategory"> | number
-  isActive?: Prisma.BoolFilter<"SoftwareCategory"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"SoftwareCategory"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"SoftwareCategory"> | Date | string
-  parent?: Prisma.XOR<Prisma.SoftwareCategoryNullableScalarRelationFilter, Prisma.SoftwareCategoryWhereInput> | null
-  children?: Prisma.SoftwareCategoryListRelationFilter
-  softwares?: Prisma.SoftwareListRelationFilter
+  AND?: Prisma.softwarecategoryWhereInput | Prisma.softwarecategoryWhereInput[]
+  OR?: Prisma.softwarecategoryWhereInput[]
+  NOT?: Prisma.softwarecategoryWhereInput | Prisma.softwarecategoryWhereInput[]
+  name?: Prisma.StringFilter<"softwarecategory"> | string
+  description?: Prisma.StringNullableFilter<"softwarecategory"> | string | null
+  image?: Prisma.StringNullableFilter<"softwarecategory"> | string | null
+  parentId?: Prisma.StringNullableFilter<"softwarecategory"> | string | null
+  sortOrder?: Prisma.IntFilter<"softwarecategory"> | number
+  isActive?: Prisma.BoolFilter<"softwarecategory"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"softwarecategory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"softwarecategory"> | Date | string
+  software?: Prisma.SoftwareListRelationFilter
+  softwarecategory?: Prisma.XOR<Prisma.SoftwarecategoryNullableScalarRelationFilter, Prisma.softwarecategoryWhereInput> | null
+  other_softwarecategory?: Prisma.SoftwarecategoryListRelationFilter
 }, "id" | "slug">
 
-export type SoftwareCategoryOrderByWithAggregationInput = {
+export type softwarecategoryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -307,31 +307,31 @@ export type SoftwareCategoryOrderByWithAggregationInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  _count?: Prisma.SoftwareCategoryCountOrderByAggregateInput
-  _avg?: Prisma.SoftwareCategoryAvgOrderByAggregateInput
-  _max?: Prisma.SoftwareCategoryMaxOrderByAggregateInput
-  _min?: Prisma.SoftwareCategoryMinOrderByAggregateInput
-  _sum?: Prisma.SoftwareCategorySumOrderByAggregateInput
+  _count?: Prisma.softwarecategoryCountOrderByAggregateInput
+  _avg?: Prisma.softwarecategoryAvgOrderByAggregateInput
+  _max?: Prisma.softwarecategoryMaxOrderByAggregateInput
+  _min?: Prisma.softwarecategoryMinOrderByAggregateInput
+  _sum?: Prisma.softwarecategorySumOrderByAggregateInput
 }
 
-export type SoftwareCategoryScalarWhereWithAggregatesInput = {
-  AND?: Prisma.SoftwareCategoryScalarWhereWithAggregatesInput | Prisma.SoftwareCategoryScalarWhereWithAggregatesInput[]
-  OR?: Prisma.SoftwareCategoryScalarWhereWithAggregatesInput[]
-  NOT?: Prisma.SoftwareCategoryScalarWhereWithAggregatesInput | Prisma.SoftwareCategoryScalarWhereWithAggregatesInput[]
-  id?: Prisma.StringWithAggregatesFilter<"SoftwareCategory"> | string
-  name?: Prisma.StringWithAggregatesFilter<"SoftwareCategory"> | string
-  slug?: Prisma.StringWithAggregatesFilter<"SoftwareCategory"> | string
-  description?: Prisma.StringNullableWithAggregatesFilter<"SoftwareCategory"> | string | null
-  image?: Prisma.StringNullableWithAggregatesFilter<"SoftwareCategory"> | string | null
-  parentId?: Prisma.StringNullableWithAggregatesFilter<"SoftwareCategory"> | string | null
-  sortOrder?: Prisma.IntWithAggregatesFilter<"SoftwareCategory"> | number
-  isActive?: Prisma.BoolWithAggregatesFilter<"SoftwareCategory"> | boolean
-  createdAt?: Prisma.DateTimeWithAggregatesFilter<"SoftwareCategory"> | Date | string
-  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SoftwareCategory"> | Date | string
+export type softwarecategoryScalarWhereWithAggregatesInput = {
+  AND?: Prisma.softwarecategoryScalarWhereWithAggregatesInput | Prisma.softwarecategoryScalarWhereWithAggregatesInput[]
+  OR?: Prisma.softwarecategoryScalarWhereWithAggregatesInput[]
+  NOT?: Prisma.softwarecategoryScalarWhereWithAggregatesInput | Prisma.softwarecategoryScalarWhereWithAggregatesInput[]
+  id?: Prisma.StringWithAggregatesFilter<"softwarecategory"> | string
+  name?: Prisma.StringWithAggregatesFilter<"softwarecategory"> | string
+  slug?: Prisma.StringWithAggregatesFilter<"softwarecategory"> | string
+  description?: Prisma.StringNullableWithAggregatesFilter<"softwarecategory"> | string | null
+  image?: Prisma.StringNullableWithAggregatesFilter<"softwarecategory"> | string | null
+  parentId?: Prisma.StringNullableWithAggregatesFilter<"softwarecategory"> | string | null
+  sortOrder?: Prisma.IntWithAggregatesFilter<"softwarecategory"> | number
+  isActive?: Prisma.BoolWithAggregatesFilter<"softwarecategory"> | boolean
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"softwarecategory"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"softwarecategory"> | Date | string
 }
 
-export type SoftwareCategoryCreateInput = {
-  id?: string
+export type softwarecategoryCreateInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -339,14 +339,14 @@ export type SoftwareCategoryCreateInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
-  parent?: Prisma.SoftwareCategoryCreateNestedOneWithoutChildrenInput
-  children?: Prisma.SoftwareCategoryCreateNestedManyWithoutParentInput
-  softwares?: Prisma.SoftwareCreateNestedManyWithoutCategoryInput
+  updatedAt: Date | string
+  software?: Prisma.softwareCreateNestedManyWithoutSoftwarecategoryInput
+  softwarecategory?: Prisma.softwarecategoryCreateNestedOneWithoutOther_softwarecategoryInput
+  other_softwarecategory?: Prisma.softwarecategoryCreateNestedManyWithoutSoftwarecategoryInput
 }
 
-export type SoftwareCategoryUncheckedCreateInput = {
-  id?: string
+export type softwarecategoryUncheckedCreateInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -355,12 +355,12 @@ export type SoftwareCategoryUncheckedCreateInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
-  children?: Prisma.SoftwareCategoryUncheckedCreateNestedManyWithoutParentInput
-  softwares?: Prisma.SoftwareUncheckedCreateNestedManyWithoutCategoryInput
+  updatedAt: Date | string
+  software?: Prisma.softwareUncheckedCreateNestedManyWithoutSoftwarecategoryInput
+  other_softwarecategory?: Prisma.softwarecategoryUncheckedCreateNestedManyWithoutSoftwarecategoryInput
 }
 
-export type SoftwareCategoryUpdateInput = {
+export type softwarecategoryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -370,12 +370,12 @@ export type SoftwareCategoryUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  parent?: Prisma.SoftwareCategoryUpdateOneWithoutChildrenNestedInput
-  children?: Prisma.SoftwareCategoryUpdateManyWithoutParentNestedInput
-  softwares?: Prisma.SoftwareUpdateManyWithoutCategoryNestedInput
+  software?: Prisma.softwareUpdateManyWithoutSoftwarecategoryNestedInput
+  softwarecategory?: Prisma.softwarecategoryUpdateOneWithoutOther_softwarecategoryNestedInput
+  other_softwarecategory?: Prisma.softwarecategoryUpdateManyWithoutSoftwarecategoryNestedInput
 }
 
-export type SoftwareCategoryUncheckedUpdateInput = {
+export type softwarecategoryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -386,12 +386,12 @@ export type SoftwareCategoryUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  children?: Prisma.SoftwareCategoryUncheckedUpdateManyWithoutParentNestedInput
-  softwares?: Prisma.SoftwareUncheckedUpdateManyWithoutCategoryNestedInput
+  software?: Prisma.softwareUncheckedUpdateManyWithoutSoftwarecategoryNestedInput
+  other_softwarecategory?: Prisma.softwarecategoryUncheckedUpdateManyWithoutSoftwarecategoryNestedInput
 }
 
-export type SoftwareCategoryCreateManyInput = {
-  id?: string
+export type softwarecategoryCreateManyInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -400,10 +400,10 @@ export type SoftwareCategoryCreateManyInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
+  updatedAt: Date | string
 }
 
-export type SoftwareCategoryUpdateManyMutationInput = {
+export type softwarecategoryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -415,7 +415,7 @@ export type SoftwareCategoryUpdateManyMutationInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SoftwareCategoryUncheckedUpdateManyInput = {
+export type softwarecategoryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -428,28 +428,33 @@ export type SoftwareCategoryUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SoftwareCategoryNullableScalarRelationFilter = {
-  is?: Prisma.SoftwareCategoryWhereInput | null
-  isNot?: Prisma.SoftwareCategoryWhereInput | null
+export type SoftwarecategoryScalarRelationFilter = {
+  is?: Prisma.softwarecategoryWhereInput
+  isNot?: Prisma.softwarecategoryWhereInput
 }
 
-export type SoftwareCategoryListRelationFilter = {
-  every?: Prisma.SoftwareCategoryWhereInput
-  some?: Prisma.SoftwareCategoryWhereInput
-  none?: Prisma.SoftwareCategoryWhereInput
+export type SoftwarecategoryNullableScalarRelationFilter = {
+  is?: Prisma.softwarecategoryWhereInput | null
+  isNot?: Prisma.softwarecategoryWhereInput | null
 }
 
-export type SoftwareCategoryOrderByRelationAggregateInput = {
+export type SoftwarecategoryListRelationFilter = {
+  every?: Prisma.softwarecategoryWhereInput
+  some?: Prisma.softwarecategoryWhereInput
+  none?: Prisma.softwarecategoryWhereInput
+}
+
+export type softwarecategoryOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type SoftwareCategoryOrderByRelevanceInput = {
-  fields: Prisma.SoftwareCategoryOrderByRelevanceFieldEnum | Prisma.SoftwareCategoryOrderByRelevanceFieldEnum[]
+export type softwarecategoryOrderByRelevanceInput = {
+  fields: Prisma.softwarecategoryOrderByRelevanceFieldEnum | Prisma.softwarecategoryOrderByRelevanceFieldEnum[]
   sort: Prisma.SortOrder
   search: string
 }
 
-export type SoftwareCategoryCountOrderByAggregateInput = {
+export type softwarecategoryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -462,11 +467,11 @@ export type SoftwareCategoryCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type SoftwareCategoryAvgOrderByAggregateInput = {
+export type softwarecategoryAvgOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
-export type SoftwareCategoryMaxOrderByAggregateInput = {
+export type softwarecategoryMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -479,7 +484,7 @@ export type SoftwareCategoryMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type SoftwareCategoryMinOrderByAggregateInput = {
+export type softwarecategoryMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -492,89 +497,84 @@ export type SoftwareCategoryMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type SoftwareCategorySumOrderByAggregateInput = {
+export type softwarecategorySumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
-export type SoftwareCategoryScalarRelationFilter = {
-  is?: Prisma.SoftwareCategoryWhereInput
-  isNot?: Prisma.SoftwareCategoryWhereInput
+export type softwarecategoryCreateNestedOneWithoutSoftwareInput = {
+  create?: Prisma.XOR<Prisma.softwarecategoryCreateWithoutSoftwareInput, Prisma.softwarecategoryUncheckedCreateWithoutSoftwareInput>
+  connectOrCreate?: Prisma.softwarecategoryCreateOrConnectWithoutSoftwareInput
+  connect?: Prisma.softwarecategoryWhereUniqueInput
 }
 
-export type SoftwareCategoryCreateNestedOneWithoutChildrenInput = {
-  create?: Prisma.XOR<Prisma.SoftwareCategoryCreateWithoutChildrenInput, Prisma.SoftwareCategoryUncheckedCreateWithoutChildrenInput>
-  connectOrCreate?: Prisma.SoftwareCategoryCreateOrConnectWithoutChildrenInput
-  connect?: Prisma.SoftwareCategoryWhereUniqueInput
+export type softwarecategoryUpdateOneRequiredWithoutSoftwareNestedInput = {
+  create?: Prisma.XOR<Prisma.softwarecategoryCreateWithoutSoftwareInput, Prisma.softwarecategoryUncheckedCreateWithoutSoftwareInput>
+  connectOrCreate?: Prisma.softwarecategoryCreateOrConnectWithoutSoftwareInput
+  upsert?: Prisma.softwarecategoryUpsertWithoutSoftwareInput
+  connect?: Prisma.softwarecategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.softwarecategoryUpdateToOneWithWhereWithoutSoftwareInput, Prisma.softwarecategoryUpdateWithoutSoftwareInput>, Prisma.softwarecategoryUncheckedUpdateWithoutSoftwareInput>
 }
 
-export type SoftwareCategoryCreateNestedManyWithoutParentInput = {
-  create?: Prisma.XOR<Prisma.SoftwareCategoryCreateWithoutParentInput, Prisma.SoftwareCategoryUncheckedCreateWithoutParentInput> | Prisma.SoftwareCategoryCreateWithoutParentInput[] | Prisma.SoftwareCategoryUncheckedCreateWithoutParentInput[]
-  connectOrCreate?: Prisma.SoftwareCategoryCreateOrConnectWithoutParentInput | Prisma.SoftwareCategoryCreateOrConnectWithoutParentInput[]
-  createMany?: Prisma.SoftwareCategoryCreateManyParentInputEnvelope
-  connect?: Prisma.SoftwareCategoryWhereUniqueInput | Prisma.SoftwareCategoryWhereUniqueInput[]
+export type softwarecategoryCreateNestedOneWithoutOther_softwarecategoryInput = {
+  create?: Prisma.XOR<Prisma.softwarecategoryCreateWithoutOther_softwarecategoryInput, Prisma.softwarecategoryUncheckedCreateWithoutOther_softwarecategoryInput>
+  connectOrCreate?: Prisma.softwarecategoryCreateOrConnectWithoutOther_softwarecategoryInput
+  connect?: Prisma.softwarecategoryWhereUniqueInput
 }
 
-export type SoftwareCategoryUncheckedCreateNestedManyWithoutParentInput = {
-  create?: Prisma.XOR<Prisma.SoftwareCategoryCreateWithoutParentInput, Prisma.SoftwareCategoryUncheckedCreateWithoutParentInput> | Prisma.SoftwareCategoryCreateWithoutParentInput[] | Prisma.SoftwareCategoryUncheckedCreateWithoutParentInput[]
-  connectOrCreate?: Prisma.SoftwareCategoryCreateOrConnectWithoutParentInput | Prisma.SoftwareCategoryCreateOrConnectWithoutParentInput[]
-  createMany?: Prisma.SoftwareCategoryCreateManyParentInputEnvelope
-  connect?: Prisma.SoftwareCategoryWhereUniqueInput | Prisma.SoftwareCategoryWhereUniqueInput[]
+export type softwarecategoryCreateNestedManyWithoutSoftwarecategoryInput = {
+  create?: Prisma.XOR<Prisma.softwarecategoryCreateWithoutSoftwarecategoryInput, Prisma.softwarecategoryUncheckedCreateWithoutSoftwarecategoryInput> | Prisma.softwarecategoryCreateWithoutSoftwarecategoryInput[] | Prisma.softwarecategoryUncheckedCreateWithoutSoftwarecategoryInput[]
+  connectOrCreate?: Prisma.softwarecategoryCreateOrConnectWithoutSoftwarecategoryInput | Prisma.softwarecategoryCreateOrConnectWithoutSoftwarecategoryInput[]
+  createMany?: Prisma.softwarecategoryCreateManySoftwarecategoryInputEnvelope
+  connect?: Prisma.softwarecategoryWhereUniqueInput | Prisma.softwarecategoryWhereUniqueInput[]
 }
 
-export type SoftwareCategoryUpdateOneWithoutChildrenNestedInput = {
-  create?: Prisma.XOR<Prisma.SoftwareCategoryCreateWithoutChildrenInput, Prisma.SoftwareCategoryUncheckedCreateWithoutChildrenInput>
-  connectOrCreate?: Prisma.SoftwareCategoryCreateOrConnectWithoutChildrenInput
-  upsert?: Prisma.SoftwareCategoryUpsertWithoutChildrenInput
-  disconnect?: Prisma.SoftwareCategoryWhereInput | boolean
-  delete?: Prisma.SoftwareCategoryWhereInput | boolean
-  connect?: Prisma.SoftwareCategoryWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.SoftwareCategoryUpdateToOneWithWhereWithoutChildrenInput, Prisma.SoftwareCategoryUpdateWithoutChildrenInput>, Prisma.SoftwareCategoryUncheckedUpdateWithoutChildrenInput>
+export type softwarecategoryUncheckedCreateNestedManyWithoutSoftwarecategoryInput = {
+  create?: Prisma.XOR<Prisma.softwarecategoryCreateWithoutSoftwarecategoryInput, Prisma.softwarecategoryUncheckedCreateWithoutSoftwarecategoryInput> | Prisma.softwarecategoryCreateWithoutSoftwarecategoryInput[] | Prisma.softwarecategoryUncheckedCreateWithoutSoftwarecategoryInput[]
+  connectOrCreate?: Prisma.softwarecategoryCreateOrConnectWithoutSoftwarecategoryInput | Prisma.softwarecategoryCreateOrConnectWithoutSoftwarecategoryInput[]
+  createMany?: Prisma.softwarecategoryCreateManySoftwarecategoryInputEnvelope
+  connect?: Prisma.softwarecategoryWhereUniqueInput | Prisma.softwarecategoryWhereUniqueInput[]
 }
 
-export type SoftwareCategoryUpdateManyWithoutParentNestedInput = {
-  create?: Prisma.XOR<Prisma.SoftwareCategoryCreateWithoutParentInput, Prisma.SoftwareCategoryUncheckedCreateWithoutParentInput> | Prisma.SoftwareCategoryCreateWithoutParentInput[] | Prisma.SoftwareCategoryUncheckedCreateWithoutParentInput[]
-  connectOrCreate?: Prisma.SoftwareCategoryCreateOrConnectWithoutParentInput | Prisma.SoftwareCategoryCreateOrConnectWithoutParentInput[]
-  upsert?: Prisma.SoftwareCategoryUpsertWithWhereUniqueWithoutParentInput | Prisma.SoftwareCategoryUpsertWithWhereUniqueWithoutParentInput[]
-  createMany?: Prisma.SoftwareCategoryCreateManyParentInputEnvelope
-  set?: Prisma.SoftwareCategoryWhereUniqueInput | Prisma.SoftwareCategoryWhereUniqueInput[]
-  disconnect?: Prisma.SoftwareCategoryWhereUniqueInput | Prisma.SoftwareCategoryWhereUniqueInput[]
-  delete?: Prisma.SoftwareCategoryWhereUniqueInput | Prisma.SoftwareCategoryWhereUniqueInput[]
-  connect?: Prisma.SoftwareCategoryWhereUniqueInput | Prisma.SoftwareCategoryWhereUniqueInput[]
-  update?: Prisma.SoftwareCategoryUpdateWithWhereUniqueWithoutParentInput | Prisma.SoftwareCategoryUpdateWithWhereUniqueWithoutParentInput[]
-  updateMany?: Prisma.SoftwareCategoryUpdateManyWithWhereWithoutParentInput | Prisma.SoftwareCategoryUpdateManyWithWhereWithoutParentInput[]
-  deleteMany?: Prisma.SoftwareCategoryScalarWhereInput | Prisma.SoftwareCategoryScalarWhereInput[]
+export type softwarecategoryUpdateOneWithoutOther_softwarecategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.softwarecategoryCreateWithoutOther_softwarecategoryInput, Prisma.softwarecategoryUncheckedCreateWithoutOther_softwarecategoryInput>
+  connectOrCreate?: Prisma.softwarecategoryCreateOrConnectWithoutOther_softwarecategoryInput
+  upsert?: Prisma.softwarecategoryUpsertWithoutOther_softwarecategoryInput
+  disconnect?: Prisma.softwarecategoryWhereInput | boolean
+  delete?: Prisma.softwarecategoryWhereInput | boolean
+  connect?: Prisma.softwarecategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.softwarecategoryUpdateToOneWithWhereWithoutOther_softwarecategoryInput, Prisma.softwarecategoryUpdateWithoutOther_softwarecategoryInput>, Prisma.softwarecategoryUncheckedUpdateWithoutOther_softwarecategoryInput>
 }
 
-export type SoftwareCategoryUncheckedUpdateManyWithoutParentNestedInput = {
-  create?: Prisma.XOR<Prisma.SoftwareCategoryCreateWithoutParentInput, Prisma.SoftwareCategoryUncheckedCreateWithoutParentInput> | Prisma.SoftwareCategoryCreateWithoutParentInput[] | Prisma.SoftwareCategoryUncheckedCreateWithoutParentInput[]
-  connectOrCreate?: Prisma.SoftwareCategoryCreateOrConnectWithoutParentInput | Prisma.SoftwareCategoryCreateOrConnectWithoutParentInput[]
-  upsert?: Prisma.SoftwareCategoryUpsertWithWhereUniqueWithoutParentInput | Prisma.SoftwareCategoryUpsertWithWhereUniqueWithoutParentInput[]
-  createMany?: Prisma.SoftwareCategoryCreateManyParentInputEnvelope
-  set?: Prisma.SoftwareCategoryWhereUniqueInput | Prisma.SoftwareCategoryWhereUniqueInput[]
-  disconnect?: Prisma.SoftwareCategoryWhereUniqueInput | Prisma.SoftwareCategoryWhereUniqueInput[]
-  delete?: Prisma.SoftwareCategoryWhereUniqueInput | Prisma.SoftwareCategoryWhereUniqueInput[]
-  connect?: Prisma.SoftwareCategoryWhereUniqueInput | Prisma.SoftwareCategoryWhereUniqueInput[]
-  update?: Prisma.SoftwareCategoryUpdateWithWhereUniqueWithoutParentInput | Prisma.SoftwareCategoryUpdateWithWhereUniqueWithoutParentInput[]
-  updateMany?: Prisma.SoftwareCategoryUpdateManyWithWhereWithoutParentInput | Prisma.SoftwareCategoryUpdateManyWithWhereWithoutParentInput[]
-  deleteMany?: Prisma.SoftwareCategoryScalarWhereInput | Prisma.SoftwareCategoryScalarWhereInput[]
+export type softwarecategoryUpdateManyWithoutSoftwarecategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.softwarecategoryCreateWithoutSoftwarecategoryInput, Prisma.softwarecategoryUncheckedCreateWithoutSoftwarecategoryInput> | Prisma.softwarecategoryCreateWithoutSoftwarecategoryInput[] | Prisma.softwarecategoryUncheckedCreateWithoutSoftwarecategoryInput[]
+  connectOrCreate?: Prisma.softwarecategoryCreateOrConnectWithoutSoftwarecategoryInput | Prisma.softwarecategoryCreateOrConnectWithoutSoftwarecategoryInput[]
+  upsert?: Prisma.softwarecategoryUpsertWithWhereUniqueWithoutSoftwarecategoryInput | Prisma.softwarecategoryUpsertWithWhereUniqueWithoutSoftwarecategoryInput[]
+  createMany?: Prisma.softwarecategoryCreateManySoftwarecategoryInputEnvelope
+  set?: Prisma.softwarecategoryWhereUniqueInput | Prisma.softwarecategoryWhereUniqueInput[]
+  disconnect?: Prisma.softwarecategoryWhereUniqueInput | Prisma.softwarecategoryWhereUniqueInput[]
+  delete?: Prisma.softwarecategoryWhereUniqueInput | Prisma.softwarecategoryWhereUniqueInput[]
+  connect?: Prisma.softwarecategoryWhereUniqueInput | Prisma.softwarecategoryWhereUniqueInput[]
+  update?: Prisma.softwarecategoryUpdateWithWhereUniqueWithoutSoftwarecategoryInput | Prisma.softwarecategoryUpdateWithWhereUniqueWithoutSoftwarecategoryInput[]
+  updateMany?: Prisma.softwarecategoryUpdateManyWithWhereWithoutSoftwarecategoryInput | Prisma.softwarecategoryUpdateManyWithWhereWithoutSoftwarecategoryInput[]
+  deleteMany?: Prisma.softwarecategoryScalarWhereInput | Prisma.softwarecategoryScalarWhereInput[]
 }
 
-export type SoftwareCategoryCreateNestedOneWithoutSoftwaresInput = {
-  create?: Prisma.XOR<Prisma.SoftwareCategoryCreateWithoutSoftwaresInput, Prisma.SoftwareCategoryUncheckedCreateWithoutSoftwaresInput>
-  connectOrCreate?: Prisma.SoftwareCategoryCreateOrConnectWithoutSoftwaresInput
-  connect?: Prisma.SoftwareCategoryWhereUniqueInput
+export type softwarecategoryUncheckedUpdateManyWithoutSoftwarecategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.softwarecategoryCreateWithoutSoftwarecategoryInput, Prisma.softwarecategoryUncheckedCreateWithoutSoftwarecategoryInput> | Prisma.softwarecategoryCreateWithoutSoftwarecategoryInput[] | Prisma.softwarecategoryUncheckedCreateWithoutSoftwarecategoryInput[]
+  connectOrCreate?: Prisma.softwarecategoryCreateOrConnectWithoutSoftwarecategoryInput | Prisma.softwarecategoryCreateOrConnectWithoutSoftwarecategoryInput[]
+  upsert?: Prisma.softwarecategoryUpsertWithWhereUniqueWithoutSoftwarecategoryInput | Prisma.softwarecategoryUpsertWithWhereUniqueWithoutSoftwarecategoryInput[]
+  createMany?: Prisma.softwarecategoryCreateManySoftwarecategoryInputEnvelope
+  set?: Prisma.softwarecategoryWhereUniqueInput | Prisma.softwarecategoryWhereUniqueInput[]
+  disconnect?: Prisma.softwarecategoryWhereUniqueInput | Prisma.softwarecategoryWhereUniqueInput[]
+  delete?: Prisma.softwarecategoryWhereUniqueInput | Prisma.softwarecategoryWhereUniqueInput[]
+  connect?: Prisma.softwarecategoryWhereUniqueInput | Prisma.softwarecategoryWhereUniqueInput[]
+  update?: Prisma.softwarecategoryUpdateWithWhereUniqueWithoutSoftwarecategoryInput | Prisma.softwarecategoryUpdateWithWhereUniqueWithoutSoftwarecategoryInput[]
+  updateMany?: Prisma.softwarecategoryUpdateManyWithWhereWithoutSoftwarecategoryInput | Prisma.softwarecategoryUpdateManyWithWhereWithoutSoftwarecategoryInput[]
+  deleteMany?: Prisma.softwarecategoryScalarWhereInput | Prisma.softwarecategoryScalarWhereInput[]
 }
 
-export type SoftwareCategoryUpdateOneRequiredWithoutSoftwaresNestedInput = {
-  create?: Prisma.XOR<Prisma.SoftwareCategoryCreateWithoutSoftwaresInput, Prisma.SoftwareCategoryUncheckedCreateWithoutSoftwaresInput>
-  connectOrCreate?: Prisma.SoftwareCategoryCreateOrConnectWithoutSoftwaresInput
-  upsert?: Prisma.SoftwareCategoryUpsertWithoutSoftwaresInput
-  connect?: Prisma.SoftwareCategoryWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.SoftwareCategoryUpdateToOneWithWhereWithoutSoftwaresInput, Prisma.SoftwareCategoryUpdateWithoutSoftwaresInput>, Prisma.SoftwareCategoryUncheckedUpdateWithoutSoftwaresInput>
-}
-
-export type SoftwareCategoryCreateWithoutChildrenInput = {
-  id?: string
+export type softwarecategoryCreateWithoutSoftwareInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -582,13 +582,13 @@ export type SoftwareCategoryCreateWithoutChildrenInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
-  parent?: Prisma.SoftwareCategoryCreateNestedOneWithoutChildrenInput
-  softwares?: Prisma.SoftwareCreateNestedManyWithoutCategoryInput
+  updatedAt: Date | string
+  softwarecategory?: Prisma.softwarecategoryCreateNestedOneWithoutOther_softwarecategoryInput
+  other_softwarecategory?: Prisma.softwarecategoryCreateNestedManyWithoutSoftwarecategoryInput
 }
 
-export type SoftwareCategoryUncheckedCreateWithoutChildrenInput = {
-  id?: string
+export type softwarecategoryUncheckedCreateWithoutSoftwareInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -597,17 +597,56 @@ export type SoftwareCategoryUncheckedCreateWithoutChildrenInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
-  softwares?: Prisma.SoftwareUncheckedCreateNestedManyWithoutCategoryInput
+  updatedAt: Date | string
+  other_softwarecategory?: Prisma.softwarecategoryUncheckedCreateNestedManyWithoutSoftwarecategoryInput
 }
 
-export type SoftwareCategoryCreateOrConnectWithoutChildrenInput = {
-  where: Prisma.SoftwareCategoryWhereUniqueInput
-  create: Prisma.XOR<Prisma.SoftwareCategoryCreateWithoutChildrenInput, Prisma.SoftwareCategoryUncheckedCreateWithoutChildrenInput>
+export type softwarecategoryCreateOrConnectWithoutSoftwareInput = {
+  where: Prisma.softwarecategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.softwarecategoryCreateWithoutSoftwareInput, Prisma.softwarecategoryUncheckedCreateWithoutSoftwareInput>
 }
 
-export type SoftwareCategoryCreateWithoutParentInput = {
-  id?: string
+export type softwarecategoryUpsertWithoutSoftwareInput = {
+  update: Prisma.XOR<Prisma.softwarecategoryUpdateWithoutSoftwareInput, Prisma.softwarecategoryUncheckedUpdateWithoutSoftwareInput>
+  create: Prisma.XOR<Prisma.softwarecategoryCreateWithoutSoftwareInput, Prisma.softwarecategoryUncheckedCreateWithoutSoftwareInput>
+  where?: Prisma.softwarecategoryWhereInput
+}
+
+export type softwarecategoryUpdateToOneWithWhereWithoutSoftwareInput = {
+  where?: Prisma.softwarecategoryWhereInput
+  data: Prisma.XOR<Prisma.softwarecategoryUpdateWithoutSoftwareInput, Prisma.softwarecategoryUncheckedUpdateWithoutSoftwareInput>
+}
+
+export type softwarecategoryUpdateWithoutSoftwareInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  softwarecategory?: Prisma.softwarecategoryUpdateOneWithoutOther_softwarecategoryNestedInput
+  other_softwarecategory?: Prisma.softwarecategoryUpdateManyWithoutSoftwarecategoryNestedInput
+}
+
+export type softwarecategoryUncheckedUpdateWithoutSoftwareInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  other_softwarecategory?: Prisma.softwarecategoryUncheckedUpdateManyWithoutSoftwarecategoryNestedInput
+}
+
+export type softwarecategoryCreateWithoutOther_softwarecategoryInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -615,13 +654,32 @@ export type SoftwareCategoryCreateWithoutParentInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
-  children?: Prisma.SoftwareCategoryCreateNestedManyWithoutParentInput
-  softwares?: Prisma.SoftwareCreateNestedManyWithoutCategoryInput
+  updatedAt: Date | string
+  software?: Prisma.softwareCreateNestedManyWithoutSoftwarecategoryInput
+  softwarecategory?: Prisma.softwarecategoryCreateNestedOneWithoutOther_softwarecategoryInput
 }
 
-export type SoftwareCategoryUncheckedCreateWithoutParentInput = {
-  id?: string
+export type softwarecategoryUncheckedCreateWithoutOther_softwarecategoryInput = {
+  id: string
+  name: string
+  slug: string
+  description?: string | null
+  image?: string | null
+  parentId?: string | null
+  sortOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt: Date | string
+  software?: Prisma.softwareUncheckedCreateNestedManyWithoutSoftwarecategoryInput
+}
+
+export type softwarecategoryCreateOrConnectWithoutOther_softwarecategoryInput = {
+  where: Prisma.softwarecategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.softwarecategoryCreateWithoutOther_softwarecategoryInput, Prisma.softwarecategoryUncheckedCreateWithoutOther_softwarecategoryInput>
+}
+
+export type softwarecategoryCreateWithoutSoftwarecategoryInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -629,33 +687,47 @@ export type SoftwareCategoryUncheckedCreateWithoutParentInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
-  children?: Prisma.SoftwareCategoryUncheckedCreateNestedManyWithoutParentInput
-  softwares?: Prisma.SoftwareUncheckedCreateNestedManyWithoutCategoryInput
+  updatedAt: Date | string
+  software?: Prisma.softwareCreateNestedManyWithoutSoftwarecategoryInput
+  other_softwarecategory?: Prisma.softwarecategoryCreateNestedManyWithoutSoftwarecategoryInput
 }
 
-export type SoftwareCategoryCreateOrConnectWithoutParentInput = {
-  where: Prisma.SoftwareCategoryWhereUniqueInput
-  create: Prisma.XOR<Prisma.SoftwareCategoryCreateWithoutParentInput, Prisma.SoftwareCategoryUncheckedCreateWithoutParentInput>
+export type softwarecategoryUncheckedCreateWithoutSoftwarecategoryInput = {
+  id: string
+  name: string
+  slug: string
+  description?: string | null
+  image?: string | null
+  sortOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt: Date | string
+  software?: Prisma.softwareUncheckedCreateNestedManyWithoutSoftwarecategoryInput
+  other_softwarecategory?: Prisma.softwarecategoryUncheckedCreateNestedManyWithoutSoftwarecategoryInput
 }
 
-export type SoftwareCategoryCreateManyParentInputEnvelope = {
-  data: Prisma.SoftwareCategoryCreateManyParentInput | Prisma.SoftwareCategoryCreateManyParentInput[]
+export type softwarecategoryCreateOrConnectWithoutSoftwarecategoryInput = {
+  where: Prisma.softwarecategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.softwarecategoryCreateWithoutSoftwarecategoryInput, Prisma.softwarecategoryUncheckedCreateWithoutSoftwarecategoryInput>
+}
+
+export type softwarecategoryCreateManySoftwarecategoryInputEnvelope = {
+  data: Prisma.softwarecategoryCreateManySoftwarecategoryInput | Prisma.softwarecategoryCreateManySoftwarecategoryInput[]
   skipDuplicates?: boolean
 }
 
-export type SoftwareCategoryUpsertWithoutChildrenInput = {
-  update: Prisma.XOR<Prisma.SoftwareCategoryUpdateWithoutChildrenInput, Prisma.SoftwareCategoryUncheckedUpdateWithoutChildrenInput>
-  create: Prisma.XOR<Prisma.SoftwareCategoryCreateWithoutChildrenInput, Prisma.SoftwareCategoryUncheckedCreateWithoutChildrenInput>
-  where?: Prisma.SoftwareCategoryWhereInput
+export type softwarecategoryUpsertWithoutOther_softwarecategoryInput = {
+  update: Prisma.XOR<Prisma.softwarecategoryUpdateWithoutOther_softwarecategoryInput, Prisma.softwarecategoryUncheckedUpdateWithoutOther_softwarecategoryInput>
+  create: Prisma.XOR<Prisma.softwarecategoryCreateWithoutOther_softwarecategoryInput, Prisma.softwarecategoryUncheckedCreateWithoutOther_softwarecategoryInput>
+  where?: Prisma.softwarecategoryWhereInput
 }
 
-export type SoftwareCategoryUpdateToOneWithWhereWithoutChildrenInput = {
-  where?: Prisma.SoftwareCategoryWhereInput
-  data: Prisma.XOR<Prisma.SoftwareCategoryUpdateWithoutChildrenInput, Prisma.SoftwareCategoryUncheckedUpdateWithoutChildrenInput>
+export type softwarecategoryUpdateToOneWithWhereWithoutOther_softwarecategoryInput = {
+  where?: Prisma.softwarecategoryWhereInput
+  data: Prisma.XOR<Prisma.softwarecategoryUpdateWithoutOther_softwarecategoryInput, Prisma.softwarecategoryUncheckedUpdateWithoutOther_softwarecategoryInput>
 }
 
-export type SoftwareCategoryUpdateWithoutChildrenInput = {
+export type softwarecategoryUpdateWithoutOther_softwarecategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -665,115 +737,11 @@ export type SoftwareCategoryUpdateWithoutChildrenInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  parent?: Prisma.SoftwareCategoryUpdateOneWithoutChildrenNestedInput
-  softwares?: Prisma.SoftwareUpdateManyWithoutCategoryNestedInput
+  software?: Prisma.softwareUpdateManyWithoutSoftwarecategoryNestedInput
+  softwarecategory?: Prisma.softwarecategoryUpdateOneWithoutOther_softwarecategoryNestedInput
 }
 
-export type SoftwareCategoryUncheckedUpdateWithoutChildrenInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  softwares?: Prisma.SoftwareUncheckedUpdateManyWithoutCategoryNestedInput
-}
-
-export type SoftwareCategoryUpsertWithWhereUniqueWithoutParentInput = {
-  where: Prisma.SoftwareCategoryWhereUniqueInput
-  update: Prisma.XOR<Prisma.SoftwareCategoryUpdateWithoutParentInput, Prisma.SoftwareCategoryUncheckedUpdateWithoutParentInput>
-  create: Prisma.XOR<Prisma.SoftwareCategoryCreateWithoutParentInput, Prisma.SoftwareCategoryUncheckedCreateWithoutParentInput>
-}
-
-export type SoftwareCategoryUpdateWithWhereUniqueWithoutParentInput = {
-  where: Prisma.SoftwareCategoryWhereUniqueInput
-  data: Prisma.XOR<Prisma.SoftwareCategoryUpdateWithoutParentInput, Prisma.SoftwareCategoryUncheckedUpdateWithoutParentInput>
-}
-
-export type SoftwareCategoryUpdateManyWithWhereWithoutParentInput = {
-  where: Prisma.SoftwareCategoryScalarWhereInput
-  data: Prisma.XOR<Prisma.SoftwareCategoryUpdateManyMutationInput, Prisma.SoftwareCategoryUncheckedUpdateManyWithoutParentInput>
-}
-
-export type SoftwareCategoryScalarWhereInput = {
-  AND?: Prisma.SoftwareCategoryScalarWhereInput | Prisma.SoftwareCategoryScalarWhereInput[]
-  OR?: Prisma.SoftwareCategoryScalarWhereInput[]
-  NOT?: Prisma.SoftwareCategoryScalarWhereInput | Prisma.SoftwareCategoryScalarWhereInput[]
-  id?: Prisma.StringFilter<"SoftwareCategory"> | string
-  name?: Prisma.StringFilter<"SoftwareCategory"> | string
-  slug?: Prisma.StringFilter<"SoftwareCategory"> | string
-  description?: Prisma.StringNullableFilter<"SoftwareCategory"> | string | null
-  image?: Prisma.StringNullableFilter<"SoftwareCategory"> | string | null
-  parentId?: Prisma.StringNullableFilter<"SoftwareCategory"> | string | null
-  sortOrder?: Prisma.IntFilter<"SoftwareCategory"> | number
-  isActive?: Prisma.BoolFilter<"SoftwareCategory"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"SoftwareCategory"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"SoftwareCategory"> | Date | string
-}
-
-export type SoftwareCategoryCreateWithoutSoftwaresInput = {
-  id?: string
-  name: string
-  slug: string
-  description?: string | null
-  image?: string | null
-  sortOrder?: number
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  parent?: Prisma.SoftwareCategoryCreateNestedOneWithoutChildrenInput
-  children?: Prisma.SoftwareCategoryCreateNestedManyWithoutParentInput
-}
-
-export type SoftwareCategoryUncheckedCreateWithoutSoftwaresInput = {
-  id?: string
-  name: string
-  slug: string
-  description?: string | null
-  image?: string | null
-  parentId?: string | null
-  sortOrder?: number
-  isActive?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  children?: Prisma.SoftwareCategoryUncheckedCreateNestedManyWithoutParentInput
-}
-
-export type SoftwareCategoryCreateOrConnectWithoutSoftwaresInput = {
-  where: Prisma.SoftwareCategoryWhereUniqueInput
-  create: Prisma.XOR<Prisma.SoftwareCategoryCreateWithoutSoftwaresInput, Prisma.SoftwareCategoryUncheckedCreateWithoutSoftwaresInput>
-}
-
-export type SoftwareCategoryUpsertWithoutSoftwaresInput = {
-  update: Prisma.XOR<Prisma.SoftwareCategoryUpdateWithoutSoftwaresInput, Prisma.SoftwareCategoryUncheckedUpdateWithoutSoftwaresInput>
-  create: Prisma.XOR<Prisma.SoftwareCategoryCreateWithoutSoftwaresInput, Prisma.SoftwareCategoryUncheckedCreateWithoutSoftwaresInput>
-  where?: Prisma.SoftwareCategoryWhereInput
-}
-
-export type SoftwareCategoryUpdateToOneWithWhereWithoutSoftwaresInput = {
-  where?: Prisma.SoftwareCategoryWhereInput
-  data: Prisma.XOR<Prisma.SoftwareCategoryUpdateWithoutSoftwaresInput, Prisma.SoftwareCategoryUncheckedUpdateWithoutSoftwaresInput>
-}
-
-export type SoftwareCategoryUpdateWithoutSoftwaresInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  parent?: Prisma.SoftwareCategoryUpdateOneWithoutChildrenNestedInput
-  children?: Prisma.SoftwareCategoryUpdateManyWithoutParentNestedInput
-}
-
-export type SoftwareCategoryUncheckedUpdateWithoutSoftwaresInput = {
+export type softwarecategoryUncheckedUpdateWithoutOther_softwarecategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -784,11 +752,43 @@ export type SoftwareCategoryUncheckedUpdateWithoutSoftwaresInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  children?: Prisma.SoftwareCategoryUncheckedUpdateManyWithoutParentNestedInput
+  software?: Prisma.softwareUncheckedUpdateManyWithoutSoftwarecategoryNestedInput
 }
 
-export type SoftwareCategoryCreateManyParentInput = {
-  id?: string
+export type softwarecategoryUpsertWithWhereUniqueWithoutSoftwarecategoryInput = {
+  where: Prisma.softwarecategoryWhereUniqueInput
+  update: Prisma.XOR<Prisma.softwarecategoryUpdateWithoutSoftwarecategoryInput, Prisma.softwarecategoryUncheckedUpdateWithoutSoftwarecategoryInput>
+  create: Prisma.XOR<Prisma.softwarecategoryCreateWithoutSoftwarecategoryInput, Prisma.softwarecategoryUncheckedCreateWithoutSoftwarecategoryInput>
+}
+
+export type softwarecategoryUpdateWithWhereUniqueWithoutSoftwarecategoryInput = {
+  where: Prisma.softwarecategoryWhereUniqueInput
+  data: Prisma.XOR<Prisma.softwarecategoryUpdateWithoutSoftwarecategoryInput, Prisma.softwarecategoryUncheckedUpdateWithoutSoftwarecategoryInput>
+}
+
+export type softwarecategoryUpdateManyWithWhereWithoutSoftwarecategoryInput = {
+  where: Prisma.softwarecategoryScalarWhereInput
+  data: Prisma.XOR<Prisma.softwarecategoryUpdateManyMutationInput, Prisma.softwarecategoryUncheckedUpdateManyWithoutSoftwarecategoryInput>
+}
+
+export type softwarecategoryScalarWhereInput = {
+  AND?: Prisma.softwarecategoryScalarWhereInput | Prisma.softwarecategoryScalarWhereInput[]
+  OR?: Prisma.softwarecategoryScalarWhereInput[]
+  NOT?: Prisma.softwarecategoryScalarWhereInput | Prisma.softwarecategoryScalarWhereInput[]
+  id?: Prisma.StringFilter<"softwarecategory"> | string
+  name?: Prisma.StringFilter<"softwarecategory"> | string
+  slug?: Prisma.StringFilter<"softwarecategory"> | string
+  description?: Prisma.StringNullableFilter<"softwarecategory"> | string | null
+  image?: Prisma.StringNullableFilter<"softwarecategory"> | string | null
+  parentId?: Prisma.StringNullableFilter<"softwarecategory"> | string | null
+  sortOrder?: Prisma.IntFilter<"softwarecategory"> | number
+  isActive?: Prisma.BoolFilter<"softwarecategory"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"softwarecategory"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"softwarecategory"> | Date | string
+}
+
+export type softwarecategoryCreateManySoftwarecategoryInput = {
+  id: string
   name: string
   slug: string
   description?: string | null
@@ -796,10 +796,10 @@ export type SoftwareCategoryCreateManyParentInput = {
   sortOrder?: number
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt?: Date | string
+  updatedAt: Date | string
 }
 
-export type SoftwareCategoryUpdateWithoutParentInput = {
+export type softwarecategoryUpdateWithoutSoftwarecategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -809,11 +809,11 @@ export type SoftwareCategoryUpdateWithoutParentInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  children?: Prisma.SoftwareCategoryUpdateManyWithoutParentNestedInput
-  softwares?: Prisma.SoftwareUpdateManyWithoutCategoryNestedInput
+  software?: Prisma.softwareUpdateManyWithoutSoftwarecategoryNestedInput
+  other_softwarecategory?: Prisma.softwarecategoryUpdateManyWithoutSoftwarecategoryNestedInput
 }
 
-export type SoftwareCategoryUncheckedUpdateWithoutParentInput = {
+export type softwarecategoryUncheckedUpdateWithoutSoftwarecategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -823,11 +823,11 @@ export type SoftwareCategoryUncheckedUpdateWithoutParentInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  children?: Prisma.SoftwareCategoryUncheckedUpdateManyWithoutParentNestedInput
-  softwares?: Prisma.SoftwareUncheckedUpdateManyWithoutCategoryNestedInput
+  software?: Prisma.softwareUncheckedUpdateManyWithoutSoftwarecategoryNestedInput
+  other_softwarecategory?: Prisma.softwarecategoryUncheckedUpdateManyWithoutSoftwarecategoryNestedInput
 }
 
-export type SoftwareCategoryUncheckedUpdateManyWithoutParentInput = {
+export type softwarecategoryUncheckedUpdateManyWithoutSoftwarecategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -841,45 +841,45 @@ export type SoftwareCategoryUncheckedUpdateManyWithoutParentInput = {
 
 
 /**
- * Count Type SoftwareCategoryCountOutputType
+ * Count Type SoftwarecategoryCountOutputType
  */
 
-export type SoftwareCategoryCountOutputType = {
-  children: number
-  softwares: number
+export type SoftwarecategoryCountOutputType = {
+  software: number
+  other_softwarecategory: number
 }
 
-export type SoftwareCategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  children?: boolean | SoftwareCategoryCountOutputTypeCountChildrenArgs
-  softwares?: boolean | SoftwareCategoryCountOutputTypeCountSoftwaresArgs
+export type SoftwarecategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  software?: boolean | SoftwarecategoryCountOutputTypeCountSoftwareArgs
+  other_softwarecategory?: boolean | SoftwarecategoryCountOutputTypeCountOther_softwarecategoryArgs
 }
 
 /**
- * SoftwareCategoryCountOutputType without action
+ * SoftwarecategoryCountOutputType without action
  */
-export type SoftwareCategoryCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type SoftwarecategoryCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SoftwareCategoryCountOutputType
+   * Select specific fields to fetch from the SoftwarecategoryCountOutputType
    */
-  select?: Prisma.SoftwareCategoryCountOutputTypeSelect<ExtArgs> | null
+  select?: Prisma.SoftwarecategoryCountOutputTypeSelect<ExtArgs> | null
 }
 
 /**
- * SoftwareCategoryCountOutputType without action
+ * SoftwarecategoryCountOutputType without action
  */
-export type SoftwareCategoryCountOutputTypeCountChildrenArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SoftwareCategoryWhereInput
+export type SoftwarecategoryCountOutputTypeCountSoftwareArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.softwareWhereInput
 }
 
 /**
- * SoftwareCategoryCountOutputType without action
+ * SoftwarecategoryCountOutputType without action
  */
-export type SoftwareCategoryCountOutputTypeCountSoftwaresArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SoftwareWhereInput
+export type SoftwarecategoryCountOutputTypeCountOther_softwarecategoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.softwarecategoryWhereInput
 }
 
 
-export type SoftwareCategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+export type softwarecategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   slug?: boolean
@@ -890,15 +890,15 @@ export type SoftwareCategorySelect<ExtArgs extends runtime.Types.Extensions.Inte
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  parent?: boolean | Prisma.SoftwareCategory$parentArgs<ExtArgs>
-  children?: boolean | Prisma.SoftwareCategory$childrenArgs<ExtArgs>
-  softwares?: boolean | Prisma.SoftwareCategory$softwaresArgs<ExtArgs>
-  _count?: boolean | Prisma.SoftwareCategoryCountOutputTypeDefaultArgs<ExtArgs>
-}, ExtArgs["result"]["softwareCategory"]>
+  software?: boolean | Prisma.softwarecategory$softwareArgs<ExtArgs>
+  softwarecategory?: boolean | Prisma.softwarecategory$softwarecategoryArgs<ExtArgs>
+  other_softwarecategory?: boolean | Prisma.softwarecategory$other_softwarecategoryArgs<ExtArgs>
+  _count?: boolean | Prisma.SoftwarecategoryCountOutputTypeDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["softwarecategory"]>
 
 
 
-export type SoftwareCategorySelectScalar = {
+export type softwarecategorySelectScalar = {
   id?: boolean
   name?: boolean
   slug?: boolean
@@ -911,20 +911,20 @@ export type SoftwareCategorySelectScalar = {
   updatedAt?: boolean
 }
 
-export type SoftwareCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "description" | "image" | "parentId" | "sortOrder" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["softwareCategory"]>
-export type SoftwareCategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  parent?: boolean | Prisma.SoftwareCategory$parentArgs<ExtArgs>
-  children?: boolean | Prisma.SoftwareCategory$childrenArgs<ExtArgs>
-  softwares?: boolean | Prisma.SoftwareCategory$softwaresArgs<ExtArgs>
-  _count?: boolean | Prisma.SoftwareCategoryCountOutputTypeDefaultArgs<ExtArgs>
+export type softwarecategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "description" | "image" | "parentId" | "sortOrder" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["softwarecategory"]>
+export type softwarecategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  software?: boolean | Prisma.softwarecategory$softwareArgs<ExtArgs>
+  softwarecategory?: boolean | Prisma.softwarecategory$softwarecategoryArgs<ExtArgs>
+  other_softwarecategory?: boolean | Prisma.softwarecategory$other_softwarecategoryArgs<ExtArgs>
+  _count?: boolean | Prisma.SoftwarecategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 
-export type $SoftwareCategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  name: "SoftwareCategory"
+export type $softwarecategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  name: "softwarecategory"
   objects: {
-    parent: Prisma.$SoftwareCategoryPayload<ExtArgs> | null
-    children: Prisma.$SoftwareCategoryPayload<ExtArgs>[]
-    softwares: Prisma.$SoftwarePayload<ExtArgs>[]
+    software: Prisma.$softwarePayload<ExtArgs>[]
+    softwarecategory: Prisma.$softwarecategoryPayload<ExtArgs> | null
+    other_softwarecategory: Prisma.$softwarecategoryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -937,143 +937,143 @@ export type $SoftwareCategoryPayload<ExtArgs extends runtime.Types.Extensions.In
     isActive: boolean
     createdAt: Date
     updatedAt: Date
-  }, ExtArgs["result"]["softwareCategory"]>
+  }, ExtArgs["result"]["softwarecategory"]>
   composites: {}
 }
 
-export type SoftwareCategoryGetPayload<S extends boolean | null | undefined | SoftwareCategoryDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$SoftwareCategoryPayload, S>
+export type softwarecategoryGetPayload<S extends boolean | null | undefined | softwarecategoryDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$softwarecategoryPayload, S>
 
-export type SoftwareCategoryCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<SoftwareCategoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-    select?: SoftwareCategoryCountAggregateInputType | true
+export type softwarecategoryCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
+  Omit<softwarecategoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+    select?: SoftwarecategoryCountAggregateInputType | true
   }
 
-export interface SoftwareCategoryDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SoftwareCategory'], meta: { name: 'SoftwareCategory' } }
+export interface softwarecategoryDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['softwarecategory'], meta: { name: 'softwarecategory' } }
   /**
-   * Find zero or one SoftwareCategory that matches the filter.
-   * @param {SoftwareCategoryFindUniqueArgs} args - Arguments to find a SoftwareCategory
+   * Find zero or one Softwarecategory that matches the filter.
+   * @param {softwarecategoryFindUniqueArgs} args - Arguments to find a Softwarecategory
    * @example
-   * // Get one SoftwareCategory
-   * const softwareCategory = await prisma.softwareCategory.findUnique({
+   * // Get one Softwarecategory
+   * const softwarecategory = await prisma.softwarecategory.findUnique({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUnique<T extends SoftwareCategoryFindUniqueArgs>(args: Prisma.SelectSubset<T, SoftwareCategoryFindUniqueArgs<ExtArgs>>): Prisma.Prisma__SoftwareCategoryClient<runtime.Types.Result.GetResult<Prisma.$SoftwareCategoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findUnique<T extends softwarecategoryFindUniqueArgs>(args: Prisma.SelectSubset<T, softwarecategoryFindUniqueArgs<ExtArgs>>): Prisma.Prisma__softwarecategoryClient<runtime.Types.Result.GetResult<Prisma.$softwarecategoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find one SoftwareCategory that matches the filter or throw an error with `error.code='P2025'`
+   * Find one Softwarecategory that matches the filter or throw an error with `error.code='P2025'`
    * if no matches were found.
-   * @param {SoftwareCategoryFindUniqueOrThrowArgs} args - Arguments to find a SoftwareCategory
+   * @param {softwarecategoryFindUniqueOrThrowArgs} args - Arguments to find a Softwarecategory
    * @example
-   * // Get one SoftwareCategory
-   * const softwareCategory = await prisma.softwareCategory.findUniqueOrThrow({
+   * // Get one Softwarecategory
+   * const softwarecategory = await prisma.softwarecategory.findUniqueOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUniqueOrThrow<T extends SoftwareCategoryFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, SoftwareCategoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__SoftwareCategoryClient<runtime.Types.Result.GetResult<Prisma.$SoftwareCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findUniqueOrThrow<T extends softwarecategoryFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, softwarecategoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__softwarecategoryClient<runtime.Types.Result.GetResult<Prisma.$softwarecategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first SoftwareCategory that matches the filter.
+   * Find the first Softwarecategory that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SoftwareCategoryFindFirstArgs} args - Arguments to find a SoftwareCategory
+   * @param {softwarecategoryFindFirstArgs} args - Arguments to find a Softwarecategory
    * @example
-   * // Get one SoftwareCategory
-   * const softwareCategory = await prisma.softwareCategory.findFirst({
+   * // Get one Softwarecategory
+   * const softwarecategory = await prisma.softwarecategory.findFirst({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirst<T extends SoftwareCategoryFindFirstArgs>(args?: Prisma.SelectSubset<T, SoftwareCategoryFindFirstArgs<ExtArgs>>): Prisma.Prisma__SoftwareCategoryClient<runtime.Types.Result.GetResult<Prisma.$SoftwareCategoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findFirst<T extends softwarecategoryFindFirstArgs>(args?: Prisma.SelectSubset<T, softwarecategoryFindFirstArgs<ExtArgs>>): Prisma.Prisma__softwarecategoryClient<runtime.Types.Result.GetResult<Prisma.$softwarecategoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first SoftwareCategory that matches the filter or
+   * Find the first Softwarecategory that matches the filter or
    * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SoftwareCategoryFindFirstOrThrowArgs} args - Arguments to find a SoftwareCategory
+   * @param {softwarecategoryFindFirstOrThrowArgs} args - Arguments to find a Softwarecategory
    * @example
-   * // Get one SoftwareCategory
-   * const softwareCategory = await prisma.softwareCategory.findFirstOrThrow({
+   * // Get one Softwarecategory
+   * const softwarecategory = await prisma.softwarecategory.findFirstOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirstOrThrow<T extends SoftwareCategoryFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, SoftwareCategoryFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__SoftwareCategoryClient<runtime.Types.Result.GetResult<Prisma.$SoftwareCategoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findFirstOrThrow<T extends softwarecategoryFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, softwarecategoryFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__softwarecategoryClient<runtime.Types.Result.GetResult<Prisma.$softwarecategoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find zero or more SoftwareCategories that matches the filter.
+   * Find zero or more Softwarecategories that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SoftwareCategoryFindManyArgs} args - Arguments to filter and select certain fields only.
+   * @param {softwarecategoryFindManyArgs} args - Arguments to filter and select certain fields only.
    * @example
-   * // Get all SoftwareCategories
-   * const softwareCategories = await prisma.softwareCategory.findMany()
+   * // Get all Softwarecategories
+   * const softwarecategories = await prisma.softwarecategory.findMany()
    * 
-   * // Get first 10 SoftwareCategories
-   * const softwareCategories = await prisma.softwareCategory.findMany({ take: 10 })
+   * // Get first 10 Softwarecategories
+   * const softwarecategories = await prisma.softwarecategory.findMany({ take: 10 })
    * 
    * // Only select the `id`
-   * const softwareCategoryWithIdOnly = await prisma.softwareCategory.findMany({ select: { id: true } })
+   * const softwarecategoryWithIdOnly = await prisma.softwarecategory.findMany({ select: { id: true } })
    * 
    */
-  findMany<T extends SoftwareCategoryFindManyArgs>(args?: Prisma.SelectSubset<T, SoftwareCategoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SoftwareCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+  findMany<T extends softwarecategoryFindManyArgs>(args?: Prisma.SelectSubset<T, softwarecategoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$softwarecategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
   /**
-   * Create a SoftwareCategory.
-   * @param {SoftwareCategoryCreateArgs} args - Arguments to create a SoftwareCategory.
+   * Create a Softwarecategory.
+   * @param {softwarecategoryCreateArgs} args - Arguments to create a Softwarecategory.
    * @example
-   * // Create one SoftwareCategory
-   * const SoftwareCategory = await prisma.softwareCategory.create({
+   * // Create one Softwarecategory
+   * const Softwarecategory = await prisma.softwarecategory.create({
    *   data: {
-   *     // ... data to create a SoftwareCategory
+   *     // ... data to create a Softwarecategory
    *   }
    * })
    * 
    */
-  create<T extends SoftwareCategoryCreateArgs>(args: Prisma.SelectSubset<T, SoftwareCategoryCreateArgs<ExtArgs>>): Prisma.Prisma__SoftwareCategoryClient<runtime.Types.Result.GetResult<Prisma.$SoftwareCategoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  create<T extends softwarecategoryCreateArgs>(args: Prisma.SelectSubset<T, softwarecategoryCreateArgs<ExtArgs>>): Prisma.Prisma__softwarecategoryClient<runtime.Types.Result.GetResult<Prisma.$softwarecategoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Create many SoftwareCategories.
-   * @param {SoftwareCategoryCreateManyArgs} args - Arguments to create many SoftwareCategories.
+   * Create many Softwarecategories.
+   * @param {softwarecategoryCreateManyArgs} args - Arguments to create many Softwarecategories.
    * @example
-   * // Create many SoftwareCategories
-   * const softwareCategory = await prisma.softwareCategory.createMany({
+   * // Create many Softwarecategories
+   * const softwarecategory = await prisma.softwarecategory.createMany({
    *   data: [
    *     // ... provide data here
    *   ]
    * })
    *     
    */
-  createMany<T extends SoftwareCategoryCreateManyArgs>(args?: Prisma.SelectSubset<T, SoftwareCategoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  createMany<T extends softwarecategoryCreateManyArgs>(args?: Prisma.SelectSubset<T, softwarecategoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Delete a SoftwareCategory.
-   * @param {SoftwareCategoryDeleteArgs} args - Arguments to delete one SoftwareCategory.
+   * Delete a Softwarecategory.
+   * @param {softwarecategoryDeleteArgs} args - Arguments to delete one Softwarecategory.
    * @example
-   * // Delete one SoftwareCategory
-   * const SoftwareCategory = await prisma.softwareCategory.delete({
+   * // Delete one Softwarecategory
+   * const Softwarecategory = await prisma.softwarecategory.delete({
    *   where: {
-   *     // ... filter to delete one SoftwareCategory
+   *     // ... filter to delete one Softwarecategory
    *   }
    * })
    * 
    */
-  delete<T extends SoftwareCategoryDeleteArgs>(args: Prisma.SelectSubset<T, SoftwareCategoryDeleteArgs<ExtArgs>>): Prisma.Prisma__SoftwareCategoryClient<runtime.Types.Result.GetResult<Prisma.$SoftwareCategoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  delete<T extends softwarecategoryDeleteArgs>(args: Prisma.SelectSubset<T, softwarecategoryDeleteArgs<ExtArgs>>): Prisma.Prisma__softwarecategoryClient<runtime.Types.Result.GetResult<Prisma.$softwarecategoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Update one SoftwareCategory.
-   * @param {SoftwareCategoryUpdateArgs} args - Arguments to update one SoftwareCategory.
+   * Update one Softwarecategory.
+   * @param {softwarecategoryUpdateArgs} args - Arguments to update one Softwarecategory.
    * @example
-   * // Update one SoftwareCategory
-   * const softwareCategory = await prisma.softwareCategory.update({
+   * // Update one Softwarecategory
+   * const softwarecategory = await prisma.softwarecategory.update({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1083,30 +1083,30 @@ export interface SoftwareCategoryDelegate<ExtArgs extends runtime.Types.Extensio
    * })
    * 
    */
-  update<T extends SoftwareCategoryUpdateArgs>(args: Prisma.SelectSubset<T, SoftwareCategoryUpdateArgs<ExtArgs>>): Prisma.Prisma__SoftwareCategoryClient<runtime.Types.Result.GetResult<Prisma.$SoftwareCategoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  update<T extends softwarecategoryUpdateArgs>(args: Prisma.SelectSubset<T, softwarecategoryUpdateArgs<ExtArgs>>): Prisma.Prisma__softwarecategoryClient<runtime.Types.Result.GetResult<Prisma.$softwarecategoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Delete zero or more SoftwareCategories.
-   * @param {SoftwareCategoryDeleteManyArgs} args - Arguments to filter SoftwareCategories to delete.
+   * Delete zero or more Softwarecategories.
+   * @param {softwarecategoryDeleteManyArgs} args - Arguments to filter Softwarecategories to delete.
    * @example
-   * // Delete a few SoftwareCategories
-   * const { count } = await prisma.softwareCategory.deleteMany({
+   * // Delete a few Softwarecategories
+   * const { count } = await prisma.softwarecategory.deleteMany({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    * 
    */
-  deleteMany<T extends SoftwareCategoryDeleteManyArgs>(args?: Prisma.SelectSubset<T, SoftwareCategoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  deleteMany<T extends softwarecategoryDeleteManyArgs>(args?: Prisma.SelectSubset<T, softwarecategoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Update zero or more SoftwareCategories.
+   * Update zero or more Softwarecategories.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SoftwareCategoryUpdateManyArgs} args - Arguments to update one or more rows.
+   * @param {softwarecategoryUpdateManyArgs} args - Arguments to update one or more rows.
    * @example
-   * // Update many SoftwareCategories
-   * const softwareCategory = await prisma.softwareCategory.updateMany({
+   * // Update many Softwarecategories
+   * const softwarecategory = await prisma.softwarecategory.updateMany({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1116,56 +1116,56 @@ export interface SoftwareCategoryDelegate<ExtArgs extends runtime.Types.Extensio
    * })
    * 
    */
-  updateMany<T extends SoftwareCategoryUpdateManyArgs>(args: Prisma.SelectSubset<T, SoftwareCategoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  updateMany<T extends softwarecategoryUpdateManyArgs>(args: Prisma.SelectSubset<T, softwarecategoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Create or update one SoftwareCategory.
-   * @param {SoftwareCategoryUpsertArgs} args - Arguments to update or create a SoftwareCategory.
+   * Create or update one Softwarecategory.
+   * @param {softwarecategoryUpsertArgs} args - Arguments to update or create a Softwarecategory.
    * @example
-   * // Update or create a SoftwareCategory
-   * const softwareCategory = await prisma.softwareCategory.upsert({
+   * // Update or create a Softwarecategory
+   * const softwarecategory = await prisma.softwarecategory.upsert({
    *   create: {
-   *     // ... data to create a SoftwareCategory
+   *     // ... data to create a Softwarecategory
    *   },
    *   update: {
    *     // ... in case it already exists, update
    *   },
    *   where: {
-   *     // ... the filter for the SoftwareCategory we want to update
+   *     // ... the filter for the Softwarecategory we want to update
    *   }
    * })
    */
-  upsert<T extends SoftwareCategoryUpsertArgs>(args: Prisma.SelectSubset<T, SoftwareCategoryUpsertArgs<ExtArgs>>): Prisma.Prisma__SoftwareCategoryClient<runtime.Types.Result.GetResult<Prisma.$SoftwareCategoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  upsert<T extends softwarecategoryUpsertArgs>(args: Prisma.SelectSubset<T, softwarecategoryUpsertArgs<ExtArgs>>): Prisma.Prisma__softwarecategoryClient<runtime.Types.Result.GetResult<Prisma.$softwarecategoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
   /**
-   * Count the number of SoftwareCategories.
+   * Count the number of Softwarecategories.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SoftwareCategoryCountArgs} args - Arguments to filter SoftwareCategories to count.
+   * @param {softwarecategoryCountArgs} args - Arguments to filter Softwarecategories to count.
    * @example
-   * // Count the number of SoftwareCategories
-   * const count = await prisma.softwareCategory.count({
+   * // Count the number of Softwarecategories
+   * const count = await prisma.softwarecategory.count({
    *   where: {
-   *     // ... the filter for the SoftwareCategories we want to count
+   *     // ... the filter for the Softwarecategories we want to count
    *   }
    * })
   **/
-  count<T extends SoftwareCategoryCountArgs>(
-    args?: Prisma.Subset<T, SoftwareCategoryCountArgs>,
+  count<T extends softwarecategoryCountArgs>(
+    args?: Prisma.Subset<T, softwarecategoryCountArgs>,
   ): Prisma.PrismaPromise<
     T extends runtime.Types.Utils.Record<'select', any>
       ? T['select'] extends true
         ? number
-        : Prisma.GetScalarType<T['select'], SoftwareCategoryCountAggregateOutputType>
+        : Prisma.GetScalarType<T['select'], SoftwarecategoryCountAggregateOutputType>
       : number
   >
 
   /**
-   * Allows you to perform aggregations operations on a SoftwareCategory.
+   * Allows you to perform aggregations operations on a Softwarecategory.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SoftwareCategoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+   * @param {SoftwarecategoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
    * @example
    * // Ordered by age ascending
    * // Where email contains prisma.io
@@ -1185,13 +1185,13 @@ export interface SoftwareCategoryDelegate<ExtArgs extends runtime.Types.Extensio
    *   take: 10,
    * })
   **/
-  aggregate<T extends SoftwareCategoryAggregateArgs>(args: Prisma.Subset<T, SoftwareCategoryAggregateArgs>): Prisma.PrismaPromise<GetSoftwareCategoryAggregateType<T>>
+  aggregate<T extends SoftwarecategoryAggregateArgs>(args: Prisma.Subset<T, SoftwarecategoryAggregateArgs>): Prisma.PrismaPromise<GetSoftwarecategoryAggregateType<T>>
 
   /**
-   * Group by SoftwareCategory.
+   * Group by Softwarecategory.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SoftwareCategoryGroupByArgs} args - Group by arguments.
+   * @param {softwarecategoryGroupByArgs} args - Group by arguments.
    * @example
    * // Group by city, order by createdAt, get count
    * const result = await prisma.user.groupBy({
@@ -1206,14 +1206,14 @@ export interface SoftwareCategoryDelegate<ExtArgs extends runtime.Types.Extensio
    * 
   **/
   groupBy<
-    T extends SoftwareCategoryGroupByArgs,
+    T extends softwarecategoryGroupByArgs,
     HasSelectOrTake extends Prisma.Or<
       Prisma.Extends<'skip', Prisma.Keys<T>>,
       Prisma.Extends<'take', Prisma.Keys<T>>
     >,
     OrderByArg extends Prisma.True extends HasSelectOrTake
-      ? { orderBy: SoftwareCategoryGroupByArgs['orderBy'] }
-      : { orderBy?: SoftwareCategoryGroupByArgs['orderBy'] },
+      ? { orderBy: softwarecategoryGroupByArgs['orderBy'] }
+      : { orderBy?: softwarecategoryGroupByArgs['orderBy'] },
     OrderFields extends Prisma.ExcludeUnderscoreKeys<Prisma.Keys<Prisma.MaybeTupleToUnion<T['orderBy']>>>,
     ByFields extends Prisma.MaybeTupleToUnion<T['by']>,
     ByValid extends Prisma.Has<ByFields, OrderFields>,
@@ -1262,24 +1262,24 @@ export interface SoftwareCategoryDelegate<ExtArgs extends runtime.Types.Extensio
           ? never
           : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
       }[OrderFields]
-  >(args: Prisma.SubsetIntersection<T, SoftwareCategoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSoftwareCategoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  >(args: Prisma.SubsetIntersection<T, softwarecategoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSoftwarecategoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
 /**
- * Fields of the SoftwareCategory model
+ * Fields of the softwarecategory model
  */
-readonly fields: SoftwareCategoryFieldRefs;
+readonly fields: softwarecategoryFieldRefs;
 }
 
 /**
- * The delegate class that acts as a "Promise-like" for SoftwareCategory.
+ * The delegate class that acts as a "Promise-like" for softwarecategory.
  * Why is this prefixed with `Prisma__`?
  * Because we want to prevent naming conflicts as mentioned in
  * https://github.com/prisma/prisma-client-js/issues/707
  */
-export interface Prisma__SoftwareCategoryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+export interface Prisma__softwarecategoryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  parent<T extends Prisma.SoftwareCategory$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SoftwareCategory$parentArgs<ExtArgs>>): Prisma.Prisma__SoftwareCategoryClient<runtime.Types.Result.GetResult<Prisma.$SoftwareCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  children<T extends Prisma.SoftwareCategory$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SoftwareCategory$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SoftwareCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  softwares<T extends Prisma.SoftwareCategory$softwaresArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SoftwareCategory$softwaresArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SoftwarePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  software<T extends Prisma.softwarecategory$softwareArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.softwarecategory$softwareArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$softwarePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  softwarecategory<T extends Prisma.softwarecategory$softwarecategoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.softwarecategory$softwarecategoryArgs<ExtArgs>>): Prisma.Prisma__softwarecategoryClient<runtime.Types.Result.GetResult<Prisma.$softwarecategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  other_softwarecategory<T extends Prisma.softwarecategory$other_softwarecategoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.softwarecategory$other_softwarecategoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$softwarecategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1306,442 +1306,442 @@ export interface Prisma__SoftwareCategoryClient<T, Null = never, ExtArgs extends
 
 
 /**
- * Fields of the SoftwareCategory model
+ * Fields of the softwarecategory model
  */
-export interface SoftwareCategoryFieldRefs {
-  readonly id: Prisma.FieldRef<"SoftwareCategory", 'String'>
-  readonly name: Prisma.FieldRef<"SoftwareCategory", 'String'>
-  readonly slug: Prisma.FieldRef<"SoftwareCategory", 'String'>
-  readonly description: Prisma.FieldRef<"SoftwareCategory", 'String'>
-  readonly image: Prisma.FieldRef<"SoftwareCategory", 'String'>
-  readonly parentId: Prisma.FieldRef<"SoftwareCategory", 'String'>
-  readonly sortOrder: Prisma.FieldRef<"SoftwareCategory", 'Int'>
-  readonly isActive: Prisma.FieldRef<"SoftwareCategory", 'Boolean'>
-  readonly createdAt: Prisma.FieldRef<"SoftwareCategory", 'DateTime'>
-  readonly updatedAt: Prisma.FieldRef<"SoftwareCategory", 'DateTime'>
+export interface softwarecategoryFieldRefs {
+  readonly id: Prisma.FieldRef<"softwarecategory", 'String'>
+  readonly name: Prisma.FieldRef<"softwarecategory", 'String'>
+  readonly slug: Prisma.FieldRef<"softwarecategory", 'String'>
+  readonly description: Prisma.FieldRef<"softwarecategory", 'String'>
+  readonly image: Prisma.FieldRef<"softwarecategory", 'String'>
+  readonly parentId: Prisma.FieldRef<"softwarecategory", 'String'>
+  readonly sortOrder: Prisma.FieldRef<"softwarecategory", 'Int'>
+  readonly isActive: Prisma.FieldRef<"softwarecategory", 'Boolean'>
+  readonly createdAt: Prisma.FieldRef<"softwarecategory", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"softwarecategory", 'DateTime'>
 }
     
 
 // Custom InputTypes
 /**
- * SoftwareCategory findUnique
+ * softwarecategory findUnique
  */
-export type SoftwareCategoryFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type softwarecategoryFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SoftwareCategory
+   * Select specific fields to fetch from the softwarecategory
    */
-  select?: Prisma.SoftwareCategorySelect<ExtArgs> | null
+  select?: Prisma.softwarecategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SoftwareCategory
+   * Omit specific fields from the softwarecategory
    */
-  omit?: Prisma.SoftwareCategoryOmit<ExtArgs> | null
+  omit?: Prisma.softwarecategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SoftwareCategoryInclude<ExtArgs> | null
+  include?: Prisma.softwarecategoryInclude<ExtArgs> | null
   /**
-   * Filter, which SoftwareCategory to fetch.
+   * Filter, which softwarecategory to fetch.
    */
-  where: Prisma.SoftwareCategoryWhereUniqueInput
+  where: Prisma.softwarecategoryWhereUniqueInput
 }
 
 /**
- * SoftwareCategory findUniqueOrThrow
+ * softwarecategory findUniqueOrThrow
  */
-export type SoftwareCategoryFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type softwarecategoryFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SoftwareCategory
+   * Select specific fields to fetch from the softwarecategory
    */
-  select?: Prisma.SoftwareCategorySelect<ExtArgs> | null
+  select?: Prisma.softwarecategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SoftwareCategory
+   * Omit specific fields from the softwarecategory
    */
-  omit?: Prisma.SoftwareCategoryOmit<ExtArgs> | null
+  omit?: Prisma.softwarecategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SoftwareCategoryInclude<ExtArgs> | null
+  include?: Prisma.softwarecategoryInclude<ExtArgs> | null
   /**
-   * Filter, which SoftwareCategory to fetch.
+   * Filter, which softwarecategory to fetch.
    */
-  where: Prisma.SoftwareCategoryWhereUniqueInput
+  where: Prisma.softwarecategoryWhereUniqueInput
 }
 
 /**
- * SoftwareCategory findFirst
+ * softwarecategory findFirst
  */
-export type SoftwareCategoryFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type softwarecategoryFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SoftwareCategory
+   * Select specific fields to fetch from the softwarecategory
    */
-  select?: Prisma.SoftwareCategorySelect<ExtArgs> | null
+  select?: Prisma.softwarecategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SoftwareCategory
+   * Omit specific fields from the softwarecategory
    */
-  omit?: Prisma.SoftwareCategoryOmit<ExtArgs> | null
+  omit?: Prisma.softwarecategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SoftwareCategoryInclude<ExtArgs> | null
+  include?: Prisma.softwarecategoryInclude<ExtArgs> | null
   /**
-   * Filter, which SoftwareCategory to fetch.
+   * Filter, which softwarecategory to fetch.
    */
-  where?: Prisma.SoftwareCategoryWhereInput
+  where?: Prisma.softwarecategoryWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of SoftwareCategories to fetch.
+   * Determine the order of softwarecategories to fetch.
    */
-  orderBy?: Prisma.SoftwareCategoryOrderByWithRelationInput | Prisma.SoftwareCategoryOrderByWithRelationInput[]
+  orderBy?: Prisma.softwarecategoryOrderByWithRelationInput | Prisma.softwarecategoryOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for SoftwareCategories.
+   * Sets the position for searching for softwarecategories.
    */
-  cursor?: Prisma.SoftwareCategoryWhereUniqueInput
+  cursor?: Prisma.softwarecategoryWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` SoftwareCategories from the position of the cursor.
+   * Take `±n` softwarecategories from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` SoftwareCategories.
+   * Skip the first `n` softwarecategories.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of SoftwareCategories.
+   * Filter by unique combinations of softwarecategories.
    */
-  distinct?: Prisma.SoftwareCategoryScalarFieldEnum | Prisma.SoftwareCategoryScalarFieldEnum[]
+  distinct?: Prisma.SoftwarecategoryScalarFieldEnum | Prisma.SoftwarecategoryScalarFieldEnum[]
 }
 
 /**
- * SoftwareCategory findFirstOrThrow
+ * softwarecategory findFirstOrThrow
  */
-export type SoftwareCategoryFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type softwarecategoryFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SoftwareCategory
+   * Select specific fields to fetch from the softwarecategory
    */
-  select?: Prisma.SoftwareCategorySelect<ExtArgs> | null
+  select?: Prisma.softwarecategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SoftwareCategory
+   * Omit specific fields from the softwarecategory
    */
-  omit?: Prisma.SoftwareCategoryOmit<ExtArgs> | null
+  omit?: Prisma.softwarecategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SoftwareCategoryInclude<ExtArgs> | null
+  include?: Prisma.softwarecategoryInclude<ExtArgs> | null
   /**
-   * Filter, which SoftwareCategory to fetch.
+   * Filter, which softwarecategory to fetch.
    */
-  where?: Prisma.SoftwareCategoryWhereInput
+  where?: Prisma.softwarecategoryWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of SoftwareCategories to fetch.
+   * Determine the order of softwarecategories to fetch.
    */
-  orderBy?: Prisma.SoftwareCategoryOrderByWithRelationInput | Prisma.SoftwareCategoryOrderByWithRelationInput[]
+  orderBy?: Prisma.softwarecategoryOrderByWithRelationInput | Prisma.softwarecategoryOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for SoftwareCategories.
+   * Sets the position for searching for softwarecategories.
    */
-  cursor?: Prisma.SoftwareCategoryWhereUniqueInput
+  cursor?: Prisma.softwarecategoryWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` SoftwareCategories from the position of the cursor.
+   * Take `±n` softwarecategories from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` SoftwareCategories.
+   * Skip the first `n` softwarecategories.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of SoftwareCategories.
+   * Filter by unique combinations of softwarecategories.
    */
-  distinct?: Prisma.SoftwareCategoryScalarFieldEnum | Prisma.SoftwareCategoryScalarFieldEnum[]
+  distinct?: Prisma.SoftwarecategoryScalarFieldEnum | Prisma.SoftwarecategoryScalarFieldEnum[]
 }
 
 /**
- * SoftwareCategory findMany
+ * softwarecategory findMany
  */
-export type SoftwareCategoryFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type softwarecategoryFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SoftwareCategory
+   * Select specific fields to fetch from the softwarecategory
    */
-  select?: Prisma.SoftwareCategorySelect<ExtArgs> | null
+  select?: Prisma.softwarecategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SoftwareCategory
+   * Omit specific fields from the softwarecategory
    */
-  omit?: Prisma.SoftwareCategoryOmit<ExtArgs> | null
+  omit?: Prisma.softwarecategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SoftwareCategoryInclude<ExtArgs> | null
+  include?: Prisma.softwarecategoryInclude<ExtArgs> | null
   /**
-   * Filter, which SoftwareCategories to fetch.
+   * Filter, which softwarecategories to fetch.
    */
-  where?: Prisma.SoftwareCategoryWhereInput
+  where?: Prisma.softwarecategoryWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of SoftwareCategories to fetch.
+   * Determine the order of softwarecategories to fetch.
    */
-  orderBy?: Prisma.SoftwareCategoryOrderByWithRelationInput | Prisma.SoftwareCategoryOrderByWithRelationInput[]
+  orderBy?: Prisma.softwarecategoryOrderByWithRelationInput | Prisma.softwarecategoryOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for listing SoftwareCategories.
+   * Sets the position for listing softwarecategories.
    */
-  cursor?: Prisma.SoftwareCategoryWhereUniqueInput
+  cursor?: Prisma.softwarecategoryWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` SoftwareCategories from the position of the cursor.
+   * Take `±n` softwarecategories from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` SoftwareCategories.
+   * Skip the first `n` softwarecategories.
    */
   skip?: number
-  distinct?: Prisma.SoftwareCategoryScalarFieldEnum | Prisma.SoftwareCategoryScalarFieldEnum[]
+  distinct?: Prisma.SoftwarecategoryScalarFieldEnum | Prisma.SoftwarecategoryScalarFieldEnum[]
 }
 
 /**
- * SoftwareCategory create
+ * softwarecategory create
  */
-export type SoftwareCategoryCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type softwarecategoryCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SoftwareCategory
+   * Select specific fields to fetch from the softwarecategory
    */
-  select?: Prisma.SoftwareCategorySelect<ExtArgs> | null
+  select?: Prisma.softwarecategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SoftwareCategory
+   * Omit specific fields from the softwarecategory
    */
-  omit?: Prisma.SoftwareCategoryOmit<ExtArgs> | null
+  omit?: Prisma.softwarecategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SoftwareCategoryInclude<ExtArgs> | null
+  include?: Prisma.softwarecategoryInclude<ExtArgs> | null
   /**
-   * The data needed to create a SoftwareCategory.
+   * The data needed to create a softwarecategory.
    */
-  data: Prisma.XOR<Prisma.SoftwareCategoryCreateInput, Prisma.SoftwareCategoryUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.softwarecategoryCreateInput, Prisma.softwarecategoryUncheckedCreateInput>
 }
 
 /**
- * SoftwareCategory createMany
+ * softwarecategory createMany
  */
-export type SoftwareCategoryCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type softwarecategoryCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to create many SoftwareCategories.
+   * The data used to create many softwarecategories.
    */
-  data: Prisma.SoftwareCategoryCreateManyInput | Prisma.SoftwareCategoryCreateManyInput[]
+  data: Prisma.softwarecategoryCreateManyInput | Prisma.softwarecategoryCreateManyInput[]
   skipDuplicates?: boolean
 }
 
 /**
- * SoftwareCategory update
+ * softwarecategory update
  */
-export type SoftwareCategoryUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type softwarecategoryUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SoftwareCategory
+   * Select specific fields to fetch from the softwarecategory
    */
-  select?: Prisma.SoftwareCategorySelect<ExtArgs> | null
+  select?: Prisma.softwarecategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SoftwareCategory
+   * Omit specific fields from the softwarecategory
    */
-  omit?: Prisma.SoftwareCategoryOmit<ExtArgs> | null
+  omit?: Prisma.softwarecategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SoftwareCategoryInclude<ExtArgs> | null
+  include?: Prisma.softwarecategoryInclude<ExtArgs> | null
   /**
-   * The data needed to update a SoftwareCategory.
+   * The data needed to update a softwarecategory.
    */
-  data: Prisma.XOR<Prisma.SoftwareCategoryUpdateInput, Prisma.SoftwareCategoryUncheckedUpdateInput>
+  data: Prisma.XOR<Prisma.softwarecategoryUpdateInput, Prisma.softwarecategoryUncheckedUpdateInput>
   /**
-   * Choose, which SoftwareCategory to update.
+   * Choose, which softwarecategory to update.
    */
-  where: Prisma.SoftwareCategoryWhereUniqueInput
+  where: Prisma.softwarecategoryWhereUniqueInput
 }
 
 /**
- * SoftwareCategory updateMany
+ * softwarecategory updateMany
  */
-export type SoftwareCategoryUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type softwarecategoryUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to update SoftwareCategories.
+   * The data used to update softwarecategories.
    */
-  data: Prisma.XOR<Prisma.SoftwareCategoryUpdateManyMutationInput, Prisma.SoftwareCategoryUncheckedUpdateManyInput>
+  data: Prisma.XOR<Prisma.softwarecategoryUpdateManyMutationInput, Prisma.softwarecategoryUncheckedUpdateManyInput>
   /**
-   * Filter which SoftwareCategories to update
+   * Filter which softwarecategories to update
    */
-  where?: Prisma.SoftwareCategoryWhereInput
+  where?: Prisma.softwarecategoryWhereInput
   /**
-   * Limit how many SoftwareCategories to update.
+   * Limit how many softwarecategories to update.
    */
   limit?: number
 }
 
 /**
- * SoftwareCategory upsert
+ * softwarecategory upsert
  */
-export type SoftwareCategoryUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type softwarecategoryUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SoftwareCategory
+   * Select specific fields to fetch from the softwarecategory
    */
-  select?: Prisma.SoftwareCategorySelect<ExtArgs> | null
+  select?: Prisma.softwarecategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SoftwareCategory
+   * Omit specific fields from the softwarecategory
    */
-  omit?: Prisma.SoftwareCategoryOmit<ExtArgs> | null
+  omit?: Prisma.softwarecategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SoftwareCategoryInclude<ExtArgs> | null
+  include?: Prisma.softwarecategoryInclude<ExtArgs> | null
   /**
-   * The filter to search for the SoftwareCategory to update in case it exists.
+   * The filter to search for the softwarecategory to update in case it exists.
    */
-  where: Prisma.SoftwareCategoryWhereUniqueInput
+  where: Prisma.softwarecategoryWhereUniqueInput
   /**
-   * In case the SoftwareCategory found by the `where` argument doesn't exist, create a new SoftwareCategory with this data.
+   * In case the softwarecategory found by the `where` argument doesn't exist, create a new softwarecategory with this data.
    */
-  create: Prisma.XOR<Prisma.SoftwareCategoryCreateInput, Prisma.SoftwareCategoryUncheckedCreateInput>
+  create: Prisma.XOR<Prisma.softwarecategoryCreateInput, Prisma.softwarecategoryUncheckedCreateInput>
   /**
-   * In case the SoftwareCategory was found with the provided `where` argument, update it with this data.
+   * In case the softwarecategory was found with the provided `where` argument, update it with this data.
    */
-  update: Prisma.XOR<Prisma.SoftwareCategoryUpdateInput, Prisma.SoftwareCategoryUncheckedUpdateInput>
+  update: Prisma.XOR<Prisma.softwarecategoryUpdateInput, Prisma.softwarecategoryUncheckedUpdateInput>
 }
 
 /**
- * SoftwareCategory delete
+ * softwarecategory delete
  */
-export type SoftwareCategoryDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type softwarecategoryDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SoftwareCategory
+   * Select specific fields to fetch from the softwarecategory
    */
-  select?: Prisma.SoftwareCategorySelect<ExtArgs> | null
+  select?: Prisma.softwarecategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SoftwareCategory
+   * Omit specific fields from the softwarecategory
    */
-  omit?: Prisma.SoftwareCategoryOmit<ExtArgs> | null
+  omit?: Prisma.softwarecategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SoftwareCategoryInclude<ExtArgs> | null
+  include?: Prisma.softwarecategoryInclude<ExtArgs> | null
   /**
-   * Filter which SoftwareCategory to delete.
+   * Filter which softwarecategory to delete.
    */
-  where: Prisma.SoftwareCategoryWhereUniqueInput
+  where: Prisma.softwarecategoryWhereUniqueInput
 }
 
 /**
- * SoftwareCategory deleteMany
+ * softwarecategory deleteMany
  */
-export type SoftwareCategoryDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type softwarecategoryDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which SoftwareCategories to delete
+   * Filter which softwarecategories to delete
    */
-  where?: Prisma.SoftwareCategoryWhereInput
+  where?: Prisma.softwarecategoryWhereInput
   /**
-   * Limit how many SoftwareCategories to delete.
+   * Limit how many softwarecategories to delete.
    */
   limit?: number
 }
 
 /**
- * SoftwareCategory.parent
+ * softwarecategory.software
  */
-export type SoftwareCategory$parentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type softwarecategory$softwareArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SoftwareCategory
+   * Select specific fields to fetch from the software
    */
-  select?: Prisma.SoftwareCategorySelect<ExtArgs> | null
+  select?: Prisma.softwareSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SoftwareCategory
+   * Omit specific fields from the software
    */
-  omit?: Prisma.SoftwareCategoryOmit<ExtArgs> | null
+  omit?: Prisma.softwareOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SoftwareCategoryInclude<ExtArgs> | null
-  where?: Prisma.SoftwareCategoryWhereInput
-}
-
-/**
- * SoftwareCategory.children
- */
-export type SoftwareCategory$childrenArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the SoftwareCategory
-   */
-  select?: Prisma.SoftwareCategorySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the SoftwareCategory
-   */
-  omit?: Prisma.SoftwareCategoryOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SoftwareCategoryInclude<ExtArgs> | null
-  where?: Prisma.SoftwareCategoryWhereInput
-  orderBy?: Prisma.SoftwareCategoryOrderByWithRelationInput | Prisma.SoftwareCategoryOrderByWithRelationInput[]
-  cursor?: Prisma.SoftwareCategoryWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.SoftwareCategoryScalarFieldEnum | Prisma.SoftwareCategoryScalarFieldEnum[]
-}
-
-/**
- * SoftwareCategory.softwares
- */
-export type SoftwareCategory$softwaresArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Software
-   */
-  select?: Prisma.SoftwareSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Software
-   */
-  omit?: Prisma.SoftwareOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SoftwareInclude<ExtArgs> | null
-  where?: Prisma.SoftwareWhereInput
-  orderBy?: Prisma.SoftwareOrderByWithRelationInput | Prisma.SoftwareOrderByWithRelationInput[]
-  cursor?: Prisma.SoftwareWhereUniqueInput
+  include?: Prisma.softwareInclude<ExtArgs> | null
+  where?: Prisma.softwareWhereInput
+  orderBy?: Prisma.softwareOrderByWithRelationInput | Prisma.softwareOrderByWithRelationInput[]
+  cursor?: Prisma.softwareWhereUniqueInput
   take?: number
   skip?: number
   distinct?: Prisma.SoftwareScalarFieldEnum | Prisma.SoftwareScalarFieldEnum[]
 }
 
 /**
- * SoftwareCategory without action
+ * softwarecategory.softwarecategory
  */
-export type SoftwareCategoryDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type softwarecategory$softwarecategoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SoftwareCategory
+   * Select specific fields to fetch from the softwarecategory
    */
-  select?: Prisma.SoftwareCategorySelect<ExtArgs> | null
+  select?: Prisma.softwarecategorySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SoftwareCategory
+   * Omit specific fields from the softwarecategory
    */
-  omit?: Prisma.SoftwareCategoryOmit<ExtArgs> | null
+  omit?: Prisma.softwarecategoryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SoftwareCategoryInclude<ExtArgs> | null
+  include?: Prisma.softwarecategoryInclude<ExtArgs> | null
+  where?: Prisma.softwarecategoryWhereInput
+}
+
+/**
+ * softwarecategory.other_softwarecategory
+ */
+export type softwarecategory$other_softwarecategoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the softwarecategory
+   */
+  select?: Prisma.softwarecategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the softwarecategory
+   */
+  omit?: Prisma.softwarecategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.softwarecategoryInclude<ExtArgs> | null
+  where?: Prisma.softwarecategoryWhereInput
+  orderBy?: Prisma.softwarecategoryOrderByWithRelationInput | Prisma.softwarecategoryOrderByWithRelationInput[]
+  cursor?: Prisma.softwarecategoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SoftwarecategoryScalarFieldEnum | Prisma.SoftwarecategoryScalarFieldEnum[]
+}
+
+/**
+ * softwarecategory without action
+ */
+export type softwarecategoryDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the softwarecategory
+   */
+  select?: Prisma.softwarecategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the softwarecategory
+   */
+  omit?: Prisma.softwarecategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.softwarecategoryInclude<ExtArgs> | null
 }

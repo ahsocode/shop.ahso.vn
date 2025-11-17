@@ -17,7 +17,7 @@ export async function GET(req: Request) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 12);
 
-    const where: Prisma.SolutionWhereInput = {
+    const where: Prisma.solutionWhereInput = {
       status: "PUBLISHED",
     };
 
@@ -50,7 +50,7 @@ export async function GET(req: Request) {
           summary: true,
           industry: true,
           usecase: true,
-          category: { select: { name: true, slug: true } },
+          solutioncategory: { select: { name: true, slug: true } },
         },
       }),
     ]);
@@ -64,7 +64,7 @@ export async function GET(req: Request) {
         industry: r.industry,
         usecase: r.usecase,
         image: r.coverImage ?? null,
-        category: r.category,
+        category: r.solutioncategory,
       })),
       meta: { total, page, pageSize },
     });

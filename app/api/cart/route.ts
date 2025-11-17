@@ -1,4 +1,5 @@
 // app/api/cart/route.ts
+import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyRequestUser } from "@/lib/auth";
@@ -20,13 +21,13 @@ const COOKIE_OPTS = {
 async function getOrCreateUserCart(userId: string) {
   let cart = await prisma.cart.findFirst({
     where: { userId, status: "ACTIVE" },
-    include: { items: true },
+    include: { cartitem: true },
   });
 
   if (!cart) {
     cart = await prisma.cart.create({
-      data: { userId, status: "ACTIVE" },
-      include: { items: true },
+      data: { id: randomUUID(), userId, status: "ACTIVE", updatedAt: new Date() },
+      include: { cartitem: true },
     });
   }
 
@@ -40,7 +41,7 @@ async function getOrCreateGuestCart(cookieId: string | null) {
   if (cookieId) {
     const found = await prisma.cart.findUnique({
       where: { id: cookieId },
-      include: { items: true },
+      include: { cartitem: true },
     });
     // Chỉ dùng cart này nếu nó không thuộc về user nào
     if (found && !found.userId) {
@@ -50,8 +51,8 @@ async function getOrCreateGuestCart(cookieId: string | null) {
 
   // Tạo cart mới cho guest
   const created = await prisma.cart.create({
-    data: { status: "ACTIVE", userId: null },
-    include: { items: true },
+    data: { id: randomUUID(), status: "ACTIVE", userId: null, updatedAt: new Date() },
+    include: { cartitem: true },
   });
 
   return { cart: created, created: true };
@@ -65,17 +66,21 @@ export async function GET(req: NextRequest) {
     if (user?.sub) {
       // USER ĐÃ ĐĂNG NHẬP → dùng cart theo userId
       const cart = await getOrCreateUserCart(user.sub);
-      
+      const { cartitem, ...rest } = cart;
+      const body = { ...rest, items: cartitem };
+
       // Clear cookie cart_id nếu có (không dùng cho logged-in user)
-      const res = NextResponse.json(cart);
+      const res = NextResponse.json(body);
       res.cookies.delete(CART_COOKIE);
       return res;
     } else {
       // GUEST → dùng cart theo cookie
       const cookieId = req.cookies.get(CART_COOKIE)?.value || null;
       const { cart, created } = await getOrCreateGuestCart(cookieId);
+      const { cartitem, ...rest } = cart;
+      const body = { ...rest, items: cartitem };
 
-      const res = NextResponse.json(cart);
+      const res = NextResponse.json(body);
       
       // Set cookie nếu là cart mới
       if (created) {

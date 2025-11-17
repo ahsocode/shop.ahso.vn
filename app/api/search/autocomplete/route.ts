@@ -96,11 +96,11 @@ export async function GET(req: NextRequest) {
             slug: true,
             logoUrl: true,
           },
-          orderBy: { products: { _count: "desc" } },
+          orderBy: { product: { _count: "desc" } },
         }),
 
         // Category suggestions
-        prisma.productCategory.findMany({
+        prisma.productcategory.findMany({
           where: {
             OR: [
               { name: { contains: query } },
@@ -113,7 +113,7 @@ export async function GET(req: NextRequest) {
             slug: true,
             coverImage: true,
           },
-          orderBy: { productLinks: { _count: "desc" } },
+          orderBy: { productcategorylink: { _count: "desc" } },
         }),
       ]);
 
@@ -145,7 +145,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Add category suggestions
-    categorySuggestions.forEach((c) => {
+    categorySuggestions.forEach((c: { name: string; slug: string; coverImage: string | null }) => {
       suggestions.push({
         type: "category",
         text: c.name,
