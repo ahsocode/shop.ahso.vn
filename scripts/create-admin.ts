@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 
@@ -17,9 +18,11 @@ async function main() {
   // Create a minimal address once
   const addr = await prisma.address.create({
     data: {
+      id: randomUUID(),
       line1: "Bootstrap Admin Address",
       city: "HCM",
       country: "VN",
+      updatedAt: new Date(),
     },
   });
 
@@ -36,6 +39,7 @@ async function main() {
       billingAddressId: addr.id,
     },
     create: {
+      id: randomUUID(),
       username,
       passwordHash,
       fullName,
@@ -44,6 +48,7 @@ async function main() {
       role: "ADMIN",
       shippingAddressId: addr.id,
       billingAddressId: addr.id,
+      updatedAt: new Date(),
     },
     select: { id: true, username: true, role: true, email: true, phoneE164: true, createdAt: true },
   });

@@ -1,6 +1,119 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PublishStatus } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+
+const productInclude = {
+  brand: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      logoUrl: true,
+      summary: true,
+    },
+  },
+  producttype: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      coverImage: true,
+      productcategory: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          coverImage: true,
+        },
+      },
+    },
+  },
+  productcategorylink: {
+    include: {
+      productcategory: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          coverImage: true,
+        },
+      },
+    },
+  },
+  unitdefinition_product_unitIdTounitdefinition: {
+    select: {
+      id: true,
+      name: true,
+      symbol: true,
+      dimension: true,
+    },
+  },
+  unitdefinition_product_quantityUnitIdTounitdefinition: {
+    select: {
+      id: true,
+      name: true,
+      symbol: true,
+      dimension: true,
+    },
+  },
+  productimage: { orderBy: { sortOrder: 'asc' } },
+  productspecvalue: {
+    include: { productspecdefinition: { select: { id: true, name: true, slug: true } } },
+    orderBy: { sortOrder: 'asc' },
+  },
+} as const;
+
+type ProductRecord = Prisma.productGetPayload<{ include: typeof productInclude }>;
+
+const mapProductRecord = (record: ProductRecord | null) => {
+  if (!record) return null;
+  const {
+    producttype,
+    productcategorylink = [],
+    unitdefinition_product_unitIdTounitdefinition,
+    unitdefinition_product_quantityUnitIdTounitdefinition,
+    productimage = [],
+    productspecvalue = [],
+    ...rest
+  } = record;
+
+  const normalizedType = producttype
+    ? {
+        ...producttype,
+        category: producttype.productcategory,
+      }
+    : null;
+
+  const categoryLinks = categoryLinksFrom(productcategorylink);
+  const specs = specsFrom(productspecvalue);
+
+  return {
+    ...rest,
+    type: normalizedType,
+    categoryLinks,
+    unit: unitdefinition_product_unitIdTounitdefinition,
+    quantityUnit: unitdefinition_product_quantityUnitIdTounitdefinition,
+    images: productimage,
+    specs,
+  };
+};
+
+function categoryLinksFrom(links: ProductRecord['productcategorylink']) {
+  return links.map(({ productcategory, ...linkRest }) => ({
+    ...linkRest,
+    category: productcategory,
+  }));
+}
+
+function specsFrom(specs: ProductRecord['productspecvalue']) {
+  return specs.map(({ productspecdefinition, ...specRest }) => ({
+    ...specRest,
+    specDefinition: productspecdefinition,
+  }));
+}
 
 // ---------------- GET ----------------
 export async function GET(
@@ -10,72 +123,19 @@ export async function GET(
   try {
     const { slug } = await ctx.params;
 
-    const product = await prisma.product.findUnique({
+    const productRecord = await prisma.product.findUnique({
       where: { slug },
-      include: {
-        brand: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            logoUrl: true,
-            summary: true,
-          },
-        },
-        type: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            description: true,
-            coverImage: true,
-            category: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-                description: true,
-                coverImage: true,
-              },
-            },
-          },
-        },
-        categoryLinks: {
-          include: {
-            category: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-                description: true,
-                coverImage: true,
-              },
-            },
-          },
-        },
-        unit: {
-          select: {
-            id: true,
-            name: true,
-            symbol: true,
-            dimension: true,
-          },
-        },
-        quantityUnit: {
-          select: {
-            id: true,
-            name: true,
-            symbol: true,
-            dimension: true,
-          },
-        },
-        images: { orderBy: { sortOrder: 'asc' } },
-        specs: {
-          include: { specDefinition: { select: { id: true, name: true, slug: true } } },
-          orderBy: { sortOrder: 'asc' },
-        },
-      },
+      include: productInclude,
     });
+
+    if (!productRecord) {
+      return NextResponse.json(
+        { success: false, error: 'Product not found' },
+        { status: 404 }
+      );
+    }
+
+    const product = mapProductRecord(productRecord);
 
     if (!product) {
       return NextResponse.json(
@@ -95,7 +155,7 @@ const reviewsRaw = await prisma.review.findMany({
     description: true,
     reply: true,
     createdAt: true,
-    images: {
+    reviewimage: {
       select: { id: true, url: true, alt: true, sortOrder: true },
       orderBy: { sortOrder: 'asc' },
     },
@@ -111,7 +171,7 @@ const reviews = reviewsRaw.map((r) => ({
   description: r.description,
   reply: r.reply,
   createdAt: r.createdAt,
-  images: r.images,
+  images: r.reviewimage,
   user: r.user
     ? {
         id: r.user.id,
@@ -124,11 +184,11 @@ const reviews = reviewsRaw.map((r) => ({
 
 
     // Related products
-    const relatedProducts = await prisma.product.findMany({
+    const relatedProductsRaw = await prisma.product.findMany({
       where: {
         AND: [
           { id: { not: product.id } },
-          { status: PublishStatus.PUBLISHED },
+          { status: 'PUBLISHED' },
           { OR: [{ typeId: product.typeId }, { brandId: product.brandId }] },
         ],
       },
@@ -136,10 +196,16 @@ const reviews = reviewsRaw.map((r) => ({
       orderBy: { createdAt: 'desc' },
       include: {
         brand: { select: { name: true, slug: true } },
-        type: { select: { name: true, slug: true } },
-        images: { orderBy: { sortOrder: 'asc' }, take: 1 },
+        producttype: { select: { name: true, slug: true } },
+        productimage: { orderBy: { sortOrder: 'asc' }, take: 1 },
       },
     });
+
+    const relatedProducts = relatedProductsRaw.map(({ producttype, productimage, ...rest }) => ({
+      ...rest,
+      type: producttype,
+      images: productimage,
+    }));
 
     return NextResponse.json({
       success: true,
@@ -205,7 +271,7 @@ export async function PATCH(
       }
     }
 
-    const updatedProduct = await prisma.product.update({
+    const updatedRecord = await prisma.product.update({
       where: { slug },
       data: {
         name: body.name,
@@ -238,13 +304,19 @@ export async function PATCH(
       },
       include: {
         brand: true,
-        type: { include: { category: true } },
-        unit: true,
-        quantityUnit: true,
-        images: { orderBy: { sortOrder: 'asc' } },
-        specs: { include: { specDefinition: true }, orderBy: { sortOrder: 'asc' } },
+        producttype: { include: { productcategory: true } },
+        unitdefinition_product_unitIdTounitdefinition: true,
+        unitdefinition_product_quantityUnitIdTounitdefinition: true,
+        productimage: { orderBy: { sortOrder: 'asc' } },
+        productspecvalue: {
+          include: { productspecdefinition: true },
+          orderBy: { sortOrder: 'asc' },
+        },
+        productcategorylink: { include: { productcategory: true } },
       },
     });
+
+    const updatedProduct = mapProductRecord(updatedRecord);
 
     return NextResponse.json({ success: true, data: updatedProduct });
   } catch (error) {
@@ -276,7 +348,7 @@ export async function DELETE(
       );
     }
 
-    const cartItemCount = await prisma.cartItem.count({
+    const cartItemCount = await prisma.cartitem.count({
       where: {
         productId: existingProduct.id,
         cart: { status: { in: ['ACTIVE', 'CHECKOUT'] } },

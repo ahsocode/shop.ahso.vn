@@ -1,9 +1,9 @@
+import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { PublishStatus, Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
-// Define the product with includes for type safety
-type ProductWithRelations = Prisma.ProductGetPayload<{
+type ProductListRow = Prisma.productGetPayload<{
   include: {
     brand: {
       select: {
@@ -12,11 +12,11 @@ type ProductWithRelations = Prisma.ProductGetPayload<{
         logoUrl: true;
       };
     };
-    type: {
+    producttype: {
       select: {
         slug: true;
         name: true;
-        category: {
+        productcategory: {
           select: {
             name: true;
             slug: true;
@@ -24,18 +24,79 @@ type ProductWithRelations = Prisma.ProductGetPayload<{
         };
       };
     };
-    images: {
+    productimage: {
       select: {
         url: true;
         alt: true;
       };
+      orderBy: { sortOrder: "asc" };
+      take: 1;
     };
   };
 }>;
 
+type ProductCreateResponse = Prisma.productGetPayload<{
+  include: {
+    brand: true;
+    producttype: { include: { productcategory: true } };
+    unitdefinition_product_unitIdTounitdefinition: true;
+    unitdefinition_product_quantityUnitIdTounitdefinition: true;
+  };
+}>;
+
+const mapListItem = (row: ProductListRow) => {
+  const image = row.coverImage || row.productimage?.[0]?.url || "";
+  const imageAlt = row.productimage?.[0]?.alt || row.name;
+  const category = row.producttype?.productcategory;
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    sku: row.sku,
+    image,
+    imageAlt,
+    brand: row.brand?.name ?? null,
+    brandSlug: row.brand?.slug ?? null,
+    brandLogo: row.brand?.logoUrl ?? null,
+    category: category?.name ?? null,
+    categorySlug: category?.slug ?? null,
+    price: Number(row.price ?? 0),
+    listPrice: row.listPrice ? Number(row.listPrice) : null,
+    currency: row.currency ?? "VND",
+    inStock: (row.stockOnHand ?? 0) > 0,
+    stockOnHand: row.stockOnHand ?? 0,
+    description: row.description ?? "",
+    ratingAvg: row.ratingAvg ?? 0,
+    ratingCount: row.ratingCount ?? 0,
+    purchaseCount: row.purchaseCount ?? 0,
+  };
+};
+
+const mapProductResponse = (row: ProductCreateResponse) => {
+  const { producttype, unitdefinition_product_unitIdTounitdefinition, unitdefinition_product_quantityUnitIdTounitdefinition, ...rest } = row;
+  return {
+    ...rest,
+    type: producttype ? { ...producttype, category: producttype.productcategory } : null,
+    unit: unitdefinition_product_unitIdTounitdefinition,
+    quantityUnit: unitdefinition_product_quantityUnitIdTounitdefinition,
+  };
+};
+
+const PRODUCT_STATUSES = ["DRAFT", "PUBLISHED", "ARCHIVED"] as const;
+type ProductStatus = (typeof PRODUCT_STATUSES)[number];
+
+function normalizeStatus(value?: string | null): { isAll: boolean; status: ProductStatus | null } {
+  if (!value) return { isAll: false, status: "PUBLISHED" };
+  const upper = value.toUpperCase();
+  if (upper === "ALL") return { isAll: true, status: null };
+  return PRODUCT_STATUSES.includes(upper as ProductStatus)
+    ? { isAll: false, status: upper as ProductStatus }
+    : { isAll: false, status: "PUBLISHED" };
+}
+
 type SortDirection = "asc" | "desc";
 
-function getOrderBy(sortField: string, order: SortDirection): Prisma.ProductOrderByWithRelationInput {
+function getOrderBy(sortField: string, order: SortDirection): Prisma.productOrderByWithRelationInput {
   switch (sortField) {
     case "price":
       return { price: order };
@@ -50,7 +111,7 @@ function getOrderBy(sortField: string, order: SortDirection): Prisma.ProductOrde
   }
 }
 
-function mapUiSort(value: string | null): Prisma.ProductOrderByWithRelationInput | null {
+function mapUiSort(value: string | null): Prisma.productOrderByWithRelationInput | null {
   switch (value) {
     case "price_asc":
       return { price: "asc" };
@@ -108,16 +169,14 @@ export async function GET(request: NextRequest) {
     const maxPrice = searchParams.get("maxPrice");
 
     const inStock = searchParams.get("inStock") === "true";
-    const statusParam = searchParams.get("status") || "PUBLISHED";
+    const statusParam = searchParams.get("status");
 
     // Build where clause
-    const where: Prisma.ProductWhereInput = {};
+    const where: Prisma.productWhereInput = {};
     
-    // Status filter - default to PUBLISHED only
-    if (statusParam === "ALL") {
-      // No status filter
-    } else {
-      where.status = statusParam as PublishStatus;
+    const { isAll, status } = normalizeStatus(statusParam);
+    if (!isAll && status) {
+      where.status = status;
     }
     
     // Search - optimized with OR
@@ -136,15 +195,15 @@ export async function GET(request: NextRequest) {
     
     // Type filter
     if (typeSlug) {
-      where.type = { is: { slug: typeSlug } };
+      where.producttype = { is: { slug: typeSlug } };
     }
     
     // Category filter
     if (categorySlug) {
-      where.categoryLinks = { 
-        some: { 
-          category: { slug: categorySlug } 
-        } 
+      where.productcategorylink = {
+        some: {
+          productcategory: { slug: categorySlug },
+        },
       };
     }
     
@@ -161,24 +220,24 @@ export async function GET(request: NextRequest) {
     }
 
     // Build query options
-    const queryOptions: Prisma.ProductFindManyArgs = {
+    const queryOptions: Prisma.productFindManyArgs = {
       where,
       orderBy,
       include: {
         brand: { select: { name: true, slug: true, logoUrl: true } },
-        type: { 
-          select: { 
-            slug: true, 
-            name: true, 
-            category: { 
-              select: { name: true, slug: true } 
-            } 
-          } 
+        producttype: {
+          select: {
+            slug: true,
+            name: true,
+            productcategory: {
+              select: { name: true, slug: true },
+            },
+          },
         },
-        images: { 
-          orderBy: { sortOrder: "asc" }, 
+        productimage: {
+          orderBy: { sortOrder: "asc" },
           take: 1,
-          select: { url: true, alt: true }
+          select: { url: true, alt: true },
         },
       },
     };
@@ -196,36 +255,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Execute queries in transaction for consistency
-    const [rows, total] = await prisma.$transaction([
-      prisma.product.findMany(queryOptions),
-      prisma.product.count({ where }),
-    ]);
+    const { rows, total } = await prisma.$transaction(async (tx) => {
+      const items = await tx.product.findMany(queryOptions);
+      const count = await tx.product.count({ where });
+      return { rows: items as ProductListRow[], total: count };
+    });
 
     // Map to client-friendly format
-    const data = (rows as ProductWithRelations[]).map((p) => ({
-      id: p.id,
-      slug: p.slug,
-      name: p.name,
-      sku: p.sku,
-      image: p.coverImage || p.images?.[0]?.url || "",
-      imageAlt: p.images?.[0]?.alt || p.name,
-      brand: p.brand?.name ?? null,
-      brandSlug: p.brand?.slug ?? null,
-      brandLogo: p.brand?.logoUrl ?? null,
-      category: p.type?.category?.name ?? null,
-      categorySlug: p.type?.category?.slug ?? null,
-      price: Number(p.price ?? 0),
-      listPrice: p.listPrice ? Number(p.listPrice) : null,
-      currency: p.currency ?? "VND",
-      inStock: (p.stockOnHand ?? 0) > 0,
-      stockOnHand: p.stockOnHand ?? 0,
-      
-      // Additional fields
-      description: p.description ?? "",
-      ratingAvg: p.ratingAvg ?? 0,
-      ratingCount: p.ratingCount ?? 0,
-      purchaseCount: p.purchaseCount ?? 0,
-    }));
+    const data = rows.map(mapListItem);
 
     // Calculate pagination metadata
     const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -322,8 +359,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Create product
+    const now = new Date();
+    const { status: parsedStatus } = normalizeStatus(body.status);
+    const productStatus = parsedStatus ?? "DRAFT";
+
     const product = await prisma.product.create({
       data: {
+        id: randomUUID(),
         name,
         slug,
         sku,
@@ -347,27 +389,28 @@ export async function POST(request: NextRequest) {
         quantityLabel: body.quantityLabel,
         minOrderQty: body.minOrderQty || 1,
         stepQty: body.stepQty || 1,
-        status: body.status || PublishStatus.DRAFT,
+        status: productStatus,
         publishAt: body.publishAt,
         metaTitle: body.metaTitle,
         metaDescription: body.metaDescription,
+        updatedAt: now,
       },
       include: {
         brand: true,
-        type: {
+        producttype: {
           include: {
-            category: true,
+            productcategory: true,
           },
         },
-        unit: true,
-        quantityUnit: true,
+        unitdefinition_product_unitIdTounitdefinition: true,
+        unitdefinition_product_quantityUnitIdTounitdefinition: true,
       },
     });
 
     return NextResponse.json(
       {
         success: true,
-        data: product,
+        data: mapProductResponse(product),
       },
       { status: 201 }
     );

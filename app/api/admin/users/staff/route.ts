@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
@@ -32,9 +33,9 @@ const BASE_STAFF_SELECT = {
   phoneE164: true,
   role: true,
   createdAt: true,
-} satisfies Prisma.UserSelect;
+} satisfies Prisma.userSelect;
 
-const staffSelect: Prisma.UserSelect = prismaSupportsUserBlockField
+const staffSelect: Prisma.userSelect = prismaSupportsUserBlockField
   ? { ...BASE_STAFF_SELECT, isBlocked: true }
   : BASE_STAFF_SELECT;
 
@@ -53,7 +54,7 @@ export async function GET(req: NextRequest) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 20);
 
-    const where: Prisma.UserWhereInput = { role: "STAFF" };
+    const where: Prisma.userWhereInput = { role: "STAFF" };
     if (q) where.OR = [
       { username: { contains: q } },
       { fullName: { contains: q } },
@@ -116,9 +117,22 @@ export async function POST(req: NextRequest) {
     const passwordHash = await bcrypt.hash(data.password, 12);
 
     const user = await prisma.$transaction(async (tx) => {
-      const addr = await tx.address.create({ data: { line1: "Auto Staff", city: "HCM", country: "VN" } });
+      const now = new Date();
+      const addr = await tx.address.create({
+        data: {
+          id: randomUUID(),
+          line1: "Auto Staff",
+          city: "HCM",
+          country: "VN",
+          line2: null,
+          state: null,
+          postalCode: null,
+          updatedAt: now,
+        },
+      });
       const created = await tx.user.create({
         data: {
+          id: randomUUID(),
           username,
           passwordHash,
           fullName: data.fullName,
@@ -127,6 +141,7 @@ export async function POST(req: NextRequest) {
           shippingAddressId: addr.id,
           billingAddressId: addr.id,
           role: "STAFF",
+          updatedAt: now,
         },
         select: staffSelect,
       });

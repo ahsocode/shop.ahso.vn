@@ -24,7 +24,7 @@ export async function GET(
         metaTitle: true,
         metaDescription: true,
         canonicalUrl: true,
-        category: { select: { id: true, slug: true, name: true } },
+        softwarecategory: { select: { id: true, slug: true, name: true } },
       },
     });
 
@@ -32,10 +32,10 @@ export async function GET(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ data: row });
+    const { softwarecategory, ...rest } = row;
+    return NextResponse.json({ data: { ...rest, category: softwarecategory } });
   } catch (err) {
     console.error("[GET /api/software/[slug]]", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
-

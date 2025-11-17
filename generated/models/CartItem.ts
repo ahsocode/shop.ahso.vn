@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck 
 /*
- * This file exports the `CartItem` model and its related types.
+ * This file exports the `cartitem` model and its related types.
  *
  * 🟢 You can import this file directly.
  */
@@ -12,1201 +12,1205 @@ import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
 /**
- * Model CartItem
+ * Model cartitem
  * 
  */
-export type CartItemModel = runtime.Types.Result.DefaultSelection<Prisma.$CartItemPayload>
+export type cartitemModel = runtime.Types.Result.DefaultSelection<Prisma.$cartitemPayload>
 
-export type AggregateCartItem = {
-  _count: CartItemCountAggregateOutputType | null
-  _avg: CartItemAvgAggregateOutputType | null
-  _sum: CartItemSumAggregateOutputType | null
-  _min: CartItemMinAggregateOutputType | null
-  _max: CartItemMaxAggregateOutputType | null
+export type AggregateCartitem = {
+  _count: CartitemCountAggregateOutputType | null
+  _avg: CartitemAvgAggregateOutputType | null
+  _sum: CartitemSumAggregateOutputType | null
+  _min: CartitemMinAggregateOutputType | null
+  _max: CartitemMaxAggregateOutputType | null
 }
 
-export type CartItemAvgAggregateOutputType = {
-  unitPrice: runtime.Decimal | null
+export type CartitemAvgAggregateOutputType = {
   quantity: number | null
+  unitPrice: runtime.Decimal | null
   lineTotal: runtime.Decimal | null
 }
 
-export type CartItemSumAggregateOutputType = {
-  unitPrice: runtime.Decimal | null
+export type CartitemSumAggregateOutputType = {
   quantity: number | null
+  unitPrice: runtime.Decimal | null
   lineTotal: runtime.Decimal | null
 }
 
-export type CartItemMinAggregateOutputType = {
+export type CartitemMinAggregateOutputType = {
   id: string | null
   cartId: string | null
+  quantity: number | null
+  unitPrice: runtime.Decimal | null
+  addedAt: Date | null
+  brandName: string | null
+  currency: string | null
+  lineTotal: runtime.Decimal | null
   productId: string | null
+  productImage: string | null
   productName: string | null
   productSku: string | null
   productSlug: string | null
-  productImage: string | null
-  brandName: string | null
-  unitLabel: string | null
   quantityLabel: string | null
-  unitPrice: runtime.Decimal | null
-  currency: string | null
   taxIncluded: boolean | null
-  quantity: number | null
-  lineTotal: runtime.Decimal | null
-  addedAt: Date | null
+  unitLabel: string | null
 }
 
-export type CartItemMaxAggregateOutputType = {
+export type CartitemMaxAggregateOutputType = {
   id: string | null
   cartId: string | null
+  quantity: number | null
+  unitPrice: runtime.Decimal | null
+  addedAt: Date | null
+  brandName: string | null
+  currency: string | null
+  lineTotal: runtime.Decimal | null
   productId: string | null
+  productImage: string | null
   productName: string | null
   productSku: string | null
   productSlug: string | null
-  productImage: string | null
-  brandName: string | null
-  unitLabel: string | null
   quantityLabel: string | null
-  unitPrice: runtime.Decimal | null
-  currency: string | null
   taxIncluded: boolean | null
-  quantity: number | null
-  lineTotal: runtime.Decimal | null
-  addedAt: Date | null
+  unitLabel: string | null
 }
 
-export type CartItemCountAggregateOutputType = {
+export type CartitemCountAggregateOutputType = {
   id: number
   cartId: number
+  quantity: number
+  unitPrice: number
+  addedAt: number
+  brandName: number
+  currency: number
+  lineTotal: number
   productId: number
+  productImage: number
   productName: number
   productSku: number
   productSlug: number
-  productImage: number
-  brandName: number
-  unitLabel: number
   quantityLabel: number
-  unitPrice: number
-  currency: number
   taxIncluded: number
-  quantity: number
-  lineTotal: number
-  addedAt: number
+  unitLabel: number
   _all: number
 }
 
 
-export type CartItemAvgAggregateInputType = {
-  unitPrice?: true
+export type CartitemAvgAggregateInputType = {
   quantity?: true
+  unitPrice?: true
   lineTotal?: true
 }
 
-export type CartItemSumAggregateInputType = {
-  unitPrice?: true
+export type CartitemSumAggregateInputType = {
   quantity?: true
+  unitPrice?: true
   lineTotal?: true
 }
 
-export type CartItemMinAggregateInputType = {
+export type CartitemMinAggregateInputType = {
   id?: true
   cartId?: true
+  quantity?: true
+  unitPrice?: true
+  addedAt?: true
+  brandName?: true
+  currency?: true
+  lineTotal?: true
   productId?: true
+  productImage?: true
   productName?: true
   productSku?: true
   productSlug?: true
-  productImage?: true
-  brandName?: true
-  unitLabel?: true
   quantityLabel?: true
-  unitPrice?: true
-  currency?: true
   taxIncluded?: true
-  quantity?: true
-  lineTotal?: true
-  addedAt?: true
+  unitLabel?: true
 }
 
-export type CartItemMaxAggregateInputType = {
+export type CartitemMaxAggregateInputType = {
   id?: true
   cartId?: true
+  quantity?: true
+  unitPrice?: true
+  addedAt?: true
+  brandName?: true
+  currency?: true
+  lineTotal?: true
   productId?: true
+  productImage?: true
   productName?: true
   productSku?: true
   productSlug?: true
-  productImage?: true
-  brandName?: true
-  unitLabel?: true
   quantityLabel?: true
-  unitPrice?: true
-  currency?: true
   taxIncluded?: true
-  quantity?: true
-  lineTotal?: true
-  addedAt?: true
+  unitLabel?: true
 }
 
-export type CartItemCountAggregateInputType = {
+export type CartitemCountAggregateInputType = {
   id?: true
   cartId?: true
+  quantity?: true
+  unitPrice?: true
+  addedAt?: true
+  brandName?: true
+  currency?: true
+  lineTotal?: true
   productId?: true
+  productImage?: true
   productName?: true
   productSku?: true
   productSlug?: true
-  productImage?: true
-  brandName?: true
-  unitLabel?: true
   quantityLabel?: true
-  unitPrice?: true
-  currency?: true
   taxIncluded?: true
-  quantity?: true
-  lineTotal?: true
-  addedAt?: true
+  unitLabel?: true
   _all?: true
 }
 
-export type CartItemAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type CartitemAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which CartItem to aggregate.
+   * Filter which cartitem to aggregate.
    */
-  where?: Prisma.CartItemWhereInput
+  where?: Prisma.cartitemWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of CartItems to fetch.
+   * Determine the order of cartitems to fetch.
    */
-  orderBy?: Prisma.CartItemOrderByWithRelationInput | Prisma.CartItemOrderByWithRelationInput[]
+  orderBy?: Prisma.cartitemOrderByWithRelationInput | Prisma.cartitemOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
    * Sets the start position
    */
-  cursor?: Prisma.CartItemWhereUniqueInput
+  cursor?: Prisma.cartitemWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` CartItems from the position of the cursor.
+   * Take `±n` cartitems from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` CartItems.
+   * Skip the first `n` cartitems.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Count returned CartItems
+   * Count returned cartitems
   **/
-  _count?: true | CartItemCountAggregateInputType
+  _count?: true | CartitemCountAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to average
   **/
-  _avg?: CartItemAvgAggregateInputType
+  _avg?: CartitemAvgAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to sum
   **/
-  _sum?: CartItemSumAggregateInputType
+  _sum?: CartitemSumAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the minimum value
   **/
-  _min?: CartItemMinAggregateInputType
+  _min?: CartitemMinAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the maximum value
   **/
-  _max?: CartItemMaxAggregateInputType
+  _max?: CartitemMaxAggregateInputType
 }
 
-export type GetCartItemAggregateType<T extends CartItemAggregateArgs> = {
-      [P in keyof T & keyof AggregateCartItem]: P extends '_count' | 'count'
+export type GetCartitemAggregateType<T extends CartitemAggregateArgs> = {
+      [P in keyof T & keyof AggregateCartitem]: P extends '_count' | 'count'
     ? T[P] extends true
       ? number
-      : Prisma.GetScalarType<T[P], AggregateCartItem[P]>
-    : Prisma.GetScalarType<T[P], AggregateCartItem[P]>
+      : Prisma.GetScalarType<T[P], AggregateCartitem[P]>
+    : Prisma.GetScalarType<T[P], AggregateCartitem[P]>
 }
 
 
 
 
-export type CartItemGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.CartItemWhereInput
-  orderBy?: Prisma.CartItemOrderByWithAggregationInput | Prisma.CartItemOrderByWithAggregationInput[]
-  by: Prisma.CartItemScalarFieldEnum[] | Prisma.CartItemScalarFieldEnum
-  having?: Prisma.CartItemScalarWhereWithAggregatesInput
+export type cartitemGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.cartitemWhereInput
+  orderBy?: Prisma.cartitemOrderByWithAggregationInput | Prisma.cartitemOrderByWithAggregationInput[]
+  by: Prisma.CartitemScalarFieldEnum[] | Prisma.CartitemScalarFieldEnum
+  having?: Prisma.cartitemScalarWhereWithAggregatesInput
   take?: number
   skip?: number
-  _count?: CartItemCountAggregateInputType | true
-  _avg?: CartItemAvgAggregateInputType
-  _sum?: CartItemSumAggregateInputType
-  _min?: CartItemMinAggregateInputType
-  _max?: CartItemMaxAggregateInputType
+  _count?: CartitemCountAggregateInputType | true
+  _avg?: CartitemAvgAggregateInputType
+  _sum?: CartitemSumAggregateInputType
+  _min?: CartitemMinAggregateInputType
+  _max?: CartitemMaxAggregateInputType
 }
 
-export type CartItemGroupByOutputType = {
+export type CartitemGroupByOutputType = {
   id: string
   cartId: string
+  quantity: number
+  unitPrice: runtime.Decimal
+  addedAt: Date
+  brandName: string | null
+  currency: string
+  lineTotal: runtime.Decimal
   productId: string | null
+  productImage: string | null
   productName: string
   productSku: string
   productSlug: string
-  productImage: string | null
-  brandName: string | null
-  unitLabel: string | null
   quantityLabel: string | null
-  unitPrice: runtime.Decimal
-  currency: string
   taxIncluded: boolean
-  quantity: number
-  lineTotal: runtime.Decimal
-  addedAt: Date
-  _count: CartItemCountAggregateOutputType | null
-  _avg: CartItemAvgAggregateOutputType | null
-  _sum: CartItemSumAggregateOutputType | null
-  _min: CartItemMinAggregateOutputType | null
-  _max: CartItemMaxAggregateOutputType | null
+  unitLabel: string | null
+  _count: CartitemCountAggregateOutputType | null
+  _avg: CartitemAvgAggregateOutputType | null
+  _sum: CartitemSumAggregateOutputType | null
+  _min: CartitemMinAggregateOutputType | null
+  _max: CartitemMaxAggregateOutputType | null
 }
 
-type GetCartItemGroupByPayload<T extends CartItemGroupByArgs> = Prisma.PrismaPromise<
+type GetCartitemGroupByPayload<T extends cartitemGroupByArgs> = Prisma.PrismaPromise<
   Array<
-    Prisma.PickEnumerable<CartItemGroupByOutputType, T['by']> &
+    Prisma.PickEnumerable<CartitemGroupByOutputType, T['by']> &
       {
-        [P in ((keyof T) & (keyof CartItemGroupByOutputType))]: P extends '_count'
+        [P in ((keyof T) & (keyof CartitemGroupByOutputType))]: P extends '_count'
           ? T[P] extends boolean
             ? number
-            : Prisma.GetScalarType<T[P], CartItemGroupByOutputType[P]>
-          : Prisma.GetScalarType<T[P], CartItemGroupByOutputType[P]>
+            : Prisma.GetScalarType<T[P], CartitemGroupByOutputType[P]>
+          : Prisma.GetScalarType<T[P], CartitemGroupByOutputType[P]>
       }
     >
   >
 
 
 
-export type CartItemWhereInput = {
-  AND?: Prisma.CartItemWhereInput | Prisma.CartItemWhereInput[]
-  OR?: Prisma.CartItemWhereInput[]
-  NOT?: Prisma.CartItemWhereInput | Prisma.CartItemWhereInput[]
-  id?: Prisma.StringFilter<"CartItem"> | string
-  cartId?: Prisma.StringFilter<"CartItem"> | string
-  productId?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  productName?: Prisma.StringFilter<"CartItem"> | string
-  productSku?: Prisma.StringFilter<"CartItem"> | string
-  productSlug?: Prisma.StringFilter<"CartItem"> | string
-  productImage?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  brandName?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  unitLabel?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  quantityLabel?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  unitPrice?: Prisma.DecimalFilter<"CartItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: Prisma.StringFilter<"CartItem"> | string
-  taxIncluded?: Prisma.BoolFilter<"CartItem"> | boolean
-  quantity?: Prisma.IntFilter<"CartItem"> | number
-  lineTotal?: Prisma.DecimalFilter<"CartItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Prisma.DateTimeFilter<"CartItem"> | Date | string
-  cart?: Prisma.XOR<Prisma.CartScalarRelationFilter, Prisma.CartWhereInput>
-  product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
+export type cartitemWhereInput = {
+  AND?: Prisma.cartitemWhereInput | Prisma.cartitemWhereInput[]
+  OR?: Prisma.cartitemWhereInput[]
+  NOT?: Prisma.cartitemWhereInput | Prisma.cartitemWhereInput[]
+  id?: Prisma.StringFilter<"cartitem"> | string
+  cartId?: Prisma.StringFilter<"cartitem"> | string
+  quantity?: Prisma.IntFilter<"cartitem"> | number
+  unitPrice?: Prisma.DecimalFilter<"cartitem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Prisma.DateTimeFilter<"cartitem"> | Date | string
+  brandName?: Prisma.StringNullableFilter<"cartitem"> | string | null
+  currency?: Prisma.StringFilter<"cartitem"> | string
+  lineTotal?: Prisma.DecimalFilter<"cartitem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  productId?: Prisma.StringNullableFilter<"cartitem"> | string | null
+  productImage?: Prisma.StringNullableFilter<"cartitem"> | string | null
+  productName?: Prisma.StringFilter<"cartitem"> | string
+  productSku?: Prisma.StringFilter<"cartitem"> | string
+  productSlug?: Prisma.StringFilter<"cartitem"> | string
+  quantityLabel?: Prisma.StringNullableFilter<"cartitem"> | string | null
+  taxIncluded?: Prisma.BoolFilter<"cartitem"> | boolean
+  unitLabel?: Prisma.StringNullableFilter<"cartitem"> | string | null
+  cart?: Prisma.XOR<Prisma.CartScalarRelationFilter, Prisma.cartWhereInput>
+  product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.productWhereInput> | null
 }
 
-export type CartItemOrderByWithRelationInput = {
+export type cartitemOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   cartId?: Prisma.SortOrder
+  quantity?: Prisma.SortOrder
+  unitPrice?: Prisma.SortOrder
+  addedAt?: Prisma.SortOrder
+  brandName?: Prisma.SortOrderInput | Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  lineTotal?: Prisma.SortOrder
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
+  productImage?: Prisma.SortOrderInput | Prisma.SortOrder
   productName?: Prisma.SortOrder
   productSku?: Prisma.SortOrder
   productSlug?: Prisma.SortOrder
-  productImage?: Prisma.SortOrderInput | Prisma.SortOrder
-  brandName?: Prisma.SortOrderInput | Prisma.SortOrder
-  unitLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   quantityLabel?: Prisma.SortOrderInput | Prisma.SortOrder
-  unitPrice?: Prisma.SortOrder
-  currency?: Prisma.SortOrder
   taxIncluded?: Prisma.SortOrder
-  quantity?: Prisma.SortOrder
-  lineTotal?: Prisma.SortOrder
-  addedAt?: Prisma.SortOrder
-  cart?: Prisma.CartOrderByWithRelationInput
-  product?: Prisma.ProductOrderByWithRelationInput
-  _relevance?: Prisma.CartItemOrderByRelevanceInput
+  unitLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  cart?: Prisma.cartOrderByWithRelationInput
+  product?: Prisma.productOrderByWithRelationInput
+  _relevance?: Prisma.cartitemOrderByRelevanceInput
 }
 
-export type CartItemWhereUniqueInput = Prisma.AtLeast<{
+export type cartitemWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  AND?: Prisma.CartItemWhereInput | Prisma.CartItemWhereInput[]
-  OR?: Prisma.CartItemWhereInput[]
-  NOT?: Prisma.CartItemWhereInput | Prisma.CartItemWhereInput[]
-  cartId?: Prisma.StringFilter<"CartItem"> | string
-  productId?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  productName?: Prisma.StringFilter<"CartItem"> | string
-  productSku?: Prisma.StringFilter<"CartItem"> | string
-  productSlug?: Prisma.StringFilter<"CartItem"> | string
-  productImage?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  brandName?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  unitLabel?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  quantityLabel?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  unitPrice?: Prisma.DecimalFilter<"CartItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: Prisma.StringFilter<"CartItem"> | string
-  taxIncluded?: Prisma.BoolFilter<"CartItem"> | boolean
-  quantity?: Prisma.IntFilter<"CartItem"> | number
-  lineTotal?: Prisma.DecimalFilter<"CartItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Prisma.DateTimeFilter<"CartItem"> | Date | string
-  cart?: Prisma.XOR<Prisma.CartScalarRelationFilter, Prisma.CartWhereInput>
-  product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
+  AND?: Prisma.cartitemWhereInput | Prisma.cartitemWhereInput[]
+  OR?: Prisma.cartitemWhereInput[]
+  NOT?: Prisma.cartitemWhereInput | Prisma.cartitemWhereInput[]
+  cartId?: Prisma.StringFilter<"cartitem"> | string
+  quantity?: Prisma.IntFilter<"cartitem"> | number
+  unitPrice?: Prisma.DecimalFilter<"cartitem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Prisma.DateTimeFilter<"cartitem"> | Date | string
+  brandName?: Prisma.StringNullableFilter<"cartitem"> | string | null
+  currency?: Prisma.StringFilter<"cartitem"> | string
+  lineTotal?: Prisma.DecimalFilter<"cartitem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  productId?: Prisma.StringNullableFilter<"cartitem"> | string | null
+  productImage?: Prisma.StringNullableFilter<"cartitem"> | string | null
+  productName?: Prisma.StringFilter<"cartitem"> | string
+  productSku?: Prisma.StringFilter<"cartitem"> | string
+  productSlug?: Prisma.StringFilter<"cartitem"> | string
+  quantityLabel?: Prisma.StringNullableFilter<"cartitem"> | string | null
+  taxIncluded?: Prisma.BoolFilter<"cartitem"> | boolean
+  unitLabel?: Prisma.StringNullableFilter<"cartitem"> | string | null
+  cart?: Prisma.XOR<Prisma.CartScalarRelationFilter, Prisma.cartWhereInput>
+  product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.productWhereInput> | null
 }, "id">
 
-export type CartItemOrderByWithAggregationInput = {
+export type cartitemOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   cartId?: Prisma.SortOrder
+  quantity?: Prisma.SortOrder
+  unitPrice?: Prisma.SortOrder
+  addedAt?: Prisma.SortOrder
+  brandName?: Prisma.SortOrderInput | Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  lineTotal?: Prisma.SortOrder
   productId?: Prisma.SortOrderInput | Prisma.SortOrder
+  productImage?: Prisma.SortOrderInput | Prisma.SortOrder
   productName?: Prisma.SortOrder
   productSku?: Prisma.SortOrder
   productSlug?: Prisma.SortOrder
-  productImage?: Prisma.SortOrderInput | Prisma.SortOrder
-  brandName?: Prisma.SortOrderInput | Prisma.SortOrder
-  unitLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   quantityLabel?: Prisma.SortOrderInput | Prisma.SortOrder
-  unitPrice?: Prisma.SortOrder
-  currency?: Prisma.SortOrder
   taxIncluded?: Prisma.SortOrder
-  quantity?: Prisma.SortOrder
-  lineTotal?: Prisma.SortOrder
-  addedAt?: Prisma.SortOrder
-  _count?: Prisma.CartItemCountOrderByAggregateInput
-  _avg?: Prisma.CartItemAvgOrderByAggregateInput
-  _max?: Prisma.CartItemMaxOrderByAggregateInput
-  _min?: Prisma.CartItemMinOrderByAggregateInput
-  _sum?: Prisma.CartItemSumOrderByAggregateInput
+  unitLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  _count?: Prisma.cartitemCountOrderByAggregateInput
+  _avg?: Prisma.cartitemAvgOrderByAggregateInput
+  _max?: Prisma.cartitemMaxOrderByAggregateInput
+  _min?: Prisma.cartitemMinOrderByAggregateInput
+  _sum?: Prisma.cartitemSumOrderByAggregateInput
 }
 
-export type CartItemScalarWhereWithAggregatesInput = {
-  AND?: Prisma.CartItemScalarWhereWithAggregatesInput | Prisma.CartItemScalarWhereWithAggregatesInput[]
-  OR?: Prisma.CartItemScalarWhereWithAggregatesInput[]
-  NOT?: Prisma.CartItemScalarWhereWithAggregatesInput | Prisma.CartItemScalarWhereWithAggregatesInput[]
-  id?: Prisma.StringWithAggregatesFilter<"CartItem"> | string
-  cartId?: Prisma.StringWithAggregatesFilter<"CartItem"> | string
-  productId?: Prisma.StringNullableWithAggregatesFilter<"CartItem"> | string | null
-  productName?: Prisma.StringWithAggregatesFilter<"CartItem"> | string
-  productSku?: Prisma.StringWithAggregatesFilter<"CartItem"> | string
-  productSlug?: Prisma.StringWithAggregatesFilter<"CartItem"> | string
-  productImage?: Prisma.StringNullableWithAggregatesFilter<"CartItem"> | string | null
-  brandName?: Prisma.StringNullableWithAggregatesFilter<"CartItem"> | string | null
-  unitLabel?: Prisma.StringNullableWithAggregatesFilter<"CartItem"> | string | null
-  quantityLabel?: Prisma.StringNullableWithAggregatesFilter<"CartItem"> | string | null
-  unitPrice?: Prisma.DecimalWithAggregatesFilter<"CartItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: Prisma.StringWithAggregatesFilter<"CartItem"> | string
-  taxIncluded?: Prisma.BoolWithAggregatesFilter<"CartItem"> | boolean
-  quantity?: Prisma.IntWithAggregatesFilter<"CartItem"> | number
-  lineTotal?: Prisma.DecimalWithAggregatesFilter<"CartItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Prisma.DateTimeWithAggregatesFilter<"CartItem"> | Date | string
+export type cartitemScalarWhereWithAggregatesInput = {
+  AND?: Prisma.cartitemScalarWhereWithAggregatesInput | Prisma.cartitemScalarWhereWithAggregatesInput[]
+  OR?: Prisma.cartitemScalarWhereWithAggregatesInput[]
+  NOT?: Prisma.cartitemScalarWhereWithAggregatesInput | Prisma.cartitemScalarWhereWithAggregatesInput[]
+  id?: Prisma.StringWithAggregatesFilter<"cartitem"> | string
+  cartId?: Prisma.StringWithAggregatesFilter<"cartitem"> | string
+  quantity?: Prisma.IntWithAggregatesFilter<"cartitem"> | number
+  unitPrice?: Prisma.DecimalWithAggregatesFilter<"cartitem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Prisma.DateTimeWithAggregatesFilter<"cartitem"> | Date | string
+  brandName?: Prisma.StringNullableWithAggregatesFilter<"cartitem"> | string | null
+  currency?: Prisma.StringWithAggregatesFilter<"cartitem"> | string
+  lineTotal?: Prisma.DecimalWithAggregatesFilter<"cartitem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  productId?: Prisma.StringNullableWithAggregatesFilter<"cartitem"> | string | null
+  productImage?: Prisma.StringNullableWithAggregatesFilter<"cartitem"> | string | null
+  productName?: Prisma.StringWithAggregatesFilter<"cartitem"> | string
+  productSku?: Prisma.StringWithAggregatesFilter<"cartitem"> | string
+  productSlug?: Prisma.StringWithAggregatesFilter<"cartitem"> | string
+  quantityLabel?: Prisma.StringNullableWithAggregatesFilter<"cartitem"> | string | null
+  taxIncluded?: Prisma.BoolWithAggregatesFilter<"cartitem"> | boolean
+  unitLabel?: Prisma.StringNullableWithAggregatesFilter<"cartitem"> | string | null
 }
 
-export type CartItemCreateInput = {
-  id?: string
+export type cartitemCreateInput = {
+  id: string
+  quantity?: number
+  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Date | string
+  brandName?: string | null
+  currency?: string
+  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  productImage?: string | null
   productName: string
   productSku: string
   productSlug: string
-  productImage?: string | null
-  brandName?: string | null
-  unitLabel?: string | null
   quantityLabel?: string | null
-  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: string
   taxIncluded?: boolean
-  quantity?: number
-  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Date | string
-  cart: Prisma.CartCreateNestedOneWithoutItemsInput
-  product?: Prisma.ProductCreateNestedOneWithoutCartItemInput
+  unitLabel?: string | null
+  cart: Prisma.cartCreateNestedOneWithoutCartitemInput
+  product?: Prisma.productCreateNestedOneWithoutCartitemInput
 }
 
-export type CartItemUncheckedCreateInput = {
-  id?: string
+export type cartitemUncheckedCreateInput = {
+  id: string
   cartId: string
+  quantity?: number
+  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Date | string
+  brandName?: string | null
+  currency?: string
+  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   productId?: string | null
+  productImage?: string | null
   productName: string
   productSku: string
   productSlug: string
-  productImage?: string | null
-  brandName?: string | null
-  unitLabel?: string | null
   quantityLabel?: string | null
-  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: string
   taxIncluded?: boolean
-  quantity?: number
-  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Date | string
+  unitLabel?: string | null
 }
 
-export type CartItemUpdateInput = {
+export type cartitemUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productName?: Prisma.StringFieldUpdateOperationsInput | string
   productSku?: Prisma.StringFieldUpdateOperationsInput | string
   productSlug?: Prisma.StringFieldUpdateOperationsInput | string
-  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantityLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
   taxIncluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  cart?: Prisma.CartUpdateOneRequiredWithoutItemsNestedInput
-  product?: Prisma.ProductUpdateOneWithoutCartItemNestedInput
+  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cart?: Prisma.cartUpdateOneRequiredWithoutCartitemNestedInput
+  product?: Prisma.productUpdateOneWithoutCartitemNestedInput
 }
 
-export type CartItemUncheckedUpdateInput = {
+export type cartitemUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cartId?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productName?: Prisma.StringFieldUpdateOperationsInput | string
   productSku?: Prisma.StringFieldUpdateOperationsInput | string
   productSlug?: Prisma.StringFieldUpdateOperationsInput | string
-  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantityLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
   taxIncluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
-export type CartItemCreateManyInput = {
-  id?: string
+export type cartitemCreateManyInput = {
+  id: string
   cartId: string
+  quantity?: number
+  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Date | string
+  brandName?: string | null
+  currency?: string
+  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   productId?: string | null
+  productImage?: string | null
   productName: string
   productSku: string
   productSlug: string
-  productImage?: string | null
-  brandName?: string | null
-  unitLabel?: string | null
   quantityLabel?: string | null
-  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: string
   taxIncluded?: boolean
-  quantity?: number
-  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Date | string
+  unitLabel?: string | null
 }
 
-export type CartItemUpdateManyMutationInput = {
+export type cartitemUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productName?: Prisma.StringFieldUpdateOperationsInput | string
   productSku?: Prisma.StringFieldUpdateOperationsInput | string
   productSlug?: Prisma.StringFieldUpdateOperationsInput | string
-  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantityLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
   taxIncluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
-export type CartItemUncheckedUpdateManyInput = {
+export type cartitemUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   cartId?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productName?: Prisma.StringFieldUpdateOperationsInput | string
   productSku?: Prisma.StringFieldUpdateOperationsInput | string
   productSlug?: Prisma.StringFieldUpdateOperationsInput | string
-  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantityLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
   taxIncluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
-export type CartItemListRelationFilter = {
-  every?: Prisma.CartItemWhereInput
-  some?: Prisma.CartItemWhereInput
-  none?: Prisma.CartItemWhereInput
+export type CartitemListRelationFilter = {
+  every?: Prisma.cartitemWhereInput
+  some?: Prisma.cartitemWhereInput
+  none?: Prisma.cartitemWhereInput
 }
 
-export type CartItemOrderByRelationAggregateInput = {
+export type cartitemOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type CartItemOrderByRelevanceInput = {
-  fields: Prisma.CartItemOrderByRelevanceFieldEnum | Prisma.CartItemOrderByRelevanceFieldEnum[]
+export type cartitemOrderByRelevanceInput = {
+  fields: Prisma.cartitemOrderByRelevanceFieldEnum | Prisma.cartitemOrderByRelevanceFieldEnum[]
   sort: Prisma.SortOrder
   search: string
 }
 
-export type CartItemCountOrderByAggregateInput = {
+export type cartitemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   cartId?: Prisma.SortOrder
+  quantity?: Prisma.SortOrder
+  unitPrice?: Prisma.SortOrder
+  addedAt?: Prisma.SortOrder
+  brandName?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  lineTotal?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  productImage?: Prisma.SortOrder
   productName?: Prisma.SortOrder
   productSku?: Prisma.SortOrder
   productSlug?: Prisma.SortOrder
-  productImage?: Prisma.SortOrder
-  brandName?: Prisma.SortOrder
-  unitLabel?: Prisma.SortOrder
   quantityLabel?: Prisma.SortOrder
-  unitPrice?: Prisma.SortOrder
-  currency?: Prisma.SortOrder
   taxIncluded?: Prisma.SortOrder
-  quantity?: Prisma.SortOrder
-  lineTotal?: Prisma.SortOrder
-  addedAt?: Prisma.SortOrder
+  unitLabel?: Prisma.SortOrder
 }
 
-export type CartItemAvgOrderByAggregateInput = {
+export type cartitemAvgOrderByAggregateInput = {
+  quantity?: Prisma.SortOrder
   unitPrice?: Prisma.SortOrder
-  quantity?: Prisma.SortOrder
   lineTotal?: Prisma.SortOrder
 }
 
-export type CartItemMaxOrderByAggregateInput = {
+export type cartitemMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   cartId?: Prisma.SortOrder
+  quantity?: Prisma.SortOrder
+  unitPrice?: Prisma.SortOrder
+  addedAt?: Prisma.SortOrder
+  brandName?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  lineTotal?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  productImage?: Prisma.SortOrder
   productName?: Prisma.SortOrder
   productSku?: Prisma.SortOrder
   productSlug?: Prisma.SortOrder
-  productImage?: Prisma.SortOrder
-  brandName?: Prisma.SortOrder
-  unitLabel?: Prisma.SortOrder
   quantityLabel?: Prisma.SortOrder
-  unitPrice?: Prisma.SortOrder
-  currency?: Prisma.SortOrder
   taxIncluded?: Prisma.SortOrder
-  quantity?: Prisma.SortOrder
-  lineTotal?: Prisma.SortOrder
-  addedAt?: Prisma.SortOrder
+  unitLabel?: Prisma.SortOrder
 }
 
-export type CartItemMinOrderByAggregateInput = {
+export type cartitemMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   cartId?: Prisma.SortOrder
+  quantity?: Prisma.SortOrder
+  unitPrice?: Prisma.SortOrder
+  addedAt?: Prisma.SortOrder
+  brandName?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  lineTotal?: Prisma.SortOrder
   productId?: Prisma.SortOrder
+  productImage?: Prisma.SortOrder
   productName?: Prisma.SortOrder
   productSku?: Prisma.SortOrder
   productSlug?: Prisma.SortOrder
-  productImage?: Prisma.SortOrder
-  brandName?: Prisma.SortOrder
-  unitLabel?: Prisma.SortOrder
   quantityLabel?: Prisma.SortOrder
-  unitPrice?: Prisma.SortOrder
-  currency?: Prisma.SortOrder
   taxIncluded?: Prisma.SortOrder
-  quantity?: Prisma.SortOrder
-  lineTotal?: Prisma.SortOrder
-  addedAt?: Prisma.SortOrder
+  unitLabel?: Prisma.SortOrder
 }
 
-export type CartItemSumOrderByAggregateInput = {
+export type cartitemSumOrderByAggregateInput = {
+  quantity?: Prisma.SortOrder
   unitPrice?: Prisma.SortOrder
-  quantity?: Prisma.SortOrder
   lineTotal?: Prisma.SortOrder
 }
 
-export type CartItemCreateNestedManyWithoutProductInput = {
-  create?: Prisma.XOR<Prisma.CartItemCreateWithoutProductInput, Prisma.CartItemUncheckedCreateWithoutProductInput> | Prisma.CartItemCreateWithoutProductInput[] | Prisma.CartItemUncheckedCreateWithoutProductInput[]
-  connectOrCreate?: Prisma.CartItemCreateOrConnectWithoutProductInput | Prisma.CartItemCreateOrConnectWithoutProductInput[]
-  createMany?: Prisma.CartItemCreateManyProductInputEnvelope
-  connect?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
+export type cartitemCreateNestedManyWithoutCartInput = {
+  create?: Prisma.XOR<Prisma.cartitemCreateWithoutCartInput, Prisma.cartitemUncheckedCreateWithoutCartInput> | Prisma.cartitemCreateWithoutCartInput[] | Prisma.cartitemUncheckedCreateWithoutCartInput[]
+  connectOrCreate?: Prisma.cartitemCreateOrConnectWithoutCartInput | Prisma.cartitemCreateOrConnectWithoutCartInput[]
+  createMany?: Prisma.cartitemCreateManyCartInputEnvelope
+  connect?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
 }
 
-export type CartItemUncheckedCreateNestedManyWithoutProductInput = {
-  create?: Prisma.XOR<Prisma.CartItemCreateWithoutProductInput, Prisma.CartItemUncheckedCreateWithoutProductInput> | Prisma.CartItemCreateWithoutProductInput[] | Prisma.CartItemUncheckedCreateWithoutProductInput[]
-  connectOrCreate?: Prisma.CartItemCreateOrConnectWithoutProductInput | Prisma.CartItemCreateOrConnectWithoutProductInput[]
-  createMany?: Prisma.CartItemCreateManyProductInputEnvelope
-  connect?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
+export type cartitemUncheckedCreateNestedManyWithoutCartInput = {
+  create?: Prisma.XOR<Prisma.cartitemCreateWithoutCartInput, Prisma.cartitemUncheckedCreateWithoutCartInput> | Prisma.cartitemCreateWithoutCartInput[] | Prisma.cartitemUncheckedCreateWithoutCartInput[]
+  connectOrCreate?: Prisma.cartitemCreateOrConnectWithoutCartInput | Prisma.cartitemCreateOrConnectWithoutCartInput[]
+  createMany?: Prisma.cartitemCreateManyCartInputEnvelope
+  connect?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
 }
 
-export type CartItemUpdateManyWithoutProductNestedInput = {
-  create?: Prisma.XOR<Prisma.CartItemCreateWithoutProductInput, Prisma.CartItemUncheckedCreateWithoutProductInput> | Prisma.CartItemCreateWithoutProductInput[] | Prisma.CartItemUncheckedCreateWithoutProductInput[]
-  connectOrCreate?: Prisma.CartItemCreateOrConnectWithoutProductInput | Prisma.CartItemCreateOrConnectWithoutProductInput[]
-  upsert?: Prisma.CartItemUpsertWithWhereUniqueWithoutProductInput | Prisma.CartItemUpsertWithWhereUniqueWithoutProductInput[]
-  createMany?: Prisma.CartItemCreateManyProductInputEnvelope
-  set?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  disconnect?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  delete?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  connect?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  update?: Prisma.CartItemUpdateWithWhereUniqueWithoutProductInput | Prisma.CartItemUpdateWithWhereUniqueWithoutProductInput[]
-  updateMany?: Prisma.CartItemUpdateManyWithWhereWithoutProductInput | Prisma.CartItemUpdateManyWithWhereWithoutProductInput[]
-  deleteMany?: Prisma.CartItemScalarWhereInput | Prisma.CartItemScalarWhereInput[]
+export type cartitemUpdateManyWithoutCartNestedInput = {
+  create?: Prisma.XOR<Prisma.cartitemCreateWithoutCartInput, Prisma.cartitemUncheckedCreateWithoutCartInput> | Prisma.cartitemCreateWithoutCartInput[] | Prisma.cartitemUncheckedCreateWithoutCartInput[]
+  connectOrCreate?: Prisma.cartitemCreateOrConnectWithoutCartInput | Prisma.cartitemCreateOrConnectWithoutCartInput[]
+  upsert?: Prisma.cartitemUpsertWithWhereUniqueWithoutCartInput | Prisma.cartitemUpsertWithWhereUniqueWithoutCartInput[]
+  createMany?: Prisma.cartitemCreateManyCartInputEnvelope
+  set?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  disconnect?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  delete?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  connect?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  update?: Prisma.cartitemUpdateWithWhereUniqueWithoutCartInput | Prisma.cartitemUpdateWithWhereUniqueWithoutCartInput[]
+  updateMany?: Prisma.cartitemUpdateManyWithWhereWithoutCartInput | Prisma.cartitemUpdateManyWithWhereWithoutCartInput[]
+  deleteMany?: Prisma.cartitemScalarWhereInput | Prisma.cartitemScalarWhereInput[]
 }
 
-export type CartItemUncheckedUpdateManyWithoutProductNestedInput = {
-  create?: Prisma.XOR<Prisma.CartItemCreateWithoutProductInput, Prisma.CartItemUncheckedCreateWithoutProductInput> | Prisma.CartItemCreateWithoutProductInput[] | Prisma.CartItemUncheckedCreateWithoutProductInput[]
-  connectOrCreate?: Prisma.CartItemCreateOrConnectWithoutProductInput | Prisma.CartItemCreateOrConnectWithoutProductInput[]
-  upsert?: Prisma.CartItemUpsertWithWhereUniqueWithoutProductInput | Prisma.CartItemUpsertWithWhereUniqueWithoutProductInput[]
-  createMany?: Prisma.CartItemCreateManyProductInputEnvelope
-  set?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  disconnect?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  delete?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  connect?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  update?: Prisma.CartItemUpdateWithWhereUniqueWithoutProductInput | Prisma.CartItemUpdateWithWhereUniqueWithoutProductInput[]
-  updateMany?: Prisma.CartItemUpdateManyWithWhereWithoutProductInput | Prisma.CartItemUpdateManyWithWhereWithoutProductInput[]
-  deleteMany?: Prisma.CartItemScalarWhereInput | Prisma.CartItemScalarWhereInput[]
+export type cartitemUncheckedUpdateManyWithoutCartNestedInput = {
+  create?: Prisma.XOR<Prisma.cartitemCreateWithoutCartInput, Prisma.cartitemUncheckedCreateWithoutCartInput> | Prisma.cartitemCreateWithoutCartInput[] | Prisma.cartitemUncheckedCreateWithoutCartInput[]
+  connectOrCreate?: Prisma.cartitemCreateOrConnectWithoutCartInput | Prisma.cartitemCreateOrConnectWithoutCartInput[]
+  upsert?: Prisma.cartitemUpsertWithWhereUniqueWithoutCartInput | Prisma.cartitemUpsertWithWhereUniqueWithoutCartInput[]
+  createMany?: Prisma.cartitemCreateManyCartInputEnvelope
+  set?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  disconnect?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  delete?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  connect?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  update?: Prisma.cartitemUpdateWithWhereUniqueWithoutCartInput | Prisma.cartitemUpdateWithWhereUniqueWithoutCartInput[]
+  updateMany?: Prisma.cartitemUpdateManyWithWhereWithoutCartInput | Prisma.cartitemUpdateManyWithWhereWithoutCartInput[]
+  deleteMany?: Prisma.cartitemScalarWhereInput | Prisma.cartitemScalarWhereInput[]
 }
 
-export type CartItemCreateNestedManyWithoutCartInput = {
-  create?: Prisma.XOR<Prisma.CartItemCreateWithoutCartInput, Prisma.CartItemUncheckedCreateWithoutCartInput> | Prisma.CartItemCreateWithoutCartInput[] | Prisma.CartItemUncheckedCreateWithoutCartInput[]
-  connectOrCreate?: Prisma.CartItemCreateOrConnectWithoutCartInput | Prisma.CartItemCreateOrConnectWithoutCartInput[]
-  createMany?: Prisma.CartItemCreateManyCartInputEnvelope
-  connect?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
-export type CartItemUncheckedCreateNestedManyWithoutCartInput = {
-  create?: Prisma.XOR<Prisma.CartItemCreateWithoutCartInput, Prisma.CartItemUncheckedCreateWithoutCartInput> | Prisma.CartItemCreateWithoutCartInput[] | Prisma.CartItemUncheckedCreateWithoutCartInput[]
-  connectOrCreate?: Prisma.CartItemCreateOrConnectWithoutCartInput | Prisma.CartItemCreateOrConnectWithoutCartInput[]
-  createMany?: Prisma.CartItemCreateManyCartInputEnvelope
-  connect?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
+export type cartitemCreateNestedManyWithoutProductInput = {
+  create?: Prisma.XOR<Prisma.cartitemCreateWithoutProductInput, Prisma.cartitemUncheckedCreateWithoutProductInput> | Prisma.cartitemCreateWithoutProductInput[] | Prisma.cartitemUncheckedCreateWithoutProductInput[]
+  connectOrCreate?: Prisma.cartitemCreateOrConnectWithoutProductInput | Prisma.cartitemCreateOrConnectWithoutProductInput[]
+  createMany?: Prisma.cartitemCreateManyProductInputEnvelope
+  connect?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
 }
 
-export type CartItemUpdateManyWithoutCartNestedInput = {
-  create?: Prisma.XOR<Prisma.CartItemCreateWithoutCartInput, Prisma.CartItemUncheckedCreateWithoutCartInput> | Prisma.CartItemCreateWithoutCartInput[] | Prisma.CartItemUncheckedCreateWithoutCartInput[]
-  connectOrCreate?: Prisma.CartItemCreateOrConnectWithoutCartInput | Prisma.CartItemCreateOrConnectWithoutCartInput[]
-  upsert?: Prisma.CartItemUpsertWithWhereUniqueWithoutCartInput | Prisma.CartItemUpsertWithWhereUniqueWithoutCartInput[]
-  createMany?: Prisma.CartItemCreateManyCartInputEnvelope
-  set?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  disconnect?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  delete?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  connect?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  update?: Prisma.CartItemUpdateWithWhereUniqueWithoutCartInput | Prisma.CartItemUpdateWithWhereUniqueWithoutCartInput[]
-  updateMany?: Prisma.CartItemUpdateManyWithWhereWithoutCartInput | Prisma.CartItemUpdateManyWithWhereWithoutCartInput[]
-  deleteMany?: Prisma.CartItemScalarWhereInput | Prisma.CartItemScalarWhereInput[]
+export type cartitemUncheckedCreateNestedManyWithoutProductInput = {
+  create?: Prisma.XOR<Prisma.cartitemCreateWithoutProductInput, Prisma.cartitemUncheckedCreateWithoutProductInput> | Prisma.cartitemCreateWithoutProductInput[] | Prisma.cartitemUncheckedCreateWithoutProductInput[]
+  connectOrCreate?: Prisma.cartitemCreateOrConnectWithoutProductInput | Prisma.cartitemCreateOrConnectWithoutProductInput[]
+  createMany?: Prisma.cartitemCreateManyProductInputEnvelope
+  connect?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
 }
 
-export type CartItemUncheckedUpdateManyWithoutCartNestedInput = {
-  create?: Prisma.XOR<Prisma.CartItemCreateWithoutCartInput, Prisma.CartItemUncheckedCreateWithoutCartInput> | Prisma.CartItemCreateWithoutCartInput[] | Prisma.CartItemUncheckedCreateWithoutCartInput[]
-  connectOrCreate?: Prisma.CartItemCreateOrConnectWithoutCartInput | Prisma.CartItemCreateOrConnectWithoutCartInput[]
-  upsert?: Prisma.CartItemUpsertWithWhereUniqueWithoutCartInput | Prisma.CartItemUpsertWithWhereUniqueWithoutCartInput[]
-  createMany?: Prisma.CartItemCreateManyCartInputEnvelope
-  set?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  disconnect?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  delete?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  connect?: Prisma.CartItemWhereUniqueInput | Prisma.CartItemWhereUniqueInput[]
-  update?: Prisma.CartItemUpdateWithWhereUniqueWithoutCartInput | Prisma.CartItemUpdateWithWhereUniqueWithoutCartInput[]
-  updateMany?: Prisma.CartItemUpdateManyWithWhereWithoutCartInput | Prisma.CartItemUpdateManyWithWhereWithoutCartInput[]
-  deleteMany?: Prisma.CartItemScalarWhereInput | Prisma.CartItemScalarWhereInput[]
+export type cartitemUpdateManyWithoutProductNestedInput = {
+  create?: Prisma.XOR<Prisma.cartitemCreateWithoutProductInput, Prisma.cartitemUncheckedCreateWithoutProductInput> | Prisma.cartitemCreateWithoutProductInput[] | Prisma.cartitemUncheckedCreateWithoutProductInput[]
+  connectOrCreate?: Prisma.cartitemCreateOrConnectWithoutProductInput | Prisma.cartitemCreateOrConnectWithoutProductInput[]
+  upsert?: Prisma.cartitemUpsertWithWhereUniqueWithoutProductInput | Prisma.cartitemUpsertWithWhereUniqueWithoutProductInput[]
+  createMany?: Prisma.cartitemCreateManyProductInputEnvelope
+  set?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  disconnect?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  delete?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  connect?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  update?: Prisma.cartitemUpdateWithWhereUniqueWithoutProductInput | Prisma.cartitemUpdateWithWhereUniqueWithoutProductInput[]
+  updateMany?: Prisma.cartitemUpdateManyWithWhereWithoutProductInput | Prisma.cartitemUpdateManyWithWhereWithoutProductInput[]
+  deleteMany?: Prisma.cartitemScalarWhereInput | Prisma.cartitemScalarWhereInput[]
 }
 
-export type CartItemCreateWithoutProductInput = {
-  id?: string
+export type cartitemUncheckedUpdateManyWithoutProductNestedInput = {
+  create?: Prisma.XOR<Prisma.cartitemCreateWithoutProductInput, Prisma.cartitemUncheckedCreateWithoutProductInput> | Prisma.cartitemCreateWithoutProductInput[] | Prisma.cartitemUncheckedCreateWithoutProductInput[]
+  connectOrCreate?: Prisma.cartitemCreateOrConnectWithoutProductInput | Prisma.cartitemCreateOrConnectWithoutProductInput[]
+  upsert?: Prisma.cartitemUpsertWithWhereUniqueWithoutProductInput | Prisma.cartitemUpsertWithWhereUniqueWithoutProductInput[]
+  createMany?: Prisma.cartitemCreateManyProductInputEnvelope
+  set?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  disconnect?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  delete?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  connect?: Prisma.cartitemWhereUniqueInput | Prisma.cartitemWhereUniqueInput[]
+  update?: Prisma.cartitemUpdateWithWhereUniqueWithoutProductInput | Prisma.cartitemUpdateWithWhereUniqueWithoutProductInput[]
+  updateMany?: Prisma.cartitemUpdateManyWithWhereWithoutProductInput | Prisma.cartitemUpdateManyWithWhereWithoutProductInput[]
+  deleteMany?: Prisma.cartitemScalarWhereInput | Prisma.cartitemScalarWhereInput[]
+}
+
+export type cartitemCreateWithoutCartInput = {
+  id: string
+  quantity?: number
+  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Date | string
+  brandName?: string | null
+  currency?: string
+  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  productImage?: string | null
   productName: string
   productSku: string
   productSlug: string
-  productImage?: string | null
-  brandName?: string | null
-  unitLabel?: string | null
   quantityLabel?: string | null
-  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: string
   taxIncluded?: boolean
-  quantity?: number
-  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Date | string
-  cart: Prisma.CartCreateNestedOneWithoutItemsInput
+  unitLabel?: string | null
+  product?: Prisma.productCreateNestedOneWithoutCartitemInput
 }
 
-export type CartItemUncheckedCreateWithoutProductInput = {
-  id?: string
-  cartId: string
+export type cartitemUncheckedCreateWithoutCartInput = {
+  id: string
+  quantity?: number
+  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Date | string
+  brandName?: string | null
+  currency?: string
+  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  productId?: string | null
+  productImage?: string | null
   productName: string
   productSku: string
   productSlug: string
-  productImage?: string | null
-  brandName?: string | null
-  unitLabel?: string | null
   quantityLabel?: string | null
-  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: string
   taxIncluded?: boolean
-  quantity?: number
-  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Date | string
+  unitLabel?: string | null
 }
 
-export type CartItemCreateOrConnectWithoutProductInput = {
-  where: Prisma.CartItemWhereUniqueInput
-  create: Prisma.XOR<Prisma.CartItemCreateWithoutProductInput, Prisma.CartItemUncheckedCreateWithoutProductInput>
+export type cartitemCreateOrConnectWithoutCartInput = {
+  where: Prisma.cartitemWhereUniqueInput
+  create: Prisma.XOR<Prisma.cartitemCreateWithoutCartInput, Prisma.cartitemUncheckedCreateWithoutCartInput>
 }
 
-export type CartItemCreateManyProductInputEnvelope = {
-  data: Prisma.CartItemCreateManyProductInput | Prisma.CartItemCreateManyProductInput[]
+export type cartitemCreateManyCartInputEnvelope = {
+  data: Prisma.cartitemCreateManyCartInput | Prisma.cartitemCreateManyCartInput[]
   skipDuplicates?: boolean
 }
 
-export type CartItemUpsertWithWhereUniqueWithoutProductInput = {
-  where: Prisma.CartItemWhereUniqueInput
-  update: Prisma.XOR<Prisma.CartItemUpdateWithoutProductInput, Prisma.CartItemUncheckedUpdateWithoutProductInput>
-  create: Prisma.XOR<Prisma.CartItemCreateWithoutProductInput, Prisma.CartItemUncheckedCreateWithoutProductInput>
+export type cartitemUpsertWithWhereUniqueWithoutCartInput = {
+  where: Prisma.cartitemWhereUniqueInput
+  update: Prisma.XOR<Prisma.cartitemUpdateWithoutCartInput, Prisma.cartitemUncheckedUpdateWithoutCartInput>
+  create: Prisma.XOR<Prisma.cartitemCreateWithoutCartInput, Prisma.cartitemUncheckedCreateWithoutCartInput>
 }
 
-export type CartItemUpdateWithWhereUniqueWithoutProductInput = {
-  where: Prisma.CartItemWhereUniqueInput
-  data: Prisma.XOR<Prisma.CartItemUpdateWithoutProductInput, Prisma.CartItemUncheckedUpdateWithoutProductInput>
+export type cartitemUpdateWithWhereUniqueWithoutCartInput = {
+  where: Prisma.cartitemWhereUniqueInput
+  data: Prisma.XOR<Prisma.cartitemUpdateWithoutCartInput, Prisma.cartitemUncheckedUpdateWithoutCartInput>
 }
 
-export type CartItemUpdateManyWithWhereWithoutProductInput = {
-  where: Prisma.CartItemScalarWhereInput
-  data: Prisma.XOR<Prisma.CartItemUpdateManyMutationInput, Prisma.CartItemUncheckedUpdateManyWithoutProductInput>
+export type cartitemUpdateManyWithWhereWithoutCartInput = {
+  where: Prisma.cartitemScalarWhereInput
+  data: Prisma.XOR<Prisma.cartitemUpdateManyMutationInput, Prisma.cartitemUncheckedUpdateManyWithoutCartInput>
 }
 
-export type CartItemScalarWhereInput = {
-  AND?: Prisma.CartItemScalarWhereInput | Prisma.CartItemScalarWhereInput[]
-  OR?: Prisma.CartItemScalarWhereInput[]
-  NOT?: Prisma.CartItemScalarWhereInput | Prisma.CartItemScalarWhereInput[]
-  id?: Prisma.StringFilter<"CartItem"> | string
-  cartId?: Prisma.StringFilter<"CartItem"> | string
-  productId?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  productName?: Prisma.StringFilter<"CartItem"> | string
-  productSku?: Prisma.StringFilter<"CartItem"> | string
-  productSlug?: Prisma.StringFilter<"CartItem"> | string
-  productImage?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  brandName?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  unitLabel?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  quantityLabel?: Prisma.StringNullableFilter<"CartItem"> | string | null
-  unitPrice?: Prisma.DecimalFilter<"CartItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: Prisma.StringFilter<"CartItem"> | string
-  taxIncluded?: Prisma.BoolFilter<"CartItem"> | boolean
-  quantity?: Prisma.IntFilter<"CartItem"> | number
-  lineTotal?: Prisma.DecimalFilter<"CartItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Prisma.DateTimeFilter<"CartItem"> | Date | string
+export type cartitemScalarWhereInput = {
+  AND?: Prisma.cartitemScalarWhereInput | Prisma.cartitemScalarWhereInput[]
+  OR?: Prisma.cartitemScalarWhereInput[]
+  NOT?: Prisma.cartitemScalarWhereInput | Prisma.cartitemScalarWhereInput[]
+  id?: Prisma.StringFilter<"cartitem"> | string
+  cartId?: Prisma.StringFilter<"cartitem"> | string
+  quantity?: Prisma.IntFilter<"cartitem"> | number
+  unitPrice?: Prisma.DecimalFilter<"cartitem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Prisma.DateTimeFilter<"cartitem"> | Date | string
+  brandName?: Prisma.StringNullableFilter<"cartitem"> | string | null
+  currency?: Prisma.StringFilter<"cartitem"> | string
+  lineTotal?: Prisma.DecimalFilter<"cartitem"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  productId?: Prisma.StringNullableFilter<"cartitem"> | string | null
+  productImage?: Prisma.StringNullableFilter<"cartitem"> | string | null
+  productName?: Prisma.StringFilter<"cartitem"> | string
+  productSku?: Prisma.StringFilter<"cartitem"> | string
+  productSlug?: Prisma.StringFilter<"cartitem"> | string
+  quantityLabel?: Prisma.StringNullableFilter<"cartitem"> | string | null
+  taxIncluded?: Prisma.BoolFilter<"cartitem"> | boolean
+  unitLabel?: Prisma.StringNullableFilter<"cartitem"> | string | null
 }
 
-export type CartItemCreateWithoutCartInput = {
-  id?: string
+export type cartitemCreateWithoutProductInput = {
+  id: string
+  quantity?: number
+  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Date | string
+  brandName?: string | null
+  currency?: string
+  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  productImage?: string | null
   productName: string
   productSku: string
   productSlug: string
-  productImage?: string | null
-  brandName?: string | null
-  unitLabel?: string | null
   quantityLabel?: string | null
-  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: string
   taxIncluded?: boolean
-  quantity?: number
-  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Date | string
-  product?: Prisma.ProductCreateNestedOneWithoutCartItemInput
+  unitLabel?: string | null
+  cart: Prisma.cartCreateNestedOneWithoutCartitemInput
 }
 
-export type CartItemUncheckedCreateWithoutCartInput = {
-  id?: string
-  productId?: string | null
+export type cartitemUncheckedCreateWithoutProductInput = {
+  id: string
+  cartId: string
+  quantity?: number
+  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Date | string
+  brandName?: string | null
+  currency?: string
+  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  productImage?: string | null
   productName: string
   productSku: string
   productSlug: string
-  productImage?: string | null
-  brandName?: string | null
-  unitLabel?: string | null
   quantityLabel?: string | null
-  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: string
   taxIncluded?: boolean
-  quantity?: number
-  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Date | string
+  unitLabel?: string | null
 }
 
-export type CartItemCreateOrConnectWithoutCartInput = {
-  where: Prisma.CartItemWhereUniqueInput
-  create: Prisma.XOR<Prisma.CartItemCreateWithoutCartInput, Prisma.CartItemUncheckedCreateWithoutCartInput>
+export type cartitemCreateOrConnectWithoutProductInput = {
+  where: Prisma.cartitemWhereUniqueInput
+  create: Prisma.XOR<Prisma.cartitemCreateWithoutProductInput, Prisma.cartitemUncheckedCreateWithoutProductInput>
 }
 
-export type CartItemCreateManyCartInputEnvelope = {
-  data: Prisma.CartItemCreateManyCartInput | Prisma.CartItemCreateManyCartInput[]
+export type cartitemCreateManyProductInputEnvelope = {
+  data: Prisma.cartitemCreateManyProductInput | Prisma.cartitemCreateManyProductInput[]
   skipDuplicates?: boolean
 }
 
-export type CartItemUpsertWithWhereUniqueWithoutCartInput = {
-  where: Prisma.CartItemWhereUniqueInput
-  update: Prisma.XOR<Prisma.CartItemUpdateWithoutCartInput, Prisma.CartItemUncheckedUpdateWithoutCartInput>
-  create: Prisma.XOR<Prisma.CartItemCreateWithoutCartInput, Prisma.CartItemUncheckedCreateWithoutCartInput>
+export type cartitemUpsertWithWhereUniqueWithoutProductInput = {
+  where: Prisma.cartitemWhereUniqueInput
+  update: Prisma.XOR<Prisma.cartitemUpdateWithoutProductInput, Prisma.cartitemUncheckedUpdateWithoutProductInput>
+  create: Prisma.XOR<Prisma.cartitemCreateWithoutProductInput, Prisma.cartitemUncheckedCreateWithoutProductInput>
 }
 
-export type CartItemUpdateWithWhereUniqueWithoutCartInput = {
-  where: Prisma.CartItemWhereUniqueInput
-  data: Prisma.XOR<Prisma.CartItemUpdateWithoutCartInput, Prisma.CartItemUncheckedUpdateWithoutCartInput>
+export type cartitemUpdateWithWhereUniqueWithoutProductInput = {
+  where: Prisma.cartitemWhereUniqueInput
+  data: Prisma.XOR<Prisma.cartitemUpdateWithoutProductInput, Prisma.cartitemUncheckedUpdateWithoutProductInput>
 }
 
-export type CartItemUpdateManyWithWhereWithoutCartInput = {
-  where: Prisma.CartItemScalarWhereInput
-  data: Prisma.XOR<Prisma.CartItemUpdateManyMutationInput, Prisma.CartItemUncheckedUpdateManyWithoutCartInput>
+export type cartitemUpdateManyWithWhereWithoutProductInput = {
+  where: Prisma.cartitemScalarWhereInput
+  data: Prisma.XOR<Prisma.cartitemUpdateManyMutationInput, Prisma.cartitemUncheckedUpdateManyWithoutProductInput>
 }
 
-export type CartItemCreateManyProductInput = {
-  id?: string
-  cartId: string
-  productName: string
-  productSku: string
-  productSlug: string
-  productImage?: string | null
-  brandName?: string | null
-  unitLabel?: string | null
-  quantityLabel?: string | null
-  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: string
-  taxIncluded?: boolean
+export type cartitemCreateManyCartInput = {
+  id: string
   quantity?: number
-  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   addedAt?: Date | string
-}
-
-export type CartItemUpdateWithoutProductInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  productName?: Prisma.StringFieldUpdateOperationsInput | string
-  productSku?: Prisma.StringFieldUpdateOperationsInput | string
-  productSlug?: Prisma.StringFieldUpdateOperationsInput | string
-  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantityLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
-  taxIncluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  cart?: Prisma.CartUpdateOneRequiredWithoutItemsNestedInput
-}
-
-export type CartItemUncheckedUpdateWithoutProductInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  cartId?: Prisma.StringFieldUpdateOperationsInput | string
-  productName?: Prisma.StringFieldUpdateOperationsInput | string
-  productSku?: Prisma.StringFieldUpdateOperationsInput | string
-  productSlug?: Prisma.StringFieldUpdateOperationsInput | string
-  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantityLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
-  taxIncluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type CartItemUncheckedUpdateManyWithoutProductInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  cartId?: Prisma.StringFieldUpdateOperationsInput | string
-  productName?: Prisma.StringFieldUpdateOperationsInput | string
-  productSku?: Prisma.StringFieldUpdateOperationsInput | string
-  productSlug?: Prisma.StringFieldUpdateOperationsInput | string
-  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  quantityLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
-  taxIncluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type CartItemCreateManyCartInput = {
-  id?: string
+  brandName?: string | null
+  currency?: string
+  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
   productId?: string | null
+  productImage?: string | null
   productName: string
   productSku: string
   productSlug: string
-  productImage?: string | null
-  brandName?: string | null
-  unitLabel?: string | null
   quantityLabel?: string | null
-  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: string
   taxIncluded?: boolean
+  unitLabel?: string | null
+}
+
+export type cartitemUpdateWithoutCartInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productName?: Prisma.StringFieldUpdateOperationsInput | string
+  productSku?: Prisma.StringFieldUpdateOperationsInput | string
+  productSlug?: Prisma.StringFieldUpdateOperationsInput | string
+  quantityLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxIncluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  product?: Prisma.productUpdateOneWithoutCartitemNestedInput
+}
+
+export type cartitemUncheckedUpdateWithoutCartInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productName?: Prisma.StringFieldUpdateOperationsInput | string
+  productSku?: Prisma.StringFieldUpdateOperationsInput | string
+  productSlug?: Prisma.StringFieldUpdateOperationsInput | string
+  quantityLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxIncluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type cartitemUncheckedUpdateManyWithoutCartInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  productName?: Prisma.StringFieldUpdateOperationsInput | string
+  productSku?: Prisma.StringFieldUpdateOperationsInput | string
+  productSlug?: Prisma.StringFieldUpdateOperationsInput | string
+  quantityLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxIncluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type cartitemCreateManyProductInput = {
+  id: string
+  cartId: string
   quantity?: number
-  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  unitPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   addedAt?: Date | string
+  brandName?: string | null
+  currency?: string
+  lineTotal: runtime.Decimal | runtime.DecimalJsLike | number | string
+  productImage?: string | null
+  productName: string
+  productSku: string
+  productSlug: string
+  quantityLabel?: string | null
+  taxIncluded?: boolean
+  unitLabel?: string | null
 }
 
-export type CartItemUpdateWithoutCartInput = {
+export type cartitemUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productName?: Prisma.StringFieldUpdateOperationsInput | string
   productSku?: Prisma.StringFieldUpdateOperationsInput | string
   productSlug?: Prisma.StringFieldUpdateOperationsInput | string
-  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantityLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
   taxIncluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  product?: Prisma.ProductUpdateOneWithoutCartItemNestedInput
+  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cart?: Prisma.cartUpdateOneRequiredWithoutCartitemNestedInput
 }
 
-export type CartItemUncheckedUpdateWithoutCartInput = {
+export type cartitemUncheckedUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cartId?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productName?: Prisma.StringFieldUpdateOperationsInput | string
   productSku?: Prisma.StringFieldUpdateOperationsInput | string
   productSlug?: Prisma.StringFieldUpdateOperationsInput | string
-  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantityLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
   taxIncluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
-export type CartItemUncheckedUpdateManyWithoutCartInput = {
+export type cartitemUncheckedUpdateManyWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  productId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cartId?: Prisma.StringFieldUpdateOperationsInput | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   productName?: Prisma.StringFieldUpdateOperationsInput | string
   productSku?: Prisma.StringFieldUpdateOperationsInput | string
   productSlug?: Prisma.StringFieldUpdateOperationsInput | string
-  productImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  brandName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   quantityLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unitPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  currency?: Prisma.StringFieldUpdateOperationsInput | string
   taxIncluded?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  lineTotal?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  addedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  unitLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
 
-export type CartItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+export type cartitemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   cartId?: boolean
+  quantity?: boolean
+  unitPrice?: boolean
+  addedAt?: boolean
+  brandName?: boolean
+  currency?: boolean
+  lineTotal?: boolean
   productId?: boolean
+  productImage?: boolean
   productName?: boolean
   productSku?: boolean
   productSlug?: boolean
-  productImage?: boolean
-  brandName?: boolean
-  unitLabel?: boolean
   quantityLabel?: boolean
-  unitPrice?: boolean
-  currency?: boolean
   taxIncluded?: boolean
-  quantity?: boolean
-  lineTotal?: boolean
-  addedAt?: boolean
-  cart?: boolean | Prisma.CartDefaultArgs<ExtArgs>
-  product?: boolean | Prisma.CartItem$productArgs<ExtArgs>
-}, ExtArgs["result"]["cartItem"]>
+  unitLabel?: boolean
+  cart?: boolean | Prisma.cartDefaultArgs<ExtArgs>
+  product?: boolean | Prisma.cartitem$productArgs<ExtArgs>
+}, ExtArgs["result"]["cartitem"]>
 
 
 
-export type CartItemSelectScalar = {
+export type cartitemSelectScalar = {
   id?: boolean
   cartId?: boolean
+  quantity?: boolean
+  unitPrice?: boolean
+  addedAt?: boolean
+  brandName?: boolean
+  currency?: boolean
+  lineTotal?: boolean
   productId?: boolean
+  productImage?: boolean
   productName?: boolean
   productSku?: boolean
   productSlug?: boolean
-  productImage?: boolean
-  brandName?: boolean
-  unitLabel?: boolean
   quantityLabel?: boolean
-  unitPrice?: boolean
-  currency?: boolean
   taxIncluded?: boolean
-  quantity?: boolean
-  lineTotal?: boolean
-  addedAt?: boolean
+  unitLabel?: boolean
 }
 
-export type CartItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cartId" | "productId" | "productName" | "productSku" | "productSlug" | "productImage" | "brandName" | "unitLabel" | "quantityLabel" | "unitPrice" | "currency" | "taxIncluded" | "quantity" | "lineTotal" | "addedAt", ExtArgs["result"]["cartItem"]>
-export type CartItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  cart?: boolean | Prisma.CartDefaultArgs<ExtArgs>
-  product?: boolean | Prisma.CartItem$productArgs<ExtArgs>
+export type cartitemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cartId" | "quantity" | "unitPrice" | "addedAt" | "brandName" | "currency" | "lineTotal" | "productId" | "productImage" | "productName" | "productSku" | "productSlug" | "quantityLabel" | "taxIncluded" | "unitLabel", ExtArgs["result"]["cartitem"]>
+export type cartitemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  cart?: boolean | Prisma.cartDefaultArgs<ExtArgs>
+  product?: boolean | Prisma.cartitem$productArgs<ExtArgs>
 }
 
-export type $CartItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  name: "CartItem"
+export type $cartitemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  name: "cartitem"
   objects: {
-    cart: Prisma.$CartPayload<ExtArgs>
-    product: Prisma.$ProductPayload<ExtArgs> | null
+    cart: Prisma.$cartPayload<ExtArgs>
+    product: Prisma.$productPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     cartId: string
+    quantity: number
+    unitPrice: runtime.Decimal
+    addedAt: Date
+    brandName: string | null
+    currency: string
+    lineTotal: runtime.Decimal
     productId: string | null
+    productImage: string | null
     productName: string
     productSku: string
     productSlug: string
-    productImage: string | null
-    brandName: string | null
-    unitLabel: string | null
     quantityLabel: string | null
-    unitPrice: runtime.Decimal
-    currency: string
     taxIncluded: boolean
-    quantity: number
-    lineTotal: runtime.Decimal
-    addedAt: Date
-  }, ExtArgs["result"]["cartItem"]>
+    unitLabel: string | null
+  }, ExtArgs["result"]["cartitem"]>
   composites: {}
 }
 
-export type CartItemGetPayload<S extends boolean | null | undefined | CartItemDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$CartItemPayload, S>
+export type cartitemGetPayload<S extends boolean | null | undefined | cartitemDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$cartitemPayload, S>
 
-export type CartItemCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<CartItemFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-    select?: CartItemCountAggregateInputType | true
+export type cartitemCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
+  Omit<cartitemFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+    select?: CartitemCountAggregateInputType | true
   }
 
-export interface CartItemDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CartItem'], meta: { name: 'CartItem' } }
+export interface cartitemDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['cartitem'], meta: { name: 'cartitem' } }
   /**
-   * Find zero or one CartItem that matches the filter.
-   * @param {CartItemFindUniqueArgs} args - Arguments to find a CartItem
+   * Find zero or one Cartitem that matches the filter.
+   * @param {cartitemFindUniqueArgs} args - Arguments to find a Cartitem
    * @example
-   * // Get one CartItem
-   * const cartItem = await prisma.cartItem.findUnique({
+   * // Get one Cartitem
+   * const cartitem = await prisma.cartitem.findUnique({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUnique<T extends CartItemFindUniqueArgs>(args: Prisma.SelectSubset<T, CartItemFindUniqueArgs<ExtArgs>>): Prisma.Prisma__CartItemClient<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findUnique<T extends cartitemFindUniqueArgs>(args: Prisma.SelectSubset<T, cartitemFindUniqueArgs<ExtArgs>>): Prisma.Prisma__cartitemClient<runtime.Types.Result.GetResult<Prisma.$cartitemPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find one CartItem that matches the filter or throw an error with `error.code='P2025'`
+   * Find one Cartitem that matches the filter or throw an error with `error.code='P2025'`
    * if no matches were found.
-   * @param {CartItemFindUniqueOrThrowArgs} args - Arguments to find a CartItem
+   * @param {cartitemFindUniqueOrThrowArgs} args - Arguments to find a Cartitem
    * @example
-   * // Get one CartItem
-   * const cartItem = await prisma.cartItem.findUniqueOrThrow({
+   * // Get one Cartitem
+   * const cartitem = await prisma.cartitem.findUniqueOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUniqueOrThrow<T extends CartItemFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, CartItemFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__CartItemClient<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findUniqueOrThrow<T extends cartitemFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, cartitemFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__cartitemClient<runtime.Types.Result.GetResult<Prisma.$cartitemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first CartItem that matches the filter.
+   * Find the first Cartitem that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {CartItemFindFirstArgs} args - Arguments to find a CartItem
+   * @param {cartitemFindFirstArgs} args - Arguments to find a Cartitem
    * @example
-   * // Get one CartItem
-   * const cartItem = await prisma.cartItem.findFirst({
+   * // Get one Cartitem
+   * const cartitem = await prisma.cartitem.findFirst({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirst<T extends CartItemFindFirstArgs>(args?: Prisma.SelectSubset<T, CartItemFindFirstArgs<ExtArgs>>): Prisma.Prisma__CartItemClient<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findFirst<T extends cartitemFindFirstArgs>(args?: Prisma.SelectSubset<T, cartitemFindFirstArgs<ExtArgs>>): Prisma.Prisma__cartitemClient<runtime.Types.Result.GetResult<Prisma.$cartitemPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first CartItem that matches the filter or
+   * Find the first Cartitem that matches the filter or
    * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {CartItemFindFirstOrThrowArgs} args - Arguments to find a CartItem
+   * @param {cartitemFindFirstOrThrowArgs} args - Arguments to find a Cartitem
    * @example
-   * // Get one CartItem
-   * const cartItem = await prisma.cartItem.findFirstOrThrow({
+   * // Get one Cartitem
+   * const cartitem = await prisma.cartitem.findFirstOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirstOrThrow<T extends CartItemFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, CartItemFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__CartItemClient<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findFirstOrThrow<T extends cartitemFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, cartitemFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__cartitemClient<runtime.Types.Result.GetResult<Prisma.$cartitemPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find zero or more CartItems that matches the filter.
+   * Find zero or more Cartitems that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {CartItemFindManyArgs} args - Arguments to filter and select certain fields only.
+   * @param {cartitemFindManyArgs} args - Arguments to filter and select certain fields only.
    * @example
-   * // Get all CartItems
-   * const cartItems = await prisma.cartItem.findMany()
+   * // Get all Cartitems
+   * const cartitems = await prisma.cartitem.findMany()
    * 
-   * // Get first 10 CartItems
-   * const cartItems = await prisma.cartItem.findMany({ take: 10 })
+   * // Get first 10 Cartitems
+   * const cartitems = await prisma.cartitem.findMany({ take: 10 })
    * 
    * // Only select the `id`
-   * const cartItemWithIdOnly = await prisma.cartItem.findMany({ select: { id: true } })
+   * const cartitemWithIdOnly = await prisma.cartitem.findMany({ select: { id: true } })
    * 
    */
-  findMany<T extends CartItemFindManyArgs>(args?: Prisma.SelectSubset<T, CartItemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+  findMany<T extends cartitemFindManyArgs>(args?: Prisma.SelectSubset<T, cartitemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$cartitemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
   /**
-   * Create a CartItem.
-   * @param {CartItemCreateArgs} args - Arguments to create a CartItem.
+   * Create a Cartitem.
+   * @param {cartitemCreateArgs} args - Arguments to create a Cartitem.
    * @example
-   * // Create one CartItem
-   * const CartItem = await prisma.cartItem.create({
+   * // Create one Cartitem
+   * const Cartitem = await prisma.cartitem.create({
    *   data: {
-   *     // ... data to create a CartItem
+   *     // ... data to create a Cartitem
    *   }
    * })
    * 
    */
-  create<T extends CartItemCreateArgs>(args: Prisma.SelectSubset<T, CartItemCreateArgs<ExtArgs>>): Prisma.Prisma__CartItemClient<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  create<T extends cartitemCreateArgs>(args: Prisma.SelectSubset<T, cartitemCreateArgs<ExtArgs>>): Prisma.Prisma__cartitemClient<runtime.Types.Result.GetResult<Prisma.$cartitemPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Create many CartItems.
-   * @param {CartItemCreateManyArgs} args - Arguments to create many CartItems.
+   * Create many Cartitems.
+   * @param {cartitemCreateManyArgs} args - Arguments to create many Cartitems.
    * @example
-   * // Create many CartItems
-   * const cartItem = await prisma.cartItem.createMany({
+   * // Create many Cartitems
+   * const cartitem = await prisma.cartitem.createMany({
    *   data: [
    *     // ... provide data here
    *   ]
    * })
    *     
    */
-  createMany<T extends CartItemCreateManyArgs>(args?: Prisma.SelectSubset<T, CartItemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  createMany<T extends cartitemCreateManyArgs>(args?: Prisma.SelectSubset<T, cartitemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Delete a CartItem.
-   * @param {CartItemDeleteArgs} args - Arguments to delete one CartItem.
+   * Delete a Cartitem.
+   * @param {cartitemDeleteArgs} args - Arguments to delete one Cartitem.
    * @example
-   * // Delete one CartItem
-   * const CartItem = await prisma.cartItem.delete({
+   * // Delete one Cartitem
+   * const Cartitem = await prisma.cartitem.delete({
    *   where: {
-   *     // ... filter to delete one CartItem
+   *     // ... filter to delete one Cartitem
    *   }
    * })
    * 
    */
-  delete<T extends CartItemDeleteArgs>(args: Prisma.SelectSubset<T, CartItemDeleteArgs<ExtArgs>>): Prisma.Prisma__CartItemClient<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  delete<T extends cartitemDeleteArgs>(args: Prisma.SelectSubset<T, cartitemDeleteArgs<ExtArgs>>): Prisma.Prisma__cartitemClient<runtime.Types.Result.GetResult<Prisma.$cartitemPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Update one CartItem.
-   * @param {CartItemUpdateArgs} args - Arguments to update one CartItem.
+   * Update one Cartitem.
+   * @param {cartitemUpdateArgs} args - Arguments to update one Cartitem.
    * @example
-   * // Update one CartItem
-   * const cartItem = await prisma.cartItem.update({
+   * // Update one Cartitem
+   * const cartitem = await prisma.cartitem.update({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1216,30 +1220,30 @@ export interface CartItemDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * })
    * 
    */
-  update<T extends CartItemUpdateArgs>(args: Prisma.SelectSubset<T, CartItemUpdateArgs<ExtArgs>>): Prisma.Prisma__CartItemClient<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  update<T extends cartitemUpdateArgs>(args: Prisma.SelectSubset<T, cartitemUpdateArgs<ExtArgs>>): Prisma.Prisma__cartitemClient<runtime.Types.Result.GetResult<Prisma.$cartitemPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Delete zero or more CartItems.
-   * @param {CartItemDeleteManyArgs} args - Arguments to filter CartItems to delete.
+   * Delete zero or more Cartitems.
+   * @param {cartitemDeleteManyArgs} args - Arguments to filter Cartitems to delete.
    * @example
-   * // Delete a few CartItems
-   * const { count } = await prisma.cartItem.deleteMany({
+   * // Delete a few Cartitems
+   * const { count } = await prisma.cartitem.deleteMany({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    * 
    */
-  deleteMany<T extends CartItemDeleteManyArgs>(args?: Prisma.SelectSubset<T, CartItemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  deleteMany<T extends cartitemDeleteManyArgs>(args?: Prisma.SelectSubset<T, cartitemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Update zero or more CartItems.
+   * Update zero or more Cartitems.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {CartItemUpdateManyArgs} args - Arguments to update one or more rows.
+   * @param {cartitemUpdateManyArgs} args - Arguments to update one or more rows.
    * @example
-   * // Update many CartItems
-   * const cartItem = await prisma.cartItem.updateMany({
+   * // Update many Cartitems
+   * const cartitem = await prisma.cartitem.updateMany({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1249,56 +1253,56 @@ export interface CartItemDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * })
    * 
    */
-  updateMany<T extends CartItemUpdateManyArgs>(args: Prisma.SelectSubset<T, CartItemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  updateMany<T extends cartitemUpdateManyArgs>(args: Prisma.SelectSubset<T, cartitemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Create or update one CartItem.
-   * @param {CartItemUpsertArgs} args - Arguments to update or create a CartItem.
+   * Create or update one Cartitem.
+   * @param {cartitemUpsertArgs} args - Arguments to update or create a Cartitem.
    * @example
-   * // Update or create a CartItem
-   * const cartItem = await prisma.cartItem.upsert({
+   * // Update or create a Cartitem
+   * const cartitem = await prisma.cartitem.upsert({
    *   create: {
-   *     // ... data to create a CartItem
+   *     // ... data to create a Cartitem
    *   },
    *   update: {
    *     // ... in case it already exists, update
    *   },
    *   where: {
-   *     // ... the filter for the CartItem we want to update
+   *     // ... the filter for the Cartitem we want to update
    *   }
    * })
    */
-  upsert<T extends CartItemUpsertArgs>(args: Prisma.SelectSubset<T, CartItemUpsertArgs<ExtArgs>>): Prisma.Prisma__CartItemClient<runtime.Types.Result.GetResult<Prisma.$CartItemPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  upsert<T extends cartitemUpsertArgs>(args: Prisma.SelectSubset<T, cartitemUpsertArgs<ExtArgs>>): Prisma.Prisma__cartitemClient<runtime.Types.Result.GetResult<Prisma.$cartitemPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
   /**
-   * Count the number of CartItems.
+   * Count the number of Cartitems.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {CartItemCountArgs} args - Arguments to filter CartItems to count.
+   * @param {cartitemCountArgs} args - Arguments to filter Cartitems to count.
    * @example
-   * // Count the number of CartItems
-   * const count = await prisma.cartItem.count({
+   * // Count the number of Cartitems
+   * const count = await prisma.cartitem.count({
    *   where: {
-   *     // ... the filter for the CartItems we want to count
+   *     // ... the filter for the Cartitems we want to count
    *   }
    * })
   **/
-  count<T extends CartItemCountArgs>(
-    args?: Prisma.Subset<T, CartItemCountArgs>,
+  count<T extends cartitemCountArgs>(
+    args?: Prisma.Subset<T, cartitemCountArgs>,
   ): Prisma.PrismaPromise<
     T extends runtime.Types.Utils.Record<'select', any>
       ? T['select'] extends true
         ? number
-        : Prisma.GetScalarType<T['select'], CartItemCountAggregateOutputType>
+        : Prisma.GetScalarType<T['select'], CartitemCountAggregateOutputType>
       : number
   >
 
   /**
-   * Allows you to perform aggregations operations on a CartItem.
+   * Allows you to perform aggregations operations on a Cartitem.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {CartItemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+   * @param {CartitemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
    * @example
    * // Ordered by age ascending
    * // Where email contains prisma.io
@@ -1318,13 +1322,13 @@ export interface CartItemDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    *   take: 10,
    * })
   **/
-  aggregate<T extends CartItemAggregateArgs>(args: Prisma.Subset<T, CartItemAggregateArgs>): Prisma.PrismaPromise<GetCartItemAggregateType<T>>
+  aggregate<T extends CartitemAggregateArgs>(args: Prisma.Subset<T, CartitemAggregateArgs>): Prisma.PrismaPromise<GetCartitemAggregateType<T>>
 
   /**
-   * Group by CartItem.
+   * Group by Cartitem.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {CartItemGroupByArgs} args - Group by arguments.
+   * @param {cartitemGroupByArgs} args - Group by arguments.
    * @example
    * // Group by city, order by createdAt, get count
    * const result = await prisma.user.groupBy({
@@ -1339,14 +1343,14 @@ export interface CartItemDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * 
   **/
   groupBy<
-    T extends CartItemGroupByArgs,
+    T extends cartitemGroupByArgs,
     HasSelectOrTake extends Prisma.Or<
       Prisma.Extends<'skip', Prisma.Keys<T>>,
       Prisma.Extends<'take', Prisma.Keys<T>>
     >,
     OrderByArg extends Prisma.True extends HasSelectOrTake
-      ? { orderBy: CartItemGroupByArgs['orderBy'] }
-      : { orderBy?: CartItemGroupByArgs['orderBy'] },
+      ? { orderBy: cartitemGroupByArgs['orderBy'] }
+      : { orderBy?: cartitemGroupByArgs['orderBy'] },
     OrderFields extends Prisma.ExcludeUnderscoreKeys<Prisma.Keys<Prisma.MaybeTupleToUnion<T['orderBy']>>>,
     ByFields extends Prisma.MaybeTupleToUnion<T['by']>,
     ByValid extends Prisma.Has<ByFields, OrderFields>,
@@ -1395,23 +1399,23 @@ export interface CartItemDelegate<ExtArgs extends runtime.Types.Extensions.Inter
           ? never
           : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
       }[OrderFields]
-  >(args: Prisma.SubsetIntersection<T, CartItemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCartItemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  >(args: Prisma.SubsetIntersection<T, cartitemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCartitemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
 /**
- * Fields of the CartItem model
+ * Fields of the cartitem model
  */
-readonly fields: CartItemFieldRefs;
+readonly fields: cartitemFieldRefs;
 }
 
 /**
- * The delegate class that acts as a "Promise-like" for CartItem.
+ * The delegate class that acts as a "Promise-like" for cartitem.
  * Why is this prefixed with `Prisma__`?
  * Because we want to prevent naming conflicts as mentioned in
  * https://github.com/prisma/prisma-client-js/issues/707
  */
-export interface Prisma__CartItemClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+export interface Prisma__cartitemClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  cart<T extends Prisma.CartDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CartDefaultArgs<ExtArgs>>): Prisma.Prisma__CartClient<runtime.Types.Result.GetResult<Prisma.$CartPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  product<T extends Prisma.CartItem$productArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CartItem$productArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  cart<T extends Prisma.cartDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.cartDefaultArgs<ExtArgs>>): Prisma.Prisma__cartClient<runtime.Types.Result.GetResult<Prisma.$cartPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  product<T extends Prisma.cartitem$productArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.cartitem$productArgs<ExtArgs>>): Prisma.Prisma__productClient<runtime.Types.Result.GetResult<Prisma.$productPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1438,400 +1442,400 @@ export interface Prisma__CartItemClient<T, Null = never, ExtArgs extends runtime
 
 
 /**
- * Fields of the CartItem model
+ * Fields of the cartitem model
  */
-export interface CartItemFieldRefs {
-  readonly id: Prisma.FieldRef<"CartItem", 'String'>
-  readonly cartId: Prisma.FieldRef<"CartItem", 'String'>
-  readonly productId: Prisma.FieldRef<"CartItem", 'String'>
-  readonly productName: Prisma.FieldRef<"CartItem", 'String'>
-  readonly productSku: Prisma.FieldRef<"CartItem", 'String'>
-  readonly productSlug: Prisma.FieldRef<"CartItem", 'String'>
-  readonly productImage: Prisma.FieldRef<"CartItem", 'String'>
-  readonly brandName: Prisma.FieldRef<"CartItem", 'String'>
-  readonly unitLabel: Prisma.FieldRef<"CartItem", 'String'>
-  readonly quantityLabel: Prisma.FieldRef<"CartItem", 'String'>
-  readonly unitPrice: Prisma.FieldRef<"CartItem", 'Decimal'>
-  readonly currency: Prisma.FieldRef<"CartItem", 'String'>
-  readonly taxIncluded: Prisma.FieldRef<"CartItem", 'Boolean'>
-  readonly quantity: Prisma.FieldRef<"CartItem", 'Int'>
-  readonly lineTotal: Prisma.FieldRef<"CartItem", 'Decimal'>
-  readonly addedAt: Prisma.FieldRef<"CartItem", 'DateTime'>
+export interface cartitemFieldRefs {
+  readonly id: Prisma.FieldRef<"cartitem", 'String'>
+  readonly cartId: Prisma.FieldRef<"cartitem", 'String'>
+  readonly quantity: Prisma.FieldRef<"cartitem", 'Int'>
+  readonly unitPrice: Prisma.FieldRef<"cartitem", 'Decimal'>
+  readonly addedAt: Prisma.FieldRef<"cartitem", 'DateTime'>
+  readonly brandName: Prisma.FieldRef<"cartitem", 'String'>
+  readonly currency: Prisma.FieldRef<"cartitem", 'String'>
+  readonly lineTotal: Prisma.FieldRef<"cartitem", 'Decimal'>
+  readonly productId: Prisma.FieldRef<"cartitem", 'String'>
+  readonly productImage: Prisma.FieldRef<"cartitem", 'String'>
+  readonly productName: Prisma.FieldRef<"cartitem", 'String'>
+  readonly productSku: Prisma.FieldRef<"cartitem", 'String'>
+  readonly productSlug: Prisma.FieldRef<"cartitem", 'String'>
+  readonly quantityLabel: Prisma.FieldRef<"cartitem", 'String'>
+  readonly taxIncluded: Prisma.FieldRef<"cartitem", 'Boolean'>
+  readonly unitLabel: Prisma.FieldRef<"cartitem", 'String'>
 }
     
 
 // Custom InputTypes
 /**
- * CartItem findUnique
+ * cartitem findUnique
  */
-export type CartItemFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type cartitemFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the CartItem
+   * Select specific fields to fetch from the cartitem
    */
-  select?: Prisma.CartItemSelect<ExtArgs> | null
+  select?: Prisma.cartitemSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the CartItem
+   * Omit specific fields from the cartitem
    */
-  omit?: Prisma.CartItemOmit<ExtArgs> | null
+  omit?: Prisma.cartitemOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CartItemInclude<ExtArgs> | null
+  include?: Prisma.cartitemInclude<ExtArgs> | null
   /**
-   * Filter, which CartItem to fetch.
+   * Filter, which cartitem to fetch.
    */
-  where: Prisma.CartItemWhereUniqueInput
+  where: Prisma.cartitemWhereUniqueInput
 }
 
 /**
- * CartItem findUniqueOrThrow
+ * cartitem findUniqueOrThrow
  */
-export type CartItemFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type cartitemFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the CartItem
+   * Select specific fields to fetch from the cartitem
    */
-  select?: Prisma.CartItemSelect<ExtArgs> | null
+  select?: Prisma.cartitemSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the CartItem
+   * Omit specific fields from the cartitem
    */
-  omit?: Prisma.CartItemOmit<ExtArgs> | null
+  omit?: Prisma.cartitemOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CartItemInclude<ExtArgs> | null
+  include?: Prisma.cartitemInclude<ExtArgs> | null
   /**
-   * Filter, which CartItem to fetch.
+   * Filter, which cartitem to fetch.
    */
-  where: Prisma.CartItemWhereUniqueInput
+  where: Prisma.cartitemWhereUniqueInput
 }
 
 /**
- * CartItem findFirst
+ * cartitem findFirst
  */
-export type CartItemFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type cartitemFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the CartItem
+   * Select specific fields to fetch from the cartitem
    */
-  select?: Prisma.CartItemSelect<ExtArgs> | null
+  select?: Prisma.cartitemSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the CartItem
+   * Omit specific fields from the cartitem
    */
-  omit?: Prisma.CartItemOmit<ExtArgs> | null
+  omit?: Prisma.cartitemOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CartItemInclude<ExtArgs> | null
+  include?: Prisma.cartitemInclude<ExtArgs> | null
   /**
-   * Filter, which CartItem to fetch.
+   * Filter, which cartitem to fetch.
    */
-  where?: Prisma.CartItemWhereInput
+  where?: Prisma.cartitemWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of CartItems to fetch.
+   * Determine the order of cartitems to fetch.
    */
-  orderBy?: Prisma.CartItemOrderByWithRelationInput | Prisma.CartItemOrderByWithRelationInput[]
+  orderBy?: Prisma.cartitemOrderByWithRelationInput | Prisma.cartitemOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for CartItems.
+   * Sets the position for searching for cartitems.
    */
-  cursor?: Prisma.CartItemWhereUniqueInput
+  cursor?: Prisma.cartitemWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` CartItems from the position of the cursor.
+   * Take `±n` cartitems from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` CartItems.
+   * Skip the first `n` cartitems.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of CartItems.
+   * Filter by unique combinations of cartitems.
    */
-  distinct?: Prisma.CartItemScalarFieldEnum | Prisma.CartItemScalarFieldEnum[]
+  distinct?: Prisma.CartitemScalarFieldEnum | Prisma.CartitemScalarFieldEnum[]
 }
 
 /**
- * CartItem findFirstOrThrow
+ * cartitem findFirstOrThrow
  */
-export type CartItemFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type cartitemFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the CartItem
+   * Select specific fields to fetch from the cartitem
    */
-  select?: Prisma.CartItemSelect<ExtArgs> | null
+  select?: Prisma.cartitemSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the CartItem
+   * Omit specific fields from the cartitem
    */
-  omit?: Prisma.CartItemOmit<ExtArgs> | null
+  omit?: Prisma.cartitemOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CartItemInclude<ExtArgs> | null
+  include?: Prisma.cartitemInclude<ExtArgs> | null
   /**
-   * Filter, which CartItem to fetch.
+   * Filter, which cartitem to fetch.
    */
-  where?: Prisma.CartItemWhereInput
+  where?: Prisma.cartitemWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of CartItems to fetch.
+   * Determine the order of cartitems to fetch.
    */
-  orderBy?: Prisma.CartItemOrderByWithRelationInput | Prisma.CartItemOrderByWithRelationInput[]
+  orderBy?: Prisma.cartitemOrderByWithRelationInput | Prisma.cartitemOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for CartItems.
+   * Sets the position for searching for cartitems.
    */
-  cursor?: Prisma.CartItemWhereUniqueInput
+  cursor?: Prisma.cartitemWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` CartItems from the position of the cursor.
+   * Take `±n` cartitems from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` CartItems.
+   * Skip the first `n` cartitems.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of CartItems.
+   * Filter by unique combinations of cartitems.
    */
-  distinct?: Prisma.CartItemScalarFieldEnum | Prisma.CartItemScalarFieldEnum[]
+  distinct?: Prisma.CartitemScalarFieldEnum | Prisma.CartitemScalarFieldEnum[]
 }
 
 /**
- * CartItem findMany
+ * cartitem findMany
  */
-export type CartItemFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type cartitemFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the CartItem
+   * Select specific fields to fetch from the cartitem
    */
-  select?: Prisma.CartItemSelect<ExtArgs> | null
+  select?: Prisma.cartitemSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the CartItem
+   * Omit specific fields from the cartitem
    */
-  omit?: Prisma.CartItemOmit<ExtArgs> | null
+  omit?: Prisma.cartitemOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CartItemInclude<ExtArgs> | null
+  include?: Prisma.cartitemInclude<ExtArgs> | null
   /**
-   * Filter, which CartItems to fetch.
+   * Filter, which cartitems to fetch.
    */
-  where?: Prisma.CartItemWhereInput
+  where?: Prisma.cartitemWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of CartItems to fetch.
+   * Determine the order of cartitems to fetch.
    */
-  orderBy?: Prisma.CartItemOrderByWithRelationInput | Prisma.CartItemOrderByWithRelationInput[]
+  orderBy?: Prisma.cartitemOrderByWithRelationInput | Prisma.cartitemOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for listing CartItems.
+   * Sets the position for listing cartitems.
    */
-  cursor?: Prisma.CartItemWhereUniqueInput
+  cursor?: Prisma.cartitemWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` CartItems from the position of the cursor.
+   * Take `±n` cartitems from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` CartItems.
+   * Skip the first `n` cartitems.
    */
   skip?: number
-  distinct?: Prisma.CartItemScalarFieldEnum | Prisma.CartItemScalarFieldEnum[]
+  distinct?: Prisma.CartitemScalarFieldEnum | Prisma.CartitemScalarFieldEnum[]
 }
 
 /**
- * CartItem create
+ * cartitem create
  */
-export type CartItemCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type cartitemCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the CartItem
+   * Select specific fields to fetch from the cartitem
    */
-  select?: Prisma.CartItemSelect<ExtArgs> | null
+  select?: Prisma.cartitemSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the CartItem
+   * Omit specific fields from the cartitem
    */
-  omit?: Prisma.CartItemOmit<ExtArgs> | null
+  omit?: Prisma.cartitemOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CartItemInclude<ExtArgs> | null
+  include?: Prisma.cartitemInclude<ExtArgs> | null
   /**
-   * The data needed to create a CartItem.
+   * The data needed to create a cartitem.
    */
-  data: Prisma.XOR<Prisma.CartItemCreateInput, Prisma.CartItemUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.cartitemCreateInput, Prisma.cartitemUncheckedCreateInput>
 }
 
 /**
- * CartItem createMany
+ * cartitem createMany
  */
-export type CartItemCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type cartitemCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to create many CartItems.
+   * The data used to create many cartitems.
    */
-  data: Prisma.CartItemCreateManyInput | Prisma.CartItemCreateManyInput[]
+  data: Prisma.cartitemCreateManyInput | Prisma.cartitemCreateManyInput[]
   skipDuplicates?: boolean
 }
 
 /**
- * CartItem update
+ * cartitem update
  */
-export type CartItemUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type cartitemUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the CartItem
+   * Select specific fields to fetch from the cartitem
    */
-  select?: Prisma.CartItemSelect<ExtArgs> | null
+  select?: Prisma.cartitemSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the CartItem
+   * Omit specific fields from the cartitem
    */
-  omit?: Prisma.CartItemOmit<ExtArgs> | null
+  omit?: Prisma.cartitemOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CartItemInclude<ExtArgs> | null
+  include?: Prisma.cartitemInclude<ExtArgs> | null
   /**
-   * The data needed to update a CartItem.
+   * The data needed to update a cartitem.
    */
-  data: Prisma.XOR<Prisma.CartItemUpdateInput, Prisma.CartItemUncheckedUpdateInput>
+  data: Prisma.XOR<Prisma.cartitemUpdateInput, Prisma.cartitemUncheckedUpdateInput>
   /**
-   * Choose, which CartItem to update.
+   * Choose, which cartitem to update.
    */
-  where: Prisma.CartItemWhereUniqueInput
+  where: Prisma.cartitemWhereUniqueInput
 }
 
 /**
- * CartItem updateMany
+ * cartitem updateMany
  */
-export type CartItemUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type cartitemUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to update CartItems.
+   * The data used to update cartitems.
    */
-  data: Prisma.XOR<Prisma.CartItemUpdateManyMutationInput, Prisma.CartItemUncheckedUpdateManyInput>
+  data: Prisma.XOR<Prisma.cartitemUpdateManyMutationInput, Prisma.cartitemUncheckedUpdateManyInput>
   /**
-   * Filter which CartItems to update
+   * Filter which cartitems to update
    */
-  where?: Prisma.CartItemWhereInput
+  where?: Prisma.cartitemWhereInput
   /**
-   * Limit how many CartItems to update.
+   * Limit how many cartitems to update.
    */
   limit?: number
 }
 
 /**
- * CartItem upsert
+ * cartitem upsert
  */
-export type CartItemUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type cartitemUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the CartItem
+   * Select specific fields to fetch from the cartitem
    */
-  select?: Prisma.CartItemSelect<ExtArgs> | null
+  select?: Prisma.cartitemSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the CartItem
+   * Omit specific fields from the cartitem
    */
-  omit?: Prisma.CartItemOmit<ExtArgs> | null
+  omit?: Prisma.cartitemOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CartItemInclude<ExtArgs> | null
+  include?: Prisma.cartitemInclude<ExtArgs> | null
   /**
-   * The filter to search for the CartItem to update in case it exists.
+   * The filter to search for the cartitem to update in case it exists.
    */
-  where: Prisma.CartItemWhereUniqueInput
+  where: Prisma.cartitemWhereUniqueInput
   /**
-   * In case the CartItem found by the `where` argument doesn't exist, create a new CartItem with this data.
+   * In case the cartitem found by the `where` argument doesn't exist, create a new cartitem with this data.
    */
-  create: Prisma.XOR<Prisma.CartItemCreateInput, Prisma.CartItemUncheckedCreateInput>
+  create: Prisma.XOR<Prisma.cartitemCreateInput, Prisma.cartitemUncheckedCreateInput>
   /**
-   * In case the CartItem was found with the provided `where` argument, update it with this data.
+   * In case the cartitem was found with the provided `where` argument, update it with this data.
    */
-  update: Prisma.XOR<Prisma.CartItemUpdateInput, Prisma.CartItemUncheckedUpdateInput>
+  update: Prisma.XOR<Prisma.cartitemUpdateInput, Prisma.cartitemUncheckedUpdateInput>
 }
 
 /**
- * CartItem delete
+ * cartitem delete
  */
-export type CartItemDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type cartitemDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the CartItem
+   * Select specific fields to fetch from the cartitem
    */
-  select?: Prisma.CartItemSelect<ExtArgs> | null
+  select?: Prisma.cartitemSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the CartItem
+   * Omit specific fields from the cartitem
    */
-  omit?: Prisma.CartItemOmit<ExtArgs> | null
+  omit?: Prisma.cartitemOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CartItemInclude<ExtArgs> | null
+  include?: Prisma.cartitemInclude<ExtArgs> | null
   /**
-   * Filter which CartItem to delete.
+   * Filter which cartitem to delete.
    */
-  where: Prisma.CartItemWhereUniqueInput
+  where: Prisma.cartitemWhereUniqueInput
 }
 
 /**
- * CartItem deleteMany
+ * cartitem deleteMany
  */
-export type CartItemDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type cartitemDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which CartItems to delete
+   * Filter which cartitems to delete
    */
-  where?: Prisma.CartItemWhereInput
+  where?: Prisma.cartitemWhereInput
   /**
-   * Limit how many CartItems to delete.
+   * Limit how many cartitems to delete.
    */
   limit?: number
 }
 
 /**
- * CartItem.product
+ * cartitem.product
  */
-export type CartItem$productArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type cartitem$productArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Product
+   * Select specific fields to fetch from the product
    */
-  select?: Prisma.ProductSelect<ExtArgs> | null
+  select?: Prisma.productSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Product
+   * Omit specific fields from the product
    */
-  omit?: Prisma.ProductOmit<ExtArgs> | null
+  omit?: Prisma.productOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ProductInclude<ExtArgs> | null
-  where?: Prisma.ProductWhereInput
+  include?: Prisma.productInclude<ExtArgs> | null
+  where?: Prisma.productWhereInput
 }
 
 /**
- * CartItem without action
+ * cartitem without action
  */
-export type CartItemDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type cartitemDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the CartItem
+   * Select specific fields to fetch from the cartitem
    */
-  select?: Prisma.CartItemSelect<ExtArgs> | null
+  select?: Prisma.cartitemSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the CartItem
+   * Omit specific fields from the cartitem
    */
-  omit?: Prisma.CartItemOmit<ExtArgs> | null
+  omit?: Prisma.cartitemOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.CartItemInclude<ExtArgs> | null
+  include?: Prisma.cartitemInclude<ExtArgs> | null
 }

@@ -319,7 +319,7 @@ export default function CartReviewPage() {
     setAppliedCode(code);
     promoRef.current = code;
     setErrors((e) => {
-      const { promo: _promo, ...rest } = e;
+      const { promo: _unusedPromoError, ...rest } = e;
       return rest;
     });
   };

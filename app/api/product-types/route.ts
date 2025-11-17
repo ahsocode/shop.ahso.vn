@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -11,8 +12,8 @@ export async function GET(req: Request) {
     const categorySlug = searchParams.get("category") ?? undefined;
     const q = searchParams.get("q") ?? undefined;
 
-    const where: Prisma.ProductTypeWhereInput = {};
-    if (categorySlug) where.category = { slug: categorySlug };
+    const where: Prisma.producttypeWhereInput = {};
+    if (categorySlug) where.productcategory = { slug: categorySlug };
     if (q) {
       where.OR = [
         { name: { contains: q } },
@@ -20,21 +21,22 @@ export async function GET(req: Request) {
       ];
     }
 
-    const items = await prisma.productType.findMany({
+    const items = await prisma.producttype.findMany({
       where,
       orderBy: [
-        { products: { _count: "desc" } },
+        { product: { _count: "desc" } },
         { name: "asc" },
       ],
       include: {
-        category: { select: { slug: true, name: true } },
-        _count: { select: { products: true } },
+        productcategory: { select: { slug: true, name: true } },
+        _count: { select: { product: true } },
       },
     });
 
-    const data = items.map(({ _count, ...rest }) => ({
+    const data = items.map(({ _count, productcategory, ...rest }) => ({
       ...rest,
-      productCount: _count.products,
+      category: productcategory,
+      productCount: _count.product,
     }));
 
     return NextResponse.json(
@@ -73,7 +75,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const cat = await prisma.productCategory.findUnique({ where: { slug: body.categorySlug } });
+    const cat = await prisma.productcategory.findUnique({ where: { slug: body.categorySlug } });
     if (!cat) {
       return NextResponse.json(
         { success: false, error: "categorySlug not found" },
@@ -83,13 +85,17 @@ export async function POST(req: Request) {
 
     const slug = body.slug ? String(body.slug) : slugify(body.name);
 
-    const created = await prisma.productType.create({
+    const now = new Date();
+    const created = await prisma.producttype.create({
       data: {
+        id: randomUUID(),
         slug,
         name: body.name,
         coverImage: body.coverImage ?? null,
         description: body.description ?? null,
         categoryId: cat.id,
+        createdAt: now,
+        updatedAt: now,
       },
     });
 

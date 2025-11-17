@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck 
 /*
- * This file exports the `SolutionImage` model and its related types.
+ * This file exports the `solutionimage` model and its related types.
  *
  * 🟢 You can import this file directly.
  */
@@ -12,28 +12,28 @@ import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
 /**
- * Model SolutionImage
+ * Model solutionimage
  * 
  */
-export type SolutionImageModel = runtime.Types.Result.DefaultSelection<Prisma.$SolutionImagePayload>
+export type solutionimageModel = runtime.Types.Result.DefaultSelection<Prisma.$solutionimagePayload>
 
-export type AggregateSolutionImage = {
-  _count: SolutionImageCountAggregateOutputType | null
-  _avg: SolutionImageAvgAggregateOutputType | null
-  _sum: SolutionImageSumAggregateOutputType | null
-  _min: SolutionImageMinAggregateOutputType | null
-  _max: SolutionImageMaxAggregateOutputType | null
+export type AggregateSolutionimage = {
+  _count: SolutionimageCountAggregateOutputType | null
+  _avg: SolutionimageAvgAggregateOutputType | null
+  _sum: SolutionimageSumAggregateOutputType | null
+  _min: SolutionimageMinAggregateOutputType | null
+  _max: SolutionimageMaxAggregateOutputType | null
 }
 
-export type SolutionImageAvgAggregateOutputType = {
+export type SolutionimageAvgAggregateOutputType = {
   sortOrder: number | null
 }
 
-export type SolutionImageSumAggregateOutputType = {
+export type SolutionimageSumAggregateOutputType = {
   sortOrder: number | null
 }
 
-export type SolutionImageMinAggregateOutputType = {
+export type SolutionimageMinAggregateOutputType = {
   id: string | null
   solutionId: string | null
   url: string | null
@@ -42,7 +42,7 @@ export type SolutionImageMinAggregateOutputType = {
   createdAt: Date | null
 }
 
-export type SolutionImageMaxAggregateOutputType = {
+export type SolutionimageMaxAggregateOutputType = {
   id: string | null
   solutionId: string | null
   url: string | null
@@ -51,7 +51,7 @@ export type SolutionImageMaxAggregateOutputType = {
   createdAt: Date | null
 }
 
-export type SolutionImageCountAggregateOutputType = {
+export type SolutionimageCountAggregateOutputType = {
   id: number
   solutionId: number
   url: number
@@ -62,15 +62,15 @@ export type SolutionImageCountAggregateOutputType = {
 }
 
 
-export type SolutionImageAvgAggregateInputType = {
+export type SolutionimageAvgAggregateInputType = {
   sortOrder?: true
 }
 
-export type SolutionImageSumAggregateInputType = {
+export type SolutionimageSumAggregateInputType = {
   sortOrder?: true
 }
 
-export type SolutionImageMinAggregateInputType = {
+export type SolutionimageMinAggregateInputType = {
   id?: true
   solutionId?: true
   url?: true
@@ -79,7 +79,7 @@ export type SolutionImageMinAggregateInputType = {
   createdAt?: true
 }
 
-export type SolutionImageMaxAggregateInputType = {
+export type SolutionimageMaxAggregateInputType = {
   id?: true
   solutionId?: true
   url?: true
@@ -88,7 +88,7 @@ export type SolutionImageMaxAggregateInputType = {
   createdAt?: true
 }
 
-export type SolutionImageCountAggregateInputType = {
+export type SolutionimageCountAggregateInputType = {
   id?: true
   solutionId?: true
   url?: true
@@ -98,195 +98,195 @@ export type SolutionImageCountAggregateInputType = {
   _all?: true
 }
 
-export type SolutionImageAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type SolutionimageAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which SolutionImage to aggregate.
+   * Filter which solutionimage to aggregate.
    */
-  where?: Prisma.SolutionImageWhereInput
+  where?: Prisma.solutionimageWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of SolutionImages to fetch.
+   * Determine the order of solutionimages to fetch.
    */
-  orderBy?: Prisma.SolutionImageOrderByWithRelationInput | Prisma.SolutionImageOrderByWithRelationInput[]
+  orderBy?: Prisma.solutionimageOrderByWithRelationInput | Prisma.solutionimageOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
    * Sets the start position
    */
-  cursor?: Prisma.SolutionImageWhereUniqueInput
+  cursor?: Prisma.solutionimageWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` SolutionImages from the position of the cursor.
+   * Take `±n` solutionimages from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` SolutionImages.
+   * Skip the first `n` solutionimages.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Count returned SolutionImages
+   * Count returned solutionimages
   **/
-  _count?: true | SolutionImageCountAggregateInputType
+  _count?: true | SolutionimageCountAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to average
   **/
-  _avg?: SolutionImageAvgAggregateInputType
+  _avg?: SolutionimageAvgAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to sum
   **/
-  _sum?: SolutionImageSumAggregateInputType
+  _sum?: SolutionimageSumAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the minimum value
   **/
-  _min?: SolutionImageMinAggregateInputType
+  _min?: SolutionimageMinAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
    * Select which fields to find the maximum value
   **/
-  _max?: SolutionImageMaxAggregateInputType
+  _max?: SolutionimageMaxAggregateInputType
 }
 
-export type GetSolutionImageAggregateType<T extends SolutionImageAggregateArgs> = {
-      [P in keyof T & keyof AggregateSolutionImage]: P extends '_count' | 'count'
+export type GetSolutionimageAggregateType<T extends SolutionimageAggregateArgs> = {
+      [P in keyof T & keyof AggregateSolutionimage]: P extends '_count' | 'count'
     ? T[P] extends true
       ? number
-      : Prisma.GetScalarType<T[P], AggregateSolutionImage[P]>
-    : Prisma.GetScalarType<T[P], AggregateSolutionImage[P]>
+      : Prisma.GetScalarType<T[P], AggregateSolutionimage[P]>
+    : Prisma.GetScalarType<T[P], AggregateSolutionimage[P]>
 }
 
 
 
 
-export type SolutionImageGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SolutionImageWhereInput
-  orderBy?: Prisma.SolutionImageOrderByWithAggregationInput | Prisma.SolutionImageOrderByWithAggregationInput[]
-  by: Prisma.SolutionImageScalarFieldEnum[] | Prisma.SolutionImageScalarFieldEnum
-  having?: Prisma.SolutionImageScalarWhereWithAggregatesInput
+export type solutionimageGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.solutionimageWhereInput
+  orderBy?: Prisma.solutionimageOrderByWithAggregationInput | Prisma.solutionimageOrderByWithAggregationInput[]
+  by: Prisma.SolutionimageScalarFieldEnum[] | Prisma.SolutionimageScalarFieldEnum
+  having?: Prisma.solutionimageScalarWhereWithAggregatesInput
   take?: number
   skip?: number
-  _count?: SolutionImageCountAggregateInputType | true
-  _avg?: SolutionImageAvgAggregateInputType
-  _sum?: SolutionImageSumAggregateInputType
-  _min?: SolutionImageMinAggregateInputType
-  _max?: SolutionImageMaxAggregateInputType
+  _count?: SolutionimageCountAggregateInputType | true
+  _avg?: SolutionimageAvgAggregateInputType
+  _sum?: SolutionimageSumAggregateInputType
+  _min?: SolutionimageMinAggregateInputType
+  _max?: SolutionimageMaxAggregateInputType
 }
 
-export type SolutionImageGroupByOutputType = {
+export type SolutionimageGroupByOutputType = {
   id: string
   solutionId: string
   url: string
   alt: string | null
   sortOrder: number
   createdAt: Date
-  _count: SolutionImageCountAggregateOutputType | null
-  _avg: SolutionImageAvgAggregateOutputType | null
-  _sum: SolutionImageSumAggregateOutputType | null
-  _min: SolutionImageMinAggregateOutputType | null
-  _max: SolutionImageMaxAggregateOutputType | null
+  _count: SolutionimageCountAggregateOutputType | null
+  _avg: SolutionimageAvgAggregateOutputType | null
+  _sum: SolutionimageSumAggregateOutputType | null
+  _min: SolutionimageMinAggregateOutputType | null
+  _max: SolutionimageMaxAggregateOutputType | null
 }
 
-type GetSolutionImageGroupByPayload<T extends SolutionImageGroupByArgs> = Prisma.PrismaPromise<
+type GetSolutionimageGroupByPayload<T extends solutionimageGroupByArgs> = Prisma.PrismaPromise<
   Array<
-    Prisma.PickEnumerable<SolutionImageGroupByOutputType, T['by']> &
+    Prisma.PickEnumerable<SolutionimageGroupByOutputType, T['by']> &
       {
-        [P in ((keyof T) & (keyof SolutionImageGroupByOutputType))]: P extends '_count'
+        [P in ((keyof T) & (keyof SolutionimageGroupByOutputType))]: P extends '_count'
           ? T[P] extends boolean
             ? number
-            : Prisma.GetScalarType<T[P], SolutionImageGroupByOutputType[P]>
-          : Prisma.GetScalarType<T[P], SolutionImageGroupByOutputType[P]>
+            : Prisma.GetScalarType<T[P], SolutionimageGroupByOutputType[P]>
+          : Prisma.GetScalarType<T[P], SolutionimageGroupByOutputType[P]>
       }
     >
   >
 
 
 
-export type SolutionImageWhereInput = {
-  AND?: Prisma.SolutionImageWhereInput | Prisma.SolutionImageWhereInput[]
-  OR?: Prisma.SolutionImageWhereInput[]
-  NOT?: Prisma.SolutionImageWhereInput | Prisma.SolutionImageWhereInput[]
-  id?: Prisma.StringFilter<"SolutionImage"> | string
-  solutionId?: Prisma.StringFilter<"SolutionImage"> | string
-  url?: Prisma.StringFilter<"SolutionImage"> | string
-  alt?: Prisma.StringNullableFilter<"SolutionImage"> | string | null
-  sortOrder?: Prisma.IntFilter<"SolutionImage"> | number
-  createdAt?: Prisma.DateTimeFilter<"SolutionImage"> | Date | string
-  solution?: Prisma.XOR<Prisma.SolutionScalarRelationFilter, Prisma.SolutionWhereInput>
+export type solutionimageWhereInput = {
+  AND?: Prisma.solutionimageWhereInput | Prisma.solutionimageWhereInput[]
+  OR?: Prisma.solutionimageWhereInput[]
+  NOT?: Prisma.solutionimageWhereInput | Prisma.solutionimageWhereInput[]
+  id?: Prisma.StringFilter<"solutionimage"> | string
+  solutionId?: Prisma.StringFilter<"solutionimage"> | string
+  url?: Prisma.StringFilter<"solutionimage"> | string
+  alt?: Prisma.StringNullableFilter<"solutionimage"> | string | null
+  sortOrder?: Prisma.IntFilter<"solutionimage"> | number
+  createdAt?: Prisma.DateTimeFilter<"solutionimage"> | Date | string
+  solution?: Prisma.XOR<Prisma.SolutionScalarRelationFilter, Prisma.solutionWhereInput>
 }
 
-export type SolutionImageOrderByWithRelationInput = {
+export type solutionimageOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   solutionId?: Prisma.SortOrder
   url?: Prisma.SortOrder
   alt?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  solution?: Prisma.SolutionOrderByWithRelationInput
-  _relevance?: Prisma.SolutionImageOrderByRelevanceInput
+  solution?: Prisma.solutionOrderByWithRelationInput
+  _relevance?: Prisma.solutionimageOrderByRelevanceInput
 }
 
-export type SolutionImageWhereUniqueInput = Prisma.AtLeast<{
+export type solutionimageWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  AND?: Prisma.SolutionImageWhereInput | Prisma.SolutionImageWhereInput[]
-  OR?: Prisma.SolutionImageWhereInput[]
-  NOT?: Prisma.SolutionImageWhereInput | Prisma.SolutionImageWhereInput[]
-  solutionId?: Prisma.StringFilter<"SolutionImage"> | string
-  url?: Prisma.StringFilter<"SolutionImage"> | string
-  alt?: Prisma.StringNullableFilter<"SolutionImage"> | string | null
-  sortOrder?: Prisma.IntFilter<"SolutionImage"> | number
-  createdAt?: Prisma.DateTimeFilter<"SolutionImage"> | Date | string
-  solution?: Prisma.XOR<Prisma.SolutionScalarRelationFilter, Prisma.SolutionWhereInput>
+  AND?: Prisma.solutionimageWhereInput | Prisma.solutionimageWhereInput[]
+  OR?: Prisma.solutionimageWhereInput[]
+  NOT?: Prisma.solutionimageWhereInput | Prisma.solutionimageWhereInput[]
+  solutionId?: Prisma.StringFilter<"solutionimage"> | string
+  url?: Prisma.StringFilter<"solutionimage"> | string
+  alt?: Prisma.StringNullableFilter<"solutionimage"> | string | null
+  sortOrder?: Prisma.IntFilter<"solutionimage"> | number
+  createdAt?: Prisma.DateTimeFilter<"solutionimage"> | Date | string
+  solution?: Prisma.XOR<Prisma.SolutionScalarRelationFilter, Prisma.solutionWhereInput>
 }, "id">
 
-export type SolutionImageOrderByWithAggregationInput = {
+export type solutionimageOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   solutionId?: Prisma.SortOrder
   url?: Prisma.SortOrder
   alt?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  _count?: Prisma.SolutionImageCountOrderByAggregateInput
-  _avg?: Prisma.SolutionImageAvgOrderByAggregateInput
-  _max?: Prisma.SolutionImageMaxOrderByAggregateInput
-  _min?: Prisma.SolutionImageMinOrderByAggregateInput
-  _sum?: Prisma.SolutionImageSumOrderByAggregateInput
+  _count?: Prisma.solutionimageCountOrderByAggregateInput
+  _avg?: Prisma.solutionimageAvgOrderByAggregateInput
+  _max?: Prisma.solutionimageMaxOrderByAggregateInput
+  _min?: Prisma.solutionimageMinOrderByAggregateInput
+  _sum?: Prisma.solutionimageSumOrderByAggregateInput
 }
 
-export type SolutionImageScalarWhereWithAggregatesInput = {
-  AND?: Prisma.SolutionImageScalarWhereWithAggregatesInput | Prisma.SolutionImageScalarWhereWithAggregatesInput[]
-  OR?: Prisma.SolutionImageScalarWhereWithAggregatesInput[]
-  NOT?: Prisma.SolutionImageScalarWhereWithAggregatesInput | Prisma.SolutionImageScalarWhereWithAggregatesInput[]
-  id?: Prisma.StringWithAggregatesFilter<"SolutionImage"> | string
-  solutionId?: Prisma.StringWithAggregatesFilter<"SolutionImage"> | string
-  url?: Prisma.StringWithAggregatesFilter<"SolutionImage"> | string
-  alt?: Prisma.StringNullableWithAggregatesFilter<"SolutionImage"> | string | null
-  sortOrder?: Prisma.IntWithAggregatesFilter<"SolutionImage"> | number
-  createdAt?: Prisma.DateTimeWithAggregatesFilter<"SolutionImage"> | Date | string
+export type solutionimageScalarWhereWithAggregatesInput = {
+  AND?: Prisma.solutionimageScalarWhereWithAggregatesInput | Prisma.solutionimageScalarWhereWithAggregatesInput[]
+  OR?: Prisma.solutionimageScalarWhereWithAggregatesInput[]
+  NOT?: Prisma.solutionimageScalarWhereWithAggregatesInput | Prisma.solutionimageScalarWhereWithAggregatesInput[]
+  id?: Prisma.StringWithAggregatesFilter<"solutionimage"> | string
+  solutionId?: Prisma.StringWithAggregatesFilter<"solutionimage"> | string
+  url?: Prisma.StringWithAggregatesFilter<"solutionimage"> | string
+  alt?: Prisma.StringNullableWithAggregatesFilter<"solutionimage"> | string | null
+  sortOrder?: Prisma.IntWithAggregatesFilter<"solutionimage"> | number
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"solutionimage"> | Date | string
 }
 
-export type SolutionImageCreateInput = {
-  id?: string
+export type solutionimageCreateInput = {
+  id: string
   url: string
   alt?: string | null
   sortOrder?: number
   createdAt?: Date | string
-  solution: Prisma.SolutionCreateNestedOneWithoutImagesInput
+  solution: Prisma.solutionCreateNestedOneWithoutSolutionimageInput
 }
 
-export type SolutionImageUncheckedCreateInput = {
-  id?: string
+export type solutionimageUncheckedCreateInput = {
+  id: string
   solutionId: string
   url: string
   alt?: string | null
@@ -294,16 +294,16 @@ export type SolutionImageUncheckedCreateInput = {
   createdAt?: Date | string
 }
 
-export type SolutionImageUpdateInput = {
+export type solutionimageUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  solution?: Prisma.SolutionUpdateOneRequiredWithoutImagesNestedInput
+  solution?: Prisma.solutionUpdateOneRequiredWithoutSolutionimageNestedInput
 }
 
-export type SolutionImageUncheckedUpdateInput = {
+export type solutionimageUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   solutionId?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
@@ -312,8 +312,8 @@ export type SolutionImageUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SolutionImageCreateManyInput = {
-  id?: string
+export type solutionimageCreateManyInput = {
+  id: string
   solutionId: string
   url: string
   alt?: string | null
@@ -321,7 +321,7 @@ export type SolutionImageCreateManyInput = {
   createdAt?: Date | string
 }
 
-export type SolutionImageUpdateManyMutationInput = {
+export type solutionimageUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -329,7 +329,7 @@ export type SolutionImageUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SolutionImageUncheckedUpdateManyInput = {
+export type solutionimageUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   solutionId?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
@@ -338,23 +338,23 @@ export type SolutionImageUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SolutionImageListRelationFilter = {
-  every?: Prisma.SolutionImageWhereInput
-  some?: Prisma.SolutionImageWhereInput
-  none?: Prisma.SolutionImageWhereInput
+export type SolutionimageListRelationFilter = {
+  every?: Prisma.solutionimageWhereInput
+  some?: Prisma.solutionimageWhereInput
+  none?: Prisma.solutionimageWhereInput
 }
 
-export type SolutionImageOrderByRelationAggregateInput = {
+export type solutionimageOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type SolutionImageOrderByRelevanceInput = {
-  fields: Prisma.SolutionImageOrderByRelevanceFieldEnum | Prisma.SolutionImageOrderByRelevanceFieldEnum[]
+export type solutionimageOrderByRelevanceInput = {
+  fields: Prisma.solutionimageOrderByRelevanceFieldEnum | Prisma.solutionimageOrderByRelevanceFieldEnum[]
   sort: Prisma.SortOrder
   search: string
 }
 
-export type SolutionImageCountOrderByAggregateInput = {
+export type solutionimageCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   solutionId?: Prisma.SortOrder
   url?: Prisma.SortOrder
@@ -363,11 +363,11 @@ export type SolutionImageCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
-export type SolutionImageAvgOrderByAggregateInput = {
+export type solutionimageAvgOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
-export type SolutionImageMaxOrderByAggregateInput = {
+export type solutionimageMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   solutionId?: Prisma.SortOrder
   url?: Prisma.SortOrder
@@ -376,7 +376,7 @@ export type SolutionImageMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
-export type SolutionImageMinOrderByAggregateInput = {
+export type solutionimageMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   solutionId?: Prisma.SortOrder
   url?: Prisma.SortOrder
@@ -385,115 +385,115 @@ export type SolutionImageMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
-export type SolutionImageSumOrderByAggregateInput = {
+export type solutionimageSumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
-export type SolutionImageCreateNestedManyWithoutSolutionInput = {
-  create?: Prisma.XOR<Prisma.SolutionImageCreateWithoutSolutionInput, Prisma.SolutionImageUncheckedCreateWithoutSolutionInput> | Prisma.SolutionImageCreateWithoutSolutionInput[] | Prisma.SolutionImageUncheckedCreateWithoutSolutionInput[]
-  connectOrCreate?: Prisma.SolutionImageCreateOrConnectWithoutSolutionInput | Prisma.SolutionImageCreateOrConnectWithoutSolutionInput[]
-  createMany?: Prisma.SolutionImageCreateManySolutionInputEnvelope
-  connect?: Prisma.SolutionImageWhereUniqueInput | Prisma.SolutionImageWhereUniqueInput[]
+export type solutionimageCreateNestedManyWithoutSolutionInput = {
+  create?: Prisma.XOR<Prisma.solutionimageCreateWithoutSolutionInput, Prisma.solutionimageUncheckedCreateWithoutSolutionInput> | Prisma.solutionimageCreateWithoutSolutionInput[] | Prisma.solutionimageUncheckedCreateWithoutSolutionInput[]
+  connectOrCreate?: Prisma.solutionimageCreateOrConnectWithoutSolutionInput | Prisma.solutionimageCreateOrConnectWithoutSolutionInput[]
+  createMany?: Prisma.solutionimageCreateManySolutionInputEnvelope
+  connect?: Prisma.solutionimageWhereUniqueInput | Prisma.solutionimageWhereUniqueInput[]
 }
 
-export type SolutionImageUncheckedCreateNestedManyWithoutSolutionInput = {
-  create?: Prisma.XOR<Prisma.SolutionImageCreateWithoutSolutionInput, Prisma.SolutionImageUncheckedCreateWithoutSolutionInput> | Prisma.SolutionImageCreateWithoutSolutionInput[] | Prisma.SolutionImageUncheckedCreateWithoutSolutionInput[]
-  connectOrCreate?: Prisma.SolutionImageCreateOrConnectWithoutSolutionInput | Prisma.SolutionImageCreateOrConnectWithoutSolutionInput[]
-  createMany?: Prisma.SolutionImageCreateManySolutionInputEnvelope
-  connect?: Prisma.SolutionImageWhereUniqueInput | Prisma.SolutionImageWhereUniqueInput[]
+export type solutionimageUncheckedCreateNestedManyWithoutSolutionInput = {
+  create?: Prisma.XOR<Prisma.solutionimageCreateWithoutSolutionInput, Prisma.solutionimageUncheckedCreateWithoutSolutionInput> | Prisma.solutionimageCreateWithoutSolutionInput[] | Prisma.solutionimageUncheckedCreateWithoutSolutionInput[]
+  connectOrCreate?: Prisma.solutionimageCreateOrConnectWithoutSolutionInput | Prisma.solutionimageCreateOrConnectWithoutSolutionInput[]
+  createMany?: Prisma.solutionimageCreateManySolutionInputEnvelope
+  connect?: Prisma.solutionimageWhereUniqueInput | Prisma.solutionimageWhereUniqueInput[]
 }
 
-export type SolutionImageUpdateManyWithoutSolutionNestedInput = {
-  create?: Prisma.XOR<Prisma.SolutionImageCreateWithoutSolutionInput, Prisma.SolutionImageUncheckedCreateWithoutSolutionInput> | Prisma.SolutionImageCreateWithoutSolutionInput[] | Prisma.SolutionImageUncheckedCreateWithoutSolutionInput[]
-  connectOrCreate?: Prisma.SolutionImageCreateOrConnectWithoutSolutionInput | Prisma.SolutionImageCreateOrConnectWithoutSolutionInput[]
-  upsert?: Prisma.SolutionImageUpsertWithWhereUniqueWithoutSolutionInput | Prisma.SolutionImageUpsertWithWhereUniqueWithoutSolutionInput[]
-  createMany?: Prisma.SolutionImageCreateManySolutionInputEnvelope
-  set?: Prisma.SolutionImageWhereUniqueInput | Prisma.SolutionImageWhereUniqueInput[]
-  disconnect?: Prisma.SolutionImageWhereUniqueInput | Prisma.SolutionImageWhereUniqueInput[]
-  delete?: Prisma.SolutionImageWhereUniqueInput | Prisma.SolutionImageWhereUniqueInput[]
-  connect?: Prisma.SolutionImageWhereUniqueInput | Prisma.SolutionImageWhereUniqueInput[]
-  update?: Prisma.SolutionImageUpdateWithWhereUniqueWithoutSolutionInput | Prisma.SolutionImageUpdateWithWhereUniqueWithoutSolutionInput[]
-  updateMany?: Prisma.SolutionImageUpdateManyWithWhereWithoutSolutionInput | Prisma.SolutionImageUpdateManyWithWhereWithoutSolutionInput[]
-  deleteMany?: Prisma.SolutionImageScalarWhereInput | Prisma.SolutionImageScalarWhereInput[]
+export type solutionimageUpdateManyWithoutSolutionNestedInput = {
+  create?: Prisma.XOR<Prisma.solutionimageCreateWithoutSolutionInput, Prisma.solutionimageUncheckedCreateWithoutSolutionInput> | Prisma.solutionimageCreateWithoutSolutionInput[] | Prisma.solutionimageUncheckedCreateWithoutSolutionInput[]
+  connectOrCreate?: Prisma.solutionimageCreateOrConnectWithoutSolutionInput | Prisma.solutionimageCreateOrConnectWithoutSolutionInput[]
+  upsert?: Prisma.solutionimageUpsertWithWhereUniqueWithoutSolutionInput | Prisma.solutionimageUpsertWithWhereUniqueWithoutSolutionInput[]
+  createMany?: Prisma.solutionimageCreateManySolutionInputEnvelope
+  set?: Prisma.solutionimageWhereUniqueInput | Prisma.solutionimageWhereUniqueInput[]
+  disconnect?: Prisma.solutionimageWhereUniqueInput | Prisma.solutionimageWhereUniqueInput[]
+  delete?: Prisma.solutionimageWhereUniqueInput | Prisma.solutionimageWhereUniqueInput[]
+  connect?: Prisma.solutionimageWhereUniqueInput | Prisma.solutionimageWhereUniqueInput[]
+  update?: Prisma.solutionimageUpdateWithWhereUniqueWithoutSolutionInput | Prisma.solutionimageUpdateWithWhereUniqueWithoutSolutionInput[]
+  updateMany?: Prisma.solutionimageUpdateManyWithWhereWithoutSolutionInput | Prisma.solutionimageUpdateManyWithWhereWithoutSolutionInput[]
+  deleteMany?: Prisma.solutionimageScalarWhereInput | Prisma.solutionimageScalarWhereInput[]
 }
 
-export type SolutionImageUncheckedUpdateManyWithoutSolutionNestedInput = {
-  create?: Prisma.XOR<Prisma.SolutionImageCreateWithoutSolutionInput, Prisma.SolutionImageUncheckedCreateWithoutSolutionInput> | Prisma.SolutionImageCreateWithoutSolutionInput[] | Prisma.SolutionImageUncheckedCreateWithoutSolutionInput[]
-  connectOrCreate?: Prisma.SolutionImageCreateOrConnectWithoutSolutionInput | Prisma.SolutionImageCreateOrConnectWithoutSolutionInput[]
-  upsert?: Prisma.SolutionImageUpsertWithWhereUniqueWithoutSolutionInput | Prisma.SolutionImageUpsertWithWhereUniqueWithoutSolutionInput[]
-  createMany?: Prisma.SolutionImageCreateManySolutionInputEnvelope
-  set?: Prisma.SolutionImageWhereUniqueInput | Prisma.SolutionImageWhereUniqueInput[]
-  disconnect?: Prisma.SolutionImageWhereUniqueInput | Prisma.SolutionImageWhereUniqueInput[]
-  delete?: Prisma.SolutionImageWhereUniqueInput | Prisma.SolutionImageWhereUniqueInput[]
-  connect?: Prisma.SolutionImageWhereUniqueInput | Prisma.SolutionImageWhereUniqueInput[]
-  update?: Prisma.SolutionImageUpdateWithWhereUniqueWithoutSolutionInput | Prisma.SolutionImageUpdateWithWhereUniqueWithoutSolutionInput[]
-  updateMany?: Prisma.SolutionImageUpdateManyWithWhereWithoutSolutionInput | Prisma.SolutionImageUpdateManyWithWhereWithoutSolutionInput[]
-  deleteMany?: Prisma.SolutionImageScalarWhereInput | Prisma.SolutionImageScalarWhereInput[]
+export type solutionimageUncheckedUpdateManyWithoutSolutionNestedInput = {
+  create?: Prisma.XOR<Prisma.solutionimageCreateWithoutSolutionInput, Prisma.solutionimageUncheckedCreateWithoutSolutionInput> | Prisma.solutionimageCreateWithoutSolutionInput[] | Prisma.solutionimageUncheckedCreateWithoutSolutionInput[]
+  connectOrCreate?: Prisma.solutionimageCreateOrConnectWithoutSolutionInput | Prisma.solutionimageCreateOrConnectWithoutSolutionInput[]
+  upsert?: Prisma.solutionimageUpsertWithWhereUniqueWithoutSolutionInput | Prisma.solutionimageUpsertWithWhereUniqueWithoutSolutionInput[]
+  createMany?: Prisma.solutionimageCreateManySolutionInputEnvelope
+  set?: Prisma.solutionimageWhereUniqueInput | Prisma.solutionimageWhereUniqueInput[]
+  disconnect?: Prisma.solutionimageWhereUniqueInput | Prisma.solutionimageWhereUniqueInput[]
+  delete?: Prisma.solutionimageWhereUniqueInput | Prisma.solutionimageWhereUniqueInput[]
+  connect?: Prisma.solutionimageWhereUniqueInput | Prisma.solutionimageWhereUniqueInput[]
+  update?: Prisma.solutionimageUpdateWithWhereUniqueWithoutSolutionInput | Prisma.solutionimageUpdateWithWhereUniqueWithoutSolutionInput[]
+  updateMany?: Prisma.solutionimageUpdateManyWithWhereWithoutSolutionInput | Prisma.solutionimageUpdateManyWithWhereWithoutSolutionInput[]
+  deleteMany?: Prisma.solutionimageScalarWhereInput | Prisma.solutionimageScalarWhereInput[]
 }
 
-export type SolutionImageCreateWithoutSolutionInput = {
-  id?: string
+export type solutionimageCreateWithoutSolutionInput = {
+  id: string
   url: string
   alt?: string | null
   sortOrder?: number
   createdAt?: Date | string
 }
 
-export type SolutionImageUncheckedCreateWithoutSolutionInput = {
-  id?: string
+export type solutionimageUncheckedCreateWithoutSolutionInput = {
+  id: string
   url: string
   alt?: string | null
   sortOrder?: number
   createdAt?: Date | string
 }
 
-export type SolutionImageCreateOrConnectWithoutSolutionInput = {
-  where: Prisma.SolutionImageWhereUniqueInput
-  create: Prisma.XOR<Prisma.SolutionImageCreateWithoutSolutionInput, Prisma.SolutionImageUncheckedCreateWithoutSolutionInput>
+export type solutionimageCreateOrConnectWithoutSolutionInput = {
+  where: Prisma.solutionimageWhereUniqueInput
+  create: Prisma.XOR<Prisma.solutionimageCreateWithoutSolutionInput, Prisma.solutionimageUncheckedCreateWithoutSolutionInput>
 }
 
-export type SolutionImageCreateManySolutionInputEnvelope = {
-  data: Prisma.SolutionImageCreateManySolutionInput | Prisma.SolutionImageCreateManySolutionInput[]
+export type solutionimageCreateManySolutionInputEnvelope = {
+  data: Prisma.solutionimageCreateManySolutionInput | Prisma.solutionimageCreateManySolutionInput[]
   skipDuplicates?: boolean
 }
 
-export type SolutionImageUpsertWithWhereUniqueWithoutSolutionInput = {
-  where: Prisma.SolutionImageWhereUniqueInput
-  update: Prisma.XOR<Prisma.SolutionImageUpdateWithoutSolutionInput, Prisma.SolutionImageUncheckedUpdateWithoutSolutionInput>
-  create: Prisma.XOR<Prisma.SolutionImageCreateWithoutSolutionInput, Prisma.SolutionImageUncheckedCreateWithoutSolutionInput>
+export type solutionimageUpsertWithWhereUniqueWithoutSolutionInput = {
+  where: Prisma.solutionimageWhereUniqueInput
+  update: Prisma.XOR<Prisma.solutionimageUpdateWithoutSolutionInput, Prisma.solutionimageUncheckedUpdateWithoutSolutionInput>
+  create: Prisma.XOR<Prisma.solutionimageCreateWithoutSolutionInput, Prisma.solutionimageUncheckedCreateWithoutSolutionInput>
 }
 
-export type SolutionImageUpdateWithWhereUniqueWithoutSolutionInput = {
-  where: Prisma.SolutionImageWhereUniqueInput
-  data: Prisma.XOR<Prisma.SolutionImageUpdateWithoutSolutionInput, Prisma.SolutionImageUncheckedUpdateWithoutSolutionInput>
+export type solutionimageUpdateWithWhereUniqueWithoutSolutionInput = {
+  where: Prisma.solutionimageWhereUniqueInput
+  data: Prisma.XOR<Prisma.solutionimageUpdateWithoutSolutionInput, Prisma.solutionimageUncheckedUpdateWithoutSolutionInput>
 }
 
-export type SolutionImageUpdateManyWithWhereWithoutSolutionInput = {
-  where: Prisma.SolutionImageScalarWhereInput
-  data: Prisma.XOR<Prisma.SolutionImageUpdateManyMutationInput, Prisma.SolutionImageUncheckedUpdateManyWithoutSolutionInput>
+export type solutionimageUpdateManyWithWhereWithoutSolutionInput = {
+  where: Prisma.solutionimageScalarWhereInput
+  data: Prisma.XOR<Prisma.solutionimageUpdateManyMutationInput, Prisma.solutionimageUncheckedUpdateManyWithoutSolutionInput>
 }
 
-export type SolutionImageScalarWhereInput = {
-  AND?: Prisma.SolutionImageScalarWhereInput | Prisma.SolutionImageScalarWhereInput[]
-  OR?: Prisma.SolutionImageScalarWhereInput[]
-  NOT?: Prisma.SolutionImageScalarWhereInput | Prisma.SolutionImageScalarWhereInput[]
-  id?: Prisma.StringFilter<"SolutionImage"> | string
-  solutionId?: Prisma.StringFilter<"SolutionImage"> | string
-  url?: Prisma.StringFilter<"SolutionImage"> | string
-  alt?: Prisma.StringNullableFilter<"SolutionImage"> | string | null
-  sortOrder?: Prisma.IntFilter<"SolutionImage"> | number
-  createdAt?: Prisma.DateTimeFilter<"SolutionImage"> | Date | string
+export type solutionimageScalarWhereInput = {
+  AND?: Prisma.solutionimageScalarWhereInput | Prisma.solutionimageScalarWhereInput[]
+  OR?: Prisma.solutionimageScalarWhereInput[]
+  NOT?: Prisma.solutionimageScalarWhereInput | Prisma.solutionimageScalarWhereInput[]
+  id?: Prisma.StringFilter<"solutionimage"> | string
+  solutionId?: Prisma.StringFilter<"solutionimage"> | string
+  url?: Prisma.StringFilter<"solutionimage"> | string
+  alt?: Prisma.StringNullableFilter<"solutionimage"> | string | null
+  sortOrder?: Prisma.IntFilter<"solutionimage"> | number
+  createdAt?: Prisma.DateTimeFilter<"solutionimage"> | Date | string
 }
 
-export type SolutionImageCreateManySolutionInput = {
-  id?: string
+export type solutionimageCreateManySolutionInput = {
+  id: string
   url: string
   alt?: string | null
   sortOrder?: number
   createdAt?: Date | string
 }
 
-export type SolutionImageUpdateWithoutSolutionInput = {
+export type solutionimageUpdateWithoutSolutionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -501,7 +501,7 @@ export type SolutionImageUpdateWithoutSolutionInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SolutionImageUncheckedUpdateWithoutSolutionInput = {
+export type solutionimageUncheckedUpdateWithoutSolutionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -509,7 +509,7 @@ export type SolutionImageUncheckedUpdateWithoutSolutionInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SolutionImageUncheckedUpdateManyWithoutSolutionInput = {
+export type solutionimageUncheckedUpdateManyWithoutSolutionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   url?: Prisma.StringFieldUpdateOperationsInput | string
   alt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -519,19 +519,19 @@ export type SolutionImageUncheckedUpdateManyWithoutSolutionInput = {
 
 
 
-export type SolutionImageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+export type solutionimageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   solutionId?: boolean
   url?: boolean
   alt?: boolean
   sortOrder?: boolean
   createdAt?: boolean
-  solution?: boolean | Prisma.SolutionDefaultArgs<ExtArgs>
-}, ExtArgs["result"]["solutionImage"]>
+  solution?: boolean | Prisma.solutionDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["solutionimage"]>
 
 
 
-export type SolutionImageSelectScalar = {
+export type solutionimageSelectScalar = {
   id?: boolean
   solutionId?: boolean
   url?: boolean
@@ -540,15 +540,15 @@ export type SolutionImageSelectScalar = {
   createdAt?: boolean
 }
 
-export type SolutionImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "solutionId" | "url" | "alt" | "sortOrder" | "createdAt", ExtArgs["result"]["solutionImage"]>
-export type SolutionImageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  solution?: boolean | Prisma.SolutionDefaultArgs<ExtArgs>
+export type solutionimageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "solutionId" | "url" | "alt" | "sortOrder" | "createdAt", ExtArgs["result"]["solutionimage"]>
+export type solutionimageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  solution?: boolean | Prisma.solutionDefaultArgs<ExtArgs>
 }
 
-export type $SolutionImagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  name: "SolutionImage"
+export type $solutionimagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  name: "solutionimage"
   objects: {
-    solution: Prisma.$SolutionPayload<ExtArgs>
+    solution: Prisma.$solutionPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -557,143 +557,143 @@ export type $SolutionImagePayload<ExtArgs extends runtime.Types.Extensions.Inter
     alt: string | null
     sortOrder: number
     createdAt: Date
-  }, ExtArgs["result"]["solutionImage"]>
+  }, ExtArgs["result"]["solutionimage"]>
   composites: {}
 }
 
-export type SolutionImageGetPayload<S extends boolean | null | undefined | SolutionImageDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$SolutionImagePayload, S>
+export type solutionimageGetPayload<S extends boolean | null | undefined | solutionimageDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$solutionimagePayload, S>
 
-export type SolutionImageCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<SolutionImageFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-    select?: SolutionImageCountAggregateInputType | true
+export type solutionimageCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
+  Omit<solutionimageFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+    select?: SolutionimageCountAggregateInputType | true
   }
 
-export interface SolutionImageDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SolutionImage'], meta: { name: 'SolutionImage' } }
+export interface solutionimageDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['solutionimage'], meta: { name: 'solutionimage' } }
   /**
-   * Find zero or one SolutionImage that matches the filter.
-   * @param {SolutionImageFindUniqueArgs} args - Arguments to find a SolutionImage
+   * Find zero or one Solutionimage that matches the filter.
+   * @param {solutionimageFindUniqueArgs} args - Arguments to find a Solutionimage
    * @example
-   * // Get one SolutionImage
-   * const solutionImage = await prisma.solutionImage.findUnique({
+   * // Get one Solutionimage
+   * const solutionimage = await prisma.solutionimage.findUnique({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUnique<T extends SolutionImageFindUniqueArgs>(args: Prisma.SelectSubset<T, SolutionImageFindUniqueArgs<ExtArgs>>): Prisma.Prisma__SolutionImageClient<runtime.Types.Result.GetResult<Prisma.$SolutionImagePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findUnique<T extends solutionimageFindUniqueArgs>(args: Prisma.SelectSubset<T, solutionimageFindUniqueArgs<ExtArgs>>): Prisma.Prisma__solutionimageClient<runtime.Types.Result.GetResult<Prisma.$solutionimagePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find one SolutionImage that matches the filter or throw an error with `error.code='P2025'`
+   * Find one Solutionimage that matches the filter or throw an error with `error.code='P2025'`
    * if no matches were found.
-   * @param {SolutionImageFindUniqueOrThrowArgs} args - Arguments to find a SolutionImage
+   * @param {solutionimageFindUniqueOrThrowArgs} args - Arguments to find a Solutionimage
    * @example
-   * // Get one SolutionImage
-   * const solutionImage = await prisma.solutionImage.findUniqueOrThrow({
+   * // Get one Solutionimage
+   * const solutionimage = await prisma.solutionimage.findUniqueOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findUniqueOrThrow<T extends SolutionImageFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, SolutionImageFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__SolutionImageClient<runtime.Types.Result.GetResult<Prisma.$SolutionImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findUniqueOrThrow<T extends solutionimageFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, solutionimageFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__solutionimageClient<runtime.Types.Result.GetResult<Prisma.$solutionimagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first SolutionImage that matches the filter.
+   * Find the first Solutionimage that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionImageFindFirstArgs} args - Arguments to find a SolutionImage
+   * @param {solutionimageFindFirstArgs} args - Arguments to find a Solutionimage
    * @example
-   * // Get one SolutionImage
-   * const solutionImage = await prisma.solutionImage.findFirst({
+   * // Get one Solutionimage
+   * const solutionimage = await prisma.solutionimage.findFirst({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirst<T extends SolutionImageFindFirstArgs>(args?: Prisma.SelectSubset<T, SolutionImageFindFirstArgs<ExtArgs>>): Prisma.Prisma__SolutionImageClient<runtime.Types.Result.GetResult<Prisma.$SolutionImagePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findFirst<T extends solutionimageFindFirstArgs>(args?: Prisma.SelectSubset<T, solutionimageFindFirstArgs<ExtArgs>>): Prisma.Prisma__solutionimageClient<runtime.Types.Result.GetResult<Prisma.$solutionimagePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find the first SolutionImage that matches the filter or
+   * Find the first Solutionimage that matches the filter or
    * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionImageFindFirstOrThrowArgs} args - Arguments to find a SolutionImage
+   * @param {solutionimageFindFirstOrThrowArgs} args - Arguments to find a Solutionimage
    * @example
-   * // Get one SolutionImage
-   * const solutionImage = await prisma.solutionImage.findFirstOrThrow({
+   * // Get one Solutionimage
+   * const solutionimage = await prisma.solutionimage.findFirstOrThrow({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    */
-  findFirstOrThrow<T extends SolutionImageFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, SolutionImageFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__SolutionImageClient<runtime.Types.Result.GetResult<Prisma.$SolutionImagePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findFirstOrThrow<T extends solutionimageFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, solutionimageFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__solutionimageClient<runtime.Types.Result.GetResult<Prisma.$solutionimagePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Find zero or more SolutionImages that matches the filter.
+   * Find zero or more Solutionimages that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionImageFindManyArgs} args - Arguments to filter and select certain fields only.
+   * @param {solutionimageFindManyArgs} args - Arguments to filter and select certain fields only.
    * @example
-   * // Get all SolutionImages
-   * const solutionImages = await prisma.solutionImage.findMany()
+   * // Get all Solutionimages
+   * const solutionimages = await prisma.solutionimage.findMany()
    * 
-   * // Get first 10 SolutionImages
-   * const solutionImages = await prisma.solutionImage.findMany({ take: 10 })
+   * // Get first 10 Solutionimages
+   * const solutionimages = await prisma.solutionimage.findMany({ take: 10 })
    * 
    * // Only select the `id`
-   * const solutionImageWithIdOnly = await prisma.solutionImage.findMany({ select: { id: true } })
+   * const solutionimageWithIdOnly = await prisma.solutionimage.findMany({ select: { id: true } })
    * 
    */
-  findMany<T extends SolutionImageFindManyArgs>(args?: Prisma.SelectSubset<T, SolutionImageFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SolutionImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+  findMany<T extends solutionimageFindManyArgs>(args?: Prisma.SelectSubset<T, solutionimageFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$solutionimagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
   /**
-   * Create a SolutionImage.
-   * @param {SolutionImageCreateArgs} args - Arguments to create a SolutionImage.
+   * Create a Solutionimage.
+   * @param {solutionimageCreateArgs} args - Arguments to create a Solutionimage.
    * @example
-   * // Create one SolutionImage
-   * const SolutionImage = await prisma.solutionImage.create({
+   * // Create one Solutionimage
+   * const Solutionimage = await prisma.solutionimage.create({
    *   data: {
-   *     // ... data to create a SolutionImage
+   *     // ... data to create a Solutionimage
    *   }
    * })
    * 
    */
-  create<T extends SolutionImageCreateArgs>(args: Prisma.SelectSubset<T, SolutionImageCreateArgs<ExtArgs>>): Prisma.Prisma__SolutionImageClient<runtime.Types.Result.GetResult<Prisma.$SolutionImagePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  create<T extends solutionimageCreateArgs>(args: Prisma.SelectSubset<T, solutionimageCreateArgs<ExtArgs>>): Prisma.Prisma__solutionimageClient<runtime.Types.Result.GetResult<Prisma.$solutionimagePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Create many SolutionImages.
-   * @param {SolutionImageCreateManyArgs} args - Arguments to create many SolutionImages.
+   * Create many Solutionimages.
+   * @param {solutionimageCreateManyArgs} args - Arguments to create many Solutionimages.
    * @example
-   * // Create many SolutionImages
-   * const solutionImage = await prisma.solutionImage.createMany({
+   * // Create many Solutionimages
+   * const solutionimage = await prisma.solutionimage.createMany({
    *   data: [
    *     // ... provide data here
    *   ]
    * })
    *     
    */
-  createMany<T extends SolutionImageCreateManyArgs>(args?: Prisma.SelectSubset<T, SolutionImageCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  createMany<T extends solutionimageCreateManyArgs>(args?: Prisma.SelectSubset<T, solutionimageCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Delete a SolutionImage.
-   * @param {SolutionImageDeleteArgs} args - Arguments to delete one SolutionImage.
+   * Delete a Solutionimage.
+   * @param {solutionimageDeleteArgs} args - Arguments to delete one Solutionimage.
    * @example
-   * // Delete one SolutionImage
-   * const SolutionImage = await prisma.solutionImage.delete({
+   * // Delete one Solutionimage
+   * const Solutionimage = await prisma.solutionimage.delete({
    *   where: {
-   *     // ... filter to delete one SolutionImage
+   *     // ... filter to delete one Solutionimage
    *   }
    * })
    * 
    */
-  delete<T extends SolutionImageDeleteArgs>(args: Prisma.SelectSubset<T, SolutionImageDeleteArgs<ExtArgs>>): Prisma.Prisma__SolutionImageClient<runtime.Types.Result.GetResult<Prisma.$SolutionImagePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  delete<T extends solutionimageDeleteArgs>(args: Prisma.SelectSubset<T, solutionimageDeleteArgs<ExtArgs>>): Prisma.Prisma__solutionimageClient<runtime.Types.Result.GetResult<Prisma.$solutionimagePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Update one SolutionImage.
-   * @param {SolutionImageUpdateArgs} args - Arguments to update one SolutionImage.
+   * Update one Solutionimage.
+   * @param {solutionimageUpdateArgs} args - Arguments to update one Solutionimage.
    * @example
-   * // Update one SolutionImage
-   * const solutionImage = await prisma.solutionImage.update({
+   * // Update one Solutionimage
+   * const solutionimage = await prisma.solutionimage.update({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -703,30 +703,30 @@ export interface SolutionImageDelegate<ExtArgs extends runtime.Types.Extensions.
    * })
    * 
    */
-  update<T extends SolutionImageUpdateArgs>(args: Prisma.SelectSubset<T, SolutionImageUpdateArgs<ExtArgs>>): Prisma.Prisma__SolutionImageClient<runtime.Types.Result.GetResult<Prisma.$SolutionImagePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  update<T extends solutionimageUpdateArgs>(args: Prisma.SelectSubset<T, solutionimageUpdateArgs<ExtArgs>>): Prisma.Prisma__solutionimageClient<runtime.Types.Result.GetResult<Prisma.$solutionimagePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
-   * Delete zero or more SolutionImages.
-   * @param {SolutionImageDeleteManyArgs} args - Arguments to filter SolutionImages to delete.
+   * Delete zero or more Solutionimages.
+   * @param {solutionimageDeleteManyArgs} args - Arguments to filter Solutionimages to delete.
    * @example
-   * // Delete a few SolutionImages
-   * const { count } = await prisma.solutionImage.deleteMany({
+   * // Delete a few Solutionimages
+   * const { count } = await prisma.solutionimage.deleteMany({
    *   where: {
    *     // ... provide filter here
    *   }
    * })
    * 
    */
-  deleteMany<T extends SolutionImageDeleteManyArgs>(args?: Prisma.SelectSubset<T, SolutionImageDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  deleteMany<T extends solutionimageDeleteManyArgs>(args?: Prisma.SelectSubset<T, solutionimageDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Update zero or more SolutionImages.
+   * Update zero or more Solutionimages.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionImageUpdateManyArgs} args - Arguments to update one or more rows.
+   * @param {solutionimageUpdateManyArgs} args - Arguments to update one or more rows.
    * @example
-   * // Update many SolutionImages
-   * const solutionImage = await prisma.solutionImage.updateMany({
+   * // Update many Solutionimages
+   * const solutionimage = await prisma.solutionimage.updateMany({
    *   where: {
    *     // ... provide filter here
    *   },
@@ -736,56 +736,56 @@ export interface SolutionImageDelegate<ExtArgs extends runtime.Types.Extensions.
    * })
    * 
    */
-  updateMany<T extends SolutionImageUpdateManyArgs>(args: Prisma.SelectSubset<T, SolutionImageUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  updateMany<T extends solutionimageUpdateManyArgs>(args: Prisma.SelectSubset<T, solutionimageUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
-   * Create or update one SolutionImage.
-   * @param {SolutionImageUpsertArgs} args - Arguments to update or create a SolutionImage.
+   * Create or update one Solutionimage.
+   * @param {solutionimageUpsertArgs} args - Arguments to update or create a Solutionimage.
    * @example
-   * // Update or create a SolutionImage
-   * const solutionImage = await prisma.solutionImage.upsert({
+   * // Update or create a Solutionimage
+   * const solutionimage = await prisma.solutionimage.upsert({
    *   create: {
-   *     // ... data to create a SolutionImage
+   *     // ... data to create a Solutionimage
    *   },
    *   update: {
    *     // ... in case it already exists, update
    *   },
    *   where: {
-   *     // ... the filter for the SolutionImage we want to update
+   *     // ... the filter for the Solutionimage we want to update
    *   }
    * })
    */
-  upsert<T extends SolutionImageUpsertArgs>(args: Prisma.SelectSubset<T, SolutionImageUpsertArgs<ExtArgs>>): Prisma.Prisma__SolutionImageClient<runtime.Types.Result.GetResult<Prisma.$SolutionImagePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  upsert<T extends solutionimageUpsertArgs>(args: Prisma.SelectSubset<T, solutionimageUpsertArgs<ExtArgs>>): Prisma.Prisma__solutionimageClient<runtime.Types.Result.GetResult<Prisma.$solutionimagePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
   /**
-   * Count the number of SolutionImages.
+   * Count the number of Solutionimages.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionImageCountArgs} args - Arguments to filter SolutionImages to count.
+   * @param {solutionimageCountArgs} args - Arguments to filter Solutionimages to count.
    * @example
-   * // Count the number of SolutionImages
-   * const count = await prisma.solutionImage.count({
+   * // Count the number of Solutionimages
+   * const count = await prisma.solutionimage.count({
    *   where: {
-   *     // ... the filter for the SolutionImages we want to count
+   *     // ... the filter for the Solutionimages we want to count
    *   }
    * })
   **/
-  count<T extends SolutionImageCountArgs>(
-    args?: Prisma.Subset<T, SolutionImageCountArgs>,
+  count<T extends solutionimageCountArgs>(
+    args?: Prisma.Subset<T, solutionimageCountArgs>,
   ): Prisma.PrismaPromise<
     T extends runtime.Types.Utils.Record<'select', any>
       ? T['select'] extends true
         ? number
-        : Prisma.GetScalarType<T['select'], SolutionImageCountAggregateOutputType>
+        : Prisma.GetScalarType<T['select'], SolutionimageCountAggregateOutputType>
       : number
   >
 
   /**
-   * Allows you to perform aggregations operations on a SolutionImage.
+   * Allows you to perform aggregations operations on a Solutionimage.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionImageAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+   * @param {SolutionimageAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
    * @example
    * // Ordered by age ascending
    * // Where email contains prisma.io
@@ -805,13 +805,13 @@ export interface SolutionImageDelegate<ExtArgs extends runtime.Types.Extensions.
    *   take: 10,
    * })
   **/
-  aggregate<T extends SolutionImageAggregateArgs>(args: Prisma.Subset<T, SolutionImageAggregateArgs>): Prisma.PrismaPromise<GetSolutionImageAggregateType<T>>
+  aggregate<T extends SolutionimageAggregateArgs>(args: Prisma.Subset<T, SolutionimageAggregateArgs>): Prisma.PrismaPromise<GetSolutionimageAggregateType<T>>
 
   /**
-   * Group by SolutionImage.
+   * Group by Solutionimage.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionImageGroupByArgs} args - Group by arguments.
+   * @param {solutionimageGroupByArgs} args - Group by arguments.
    * @example
    * // Group by city, order by createdAt, get count
    * const result = await prisma.user.groupBy({
@@ -826,14 +826,14 @@ export interface SolutionImageDelegate<ExtArgs extends runtime.Types.Extensions.
    * 
   **/
   groupBy<
-    T extends SolutionImageGroupByArgs,
+    T extends solutionimageGroupByArgs,
     HasSelectOrTake extends Prisma.Or<
       Prisma.Extends<'skip', Prisma.Keys<T>>,
       Prisma.Extends<'take', Prisma.Keys<T>>
     >,
     OrderByArg extends Prisma.True extends HasSelectOrTake
-      ? { orderBy: SolutionImageGroupByArgs['orderBy'] }
-      : { orderBy?: SolutionImageGroupByArgs['orderBy'] },
+      ? { orderBy: solutionimageGroupByArgs['orderBy'] }
+      : { orderBy?: solutionimageGroupByArgs['orderBy'] },
     OrderFields extends Prisma.ExcludeUnderscoreKeys<Prisma.Keys<Prisma.MaybeTupleToUnion<T['orderBy']>>>,
     ByFields extends Prisma.MaybeTupleToUnion<T['by']>,
     ByValid extends Prisma.Has<ByFields, OrderFields>,
@@ -882,22 +882,22 @@ export interface SolutionImageDelegate<ExtArgs extends runtime.Types.Extensions.
           ? never
           : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
       }[OrderFields]
-  >(args: Prisma.SubsetIntersection<T, SolutionImageGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSolutionImageGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  >(args: Prisma.SubsetIntersection<T, solutionimageGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSolutionimageGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
 /**
- * Fields of the SolutionImage model
+ * Fields of the solutionimage model
  */
-readonly fields: SolutionImageFieldRefs;
+readonly fields: solutionimageFieldRefs;
 }
 
 /**
- * The delegate class that acts as a "Promise-like" for SolutionImage.
+ * The delegate class that acts as a "Promise-like" for solutionimage.
  * Why is this prefixed with `Prisma__`?
  * Because we want to prevent naming conflicts as mentioned in
  * https://github.com/prisma/prisma-client-js/issues/707
  */
-export interface Prisma__SolutionImageClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+export interface Prisma__solutionimageClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  solution<T extends Prisma.SolutionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SolutionDefaultArgs<ExtArgs>>): Prisma.Prisma__SolutionClient<runtime.Types.Result.GetResult<Prisma.$SolutionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  solution<T extends Prisma.solutionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.solutionDefaultArgs<ExtArgs>>): Prisma.Prisma__solutionClient<runtime.Types.Result.GetResult<Prisma.$solutionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -924,371 +924,371 @@ export interface Prisma__SolutionImageClient<T, Null = never, ExtArgs extends ru
 
 
 /**
- * Fields of the SolutionImage model
+ * Fields of the solutionimage model
  */
-export interface SolutionImageFieldRefs {
-  readonly id: Prisma.FieldRef<"SolutionImage", 'String'>
-  readonly solutionId: Prisma.FieldRef<"SolutionImage", 'String'>
-  readonly url: Prisma.FieldRef<"SolutionImage", 'String'>
-  readonly alt: Prisma.FieldRef<"SolutionImage", 'String'>
-  readonly sortOrder: Prisma.FieldRef<"SolutionImage", 'Int'>
-  readonly createdAt: Prisma.FieldRef<"SolutionImage", 'DateTime'>
+export interface solutionimageFieldRefs {
+  readonly id: Prisma.FieldRef<"solutionimage", 'String'>
+  readonly solutionId: Prisma.FieldRef<"solutionimage", 'String'>
+  readonly url: Prisma.FieldRef<"solutionimage", 'String'>
+  readonly alt: Prisma.FieldRef<"solutionimage", 'String'>
+  readonly sortOrder: Prisma.FieldRef<"solutionimage", 'Int'>
+  readonly createdAt: Prisma.FieldRef<"solutionimage", 'DateTime'>
 }
     
 
 // Custom InputTypes
 /**
- * SolutionImage findUnique
+ * solutionimage findUnique
  */
-export type SolutionImageFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionimageFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionImage
+   * Select specific fields to fetch from the solutionimage
    */
-  select?: Prisma.SolutionImageSelect<ExtArgs> | null
+  select?: Prisma.solutionimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionImage
+   * Omit specific fields from the solutionimage
    */
-  omit?: Prisma.SolutionImageOmit<ExtArgs> | null
+  omit?: Prisma.solutionimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionImageInclude<ExtArgs> | null
+  include?: Prisma.solutionimageInclude<ExtArgs> | null
   /**
-   * Filter, which SolutionImage to fetch.
+   * Filter, which solutionimage to fetch.
    */
-  where: Prisma.SolutionImageWhereUniqueInput
+  where: Prisma.solutionimageWhereUniqueInput
 }
 
 /**
- * SolutionImage findUniqueOrThrow
+ * solutionimage findUniqueOrThrow
  */
-export type SolutionImageFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionimageFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionImage
+   * Select specific fields to fetch from the solutionimage
    */
-  select?: Prisma.SolutionImageSelect<ExtArgs> | null
+  select?: Prisma.solutionimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionImage
+   * Omit specific fields from the solutionimage
    */
-  omit?: Prisma.SolutionImageOmit<ExtArgs> | null
+  omit?: Prisma.solutionimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionImageInclude<ExtArgs> | null
+  include?: Prisma.solutionimageInclude<ExtArgs> | null
   /**
-   * Filter, which SolutionImage to fetch.
+   * Filter, which solutionimage to fetch.
    */
-  where: Prisma.SolutionImageWhereUniqueInput
+  where: Prisma.solutionimageWhereUniqueInput
 }
 
 /**
- * SolutionImage findFirst
+ * solutionimage findFirst
  */
-export type SolutionImageFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionimageFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionImage
+   * Select specific fields to fetch from the solutionimage
    */
-  select?: Prisma.SolutionImageSelect<ExtArgs> | null
+  select?: Prisma.solutionimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionImage
+   * Omit specific fields from the solutionimage
    */
-  omit?: Prisma.SolutionImageOmit<ExtArgs> | null
+  omit?: Prisma.solutionimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionImageInclude<ExtArgs> | null
+  include?: Prisma.solutionimageInclude<ExtArgs> | null
   /**
-   * Filter, which SolutionImage to fetch.
+   * Filter, which solutionimage to fetch.
    */
-  where?: Prisma.SolutionImageWhereInput
+  where?: Prisma.solutionimageWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of SolutionImages to fetch.
+   * Determine the order of solutionimages to fetch.
    */
-  orderBy?: Prisma.SolutionImageOrderByWithRelationInput | Prisma.SolutionImageOrderByWithRelationInput[]
+  orderBy?: Prisma.solutionimageOrderByWithRelationInput | Prisma.solutionimageOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for SolutionImages.
+   * Sets the position for searching for solutionimages.
    */
-  cursor?: Prisma.SolutionImageWhereUniqueInput
+  cursor?: Prisma.solutionimageWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` SolutionImages from the position of the cursor.
+   * Take `±n` solutionimages from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` SolutionImages.
+   * Skip the first `n` solutionimages.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of SolutionImages.
+   * Filter by unique combinations of solutionimages.
    */
-  distinct?: Prisma.SolutionImageScalarFieldEnum | Prisma.SolutionImageScalarFieldEnum[]
+  distinct?: Prisma.SolutionimageScalarFieldEnum | Prisma.SolutionimageScalarFieldEnum[]
 }
 
 /**
- * SolutionImage findFirstOrThrow
+ * solutionimage findFirstOrThrow
  */
-export type SolutionImageFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionimageFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionImage
+   * Select specific fields to fetch from the solutionimage
    */
-  select?: Prisma.SolutionImageSelect<ExtArgs> | null
+  select?: Prisma.solutionimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionImage
+   * Omit specific fields from the solutionimage
    */
-  omit?: Prisma.SolutionImageOmit<ExtArgs> | null
+  omit?: Prisma.solutionimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionImageInclude<ExtArgs> | null
+  include?: Prisma.solutionimageInclude<ExtArgs> | null
   /**
-   * Filter, which SolutionImage to fetch.
+   * Filter, which solutionimage to fetch.
    */
-  where?: Prisma.SolutionImageWhereInput
+  where?: Prisma.solutionimageWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of SolutionImages to fetch.
+   * Determine the order of solutionimages to fetch.
    */
-  orderBy?: Prisma.SolutionImageOrderByWithRelationInput | Prisma.SolutionImageOrderByWithRelationInput[]
+  orderBy?: Prisma.solutionimageOrderByWithRelationInput | Prisma.solutionimageOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for SolutionImages.
+   * Sets the position for searching for solutionimages.
    */
-  cursor?: Prisma.SolutionImageWhereUniqueInput
+  cursor?: Prisma.solutionimageWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` SolutionImages from the position of the cursor.
+   * Take `±n` solutionimages from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` SolutionImages.
+   * Skip the first `n` solutionimages.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of SolutionImages.
+   * Filter by unique combinations of solutionimages.
    */
-  distinct?: Prisma.SolutionImageScalarFieldEnum | Prisma.SolutionImageScalarFieldEnum[]
+  distinct?: Prisma.SolutionimageScalarFieldEnum | Prisma.SolutionimageScalarFieldEnum[]
 }
 
 /**
- * SolutionImage findMany
+ * solutionimage findMany
  */
-export type SolutionImageFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionimageFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionImage
+   * Select specific fields to fetch from the solutionimage
    */
-  select?: Prisma.SolutionImageSelect<ExtArgs> | null
+  select?: Prisma.solutionimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionImage
+   * Omit specific fields from the solutionimage
    */
-  omit?: Prisma.SolutionImageOmit<ExtArgs> | null
+  omit?: Prisma.solutionimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionImageInclude<ExtArgs> | null
+  include?: Prisma.solutionimageInclude<ExtArgs> | null
   /**
-   * Filter, which SolutionImages to fetch.
+   * Filter, which solutionimages to fetch.
    */
-  where?: Prisma.SolutionImageWhereInput
+  where?: Prisma.solutionimageWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of SolutionImages to fetch.
+   * Determine the order of solutionimages to fetch.
    */
-  orderBy?: Prisma.SolutionImageOrderByWithRelationInput | Prisma.SolutionImageOrderByWithRelationInput[]
+  orderBy?: Prisma.solutionimageOrderByWithRelationInput | Prisma.solutionimageOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for listing SolutionImages.
+   * Sets the position for listing solutionimages.
    */
-  cursor?: Prisma.SolutionImageWhereUniqueInput
+  cursor?: Prisma.solutionimageWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` SolutionImages from the position of the cursor.
+   * Take `±n` solutionimages from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` SolutionImages.
+   * Skip the first `n` solutionimages.
    */
   skip?: number
-  distinct?: Prisma.SolutionImageScalarFieldEnum | Prisma.SolutionImageScalarFieldEnum[]
+  distinct?: Prisma.SolutionimageScalarFieldEnum | Prisma.SolutionimageScalarFieldEnum[]
 }
 
 /**
- * SolutionImage create
+ * solutionimage create
  */
-export type SolutionImageCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionimageCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionImage
+   * Select specific fields to fetch from the solutionimage
    */
-  select?: Prisma.SolutionImageSelect<ExtArgs> | null
+  select?: Prisma.solutionimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionImage
+   * Omit specific fields from the solutionimage
    */
-  omit?: Prisma.SolutionImageOmit<ExtArgs> | null
+  omit?: Prisma.solutionimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionImageInclude<ExtArgs> | null
+  include?: Prisma.solutionimageInclude<ExtArgs> | null
   /**
-   * The data needed to create a SolutionImage.
+   * The data needed to create a solutionimage.
    */
-  data: Prisma.XOR<Prisma.SolutionImageCreateInput, Prisma.SolutionImageUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.solutionimageCreateInput, Prisma.solutionimageUncheckedCreateInput>
 }
 
 /**
- * SolutionImage createMany
+ * solutionimage createMany
  */
-export type SolutionImageCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionimageCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to create many SolutionImages.
+   * The data used to create many solutionimages.
    */
-  data: Prisma.SolutionImageCreateManyInput | Prisma.SolutionImageCreateManyInput[]
+  data: Prisma.solutionimageCreateManyInput | Prisma.solutionimageCreateManyInput[]
   skipDuplicates?: boolean
 }
 
 /**
- * SolutionImage update
+ * solutionimage update
  */
-export type SolutionImageUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionimageUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionImage
+   * Select specific fields to fetch from the solutionimage
    */
-  select?: Prisma.SolutionImageSelect<ExtArgs> | null
+  select?: Prisma.solutionimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionImage
+   * Omit specific fields from the solutionimage
    */
-  omit?: Prisma.SolutionImageOmit<ExtArgs> | null
+  omit?: Prisma.solutionimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionImageInclude<ExtArgs> | null
+  include?: Prisma.solutionimageInclude<ExtArgs> | null
   /**
-   * The data needed to update a SolutionImage.
+   * The data needed to update a solutionimage.
    */
-  data: Prisma.XOR<Prisma.SolutionImageUpdateInput, Prisma.SolutionImageUncheckedUpdateInput>
+  data: Prisma.XOR<Prisma.solutionimageUpdateInput, Prisma.solutionimageUncheckedUpdateInput>
   /**
-   * Choose, which SolutionImage to update.
+   * Choose, which solutionimage to update.
    */
-  where: Prisma.SolutionImageWhereUniqueInput
+  where: Prisma.solutionimageWhereUniqueInput
 }
 
 /**
- * SolutionImage updateMany
+ * solutionimage updateMany
  */
-export type SolutionImageUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionimageUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to update SolutionImages.
+   * The data used to update solutionimages.
    */
-  data: Prisma.XOR<Prisma.SolutionImageUpdateManyMutationInput, Prisma.SolutionImageUncheckedUpdateManyInput>
+  data: Prisma.XOR<Prisma.solutionimageUpdateManyMutationInput, Prisma.solutionimageUncheckedUpdateManyInput>
   /**
-   * Filter which SolutionImages to update
+   * Filter which solutionimages to update
    */
-  where?: Prisma.SolutionImageWhereInput
+  where?: Prisma.solutionimageWhereInput
   /**
-   * Limit how many SolutionImages to update.
+   * Limit how many solutionimages to update.
    */
   limit?: number
 }
 
 /**
- * SolutionImage upsert
+ * solutionimage upsert
  */
-export type SolutionImageUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionimageUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionImage
+   * Select specific fields to fetch from the solutionimage
    */
-  select?: Prisma.SolutionImageSelect<ExtArgs> | null
+  select?: Prisma.solutionimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionImage
+   * Omit specific fields from the solutionimage
    */
-  omit?: Prisma.SolutionImageOmit<ExtArgs> | null
+  omit?: Prisma.solutionimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionImageInclude<ExtArgs> | null
+  include?: Prisma.solutionimageInclude<ExtArgs> | null
   /**
-   * The filter to search for the SolutionImage to update in case it exists.
+   * The filter to search for the solutionimage to update in case it exists.
    */
-  where: Prisma.SolutionImageWhereUniqueInput
+  where: Prisma.solutionimageWhereUniqueInput
   /**
-   * In case the SolutionImage found by the `where` argument doesn't exist, create a new SolutionImage with this data.
+   * In case the solutionimage found by the `where` argument doesn't exist, create a new solutionimage with this data.
    */
-  create: Prisma.XOR<Prisma.SolutionImageCreateInput, Prisma.SolutionImageUncheckedCreateInput>
+  create: Prisma.XOR<Prisma.solutionimageCreateInput, Prisma.solutionimageUncheckedCreateInput>
   /**
-   * In case the SolutionImage was found with the provided `where` argument, update it with this data.
+   * In case the solutionimage was found with the provided `where` argument, update it with this data.
    */
-  update: Prisma.XOR<Prisma.SolutionImageUpdateInput, Prisma.SolutionImageUncheckedUpdateInput>
+  update: Prisma.XOR<Prisma.solutionimageUpdateInput, Prisma.solutionimageUncheckedUpdateInput>
 }
 
 /**
- * SolutionImage delete
+ * solutionimage delete
  */
-export type SolutionImageDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionimageDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionImage
+   * Select specific fields to fetch from the solutionimage
    */
-  select?: Prisma.SolutionImageSelect<ExtArgs> | null
+  select?: Prisma.solutionimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionImage
+   * Omit specific fields from the solutionimage
    */
-  omit?: Prisma.SolutionImageOmit<ExtArgs> | null
+  omit?: Prisma.solutionimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionImageInclude<ExtArgs> | null
+  include?: Prisma.solutionimageInclude<ExtArgs> | null
   /**
-   * Filter which SolutionImage to delete.
+   * Filter which solutionimage to delete.
    */
-  where: Prisma.SolutionImageWhereUniqueInput
+  where: Prisma.solutionimageWhereUniqueInput
 }
 
 /**
- * SolutionImage deleteMany
+ * solutionimage deleteMany
  */
-export type SolutionImageDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionimageDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which SolutionImages to delete
+   * Filter which solutionimages to delete
    */
-  where?: Prisma.SolutionImageWhereInput
+  where?: Prisma.solutionimageWhereInput
   /**
-   * Limit how many SolutionImages to delete.
+   * Limit how many solutionimages to delete.
    */
   limit?: number
 }
 
 /**
- * SolutionImage without action
+ * solutionimage without action
  */
-export type SolutionImageDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionimageDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionImage
+   * Select specific fields to fetch from the solutionimage
    */
-  select?: Prisma.SolutionImageSelect<ExtArgs> | null
+  select?: Prisma.solutionimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionImage
+   * Omit specific fields from the solutionimage
    */
-  omit?: Prisma.SolutionImageOmit<ExtArgs> | null
+  omit?: Prisma.solutionimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionImageInclude<ExtArgs> | null
+  include?: Prisma.solutionimageInclude<ExtArgs> | null
 }

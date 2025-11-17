@@ -1,4 +1,5 @@
 
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { Prisma } from "@prisma/client";
@@ -46,17 +47,28 @@ export async function GET(req: Request) {
         avatarUrl: true,
         createdAt: true,
         updatedAt: true,
-        shippingAddress: {
+        address_user_shippingAddressIdToaddress: {
           select: { id: true, line1: true, line2: true, city: true, state: true, postalCode: true, country: true }
         },
-        billingAddress: {
+        address_user_billingAddressIdToaddress: {
           select: { id: true, line1: true, line2: true, city: true, state: true, postalCode: true, country: true }
         }
       }
     });
 
     if (!user) return NextResponse.json({ error: "USER_NOT_FOUND" }, { status: 404 });
-    return NextResponse.json({ profile: user });
+    const {
+      address_user_shippingAddressIdToaddress,
+      address_user_billingAddressIdToaddress,
+      ...rest
+    } = user;
+    return NextResponse.json({
+      profile: {
+        ...rest,
+        shippingAddress: address_user_shippingAddressIdToaddress,
+        billingAddress: address_user_billingAddressIdToaddress,
+      },
+    });
   } catch (e) {
     console.error("PROFILE GET ERROR:", e);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -120,6 +132,7 @@ export async function PATCH(req: Request) {
     }
 
     const data = parsed.data;
+    const now = new Date();
 
    
     const me = await prisma.user.findUnique({
@@ -128,14 +141,14 @@ export async function PATCH(req: Request) {
         id: true,
         shippingAddressId: true,
         billingAddressId: true,
-        shippingAddress: true,
-        billingAddress: true
+        address_user_shippingAddressIdToaddress: true,
+        address_user_billingAddressIdToaddress: true,
       }
     });
     if (!me) return NextResponse.json({ error: "USER_NOT_FOUND" }, { status: 404 });
 
     
-    const userUpdate: Prisma.UserUpdateInput = {};
+    const userUpdate: Prisma.userUncheckedUpdateInput = {};
     if (data.fullName !== undefined) userUpdate.fullName = data.fullName;
     if (data.taxCode !== undefined) userUpdate.taxCode = data.taxCode ?? null;
     if (data.phone !== undefined) userUpdate.phoneE164 = toE164VN(data.phone);
@@ -148,69 +161,72 @@ export async function PATCH(req: Request) {
     let shippingAddrId = me.shippingAddressId;
     if (data.shippingAddress) {
       const s = { ...data.shippingAddress, country: normCountry2(data.shippingAddress.country) };
-      if (me.shippingAddress) {
+      if (me.address_user_shippingAddressIdToaddress) {
         
         await prisma.address.update({
           where: { id: me.shippingAddressId },
           data: {
             line1: s.line1, line2: s.line2 ?? null, city: s.city, state: s.state ?? null,
-            postalCode: s.postalCode ?? null, country: s.country
+            postalCode: s.postalCode ?? null, country: s.country,
+            updatedAt: now,
           }
         });
       } else {
        
         const created = await prisma.address.create({
           data: {
+            id: randomUUID(),
             line1: s.line1, line2: s.line2 ?? null, city: s.city, state: s.state ?? null,
-            postalCode: s.postalCode ?? null, country: s.country
+            postalCode: s.postalCode ?? null, country: s.country,
+            updatedAt: now,
           }
         });
         shippingAddrId = created.id;
-        userUpdate.shippingAddress = { connect: { id: created.id } };
+        userUpdate.shippingAddressId = created.id;
       }
     }
 
     if (data.billingAddress === null) {
-      userUpdate.billingAddress = shippingAddrId
-        ? { connect: { id: shippingAddrId } }
-        : undefined;
+      userUpdate.billingAddressId = shippingAddrId ?? me.billingAddressId ?? null;
     } else if (data.billingAddress) {
       const s = data.shippingAddress
         ? { ...data.shippingAddress, country: normCountry2(data.shippingAddress.country) }
-        : me.shippingAddress!
+        : me.address_user_shippingAddressIdToaddress!
           ? {
-              line1: me.shippingAddress.line1,
-              line2: me.shippingAddress.line2 ?? undefined,
-              city: me.shippingAddress.city,
-              state: me.shippingAddress.state ?? undefined,
-              postalCode: me.shippingAddress.postalCode ?? undefined,
-              country: me.shippingAddress.country
+              line1: me.address_user_shippingAddressIdToaddress.line1,
+              line2: me.address_user_shippingAddressIdToaddress.line2 ?? undefined,
+              city: me.address_user_shippingAddressIdToaddress.city,
+              state: me.address_user_shippingAddressIdToaddress.state ?? undefined,
+              postalCode: me.address_user_shippingAddressIdToaddress.postalCode ?? undefined,
+              country: me.address_user_shippingAddressIdToaddress.country
             }
           : null;
 
       const b = { ...data.billingAddress, country: normCountry2(data.billingAddress.country) };
 
       if (s && addressesEqual(s, b)) {
-        userUpdate.billingAddress = shippingAddrId
-          ? { connect: { id: shippingAddrId } }
-          : undefined;
+        userUpdate.billingAddressId = shippingAddrId ?? me.billingAddressId ?? null;
       } else {
-        if (me.billingAddressId && me.billingAddress) {
+        if (me.billingAddressId && me.address_user_billingAddressIdToaddress) {
           await prisma.address.update({
             where: { id: me.billingAddressId },
             data: {
               line1: b.line1, line2: b.line2 ?? null, city: b.city, state: b.state ?? null,
-              postalCode: b.postalCode ?? null, country: b.country
+              postalCode: b.postalCode ?? null, country: b.country,
+              updatedAt: now,
             }
           });
+          userUpdate.billingAddressId = me.billingAddressId;
         } else {
           const created = await prisma.address.create({
             data: {
+              id: randomUUID(),
               line1: b.line1, line2: b.line2 ?? null, city: b.city, state: b.state ?? null,
-              postalCode: b.postalCode ?? null, country: b.country
+              postalCode: b.postalCode ?? null, country: b.country,
+              updatedAt: now,
             }
           });
-          userUpdate.billingAddress = { connect: { id: created.id } };
+          userUpdate.billingAddressId = created.id;
         }
       }
     }
@@ -230,16 +246,24 @@ export async function PATCH(req: Request) {
         avatarUrl: true,
         createdAt: true,
         updatedAt: true,
-        shippingAddress: {
+        address_user_shippingAddressIdToaddress: {
           select: { id: true, line1: true, line2: true, city: true, state: true, postalCode: true, country: true }
         },
-        billingAddress: {
+        address_user_billingAddressIdToaddress: {
           select: { id: true, line1: true, line2: true, city: true, state: true, postalCode: true, country: true }
         }
       }
     });
 
-    return NextResponse.json({ profile: updated });
+    const {
+      address_user_shippingAddressIdToaddress: shippingAddress,
+      address_user_billingAddressIdToaddress: billingAddress,
+      ...restUpdated
+    } = updated;
+
+    return NextResponse.json({
+      profile: { ...restUpdated, shippingAddress, billingAddress },
+    });
   } catch (e) {
     console.error("PROFILE PATCH ERROR:", e);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

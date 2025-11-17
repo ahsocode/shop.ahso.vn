@@ -8,8 +8,8 @@ import type { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
-type OrderWithRelations = Prisma.OrderGetPayload<{
-  include: { items: true; payment: true; address: true };
+type OrderWithRelations = Prisma.orderGetPayload<{
+  include: { orderitem: true; payment: true; address: true };
 }>;
 
 export async function GET(
@@ -23,7 +23,7 @@ export async function GET(
 
   const r: OrderWithRelations | null = await prisma.order.findUnique({
     where: { id },
-    include: { items: true, payment: true, address: true },
+    include: { orderitem: true, payment: true, address: true },
   });
 
   if (!r) {
@@ -55,7 +55,7 @@ export async function GET(
       taxTotal: Number(r.taxTotal),
       grandTotal: Number(r.grandTotal),
     },
-    items: r.items.map((it) => ({
+    items: r.orderitem.map((it) => ({
       sku: it.sku,
       name: it.name,
       quantity: it.quantity,

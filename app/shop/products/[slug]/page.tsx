@@ -11,23 +11,73 @@ import { buildMetadata } from "@/lib/metadata";
 export const revalidate = 60;
 
 /* ================== Types ================== */
-const productInclude = Prisma.validator<Prisma.ProductInclude>()({
-  brand: { select: { name: true, slug: true } },
-  images: {
-    select: { url: true, alt: true, sortOrder: true },
+const productInclude = Prisma.validator<Prisma.productInclude>()({
+  brand: { select: { id: true, name: true, slug: true } },
+  productimage: {
+    select: { id: true, url: true, alt: true, sortOrder: true },
     orderBy: { sortOrder: "asc" },
   },
-  specs: {
+  productspecvalue: {
     orderBy: { sortOrder: "asc" },
-    include: { specDefinition: true },
+    include: { productspecdefinition: true },
   },
-  categoryLinks: {
-    select: { category: { select: { name: true, slug: true } } },
+  productcategorylink: {
+    select: {
+      productId: true,
+      categoryId: true,
+      productcategory: {
+        select: { id: true, name: true, slug: true },
+      },
+    },
+  },
+  producttype: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      coverImage: true,
+      productcategory: {
+        select: { id: true, name: true, slug: true, description: true },
+      },
+    },
   },
 });
-type ProductWithRelations = Prisma.ProductGetPayload<{
+
+type ProductRecord = Prisma.productGetPayload<{
   include: typeof productInclude;
 }>;
+
+function transformProduct(record: ProductRecord) {
+  const {
+    producttype,
+    productimage,
+    productspecvalue,
+    productcategorylink,
+    ...rest
+  } = record;
+
+  return {
+    ...rest,
+    type: producttype
+      ? {
+          ...producttype,
+          category: producttype.productcategory,
+        }
+      : null,
+    images: productimage,
+    specs: productspecvalue.map(({ productspecdefinition, ...spec }) => ({
+      ...spec,
+      specDefinition: productspecdefinition,
+    })),
+    categoryLinks: productcategorylink.map(({ productcategory, ...link }) => ({
+      ...link,
+      category: productcategory,
+    })),
+  };
+}
+
+type ProductWithRelations = ReturnType<typeof transformProduct>;
 
 type ProductWithMetrics = ProductWithRelations & {
   ratingAvg?: number | Prisma.Decimal | null;
@@ -49,14 +99,15 @@ type ReviewDTO = {
 /* ================== Data ================== */
 async function getProduct(slug: string): Promise<ProductWithRelations | null> {
   if (!slug) return null;
-  return prisma.product.findUnique({
+  const record = await prisma.product.findUnique({
     where: { slug },
     include: productInclude, // Scalars như ratingAvg, ratingCount, purchaseCount có sẵn
   });
+  return record ? transformProduct(record) : null;
 }
 
 async function getReviews(productId: string): Promise<ReviewDTO[]> {
-  return prisma.review.findMany({
+  const raw = await prisma.review.findMany({
     where: { productId },
     orderBy: { createdAt: "desc" },
     select: {
@@ -67,12 +118,17 @@ async function getReviews(productId: string): Promise<ReviewDTO[]> {
       reply: true,
       createdAt: true,
       user: { select: { id: true, email: true } }, // tránh dùng 'name' nếu User không có field này
-      images: {
+      reviewimage: {
         select: { id: true, url: true, alt: true, sortOrder: true },
         orderBy: { sortOrder: "asc" },
       },
     },
   });
+
+  return raw.map(({ reviewimage, ...rest }) => ({
+    ...rest,
+    images: reviewimage,
+  }));
 }
 
 /* ================== Metadata ================== */

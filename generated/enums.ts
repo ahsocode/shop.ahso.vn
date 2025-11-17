@@ -8,16 +8,17 @@
 * 🟢 You can import this file directly.
 */
 
-export const Role = {
-  USER: 'USER',
-  STAFF: 'STAFF',
-  ADMIN: 'ADMIN'
+export const cart_status = {
+  ACTIVE: 'ACTIVE',
+  CHECKOUT: 'CHECKOUT',
+  COMPLETED: 'COMPLETED',
+  ABANDONED: 'ABANDONED'
 } as const
 
-export type Role = (typeof Role)[keyof typeof Role]
+export type cart_status = (typeof cart_status)[keyof typeof cart_status]
 
 
-export const OrderStatus = {
+export const order_status = {
   pending: 'pending',
   paid: 'paid',
   processing: 'processing',
@@ -26,33 +27,50 @@ export const OrderStatus = {
   cancelled: 'cancelled'
 } as const
 
-export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
+export type order_status = (typeof order_status)[keyof typeof order_status]
 
 
-export const PublishStatus = {
+export const product_status = {
   DRAFT: 'DRAFT',
   PUBLISHED: 'PUBLISHED',
   ARCHIVED: 'ARCHIVED'
 } as const
 
-export type PublishStatus = (typeof PublishStatus)[keyof typeof PublishStatus]
+export type product_status = (typeof product_status)[keyof typeof product_status]
 
 
-export const CartStatus = {
-  ACTIVE: 'ACTIVE',
-  CHECKOUT: 'CHECKOUT',
-  COMPLETED: 'COMPLETED',
-  ABANDONED: 'ABANDONED'
+export const software_status = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  ARCHIVED: 'ARCHIVED'
 } as const
 
-export type CartStatus = (typeof CartStatus)[keyof typeof CartStatus]
+export type software_status = (typeof software_status)[keyof typeof software_status]
 
 
-export const PaymentStatus = {
+export const payment_status = {
   pending: 'pending',
   awaiting_confirmation: 'awaiting_confirmation',
   confirmed: 'confirmed',
   failed: 'failed'
 } as const
 
-export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
+export type payment_status = (typeof payment_status)[keyof typeof payment_status]
+
+
+export const solution_status = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type solution_status = (typeof solution_status)[keyof typeof solution_status]
+
+
+export const user_role = {
+  USER: 'USER',
+  STAFF: 'STAFF',
+  ADMIN: 'ADMIN'
+} as const
+
+export type user_role = (typeof user_role)[keyof typeof user_role]

@@ -1,11 +1,13 @@
 import type { NextRequest } from "next/server";
-import type { Prisma, OrderStatus, PaymentStatus } from "@prisma/client";
+import type { Prisma, order_status, payment_status } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonError, jsonOk, parsePaging, toHttpError } from "@/lib/http";
 
 export const dynamic = "force-dynamic";
 
+type OrderStatus = order_status;
+type PaymentStatus = payment_status;
 const ORDER_STATUSES: OrderStatus[] = ["pending", "paid", "processing", "shipped", "delivered", "cancelled"];
 
 function parseDate(value?: string | null) {
@@ -42,7 +44,7 @@ export async function GET(req: NextRequest) {
       maxPageSize: 50,
     });
 
-    const where: Prisma.OrderWhereInput = {};
+    const where: Prisma.orderWhereInput = {};
 
     if (q) {
       where.OR = [

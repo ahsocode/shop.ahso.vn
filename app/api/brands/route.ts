@@ -1,4 +1,5 @@
 // app/api/brands/route.ts
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -21,7 +22,7 @@ export async function GET(req: Request) {
     const items = await prisma.brand.findMany({
       where,
       orderBy: [
-        { products: { _count: "desc" } },
+        { product: { _count: "desc" } },
         { name: "asc" },
       ],
       select: {
@@ -30,13 +31,13 @@ export async function GET(req: Request) {
         name: true,
         logoUrl: true,
         summary: true,
-        _count: { select: { products: true } },
+        _count: { select: { product: true } },
       },
     });
 
     const data = items.map(({ _count, ...rest }) => ({
       ...rest,
-      productCount: _count.products,
+      productCount: _count.product,
     }));
 
     // ✅ Format nhất quán: { success: true, data: [...], meta: {...} }
@@ -94,12 +95,16 @@ export async function POST(req: Request) {
       );
     }
 
+    const now = new Date();
     const brand = await prisma.brand.create({
       data: {
+        id: randomUUID(),
         slug,
         name,
         logoUrl: body.logoUrl ?? null,
         summary: body.summary ?? null,
+        createdAt: now,
+        updatedAt: now,
       },
     });
 

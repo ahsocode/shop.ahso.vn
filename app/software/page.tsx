@@ -43,8 +43,8 @@ export default async function SoftwarePage({
   const page = toInt(pickParam(params, "page"), 1);
   const pageSize = toInt(pickParam(params, "pageSize"), 12);
 
-  const where: Prisma.SoftwareWhereInput = { status: "PUBLISHED" };
-  if (category) where.category = { is: { slug: category } };
+  const where: Prisma.softwareWhereInput = { status: "PUBLISHED" };
+  if (category) where.softwarecategory = { is: { slug: category } };
   if (q) {
     where.OR = [
       { title: { contains: q } },
@@ -68,14 +68,14 @@ export default async function SoftwarePage({
         coverImage: true,
       },
     }),
-    prisma.softwareCategory.findMany({
+    prisma.softwarecategory.findMany({
       where: { isActive: true },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
       select: { id: true, slug: true, name: true },
     }),
   ]);
 
-  const initialData: SoftwareCard[] = rows.map((r) => ({
+  const initialData: SoftwareCard[] = rows.map((r): SoftwareCard => ({
     id: r.id,
     slug: r.slug,
     title: r.title,
@@ -83,11 +83,13 @@ export default async function SoftwarePage({
     image: r.coverImage ?? null,
   }));
 
-  const initialCategories: SoftwareCategoryOption[] = categories.map((c) => ({
-    id: c.id,
-    slug: c.slug,
-    name: c.name,
-  }));
+  const initialCategories: SoftwareCategoryOption[] = categories.map(
+    (c): SoftwareCategoryOption => ({
+      id: c.id,
+      slug: c.slug,
+      name: c.name,
+    })
+  );
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">

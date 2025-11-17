@@ -21,16 +21,16 @@ export async function PATCH(
     const me = await verifyBearerAuth(req); requireRole(me, ["ADMIN"]);
     const { productId, specId } = await ctx.params;
 
-    const spec = await prisma.productSpecValue.findUnique({ where: { id: specId } });
+    const spec = await prisma.productspecvalue.findUnique({ where: { id: specId } });
     if (!spec || spec.productId !== productId) return jsonError("Not Found", 404);
 
     const body = await req.json();
     const parsed = ProductSpecUpdateSchema.safeParse(body);
     if (!parsed.success) return jsonError("Validation Error", 400, { issues: parsed.error.issues });
 
-    const updated = await prisma.productSpecValue.update({
+    const updated = await prisma.productspecvalue.update({
       where: { id: specId },
-      data: parsed.data,
+      data: { ...parsed.data, updatedAt: new Date() },
     });
     return jsonOk({ data: updated });
   } catch (error) {
@@ -47,10 +47,10 @@ export async function DELETE(
     const me = await verifyBearerAuth(req); requireRole(me, ["ADMIN"]);
     const { productId, specId } = await ctx.params;
 
-    const spec = await prisma.productSpecValue.findUnique({ where: { id: specId } });
+    const spec = await prisma.productspecvalue.findUnique({ where: { id: specId } });
     if (!spec || spec.productId !== productId) return jsonError("Not Found", 404);
 
-    await prisma.productSpecValue.delete({ where: { id: specId } });
+    await prisma.productspecvalue.delete({ where: { id: specId } });
     return jsonOk({ ok: true });
   } catch (error) {
     const err = toHttpError(error);

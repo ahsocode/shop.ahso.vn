@@ -46,17 +46,6 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "INVALID_TOKEN" }, { status: 401 });
     }
 
-    const baseSelect: Record<string, true> = {
-      id: true,
-      username: true,
-      fullName: true,
-      email: true,
-      phoneE164: true,
-      role: true,
-      createdAt: true,
-      avatarUrl: true,
-    };
-    if (prismaSupportsUserBlockField) baseSelect.isBlocked = true;
     const BASE_SELECT = {
       id: true,
       username: true,
@@ -66,8 +55,8 @@ export async function GET(req: Request) {
       role: true,
       createdAt: true,
       avatarUrl: true,
-    } satisfies Prisma.UserSelect;
-    const select: Prisma.UserSelect = prismaSupportsUserBlockField
+    } satisfies Prisma.userSelect;
+    const select: Prisma.userSelect = prismaSupportsUserBlockField
       ? { ...BASE_SELECT, isBlocked: true }
       : BASE_SELECT;
 

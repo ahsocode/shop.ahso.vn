@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck 
 /*
- * This file exports the `Solution` model and its related types.
+ * This file exports the `solution` model and its related types.
  *
  * 🟢 You can import this file directly.
  */
@@ -12,10 +12,10 @@ import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
 /**
- * Model Solution
+ * Model solution
  * 
  */
-export type SolutionModel = runtime.Types.Result.DefaultSelection<Prisma.$SolutionPayload>
+export type solutionModel = runtime.Types.Result.DefaultSelection<Prisma.$solutionPayload>
 
 export type AggregateSolution = {
   _count: SolutionCountAggregateOutputType | null
@@ -32,7 +32,7 @@ export type SolutionMinAggregateOutputType = {
   bodyHtml: string | null
   industry: string | null
   usecase: string | null
-  status: $Enums.PublishStatus | null
+  status: $Enums.solution_status | null
   publishedAt: Date | null
   metaTitle: string | null
   metaDescription: string | null
@@ -51,7 +51,7 @@ export type SolutionMaxAggregateOutputType = {
   bodyHtml: string | null
   industry: string | null
   usecase: string | null
-  status: $Enums.PublishStatus | null
+  status: $Enums.solution_status | null
   publishedAt: Date | null
   metaTitle: string | null
   metaDescription: string | null
@@ -142,37 +142,37 @@ export type SolutionCountAggregateInputType = {
 
 export type SolutionAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which Solution to aggregate.
+   * Filter which solution to aggregate.
    */
-  where?: Prisma.SolutionWhereInput
+  where?: Prisma.solutionWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of Solutions to fetch.
+   * Determine the order of solutions to fetch.
    */
-  orderBy?: Prisma.SolutionOrderByWithRelationInput | Prisma.SolutionOrderByWithRelationInput[]
+  orderBy?: Prisma.solutionOrderByWithRelationInput | Prisma.solutionOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
    * Sets the start position
    */
-  cursor?: Prisma.SolutionWhereUniqueInput
+  cursor?: Prisma.solutionWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` Solutions from the position of the cursor.
+   * Take `±n` solutions from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` Solutions.
+   * Skip the first `n` solutions.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
-   * Count returned Solutions
+   * Count returned solutions
   **/
   _count?: true | SolutionCountAggregateInputType
   /**
@@ -200,11 +200,11 @@ export type GetSolutionAggregateType<T extends SolutionAggregateArgs> = {
 
 
 
-export type SolutionGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SolutionWhereInput
-  orderBy?: Prisma.SolutionOrderByWithAggregationInput | Prisma.SolutionOrderByWithAggregationInput[]
+export type solutionGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.solutionWhereInput
+  orderBy?: Prisma.solutionOrderByWithAggregationInput | Prisma.solutionOrderByWithAggregationInput[]
   by: Prisma.SolutionScalarFieldEnum[] | Prisma.SolutionScalarFieldEnum
-  having?: Prisma.SolutionScalarWhereWithAggregatesInput
+  having?: Prisma.solutionScalarWhereWithAggregatesInput
   take?: number
   skip?: number
   _count?: SolutionCountAggregateInputType | true
@@ -221,7 +221,7 @@ export type SolutionGroupByOutputType = {
   bodyHtml: string
   industry: string | null
   usecase: string | null
-  status: $Enums.PublishStatus
+  status: $Enums.solution_status
   publishedAt: Date | null
   metaTitle: string | null
   metaDescription: string | null
@@ -234,7 +234,7 @@ export type SolutionGroupByOutputType = {
   _max: SolutionMaxAggregateOutputType | null
 }
 
-type GetSolutionGroupByPayload<T extends SolutionGroupByArgs> = Prisma.PrismaPromise<
+type GetSolutionGroupByPayload<T extends solutionGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<SolutionGroupByOutputType, T['by']> &
       {
@@ -249,31 +249,31 @@ type GetSolutionGroupByPayload<T extends SolutionGroupByArgs> = Prisma.PrismaPro
 
 
 
-export type SolutionWhereInput = {
-  AND?: Prisma.SolutionWhereInput | Prisma.SolutionWhereInput[]
-  OR?: Prisma.SolutionWhereInput[]
-  NOT?: Prisma.SolutionWhereInput | Prisma.SolutionWhereInput[]
-  id?: Prisma.StringFilter<"Solution"> | string
-  title?: Prisma.StringFilter<"Solution"> | string
-  slug?: Prisma.StringFilter<"Solution"> | string
-  summary?: Prisma.StringNullableFilter<"Solution"> | string | null
-  coverImage?: Prisma.StringNullableFilter<"Solution"> | string | null
-  bodyHtml?: Prisma.StringFilter<"Solution"> | string
-  industry?: Prisma.StringNullableFilter<"Solution"> | string | null
-  usecase?: Prisma.StringNullableFilter<"Solution"> | string | null
-  status?: Prisma.EnumPublishStatusFilter<"Solution"> | $Enums.PublishStatus
-  publishedAt?: Prisma.DateTimeNullableFilter<"Solution"> | Date | string | null
-  metaTitle?: Prisma.StringNullableFilter<"Solution"> | string | null
-  metaDescription?: Prisma.StringNullableFilter<"Solution"> | string | null
-  canonicalUrl?: Prisma.StringNullableFilter<"Solution"> | string | null
-  categoryId?: Prisma.StringFilter<"Solution"> | string
-  createdAt?: Prisma.DateTimeFilter<"Solution"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Solution"> | Date | string
-  category?: Prisma.XOR<Prisma.SolutionCategoryScalarRelationFilter, Prisma.SolutionCategoryWhereInput>
-  images?: Prisma.SolutionImageListRelationFilter
+export type solutionWhereInput = {
+  AND?: Prisma.solutionWhereInput | Prisma.solutionWhereInput[]
+  OR?: Prisma.solutionWhereInput[]
+  NOT?: Prisma.solutionWhereInput | Prisma.solutionWhereInput[]
+  id?: Prisma.StringFilter<"solution"> | string
+  title?: Prisma.StringFilter<"solution"> | string
+  slug?: Prisma.StringFilter<"solution"> | string
+  summary?: Prisma.StringNullableFilter<"solution"> | string | null
+  coverImage?: Prisma.StringNullableFilter<"solution"> | string | null
+  bodyHtml?: Prisma.StringFilter<"solution"> | string
+  industry?: Prisma.StringNullableFilter<"solution"> | string | null
+  usecase?: Prisma.StringNullableFilter<"solution"> | string | null
+  status?: Prisma.Enumsolution_statusFilter<"solution"> | $Enums.solution_status
+  publishedAt?: Prisma.DateTimeNullableFilter<"solution"> | Date | string | null
+  metaTitle?: Prisma.StringNullableFilter<"solution"> | string | null
+  metaDescription?: Prisma.StringNullableFilter<"solution"> | string | null
+  canonicalUrl?: Prisma.StringNullableFilter<"solution"> | string | null
+  categoryId?: Prisma.StringFilter<"solution"> | string
+  createdAt?: Prisma.DateTimeFilter<"solution"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"solution"> | Date | string
+  solutioncategory?: Prisma.XOR<Prisma.SolutioncategoryScalarRelationFilter, Prisma.solutioncategoryWhereInput>
+  solutionimage?: Prisma.SolutionimageListRelationFilter
 }
 
-export type SolutionOrderByWithRelationInput = {
+export type solutionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -290,36 +290,36 @@ export type SolutionOrderByWithRelationInput = {
   categoryId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  category?: Prisma.SolutionCategoryOrderByWithRelationInput
-  images?: Prisma.SolutionImageOrderByRelationAggregateInput
-  _relevance?: Prisma.SolutionOrderByRelevanceInput
+  solutioncategory?: Prisma.solutioncategoryOrderByWithRelationInput
+  solutionimage?: Prisma.solutionimageOrderByRelationAggregateInput
+  _relevance?: Prisma.solutionOrderByRelevanceInput
 }
 
-export type SolutionWhereUniqueInput = Prisma.AtLeast<{
+export type solutionWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   slug?: string
-  AND?: Prisma.SolutionWhereInput | Prisma.SolutionWhereInput[]
-  OR?: Prisma.SolutionWhereInput[]
-  NOT?: Prisma.SolutionWhereInput | Prisma.SolutionWhereInput[]
-  title?: Prisma.StringFilter<"Solution"> | string
-  summary?: Prisma.StringNullableFilter<"Solution"> | string | null
-  coverImage?: Prisma.StringNullableFilter<"Solution"> | string | null
-  bodyHtml?: Prisma.StringFilter<"Solution"> | string
-  industry?: Prisma.StringNullableFilter<"Solution"> | string | null
-  usecase?: Prisma.StringNullableFilter<"Solution"> | string | null
-  status?: Prisma.EnumPublishStatusFilter<"Solution"> | $Enums.PublishStatus
-  publishedAt?: Prisma.DateTimeNullableFilter<"Solution"> | Date | string | null
-  metaTitle?: Prisma.StringNullableFilter<"Solution"> | string | null
-  metaDescription?: Prisma.StringNullableFilter<"Solution"> | string | null
-  canonicalUrl?: Prisma.StringNullableFilter<"Solution"> | string | null
-  categoryId?: Prisma.StringFilter<"Solution"> | string
-  createdAt?: Prisma.DateTimeFilter<"Solution"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Solution"> | Date | string
-  category?: Prisma.XOR<Prisma.SolutionCategoryScalarRelationFilter, Prisma.SolutionCategoryWhereInput>
-  images?: Prisma.SolutionImageListRelationFilter
+  AND?: Prisma.solutionWhereInput | Prisma.solutionWhereInput[]
+  OR?: Prisma.solutionWhereInput[]
+  NOT?: Prisma.solutionWhereInput | Prisma.solutionWhereInput[]
+  title?: Prisma.StringFilter<"solution"> | string
+  summary?: Prisma.StringNullableFilter<"solution"> | string | null
+  coverImage?: Prisma.StringNullableFilter<"solution"> | string | null
+  bodyHtml?: Prisma.StringFilter<"solution"> | string
+  industry?: Prisma.StringNullableFilter<"solution"> | string | null
+  usecase?: Prisma.StringNullableFilter<"solution"> | string | null
+  status?: Prisma.Enumsolution_statusFilter<"solution"> | $Enums.solution_status
+  publishedAt?: Prisma.DateTimeNullableFilter<"solution"> | Date | string | null
+  metaTitle?: Prisma.StringNullableFilter<"solution"> | string | null
+  metaDescription?: Prisma.StringNullableFilter<"solution"> | string | null
+  canonicalUrl?: Prisma.StringNullableFilter<"solution"> | string | null
+  categoryId?: Prisma.StringFilter<"solution"> | string
+  createdAt?: Prisma.DateTimeFilter<"solution"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"solution"> | Date | string
+  solutioncategory?: Prisma.XOR<Prisma.SolutioncategoryScalarRelationFilter, Prisma.solutioncategoryWhereInput>
+  solutionimage?: Prisma.SolutionimageListRelationFilter
 }, "id" | "slug">
 
-export type SolutionOrderByWithAggregationInput = {
+export type solutionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -336,35 +336,35 @@ export type SolutionOrderByWithAggregationInput = {
   categoryId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  _count?: Prisma.SolutionCountOrderByAggregateInput
-  _max?: Prisma.SolutionMaxOrderByAggregateInput
-  _min?: Prisma.SolutionMinOrderByAggregateInput
+  _count?: Prisma.solutionCountOrderByAggregateInput
+  _max?: Prisma.solutionMaxOrderByAggregateInput
+  _min?: Prisma.solutionMinOrderByAggregateInput
 }
 
-export type SolutionScalarWhereWithAggregatesInput = {
-  AND?: Prisma.SolutionScalarWhereWithAggregatesInput | Prisma.SolutionScalarWhereWithAggregatesInput[]
-  OR?: Prisma.SolutionScalarWhereWithAggregatesInput[]
-  NOT?: Prisma.SolutionScalarWhereWithAggregatesInput | Prisma.SolutionScalarWhereWithAggregatesInput[]
-  id?: Prisma.StringWithAggregatesFilter<"Solution"> | string
-  title?: Prisma.StringWithAggregatesFilter<"Solution"> | string
-  slug?: Prisma.StringWithAggregatesFilter<"Solution"> | string
-  summary?: Prisma.StringNullableWithAggregatesFilter<"Solution"> | string | null
-  coverImage?: Prisma.StringNullableWithAggregatesFilter<"Solution"> | string | null
-  bodyHtml?: Prisma.StringWithAggregatesFilter<"Solution"> | string
-  industry?: Prisma.StringNullableWithAggregatesFilter<"Solution"> | string | null
-  usecase?: Prisma.StringNullableWithAggregatesFilter<"Solution"> | string | null
-  status?: Prisma.EnumPublishStatusWithAggregatesFilter<"Solution"> | $Enums.PublishStatus
-  publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Solution"> | Date | string | null
-  metaTitle?: Prisma.StringNullableWithAggregatesFilter<"Solution"> | string | null
-  metaDescription?: Prisma.StringNullableWithAggregatesFilter<"Solution"> | string | null
-  canonicalUrl?: Prisma.StringNullableWithAggregatesFilter<"Solution"> | string | null
-  categoryId?: Prisma.StringWithAggregatesFilter<"Solution"> | string
-  createdAt?: Prisma.DateTimeWithAggregatesFilter<"Solution"> | Date | string
-  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Solution"> | Date | string
+export type solutionScalarWhereWithAggregatesInput = {
+  AND?: Prisma.solutionScalarWhereWithAggregatesInput | Prisma.solutionScalarWhereWithAggregatesInput[]
+  OR?: Prisma.solutionScalarWhereWithAggregatesInput[]
+  NOT?: Prisma.solutionScalarWhereWithAggregatesInput | Prisma.solutionScalarWhereWithAggregatesInput[]
+  id?: Prisma.StringWithAggregatesFilter<"solution"> | string
+  title?: Prisma.StringWithAggregatesFilter<"solution"> | string
+  slug?: Prisma.StringWithAggregatesFilter<"solution"> | string
+  summary?: Prisma.StringNullableWithAggregatesFilter<"solution"> | string | null
+  coverImage?: Prisma.StringNullableWithAggregatesFilter<"solution"> | string | null
+  bodyHtml?: Prisma.StringWithAggregatesFilter<"solution"> | string
+  industry?: Prisma.StringNullableWithAggregatesFilter<"solution"> | string | null
+  usecase?: Prisma.StringNullableWithAggregatesFilter<"solution"> | string | null
+  status?: Prisma.Enumsolution_statusWithAggregatesFilter<"solution"> | $Enums.solution_status
+  publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"solution"> | Date | string | null
+  metaTitle?: Prisma.StringNullableWithAggregatesFilter<"solution"> | string | null
+  metaDescription?: Prisma.StringNullableWithAggregatesFilter<"solution"> | string | null
+  canonicalUrl?: Prisma.StringNullableWithAggregatesFilter<"solution"> | string | null
+  categoryId?: Prisma.StringWithAggregatesFilter<"solution"> | string
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"solution"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"solution"> | Date | string
 }
 
-export type SolutionCreateInput = {
-  id?: string
+export type solutionCreateInput = {
+  id: string
   title: string
   slug: string
   summary?: string | null
@@ -372,19 +372,19 @@ export type SolutionCreateInput = {
   bodyHtml: string
   industry?: string | null
   usecase?: string | null
-  status?: $Enums.PublishStatus
+  status?: $Enums.solution_status
   publishedAt?: Date | string | null
   metaTitle?: string | null
   metaDescription?: string | null
   canonicalUrl?: string | null
   createdAt?: Date | string
-  updatedAt?: Date | string
-  category: Prisma.SolutionCategoryCreateNestedOneWithoutSolutionsInput
-  images?: Prisma.SolutionImageCreateNestedManyWithoutSolutionInput
+  updatedAt: Date | string
+  solutioncategory: Prisma.solutioncategoryCreateNestedOneWithoutSolutionInput
+  solutionimage?: Prisma.solutionimageCreateNestedManyWithoutSolutionInput
 }
 
-export type SolutionUncheckedCreateInput = {
-  id?: string
+export type solutionUncheckedCreateInput = {
+  id: string
   title: string
   slug: string
   summary?: string | null
@@ -392,18 +392,18 @@ export type SolutionUncheckedCreateInput = {
   bodyHtml: string
   industry?: string | null
   usecase?: string | null
-  status?: $Enums.PublishStatus
+  status?: $Enums.solution_status
   publishedAt?: Date | string | null
   metaTitle?: string | null
   metaDescription?: string | null
   canonicalUrl?: string | null
   categoryId: string
   createdAt?: Date | string
-  updatedAt?: Date | string
-  images?: Prisma.SolutionImageUncheckedCreateNestedManyWithoutSolutionInput
+  updatedAt: Date | string
+  solutionimage?: Prisma.solutionimageUncheckedCreateNestedManyWithoutSolutionInput
 }
 
-export type SolutionUpdateInput = {
+export type solutionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -412,18 +412,18 @@ export type SolutionUpdateInput = {
   bodyHtml?: Prisma.StringFieldUpdateOperationsInput | string
   industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usecase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
+  status?: Prisma.Enumsolution_statusFieldUpdateOperationsInput | $Enums.solution_status
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canonicalUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.SolutionCategoryUpdateOneRequiredWithoutSolutionsNestedInput
-  images?: Prisma.SolutionImageUpdateManyWithoutSolutionNestedInput
+  solutioncategory?: Prisma.solutioncategoryUpdateOneRequiredWithoutSolutionNestedInput
+  solutionimage?: Prisma.solutionimageUpdateManyWithoutSolutionNestedInput
 }
 
-export type SolutionUncheckedUpdateInput = {
+export type solutionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -432,7 +432,7 @@ export type SolutionUncheckedUpdateInput = {
   bodyHtml?: Prisma.StringFieldUpdateOperationsInput | string
   industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usecase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
+  status?: Prisma.Enumsolution_statusFieldUpdateOperationsInput | $Enums.solution_status
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -440,11 +440,11 @@ export type SolutionUncheckedUpdateInput = {
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  images?: Prisma.SolutionImageUncheckedUpdateManyWithoutSolutionNestedInput
+  solutionimage?: Prisma.solutionimageUncheckedUpdateManyWithoutSolutionNestedInput
 }
 
-export type SolutionCreateManyInput = {
-  id?: string
+export type solutionCreateManyInput = {
+  id: string
   title: string
   slug: string
   summary?: string | null
@@ -452,17 +452,17 @@ export type SolutionCreateManyInput = {
   bodyHtml: string
   industry?: string | null
   usecase?: string | null
-  status?: $Enums.PublishStatus
+  status?: $Enums.solution_status
   publishedAt?: Date | string | null
   metaTitle?: string | null
   metaDescription?: string | null
   canonicalUrl?: string | null
   categoryId: string
   createdAt?: Date | string
-  updatedAt?: Date | string
+  updatedAt: Date | string
 }
 
-export type SolutionUpdateManyMutationInput = {
+export type solutionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -471,7 +471,7 @@ export type SolutionUpdateManyMutationInput = {
   bodyHtml?: Prisma.StringFieldUpdateOperationsInput | string
   industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usecase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
+  status?: Prisma.Enumsolution_statusFieldUpdateOperationsInput | $Enums.solution_status
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -480,7 +480,7 @@ export type SolutionUpdateManyMutationInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SolutionUncheckedUpdateManyInput = {
+export type solutionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -489,7 +489,7 @@ export type SolutionUncheckedUpdateManyInput = {
   bodyHtml?: Prisma.StringFieldUpdateOperationsInput | string
   industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usecase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
+  status?: Prisma.Enumsolution_statusFieldUpdateOperationsInput | $Enums.solution_status
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -499,23 +499,13 @@ export type SolutionUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SolutionListRelationFilter = {
-  every?: Prisma.SolutionWhereInput
-  some?: Prisma.SolutionWhereInput
-  none?: Prisma.SolutionWhereInput
-}
-
-export type SolutionOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
-}
-
-export type SolutionOrderByRelevanceInput = {
-  fields: Prisma.SolutionOrderByRelevanceFieldEnum | Prisma.SolutionOrderByRelevanceFieldEnum[]
+export type solutionOrderByRelevanceInput = {
+  fields: Prisma.solutionOrderByRelevanceFieldEnum | Prisma.solutionOrderByRelevanceFieldEnum[]
   sort: Prisma.SortOrder
   search: string
 }
 
-export type SolutionCountOrderByAggregateInput = {
+export type solutionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -534,7 +524,7 @@ export type SolutionCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type SolutionMaxOrderByAggregateInput = {
+export type solutionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -553,7 +543,7 @@ export type SolutionMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
-export type SolutionMinOrderByAggregateInput = {
+export type solutionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -570,75 +560,85 @@ export type SolutionMinOrderByAggregateInput = {
   categoryId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SolutionListRelationFilter = {
+  every?: Prisma.solutionWhereInput
+  some?: Prisma.solutionWhereInput
+  none?: Prisma.solutionWhereInput
+}
+
+export type solutionOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type SolutionScalarRelationFilter = {
-  is?: Prisma.SolutionWhereInput
-  isNot?: Prisma.SolutionWhereInput
+  is?: Prisma.solutionWhereInput
+  isNot?: Prisma.solutionWhereInput
 }
 
-export type SolutionCreateNestedManyWithoutCategoryInput = {
-  create?: Prisma.XOR<Prisma.SolutionCreateWithoutCategoryInput, Prisma.SolutionUncheckedCreateWithoutCategoryInput> | Prisma.SolutionCreateWithoutCategoryInput[] | Prisma.SolutionUncheckedCreateWithoutCategoryInput[]
-  connectOrCreate?: Prisma.SolutionCreateOrConnectWithoutCategoryInput | Prisma.SolutionCreateOrConnectWithoutCategoryInput[]
-  createMany?: Prisma.SolutionCreateManyCategoryInputEnvelope
-  connect?: Prisma.SolutionWhereUniqueInput | Prisma.SolutionWhereUniqueInput[]
+export type Enumsolution_statusFieldUpdateOperationsInput = {
+  set?: $Enums.solution_status
 }
 
-export type SolutionUncheckedCreateNestedManyWithoutCategoryInput = {
-  create?: Prisma.XOR<Prisma.SolutionCreateWithoutCategoryInput, Prisma.SolutionUncheckedCreateWithoutCategoryInput> | Prisma.SolutionCreateWithoutCategoryInput[] | Prisma.SolutionUncheckedCreateWithoutCategoryInput[]
-  connectOrCreate?: Prisma.SolutionCreateOrConnectWithoutCategoryInput | Prisma.SolutionCreateOrConnectWithoutCategoryInput[]
-  createMany?: Prisma.SolutionCreateManyCategoryInputEnvelope
-  connect?: Prisma.SolutionWhereUniqueInput | Prisma.SolutionWhereUniqueInput[]
+export type solutionCreateNestedManyWithoutSolutioncategoryInput = {
+  create?: Prisma.XOR<Prisma.solutionCreateWithoutSolutioncategoryInput, Prisma.solutionUncheckedCreateWithoutSolutioncategoryInput> | Prisma.solutionCreateWithoutSolutioncategoryInput[] | Prisma.solutionUncheckedCreateWithoutSolutioncategoryInput[]
+  connectOrCreate?: Prisma.solutionCreateOrConnectWithoutSolutioncategoryInput | Prisma.solutionCreateOrConnectWithoutSolutioncategoryInput[]
+  createMany?: Prisma.solutionCreateManySolutioncategoryInputEnvelope
+  connect?: Prisma.solutionWhereUniqueInput | Prisma.solutionWhereUniqueInput[]
 }
 
-export type SolutionUpdateManyWithoutCategoryNestedInput = {
-  create?: Prisma.XOR<Prisma.SolutionCreateWithoutCategoryInput, Prisma.SolutionUncheckedCreateWithoutCategoryInput> | Prisma.SolutionCreateWithoutCategoryInput[] | Prisma.SolutionUncheckedCreateWithoutCategoryInput[]
-  connectOrCreate?: Prisma.SolutionCreateOrConnectWithoutCategoryInput | Prisma.SolutionCreateOrConnectWithoutCategoryInput[]
-  upsert?: Prisma.SolutionUpsertWithWhereUniqueWithoutCategoryInput | Prisma.SolutionUpsertWithWhereUniqueWithoutCategoryInput[]
-  createMany?: Prisma.SolutionCreateManyCategoryInputEnvelope
-  set?: Prisma.SolutionWhereUniqueInput | Prisma.SolutionWhereUniqueInput[]
-  disconnect?: Prisma.SolutionWhereUniqueInput | Prisma.SolutionWhereUniqueInput[]
-  delete?: Prisma.SolutionWhereUniqueInput | Prisma.SolutionWhereUniqueInput[]
-  connect?: Prisma.SolutionWhereUniqueInput | Prisma.SolutionWhereUniqueInput[]
-  update?: Prisma.SolutionUpdateWithWhereUniqueWithoutCategoryInput | Prisma.SolutionUpdateWithWhereUniqueWithoutCategoryInput[]
-  updateMany?: Prisma.SolutionUpdateManyWithWhereWithoutCategoryInput | Prisma.SolutionUpdateManyWithWhereWithoutCategoryInput[]
-  deleteMany?: Prisma.SolutionScalarWhereInput | Prisma.SolutionScalarWhereInput[]
+export type solutionUncheckedCreateNestedManyWithoutSolutioncategoryInput = {
+  create?: Prisma.XOR<Prisma.solutionCreateWithoutSolutioncategoryInput, Prisma.solutionUncheckedCreateWithoutSolutioncategoryInput> | Prisma.solutionCreateWithoutSolutioncategoryInput[] | Prisma.solutionUncheckedCreateWithoutSolutioncategoryInput[]
+  connectOrCreate?: Prisma.solutionCreateOrConnectWithoutSolutioncategoryInput | Prisma.solutionCreateOrConnectWithoutSolutioncategoryInput[]
+  createMany?: Prisma.solutionCreateManySolutioncategoryInputEnvelope
+  connect?: Prisma.solutionWhereUniqueInput | Prisma.solutionWhereUniqueInput[]
 }
 
-export type SolutionUncheckedUpdateManyWithoutCategoryNestedInput = {
-  create?: Prisma.XOR<Prisma.SolutionCreateWithoutCategoryInput, Prisma.SolutionUncheckedCreateWithoutCategoryInput> | Prisma.SolutionCreateWithoutCategoryInput[] | Prisma.SolutionUncheckedCreateWithoutCategoryInput[]
-  connectOrCreate?: Prisma.SolutionCreateOrConnectWithoutCategoryInput | Prisma.SolutionCreateOrConnectWithoutCategoryInput[]
-  upsert?: Prisma.SolutionUpsertWithWhereUniqueWithoutCategoryInput | Prisma.SolutionUpsertWithWhereUniqueWithoutCategoryInput[]
-  createMany?: Prisma.SolutionCreateManyCategoryInputEnvelope
-  set?: Prisma.SolutionWhereUniqueInput | Prisma.SolutionWhereUniqueInput[]
-  disconnect?: Prisma.SolutionWhereUniqueInput | Prisma.SolutionWhereUniqueInput[]
-  delete?: Prisma.SolutionWhereUniqueInput | Prisma.SolutionWhereUniqueInput[]
-  connect?: Prisma.SolutionWhereUniqueInput | Prisma.SolutionWhereUniqueInput[]
-  update?: Prisma.SolutionUpdateWithWhereUniqueWithoutCategoryInput | Prisma.SolutionUpdateWithWhereUniqueWithoutCategoryInput[]
-  updateMany?: Prisma.SolutionUpdateManyWithWhereWithoutCategoryInput | Prisma.SolutionUpdateManyWithWhereWithoutCategoryInput[]
-  deleteMany?: Prisma.SolutionScalarWhereInput | Prisma.SolutionScalarWhereInput[]
+export type solutionUpdateManyWithoutSolutioncategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.solutionCreateWithoutSolutioncategoryInput, Prisma.solutionUncheckedCreateWithoutSolutioncategoryInput> | Prisma.solutionCreateWithoutSolutioncategoryInput[] | Prisma.solutionUncheckedCreateWithoutSolutioncategoryInput[]
+  connectOrCreate?: Prisma.solutionCreateOrConnectWithoutSolutioncategoryInput | Prisma.solutionCreateOrConnectWithoutSolutioncategoryInput[]
+  upsert?: Prisma.solutionUpsertWithWhereUniqueWithoutSolutioncategoryInput | Prisma.solutionUpsertWithWhereUniqueWithoutSolutioncategoryInput[]
+  createMany?: Prisma.solutionCreateManySolutioncategoryInputEnvelope
+  set?: Prisma.solutionWhereUniqueInput | Prisma.solutionWhereUniqueInput[]
+  disconnect?: Prisma.solutionWhereUniqueInput | Prisma.solutionWhereUniqueInput[]
+  delete?: Prisma.solutionWhereUniqueInput | Prisma.solutionWhereUniqueInput[]
+  connect?: Prisma.solutionWhereUniqueInput | Prisma.solutionWhereUniqueInput[]
+  update?: Prisma.solutionUpdateWithWhereUniqueWithoutSolutioncategoryInput | Prisma.solutionUpdateWithWhereUniqueWithoutSolutioncategoryInput[]
+  updateMany?: Prisma.solutionUpdateManyWithWhereWithoutSolutioncategoryInput | Prisma.solutionUpdateManyWithWhereWithoutSolutioncategoryInput[]
+  deleteMany?: Prisma.solutionScalarWhereInput | Prisma.solutionScalarWhereInput[]
 }
 
-export type EnumPublishStatusFieldUpdateOperationsInput = {
-  set?: $Enums.PublishStatus
+export type solutionUncheckedUpdateManyWithoutSolutioncategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.solutionCreateWithoutSolutioncategoryInput, Prisma.solutionUncheckedCreateWithoutSolutioncategoryInput> | Prisma.solutionCreateWithoutSolutioncategoryInput[] | Prisma.solutionUncheckedCreateWithoutSolutioncategoryInput[]
+  connectOrCreate?: Prisma.solutionCreateOrConnectWithoutSolutioncategoryInput | Prisma.solutionCreateOrConnectWithoutSolutioncategoryInput[]
+  upsert?: Prisma.solutionUpsertWithWhereUniqueWithoutSolutioncategoryInput | Prisma.solutionUpsertWithWhereUniqueWithoutSolutioncategoryInput[]
+  createMany?: Prisma.solutionCreateManySolutioncategoryInputEnvelope
+  set?: Prisma.solutionWhereUniqueInput | Prisma.solutionWhereUniqueInput[]
+  disconnect?: Prisma.solutionWhereUniqueInput | Prisma.solutionWhereUniqueInput[]
+  delete?: Prisma.solutionWhereUniqueInput | Prisma.solutionWhereUniqueInput[]
+  connect?: Prisma.solutionWhereUniqueInput | Prisma.solutionWhereUniqueInput[]
+  update?: Prisma.solutionUpdateWithWhereUniqueWithoutSolutioncategoryInput | Prisma.solutionUpdateWithWhereUniqueWithoutSolutioncategoryInput[]
+  updateMany?: Prisma.solutionUpdateManyWithWhereWithoutSolutioncategoryInput | Prisma.solutionUpdateManyWithWhereWithoutSolutioncategoryInput[]
+  deleteMany?: Prisma.solutionScalarWhereInput | Prisma.solutionScalarWhereInput[]
 }
 
-export type SolutionCreateNestedOneWithoutImagesInput = {
-  create?: Prisma.XOR<Prisma.SolutionCreateWithoutImagesInput, Prisma.SolutionUncheckedCreateWithoutImagesInput>
-  connectOrCreate?: Prisma.SolutionCreateOrConnectWithoutImagesInput
-  connect?: Prisma.SolutionWhereUniqueInput
+export type solutionCreateNestedOneWithoutSolutionimageInput = {
+  create?: Prisma.XOR<Prisma.solutionCreateWithoutSolutionimageInput, Prisma.solutionUncheckedCreateWithoutSolutionimageInput>
+  connectOrCreate?: Prisma.solutionCreateOrConnectWithoutSolutionimageInput
+  connect?: Prisma.solutionWhereUniqueInput
 }
 
-export type SolutionUpdateOneRequiredWithoutImagesNestedInput = {
-  create?: Prisma.XOR<Prisma.SolutionCreateWithoutImagesInput, Prisma.SolutionUncheckedCreateWithoutImagesInput>
-  connectOrCreate?: Prisma.SolutionCreateOrConnectWithoutImagesInput
-  upsert?: Prisma.SolutionUpsertWithoutImagesInput
-  connect?: Prisma.SolutionWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.SolutionUpdateToOneWithWhereWithoutImagesInput, Prisma.SolutionUpdateWithoutImagesInput>, Prisma.SolutionUncheckedUpdateWithoutImagesInput>
+export type solutionUpdateOneRequiredWithoutSolutionimageNestedInput = {
+  create?: Prisma.XOR<Prisma.solutionCreateWithoutSolutionimageInput, Prisma.solutionUncheckedCreateWithoutSolutionimageInput>
+  connectOrCreate?: Prisma.solutionCreateOrConnectWithoutSolutionimageInput
+  upsert?: Prisma.solutionUpsertWithoutSolutionimageInput
+  connect?: Prisma.solutionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.solutionUpdateToOneWithWhereWithoutSolutionimageInput, Prisma.solutionUpdateWithoutSolutionimageInput>, Prisma.solutionUncheckedUpdateWithoutSolutionimageInput>
 }
 
-export type SolutionCreateWithoutCategoryInput = {
-  id?: string
+export type solutionCreateWithoutSolutioncategoryInput = {
+  id: string
   title: string
   slug: string
   summary?: string | null
@@ -646,18 +646,18 @@ export type SolutionCreateWithoutCategoryInput = {
   bodyHtml: string
   industry?: string | null
   usecase?: string | null
-  status?: $Enums.PublishStatus
+  status?: $Enums.solution_status
   publishedAt?: Date | string | null
   metaTitle?: string | null
   metaDescription?: string | null
   canonicalUrl?: string | null
   createdAt?: Date | string
-  updatedAt?: Date | string
-  images?: Prisma.SolutionImageCreateNestedManyWithoutSolutionInput
+  updatedAt: Date | string
+  solutionimage?: Prisma.solutionimageCreateNestedManyWithoutSolutionInput
 }
 
-export type SolutionUncheckedCreateWithoutCategoryInput = {
-  id?: string
+export type solutionUncheckedCreateWithoutSolutioncategoryInput = {
+  id: string
   title: string
   slug: string
   summary?: string | null
@@ -665,66 +665,66 @@ export type SolutionUncheckedCreateWithoutCategoryInput = {
   bodyHtml: string
   industry?: string | null
   usecase?: string | null
-  status?: $Enums.PublishStatus
+  status?: $Enums.solution_status
   publishedAt?: Date | string | null
   metaTitle?: string | null
   metaDescription?: string | null
   canonicalUrl?: string | null
   createdAt?: Date | string
-  updatedAt?: Date | string
-  images?: Prisma.SolutionImageUncheckedCreateNestedManyWithoutSolutionInput
+  updatedAt: Date | string
+  solutionimage?: Prisma.solutionimageUncheckedCreateNestedManyWithoutSolutionInput
 }
 
-export type SolutionCreateOrConnectWithoutCategoryInput = {
-  where: Prisma.SolutionWhereUniqueInput
-  create: Prisma.XOR<Prisma.SolutionCreateWithoutCategoryInput, Prisma.SolutionUncheckedCreateWithoutCategoryInput>
+export type solutionCreateOrConnectWithoutSolutioncategoryInput = {
+  where: Prisma.solutionWhereUniqueInput
+  create: Prisma.XOR<Prisma.solutionCreateWithoutSolutioncategoryInput, Prisma.solutionUncheckedCreateWithoutSolutioncategoryInput>
 }
 
-export type SolutionCreateManyCategoryInputEnvelope = {
-  data: Prisma.SolutionCreateManyCategoryInput | Prisma.SolutionCreateManyCategoryInput[]
+export type solutionCreateManySolutioncategoryInputEnvelope = {
+  data: Prisma.solutionCreateManySolutioncategoryInput | Prisma.solutionCreateManySolutioncategoryInput[]
   skipDuplicates?: boolean
 }
 
-export type SolutionUpsertWithWhereUniqueWithoutCategoryInput = {
-  where: Prisma.SolutionWhereUniqueInput
-  update: Prisma.XOR<Prisma.SolutionUpdateWithoutCategoryInput, Prisma.SolutionUncheckedUpdateWithoutCategoryInput>
-  create: Prisma.XOR<Prisma.SolutionCreateWithoutCategoryInput, Prisma.SolutionUncheckedCreateWithoutCategoryInput>
+export type solutionUpsertWithWhereUniqueWithoutSolutioncategoryInput = {
+  where: Prisma.solutionWhereUniqueInput
+  update: Prisma.XOR<Prisma.solutionUpdateWithoutSolutioncategoryInput, Prisma.solutionUncheckedUpdateWithoutSolutioncategoryInput>
+  create: Prisma.XOR<Prisma.solutionCreateWithoutSolutioncategoryInput, Prisma.solutionUncheckedCreateWithoutSolutioncategoryInput>
 }
 
-export type SolutionUpdateWithWhereUniqueWithoutCategoryInput = {
-  where: Prisma.SolutionWhereUniqueInput
-  data: Prisma.XOR<Prisma.SolutionUpdateWithoutCategoryInput, Prisma.SolutionUncheckedUpdateWithoutCategoryInput>
+export type solutionUpdateWithWhereUniqueWithoutSolutioncategoryInput = {
+  where: Prisma.solutionWhereUniqueInput
+  data: Prisma.XOR<Prisma.solutionUpdateWithoutSolutioncategoryInput, Prisma.solutionUncheckedUpdateWithoutSolutioncategoryInput>
 }
 
-export type SolutionUpdateManyWithWhereWithoutCategoryInput = {
-  where: Prisma.SolutionScalarWhereInput
-  data: Prisma.XOR<Prisma.SolutionUpdateManyMutationInput, Prisma.SolutionUncheckedUpdateManyWithoutCategoryInput>
+export type solutionUpdateManyWithWhereWithoutSolutioncategoryInput = {
+  where: Prisma.solutionScalarWhereInput
+  data: Prisma.XOR<Prisma.solutionUpdateManyMutationInput, Prisma.solutionUncheckedUpdateManyWithoutSolutioncategoryInput>
 }
 
-export type SolutionScalarWhereInput = {
-  AND?: Prisma.SolutionScalarWhereInput | Prisma.SolutionScalarWhereInput[]
-  OR?: Prisma.SolutionScalarWhereInput[]
-  NOT?: Prisma.SolutionScalarWhereInput | Prisma.SolutionScalarWhereInput[]
-  id?: Prisma.StringFilter<"Solution"> | string
-  title?: Prisma.StringFilter<"Solution"> | string
-  slug?: Prisma.StringFilter<"Solution"> | string
-  summary?: Prisma.StringNullableFilter<"Solution"> | string | null
-  coverImage?: Prisma.StringNullableFilter<"Solution"> | string | null
-  bodyHtml?: Prisma.StringFilter<"Solution"> | string
-  industry?: Prisma.StringNullableFilter<"Solution"> | string | null
-  usecase?: Prisma.StringNullableFilter<"Solution"> | string | null
-  status?: Prisma.EnumPublishStatusFilter<"Solution"> | $Enums.PublishStatus
-  publishedAt?: Prisma.DateTimeNullableFilter<"Solution"> | Date | string | null
-  metaTitle?: Prisma.StringNullableFilter<"Solution"> | string | null
-  metaDescription?: Prisma.StringNullableFilter<"Solution"> | string | null
-  canonicalUrl?: Prisma.StringNullableFilter<"Solution"> | string | null
-  categoryId?: Prisma.StringFilter<"Solution"> | string
-  createdAt?: Prisma.DateTimeFilter<"Solution"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Solution"> | Date | string
+export type solutionScalarWhereInput = {
+  AND?: Prisma.solutionScalarWhereInput | Prisma.solutionScalarWhereInput[]
+  OR?: Prisma.solutionScalarWhereInput[]
+  NOT?: Prisma.solutionScalarWhereInput | Prisma.solutionScalarWhereInput[]
+  id?: Prisma.StringFilter<"solution"> | string
+  title?: Prisma.StringFilter<"solution"> | string
+  slug?: Prisma.StringFilter<"solution"> | string
+  summary?: Prisma.StringNullableFilter<"solution"> | string | null
+  coverImage?: Prisma.StringNullableFilter<"solution"> | string | null
+  bodyHtml?: Prisma.StringFilter<"solution"> | string
+  industry?: Prisma.StringNullableFilter<"solution"> | string | null
+  usecase?: Prisma.StringNullableFilter<"solution"> | string | null
+  status?: Prisma.Enumsolution_statusFilter<"solution"> | $Enums.solution_status
+  publishedAt?: Prisma.DateTimeNullableFilter<"solution"> | Date | string | null
+  metaTitle?: Prisma.StringNullableFilter<"solution"> | string | null
+  metaDescription?: Prisma.StringNullableFilter<"solution"> | string | null
+  canonicalUrl?: Prisma.StringNullableFilter<"solution"> | string | null
+  categoryId?: Prisma.StringFilter<"solution"> | string
+  createdAt?: Prisma.DateTimeFilter<"solution"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"solution"> | Date | string
 }
 
-export type SolutionCreateWithoutImagesInput = {
-  id?: string
+export type solutionCreateWithoutSolutionimageInput = {
+  id: string
   title: string
   slug: string
   summary?: string | null
@@ -732,18 +732,18 @@ export type SolutionCreateWithoutImagesInput = {
   bodyHtml: string
   industry?: string | null
   usecase?: string | null
-  status?: $Enums.PublishStatus
+  status?: $Enums.solution_status
   publishedAt?: Date | string | null
   metaTitle?: string | null
   metaDescription?: string | null
   canonicalUrl?: string | null
   createdAt?: Date | string
-  updatedAt?: Date | string
-  category: Prisma.SolutionCategoryCreateNestedOneWithoutSolutionsInput
+  updatedAt: Date | string
+  solutioncategory: Prisma.solutioncategoryCreateNestedOneWithoutSolutionInput
 }
 
-export type SolutionUncheckedCreateWithoutImagesInput = {
-  id?: string
+export type solutionUncheckedCreateWithoutSolutionimageInput = {
+  id: string
   title: string
   slug: string
   summary?: string | null
@@ -751,33 +751,33 @@ export type SolutionUncheckedCreateWithoutImagesInput = {
   bodyHtml: string
   industry?: string | null
   usecase?: string | null
-  status?: $Enums.PublishStatus
+  status?: $Enums.solution_status
   publishedAt?: Date | string | null
   metaTitle?: string | null
   metaDescription?: string | null
   canonicalUrl?: string | null
   categoryId: string
   createdAt?: Date | string
-  updatedAt?: Date | string
+  updatedAt: Date | string
 }
 
-export type SolutionCreateOrConnectWithoutImagesInput = {
-  where: Prisma.SolutionWhereUniqueInput
-  create: Prisma.XOR<Prisma.SolutionCreateWithoutImagesInput, Prisma.SolutionUncheckedCreateWithoutImagesInput>
+export type solutionCreateOrConnectWithoutSolutionimageInput = {
+  where: Prisma.solutionWhereUniqueInput
+  create: Prisma.XOR<Prisma.solutionCreateWithoutSolutionimageInput, Prisma.solutionUncheckedCreateWithoutSolutionimageInput>
 }
 
-export type SolutionUpsertWithoutImagesInput = {
-  update: Prisma.XOR<Prisma.SolutionUpdateWithoutImagesInput, Prisma.SolutionUncheckedUpdateWithoutImagesInput>
-  create: Prisma.XOR<Prisma.SolutionCreateWithoutImagesInput, Prisma.SolutionUncheckedCreateWithoutImagesInput>
-  where?: Prisma.SolutionWhereInput
+export type solutionUpsertWithoutSolutionimageInput = {
+  update: Prisma.XOR<Prisma.solutionUpdateWithoutSolutionimageInput, Prisma.solutionUncheckedUpdateWithoutSolutionimageInput>
+  create: Prisma.XOR<Prisma.solutionCreateWithoutSolutionimageInput, Prisma.solutionUncheckedCreateWithoutSolutionimageInput>
+  where?: Prisma.solutionWhereInput
 }
 
-export type SolutionUpdateToOneWithWhereWithoutImagesInput = {
-  where?: Prisma.SolutionWhereInput
-  data: Prisma.XOR<Prisma.SolutionUpdateWithoutImagesInput, Prisma.SolutionUncheckedUpdateWithoutImagesInput>
+export type solutionUpdateToOneWithWhereWithoutSolutionimageInput = {
+  where?: Prisma.solutionWhereInput
+  data: Prisma.XOR<Prisma.solutionUpdateWithoutSolutionimageInput, Prisma.solutionUncheckedUpdateWithoutSolutionimageInput>
 }
 
-export type SolutionUpdateWithoutImagesInput = {
+export type solutionUpdateWithoutSolutionimageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -786,17 +786,17 @@ export type SolutionUpdateWithoutImagesInput = {
   bodyHtml?: Prisma.StringFieldUpdateOperationsInput | string
   industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usecase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
+  status?: Prisma.Enumsolution_statusFieldUpdateOperationsInput | $Enums.solution_status
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canonicalUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  category?: Prisma.SolutionCategoryUpdateOneRequiredWithoutSolutionsNestedInput
+  solutioncategory?: Prisma.solutioncategoryUpdateOneRequiredWithoutSolutionNestedInput
 }
 
-export type SolutionUncheckedUpdateWithoutImagesInput = {
+export type solutionUncheckedUpdateWithoutSolutionimageInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -805,7 +805,7 @@ export type SolutionUncheckedUpdateWithoutImagesInput = {
   bodyHtml?: Prisma.StringFieldUpdateOperationsInput | string
   industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usecase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
+  status?: Prisma.Enumsolution_statusFieldUpdateOperationsInput | $Enums.solution_status
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -815,8 +815,8 @@ export type SolutionUncheckedUpdateWithoutImagesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SolutionCreateManyCategoryInput = {
-  id?: string
+export type solutionCreateManySolutioncategoryInput = {
+  id: string
   title: string
   slug: string
   summary?: string | null
@@ -824,16 +824,16 @@ export type SolutionCreateManyCategoryInput = {
   bodyHtml: string
   industry?: string | null
   usecase?: string | null
-  status?: $Enums.PublishStatus
+  status?: $Enums.solution_status
   publishedAt?: Date | string | null
   metaTitle?: string | null
   metaDescription?: string | null
   canonicalUrl?: string | null
   createdAt?: Date | string
-  updatedAt?: Date | string
+  updatedAt: Date | string
 }
 
-export type SolutionUpdateWithoutCategoryInput = {
+export type solutionUpdateWithoutSolutioncategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -842,17 +842,17 @@ export type SolutionUpdateWithoutCategoryInput = {
   bodyHtml?: Prisma.StringFieldUpdateOperationsInput | string
   industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usecase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
+  status?: Prisma.Enumsolution_statusFieldUpdateOperationsInput | $Enums.solution_status
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canonicalUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  images?: Prisma.SolutionImageUpdateManyWithoutSolutionNestedInput
+  solutionimage?: Prisma.solutionimageUpdateManyWithoutSolutionNestedInput
 }
 
-export type SolutionUncheckedUpdateWithoutCategoryInput = {
+export type solutionUncheckedUpdateWithoutSolutioncategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -861,17 +861,17 @@ export type SolutionUncheckedUpdateWithoutCategoryInput = {
   bodyHtml?: Prisma.StringFieldUpdateOperationsInput | string
   industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usecase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
+  status?: Prisma.Enumsolution_statusFieldUpdateOperationsInput | $Enums.solution_status
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canonicalUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  images?: Prisma.SolutionImageUncheckedUpdateManyWithoutSolutionNestedInput
+  solutionimage?: Prisma.solutionimageUncheckedUpdateManyWithoutSolutionNestedInput
 }
 
-export type SolutionUncheckedUpdateManyWithoutCategoryInput = {
+export type solutionUncheckedUpdateManyWithoutSolutioncategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -880,7 +880,7 @@ export type SolutionUncheckedUpdateManyWithoutCategoryInput = {
   bodyHtml?: Prisma.StringFieldUpdateOperationsInput | string
   industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   usecase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumPublishStatusFieldUpdateOperationsInput | $Enums.PublishStatus
+  status?: Prisma.Enumsolution_statusFieldUpdateOperationsInput | $Enums.solution_status
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   metaTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metaDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -895,11 +895,11 @@ export type SolutionUncheckedUpdateManyWithoutCategoryInput = {
  */
 
 export type SolutionCountOutputType = {
-  images: number
+  solutionimage: number
 }
 
 export type SolutionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  images?: boolean | SolutionCountOutputTypeCountImagesArgs
+  solutionimage?: boolean | SolutionCountOutputTypeCountSolutionimageArgs
 }
 
 /**
@@ -915,12 +915,12 @@ export type SolutionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
 /**
  * SolutionCountOutputType without action
  */
-export type SolutionCountOutputTypeCountImagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SolutionImageWhereInput
+export type SolutionCountOutputTypeCountSolutionimageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.solutionimageWhereInput
 }
 
 
-export type SolutionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+export type solutionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   title?: boolean
   slug?: boolean
@@ -937,14 +937,14 @@ export type SolutionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   categoryId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  category?: boolean | Prisma.SolutionCategoryDefaultArgs<ExtArgs>
-  images?: boolean | Prisma.Solution$imagesArgs<ExtArgs>
+  solutioncategory?: boolean | Prisma.solutioncategoryDefaultArgs<ExtArgs>
+  solutionimage?: boolean | Prisma.solution$solutionimageArgs<ExtArgs>
   _count?: boolean | Prisma.SolutionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["solution"]>
 
 
 
-export type SolutionSelectScalar = {
+export type solutionSelectScalar = {
   id?: boolean
   title?: boolean
   slug?: boolean
@@ -963,18 +963,18 @@ export type SolutionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SolutionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "slug" | "summary" | "coverImage" | "bodyHtml" | "industry" | "usecase" | "status" | "publishedAt" | "metaTitle" | "metaDescription" | "canonicalUrl" | "categoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["solution"]>
-export type SolutionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  category?: boolean | Prisma.SolutionCategoryDefaultArgs<ExtArgs>
-  images?: boolean | Prisma.Solution$imagesArgs<ExtArgs>
+export type solutionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "slug" | "summary" | "coverImage" | "bodyHtml" | "industry" | "usecase" | "status" | "publishedAt" | "metaTitle" | "metaDescription" | "canonicalUrl" | "categoryId" | "createdAt" | "updatedAt", ExtArgs["result"]["solution"]>
+export type solutionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  solutioncategory?: boolean | Prisma.solutioncategoryDefaultArgs<ExtArgs>
+  solutionimage?: boolean | Prisma.solution$solutionimageArgs<ExtArgs>
   _count?: boolean | Prisma.SolutionCountOutputTypeDefaultArgs<ExtArgs>
 }
 
-export type $SolutionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  name: "Solution"
+export type $solutionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  name: "solution"
   objects: {
-    category: Prisma.$SolutionCategoryPayload<ExtArgs>
-    images: Prisma.$SolutionImagePayload<ExtArgs>[]
+    solutioncategory: Prisma.$solutioncategoryPayload<ExtArgs>
+    solutionimage: Prisma.$solutionimagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -985,7 +985,7 @@ export type $SolutionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     bodyHtml: string
     industry: string | null
     usecase: string | null
-    status: $Enums.PublishStatus
+    status: $Enums.solution_status
     publishedAt: Date | null
     metaTitle: string | null
     metaDescription: string | null
@@ -997,18 +997,18 @@ export type $SolutionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   composites: {}
 }
 
-export type SolutionGetPayload<S extends boolean | null | undefined | SolutionDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$SolutionPayload, S>
+export type solutionGetPayload<S extends boolean | null | undefined | solutionDefaultArgs> = runtime.Types.Result.GetResult<Prisma.$solutionPayload, S>
 
-export type SolutionCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
-  Omit<SolutionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+export type solutionCountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
+  Omit<solutionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
     select?: SolutionCountAggregateInputType | true
   }
 
-export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Solution'], meta: { name: 'Solution' } }
+export interface solutionDelegate<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+  [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['solution'], meta: { name: 'solution' } }
   /**
    * Find zero or one Solution that matches the filter.
-   * @param {SolutionFindUniqueArgs} args - Arguments to find a Solution
+   * @param {solutionFindUniqueArgs} args - Arguments to find a Solution
    * @example
    * // Get one Solution
    * const solution = await prisma.solution.findUnique({
@@ -1017,12 +1017,12 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    *   }
    * })
    */
-  findUnique<T extends SolutionFindUniqueArgs>(args: Prisma.SelectSubset<T, SolutionFindUniqueArgs<ExtArgs>>): Prisma.Prisma__SolutionClient<runtime.Types.Result.GetResult<Prisma.$SolutionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findUnique<T extends solutionFindUniqueArgs>(args: Prisma.SelectSubset<T, solutionFindUniqueArgs<ExtArgs>>): Prisma.Prisma__solutionClient<runtime.Types.Result.GetResult<Prisma.$solutionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
    * Find one Solution that matches the filter or throw an error with `error.code='P2025'`
    * if no matches were found.
-   * @param {SolutionFindUniqueOrThrowArgs} args - Arguments to find a Solution
+   * @param {solutionFindUniqueOrThrowArgs} args - Arguments to find a Solution
    * @example
    * // Get one Solution
    * const solution = await prisma.solution.findUniqueOrThrow({
@@ -1031,13 +1031,13 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    *   }
    * })
    */
-  findUniqueOrThrow<T extends SolutionFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, SolutionFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__SolutionClient<runtime.Types.Result.GetResult<Prisma.$SolutionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findUniqueOrThrow<T extends solutionFindUniqueOrThrowArgs>(args: Prisma.SelectSubset<T, solutionFindUniqueOrThrowArgs<ExtArgs>>): Prisma.Prisma__solutionClient<runtime.Types.Result.GetResult<Prisma.$solutionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
    * Find the first Solution that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionFindFirstArgs} args - Arguments to find a Solution
+   * @param {solutionFindFirstArgs} args - Arguments to find a Solution
    * @example
    * // Get one Solution
    * const solution = await prisma.solution.findFirst({
@@ -1046,14 +1046,14 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    *   }
    * })
    */
-  findFirst<T extends SolutionFindFirstArgs>(args?: Prisma.SelectSubset<T, SolutionFindFirstArgs<ExtArgs>>): Prisma.Prisma__SolutionClient<runtime.Types.Result.GetResult<Prisma.$SolutionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  findFirst<T extends solutionFindFirstArgs>(args?: Prisma.SelectSubset<T, solutionFindFirstArgs<ExtArgs>>): Prisma.Prisma__solutionClient<runtime.Types.Result.GetResult<Prisma.$solutionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
   /**
    * Find the first Solution that matches the filter or
    * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionFindFirstOrThrowArgs} args - Arguments to find a Solution
+   * @param {solutionFindFirstOrThrowArgs} args - Arguments to find a Solution
    * @example
    * // Get one Solution
    * const solution = await prisma.solution.findFirstOrThrow({
@@ -1062,13 +1062,13 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    *   }
    * })
    */
-  findFirstOrThrow<T extends SolutionFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, SolutionFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__SolutionClient<runtime.Types.Result.GetResult<Prisma.$SolutionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  findFirstOrThrow<T extends solutionFindFirstOrThrowArgs>(args?: Prisma.SelectSubset<T, solutionFindFirstOrThrowArgs<ExtArgs>>): Prisma.Prisma__solutionClient<runtime.Types.Result.GetResult<Prisma.$solutionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
    * Find zero or more Solutions that matches the filter.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionFindManyArgs} args - Arguments to filter and select certain fields only.
+   * @param {solutionFindManyArgs} args - Arguments to filter and select certain fields only.
    * @example
    * // Get all Solutions
    * const solutions = await prisma.solution.findMany()
@@ -1080,11 +1080,11 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * const solutionWithIdOnly = await prisma.solution.findMany({ select: { id: true } })
    * 
    */
-  findMany<T extends SolutionFindManyArgs>(args?: Prisma.SelectSubset<T, SolutionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SolutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+  findMany<T extends solutionFindManyArgs>(args?: Prisma.SelectSubset<T, solutionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$solutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
   /**
    * Create a Solution.
-   * @param {SolutionCreateArgs} args - Arguments to create a Solution.
+   * @param {solutionCreateArgs} args - Arguments to create a Solution.
    * @example
    * // Create one Solution
    * const Solution = await prisma.solution.create({
@@ -1094,11 +1094,11 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * })
    * 
    */
-  create<T extends SolutionCreateArgs>(args: Prisma.SelectSubset<T, SolutionCreateArgs<ExtArgs>>): Prisma.Prisma__SolutionClient<runtime.Types.Result.GetResult<Prisma.$SolutionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  create<T extends solutionCreateArgs>(args: Prisma.SelectSubset<T, solutionCreateArgs<ExtArgs>>): Prisma.Prisma__solutionClient<runtime.Types.Result.GetResult<Prisma.$solutionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
    * Create many Solutions.
-   * @param {SolutionCreateManyArgs} args - Arguments to create many Solutions.
+   * @param {solutionCreateManyArgs} args - Arguments to create many Solutions.
    * @example
    * // Create many Solutions
    * const solution = await prisma.solution.createMany({
@@ -1108,11 +1108,11 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * })
    *     
    */
-  createMany<T extends SolutionCreateManyArgs>(args?: Prisma.SelectSubset<T, SolutionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  createMany<T extends solutionCreateManyArgs>(args?: Prisma.SelectSubset<T, solutionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
    * Delete a Solution.
-   * @param {SolutionDeleteArgs} args - Arguments to delete one Solution.
+   * @param {solutionDeleteArgs} args - Arguments to delete one Solution.
    * @example
    * // Delete one Solution
    * const Solution = await prisma.solution.delete({
@@ -1122,11 +1122,11 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * })
    * 
    */
-  delete<T extends SolutionDeleteArgs>(args: Prisma.SelectSubset<T, SolutionDeleteArgs<ExtArgs>>): Prisma.Prisma__SolutionClient<runtime.Types.Result.GetResult<Prisma.$SolutionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  delete<T extends solutionDeleteArgs>(args: Prisma.SelectSubset<T, solutionDeleteArgs<ExtArgs>>): Prisma.Prisma__solutionClient<runtime.Types.Result.GetResult<Prisma.$solutionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
    * Update one Solution.
-   * @param {SolutionUpdateArgs} args - Arguments to update one Solution.
+   * @param {solutionUpdateArgs} args - Arguments to update one Solution.
    * @example
    * // Update one Solution
    * const solution = await prisma.solution.update({
@@ -1139,11 +1139,11 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * })
    * 
    */
-  update<T extends SolutionUpdateArgs>(args: Prisma.SelectSubset<T, SolutionUpdateArgs<ExtArgs>>): Prisma.Prisma__SolutionClient<runtime.Types.Result.GetResult<Prisma.$SolutionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  update<T extends solutionUpdateArgs>(args: Prisma.SelectSubset<T, solutionUpdateArgs<ExtArgs>>): Prisma.Prisma__solutionClient<runtime.Types.Result.GetResult<Prisma.$solutionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
   /**
    * Delete zero or more Solutions.
-   * @param {SolutionDeleteManyArgs} args - Arguments to filter Solutions to delete.
+   * @param {solutionDeleteManyArgs} args - Arguments to filter Solutions to delete.
    * @example
    * // Delete a few Solutions
    * const { count } = await prisma.solution.deleteMany({
@@ -1153,13 +1153,13 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * })
    * 
    */
-  deleteMany<T extends SolutionDeleteManyArgs>(args?: Prisma.SelectSubset<T, SolutionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  deleteMany<T extends solutionDeleteManyArgs>(args?: Prisma.SelectSubset<T, solutionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
    * Update zero or more Solutions.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionUpdateManyArgs} args - Arguments to update one or more rows.
+   * @param {solutionUpdateManyArgs} args - Arguments to update one or more rows.
    * @example
    * // Update many Solutions
    * const solution = await prisma.solution.updateMany({
@@ -1172,11 +1172,11 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * })
    * 
    */
-  updateMany<T extends SolutionUpdateManyArgs>(args: Prisma.SelectSubset<T, SolutionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+  updateMany<T extends solutionUpdateManyArgs>(args: Prisma.SelectSubset<T, solutionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
    * Create or update one Solution.
-   * @param {SolutionUpsertArgs} args - Arguments to update or create a Solution.
+   * @param {solutionUpsertArgs} args - Arguments to update or create a Solution.
    * @example
    * // Update or create a Solution
    * const solution = await prisma.solution.upsert({
@@ -1191,14 +1191,14 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    *   }
    * })
    */
-  upsert<T extends SolutionUpsertArgs>(args: Prisma.SelectSubset<T, SolutionUpsertArgs<ExtArgs>>): Prisma.Prisma__SolutionClient<runtime.Types.Result.GetResult<Prisma.$SolutionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+  upsert<T extends solutionUpsertArgs>(args: Prisma.SelectSubset<T, solutionUpsertArgs<ExtArgs>>): Prisma.Prisma__solutionClient<runtime.Types.Result.GetResult<Prisma.$solutionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
   /**
    * Count the number of Solutions.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionCountArgs} args - Arguments to filter Solutions to count.
+   * @param {solutionCountArgs} args - Arguments to filter Solutions to count.
    * @example
    * // Count the number of Solutions
    * const count = await prisma.solution.count({
@@ -1207,8 +1207,8 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    *   }
    * })
   **/
-  count<T extends SolutionCountArgs>(
-    args?: Prisma.Subset<T, SolutionCountArgs>,
+  count<T extends solutionCountArgs>(
+    args?: Prisma.Subset<T, solutionCountArgs>,
   ): Prisma.PrismaPromise<
     T extends runtime.Types.Utils.Record<'select', any>
       ? T['select'] extends true
@@ -1247,7 +1247,7 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * Group by Solution.
    * Note, that providing `undefined` is treated as the value not being there.
    * Read more here: https://pris.ly/d/null-undefined
-   * @param {SolutionGroupByArgs} args - Group by arguments.
+   * @param {solutionGroupByArgs} args - Group by arguments.
    * @example
    * // Group by city, order by createdAt, get count
    * const result = await prisma.user.groupBy({
@@ -1262,14 +1262,14 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * 
   **/
   groupBy<
-    T extends SolutionGroupByArgs,
+    T extends solutionGroupByArgs,
     HasSelectOrTake extends Prisma.Or<
       Prisma.Extends<'skip', Prisma.Keys<T>>,
       Prisma.Extends<'take', Prisma.Keys<T>>
     >,
     OrderByArg extends Prisma.True extends HasSelectOrTake
-      ? { orderBy: SolutionGroupByArgs['orderBy'] }
-      : { orderBy?: SolutionGroupByArgs['orderBy'] },
+      ? { orderBy: solutionGroupByArgs['orderBy'] }
+      : { orderBy?: solutionGroupByArgs['orderBy'] },
     OrderFields extends Prisma.ExcludeUnderscoreKeys<Prisma.Keys<Prisma.MaybeTupleToUnion<T['orderBy']>>>,
     ByFields extends Prisma.MaybeTupleToUnion<T['by']>,
     ByValid extends Prisma.Has<ByFields, OrderFields>,
@@ -1318,23 +1318,23 @@ export interface SolutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
           ? never
           : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
       }[OrderFields]
-  >(args: Prisma.SubsetIntersection<T, SolutionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSolutionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  >(args: Prisma.SubsetIntersection<T, solutionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSolutionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
 /**
- * Fields of the Solution model
+ * Fields of the solution model
  */
-readonly fields: SolutionFieldRefs;
+readonly fields: solutionFieldRefs;
 }
 
 /**
- * The delegate class that acts as a "Promise-like" for Solution.
+ * The delegate class that acts as a "Promise-like" for solution.
  * Why is this prefixed with `Prisma__`?
  * Because we want to prevent naming conflicts as mentioned in
  * https://github.com/prisma/prisma-client-js/issues/707
  */
-export interface Prisma__SolutionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+export interface Prisma__solutionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  category<T extends Prisma.SolutionCategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SolutionCategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__SolutionCategoryClient<runtime.Types.Result.GetResult<Prisma.$SolutionCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  images<T extends Prisma.Solution$imagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Solution$imagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SolutionImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  solutioncategory<T extends Prisma.solutioncategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.solutioncategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__solutioncategoryClient<runtime.Types.Result.GetResult<Prisma.$solutioncategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  solutionimage<T extends Prisma.solution$solutionimageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.solution$solutionimageArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$solutionimagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1361,405 +1361,405 @@ export interface Prisma__SolutionClient<T, Null = never, ExtArgs extends runtime
 
 
 /**
- * Fields of the Solution model
+ * Fields of the solution model
  */
-export interface SolutionFieldRefs {
-  readonly id: Prisma.FieldRef<"Solution", 'String'>
-  readonly title: Prisma.FieldRef<"Solution", 'String'>
-  readonly slug: Prisma.FieldRef<"Solution", 'String'>
-  readonly summary: Prisma.FieldRef<"Solution", 'String'>
-  readonly coverImage: Prisma.FieldRef<"Solution", 'String'>
-  readonly bodyHtml: Prisma.FieldRef<"Solution", 'String'>
-  readonly industry: Prisma.FieldRef<"Solution", 'String'>
-  readonly usecase: Prisma.FieldRef<"Solution", 'String'>
-  readonly status: Prisma.FieldRef<"Solution", 'PublishStatus'>
-  readonly publishedAt: Prisma.FieldRef<"Solution", 'DateTime'>
-  readonly metaTitle: Prisma.FieldRef<"Solution", 'String'>
-  readonly metaDescription: Prisma.FieldRef<"Solution", 'String'>
-  readonly canonicalUrl: Prisma.FieldRef<"Solution", 'String'>
-  readonly categoryId: Prisma.FieldRef<"Solution", 'String'>
-  readonly createdAt: Prisma.FieldRef<"Solution", 'DateTime'>
-  readonly updatedAt: Prisma.FieldRef<"Solution", 'DateTime'>
+export interface solutionFieldRefs {
+  readonly id: Prisma.FieldRef<"solution", 'String'>
+  readonly title: Prisma.FieldRef<"solution", 'String'>
+  readonly slug: Prisma.FieldRef<"solution", 'String'>
+  readonly summary: Prisma.FieldRef<"solution", 'String'>
+  readonly coverImage: Prisma.FieldRef<"solution", 'String'>
+  readonly bodyHtml: Prisma.FieldRef<"solution", 'String'>
+  readonly industry: Prisma.FieldRef<"solution", 'String'>
+  readonly usecase: Prisma.FieldRef<"solution", 'String'>
+  readonly status: Prisma.FieldRef<"solution", 'solution_status'>
+  readonly publishedAt: Prisma.FieldRef<"solution", 'DateTime'>
+  readonly metaTitle: Prisma.FieldRef<"solution", 'String'>
+  readonly metaDescription: Prisma.FieldRef<"solution", 'String'>
+  readonly canonicalUrl: Prisma.FieldRef<"solution", 'String'>
+  readonly categoryId: Prisma.FieldRef<"solution", 'String'>
+  readonly createdAt: Prisma.FieldRef<"solution", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"solution", 'DateTime'>
 }
     
 
 // Custom InputTypes
 /**
- * Solution findUnique
+ * solution findUnique
  */
-export type SolutionFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Solution
+   * Select specific fields to fetch from the solution
    */
-  select?: Prisma.SolutionSelect<ExtArgs> | null
+  select?: Prisma.solutionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Solution
+   * Omit specific fields from the solution
    */
-  omit?: Prisma.SolutionOmit<ExtArgs> | null
+  omit?: Prisma.solutionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionInclude<ExtArgs> | null
+  include?: Prisma.solutionInclude<ExtArgs> | null
   /**
-   * Filter, which Solution to fetch.
+   * Filter, which solution to fetch.
    */
-  where: Prisma.SolutionWhereUniqueInput
+  where: Prisma.solutionWhereUniqueInput
 }
 
 /**
- * Solution findUniqueOrThrow
+ * solution findUniqueOrThrow
  */
-export type SolutionFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Solution
+   * Select specific fields to fetch from the solution
    */
-  select?: Prisma.SolutionSelect<ExtArgs> | null
+  select?: Prisma.solutionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Solution
+   * Omit specific fields from the solution
    */
-  omit?: Prisma.SolutionOmit<ExtArgs> | null
+  omit?: Prisma.solutionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionInclude<ExtArgs> | null
+  include?: Prisma.solutionInclude<ExtArgs> | null
   /**
-   * Filter, which Solution to fetch.
+   * Filter, which solution to fetch.
    */
-  where: Prisma.SolutionWhereUniqueInput
+  where: Prisma.solutionWhereUniqueInput
 }
 
 /**
- * Solution findFirst
+ * solution findFirst
  */
-export type SolutionFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Solution
+   * Select specific fields to fetch from the solution
    */
-  select?: Prisma.SolutionSelect<ExtArgs> | null
+  select?: Prisma.solutionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Solution
+   * Omit specific fields from the solution
    */
-  omit?: Prisma.SolutionOmit<ExtArgs> | null
+  omit?: Prisma.solutionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionInclude<ExtArgs> | null
+  include?: Prisma.solutionInclude<ExtArgs> | null
   /**
-   * Filter, which Solution to fetch.
+   * Filter, which solution to fetch.
    */
-  where?: Prisma.SolutionWhereInput
+  where?: Prisma.solutionWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of Solutions to fetch.
+   * Determine the order of solutions to fetch.
    */
-  orderBy?: Prisma.SolutionOrderByWithRelationInput | Prisma.SolutionOrderByWithRelationInput[]
+  orderBy?: Prisma.solutionOrderByWithRelationInput | Prisma.solutionOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for Solutions.
+   * Sets the position for searching for solutions.
    */
-  cursor?: Prisma.SolutionWhereUniqueInput
+  cursor?: Prisma.solutionWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` Solutions from the position of the cursor.
+   * Take `±n` solutions from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` Solutions.
+   * Skip the first `n` solutions.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of Solutions.
+   * Filter by unique combinations of solutions.
    */
   distinct?: Prisma.SolutionScalarFieldEnum | Prisma.SolutionScalarFieldEnum[]
 }
 
 /**
- * Solution findFirstOrThrow
+ * solution findFirstOrThrow
  */
-export type SolutionFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Solution
+   * Select specific fields to fetch from the solution
    */
-  select?: Prisma.SolutionSelect<ExtArgs> | null
+  select?: Prisma.solutionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Solution
+   * Omit specific fields from the solution
    */
-  omit?: Prisma.SolutionOmit<ExtArgs> | null
+  omit?: Prisma.solutionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionInclude<ExtArgs> | null
+  include?: Prisma.solutionInclude<ExtArgs> | null
   /**
-   * Filter, which Solution to fetch.
+   * Filter, which solution to fetch.
    */
-  where?: Prisma.SolutionWhereInput
+  where?: Prisma.solutionWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of Solutions to fetch.
+   * Determine the order of solutions to fetch.
    */
-  orderBy?: Prisma.SolutionOrderByWithRelationInput | Prisma.SolutionOrderByWithRelationInput[]
+  orderBy?: Prisma.solutionOrderByWithRelationInput | Prisma.solutionOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for searching for Solutions.
+   * Sets the position for searching for solutions.
    */
-  cursor?: Prisma.SolutionWhereUniqueInput
+  cursor?: Prisma.solutionWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` Solutions from the position of the cursor.
+   * Take `±n` solutions from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` Solutions.
+   * Skip the first `n` solutions.
    */
   skip?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
    * 
-   * Filter by unique combinations of Solutions.
+   * Filter by unique combinations of solutions.
    */
   distinct?: Prisma.SolutionScalarFieldEnum | Prisma.SolutionScalarFieldEnum[]
 }
 
 /**
- * Solution findMany
+ * solution findMany
  */
-export type SolutionFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Solution
+   * Select specific fields to fetch from the solution
    */
-  select?: Prisma.SolutionSelect<ExtArgs> | null
+  select?: Prisma.solutionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Solution
+   * Omit specific fields from the solution
    */
-  omit?: Prisma.SolutionOmit<ExtArgs> | null
+  omit?: Prisma.solutionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionInclude<ExtArgs> | null
+  include?: Prisma.solutionInclude<ExtArgs> | null
   /**
-   * Filter, which Solutions to fetch.
+   * Filter, which solutions to fetch.
    */
-  where?: Prisma.SolutionWhereInput
+  where?: Prisma.solutionWhereInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
    * 
-   * Determine the order of Solutions to fetch.
+   * Determine the order of solutions to fetch.
    */
-  orderBy?: Prisma.SolutionOrderByWithRelationInput | Prisma.SolutionOrderByWithRelationInput[]
+  orderBy?: Prisma.solutionOrderByWithRelationInput | Prisma.solutionOrderByWithRelationInput[]
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
    * 
-   * Sets the position for listing Solutions.
+   * Sets the position for listing solutions.
    */
-  cursor?: Prisma.SolutionWhereUniqueInput
+  cursor?: Prisma.solutionWhereUniqueInput
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Take `±n` Solutions from the position of the cursor.
+   * Take `±n` solutions from the position of the cursor.
    */
   take?: number
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
    * 
-   * Skip the first `n` Solutions.
+   * Skip the first `n` solutions.
    */
   skip?: number
   distinct?: Prisma.SolutionScalarFieldEnum | Prisma.SolutionScalarFieldEnum[]
 }
 
 /**
- * Solution create
+ * solution create
  */
-export type SolutionCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Solution
+   * Select specific fields to fetch from the solution
    */
-  select?: Prisma.SolutionSelect<ExtArgs> | null
+  select?: Prisma.solutionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Solution
+   * Omit specific fields from the solution
    */
-  omit?: Prisma.SolutionOmit<ExtArgs> | null
+  omit?: Prisma.solutionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionInclude<ExtArgs> | null
+  include?: Prisma.solutionInclude<ExtArgs> | null
   /**
-   * The data needed to create a Solution.
+   * The data needed to create a solution.
    */
-  data: Prisma.XOR<Prisma.SolutionCreateInput, Prisma.SolutionUncheckedCreateInput>
+  data: Prisma.XOR<Prisma.solutionCreateInput, Prisma.solutionUncheckedCreateInput>
 }
 
 /**
- * Solution createMany
+ * solution createMany
  */
-export type SolutionCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to create many Solutions.
+   * The data used to create many solutions.
    */
-  data: Prisma.SolutionCreateManyInput | Prisma.SolutionCreateManyInput[]
+  data: Prisma.solutionCreateManyInput | Prisma.solutionCreateManyInput[]
   skipDuplicates?: boolean
 }
 
 /**
- * Solution update
+ * solution update
  */
-export type SolutionUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Solution
+   * Select specific fields to fetch from the solution
    */
-  select?: Prisma.SolutionSelect<ExtArgs> | null
+  select?: Prisma.solutionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Solution
+   * Omit specific fields from the solution
    */
-  omit?: Prisma.SolutionOmit<ExtArgs> | null
+  omit?: Prisma.solutionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionInclude<ExtArgs> | null
+  include?: Prisma.solutionInclude<ExtArgs> | null
   /**
-   * The data needed to update a Solution.
+   * The data needed to update a solution.
    */
-  data: Prisma.XOR<Prisma.SolutionUpdateInput, Prisma.SolutionUncheckedUpdateInput>
+  data: Prisma.XOR<Prisma.solutionUpdateInput, Prisma.solutionUncheckedUpdateInput>
   /**
-   * Choose, which Solution to update.
+   * Choose, which solution to update.
    */
-  where: Prisma.SolutionWhereUniqueInput
+  where: Prisma.solutionWhereUniqueInput
 }
 
 /**
- * Solution updateMany
+ * solution updateMany
  */
-export type SolutionUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * The data used to update Solutions.
+   * The data used to update solutions.
    */
-  data: Prisma.XOR<Prisma.SolutionUpdateManyMutationInput, Prisma.SolutionUncheckedUpdateManyInput>
+  data: Prisma.XOR<Prisma.solutionUpdateManyMutationInput, Prisma.solutionUncheckedUpdateManyInput>
   /**
-   * Filter which Solutions to update
+   * Filter which solutions to update
    */
-  where?: Prisma.SolutionWhereInput
+  where?: Prisma.solutionWhereInput
   /**
-   * Limit how many Solutions to update.
+   * Limit how many solutions to update.
    */
   limit?: number
 }
 
 /**
- * Solution upsert
+ * solution upsert
  */
-export type SolutionUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Solution
+   * Select specific fields to fetch from the solution
    */
-  select?: Prisma.SolutionSelect<ExtArgs> | null
+  select?: Prisma.solutionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Solution
+   * Omit specific fields from the solution
    */
-  omit?: Prisma.SolutionOmit<ExtArgs> | null
+  omit?: Prisma.solutionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionInclude<ExtArgs> | null
+  include?: Prisma.solutionInclude<ExtArgs> | null
   /**
-   * The filter to search for the Solution to update in case it exists.
+   * The filter to search for the solution to update in case it exists.
    */
-  where: Prisma.SolutionWhereUniqueInput
+  where: Prisma.solutionWhereUniqueInput
   /**
-   * In case the Solution found by the `where` argument doesn't exist, create a new Solution with this data.
+   * In case the solution found by the `where` argument doesn't exist, create a new solution with this data.
    */
-  create: Prisma.XOR<Prisma.SolutionCreateInput, Prisma.SolutionUncheckedCreateInput>
+  create: Prisma.XOR<Prisma.solutionCreateInput, Prisma.solutionUncheckedCreateInput>
   /**
-   * In case the Solution was found with the provided `where` argument, update it with this data.
+   * In case the solution was found with the provided `where` argument, update it with this data.
    */
-  update: Prisma.XOR<Prisma.SolutionUpdateInput, Prisma.SolutionUncheckedUpdateInput>
+  update: Prisma.XOR<Prisma.solutionUpdateInput, Prisma.solutionUncheckedUpdateInput>
 }
 
 /**
- * Solution delete
+ * solution delete
  */
-export type SolutionDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Solution
+   * Select specific fields to fetch from the solution
    */
-  select?: Prisma.SolutionSelect<ExtArgs> | null
+  select?: Prisma.solutionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Solution
+   * Omit specific fields from the solution
    */
-  omit?: Prisma.SolutionOmit<ExtArgs> | null
+  omit?: Prisma.solutionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionInclude<ExtArgs> | null
+  include?: Prisma.solutionInclude<ExtArgs> | null
   /**
-   * Filter which Solution to delete.
+   * Filter which solution to delete.
    */
-  where: Prisma.SolutionWhereUniqueInput
+  where: Prisma.solutionWhereUniqueInput
 }
 
 /**
- * Solution deleteMany
+ * solution deleteMany
  */
-export type SolutionDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Filter which Solutions to delete
+   * Filter which solutions to delete
    */
-  where?: Prisma.SolutionWhereInput
+  where?: Prisma.solutionWhereInput
   /**
-   * Limit how many Solutions to delete.
+   * Limit how many solutions to delete.
    */
   limit?: number
 }
 
 /**
- * Solution.images
+ * solution.solutionimage
  */
-export type Solution$imagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solution$solutionimageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the SolutionImage
+   * Select specific fields to fetch from the solutionimage
    */
-  select?: Prisma.SolutionImageSelect<ExtArgs> | null
+  select?: Prisma.solutionimageSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the SolutionImage
+   * Omit specific fields from the solutionimage
    */
-  omit?: Prisma.SolutionImageOmit<ExtArgs> | null
+  omit?: Prisma.solutionimageOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionImageInclude<ExtArgs> | null
-  where?: Prisma.SolutionImageWhereInput
-  orderBy?: Prisma.SolutionImageOrderByWithRelationInput | Prisma.SolutionImageOrderByWithRelationInput[]
-  cursor?: Prisma.SolutionImageWhereUniqueInput
+  include?: Prisma.solutionimageInclude<ExtArgs> | null
+  where?: Prisma.solutionimageWhereInput
+  orderBy?: Prisma.solutionimageOrderByWithRelationInput | Prisma.solutionimageOrderByWithRelationInput[]
+  cursor?: Prisma.solutionimageWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.SolutionImageScalarFieldEnum | Prisma.SolutionImageScalarFieldEnum[]
+  distinct?: Prisma.SolutionimageScalarFieldEnum | Prisma.SolutionimageScalarFieldEnum[]
 }
 
 /**
- * Solution without action
+ * solution without action
  */
-export type SolutionDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type solutionDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Solution
+   * Select specific fields to fetch from the solution
    */
-  select?: Prisma.SolutionSelect<ExtArgs> | null
+  select?: Prisma.solutionSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Solution
+   * Omit specific fields from the solution
    */
-  omit?: Prisma.SolutionOmit<ExtArgs> | null
+  omit?: Prisma.solutionOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.SolutionInclude<ExtArgs> | null
+  include?: Prisma.solutionInclude<ExtArgs> | null
 }

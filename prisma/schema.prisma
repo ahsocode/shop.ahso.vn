@@ -1,6 +1,3 @@
-// ================================================
-// GENERATORS & DATASOURCE
-// ================================================
 generator client_types {
   provider = "prisma-client"
   output   = "../generated"
@@ -15,16 +12,471 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ================================================
-// ENUMS HỆ THỐNG
-// ================================================
-enum Role {
-  USER
-  STAFF
-  ADMIN
+model address {
+  id                                   String   @id
+  line1                                String
+  line2                                String?
+  city                                 String
+  state                                String?
+  postalCode                           String?
+  country                              String   @default("VN") @db.Char(2)
+  createdAt                            DateTime @default(now())
+  updatedAt                            DateTime
+  order                                order[]
+  user_user_billingAddressIdToaddress  user?    @relation("user_billingAddressIdToaddress")
+  user_user_shippingAddressIdToaddress user?    @relation("user_shippingAddressIdToaddress")
 }
 
-enum OrderStatus {
+model brand {
+  id           String    @id
+  name         String
+  slug         String    @unique(map: "Brand_slug_key")
+  logoUrl      String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime
+  productCount Int       @default(0)
+  summary      String?
+  product      product[]
+}
+
+model cart {
+  id            String      @id
+  userId        String?
+  status        cart_status @default(ACTIVE)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime
+  currency      String      @default("VND")
+  discountTotal Decimal     @default(0.00) @db.Decimal(12, 2)
+  grandTotal    Decimal     @default(0.00) @db.Decimal(12, 2)
+  shippingFee   Decimal     @default(0.00) @db.Decimal(12, 2)
+  subtotal      Decimal     @default(0.00) @db.Decimal(12, 2)
+  taxTotal      Decimal     @default(0.00) @db.Decimal(12, 2)
+  cartitem      cartitem[]
+
+  @@index([status], map: "Cart_status_idx")
+  @@index([userId], map: "Cart_userId_idx")
+}
+
+model cartitem {
+  id            String   @id
+  cartId        String
+  quantity      Int      @default(1)
+  unitPrice     Decimal  @db.Decimal(12, 2)
+  addedAt       DateTime @default(now())
+  brandName     String?
+  currency      String   @default("VND")
+  lineTotal     Decimal  @db.Decimal(12, 2)
+  productId     String?
+  productImage  String?  @db.Text
+  productName   String
+  productSku    String
+  productSlug   String
+  quantityLabel String?
+  taxIncluded   Boolean  @default(true)
+  unitLabel     String?
+  cart          cart     @relation(fields: [cartId], references: [id], onDelete: Cascade, map: "CartItem_cartId_fkey")
+  product       product? @relation(fields: [productId], references: [id], map: "CartItem_productId_fkey")
+
+  @@index([cartId], map: "CartItem_cartId_idx")
+  @@index([productId], map: "CartItem_productId_idx")
+}
+
+model order {
+  id                 String       @id
+  code               String       @unique(map: "Order_code_key")
+  status             order_status @default(pending)
+  shippingMethod     String?
+  shippingFee        Decimal      @default(0.00) @db.Decimal(12, 2)
+  note               String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime
+  addressId          String?
+  userId             String?
+  billingCity        String?
+  billingCountry     String       @default("VN") @db.Char(2)
+  billingLine1       String?
+  billingLine2       String?
+  billingPostalCode  String?
+  billingState       String?
+  currency           String       @default("VND")
+  customerEmail      String
+  customerFullName   String
+  customerPhone      String
+  customerTaxCode    String?      @db.VarChar(13)
+  discountTotal      Decimal      @default(0.00) @db.Decimal(12, 2)
+  grandTotal         Decimal      @db.Decimal(12, 2)
+  shippingCity       String
+  shippingCountry    String       @default("VN") @db.Char(2)
+  shippingLine1      String
+  shippingLine2      String?
+  shippingPostalCode String?
+  shippingState      String?
+  subtotal           Decimal      @db.Decimal(12, 2)
+  taxTotal           Decimal      @default(0.00) @db.Decimal(12, 2)
+  address            address?     @relation(fields: [addressId], references: [id], map: "Order_addressId_fkey")
+  user               user?        @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
+  orderitem          orderitem[]
+  payment            payment?
+
+  @@index([addressId], map: "Order_addressId_idx")
+  @@index([status, createdAt], map: "Order_status_createdAt_idx")
+  @@index([userId], map: "Order_userId_idx")
+}
+
+model orderitem {
+  id            String   @id
+  orderId       String
+  sku           String
+  name          String
+  quantity      Int      @default(1)
+  image         String?  @db.Text
+  brandName     String?
+  createdAt     DateTime @default(now())
+  currency      String   @default("VND")
+  discount      Decimal  @default(0.00) @db.Decimal(12, 2)
+  lineTotal     Decimal  @db.Decimal(12, 2)
+  productId     String?
+  quantityLabel String?
+  slug          String
+  unitLabel     String?
+  unitPrice     Decimal  @db.Decimal(12, 2)
+  order         order    @relation(fields: [orderId], references: [id], map: "OrderItem_orderId_fkey")
+  product       product? @relation(fields: [productId], references: [id], map: "OrderItem_productId_fkey")
+
+  @@index([orderId], map: "OrderItem_orderId_idx")
+  @@index([productId], map: "OrderItem_productId_idx")
+  @@index([sku], map: "OrderItem_sku_idx")
+}
+
+model payment {
+  id                   String         @id
+  orderId              String         @unique(map: "Payment_orderId_key")
+  method               String
+  amount               Decimal        @db.Decimal(12, 2)
+  confirmedAt          DateTime?
+  customerMarkedPaidAt DateTime?
+  requestedAt          DateTime       @default(now())
+  status               payment_status @default(pending)
+  order                order          @relation(fields: [orderId], references: [id], map: "Payment_orderId_fkey")
+
+  @@index([orderId], map: "Payment_orderId_idx")
+  @@index([status], map: "Payment_status_idx")
+}
+
+model product {
+  id                                                    String                @id
+  slug                                                  String                @unique(map: "Product_slug_key")
+  sku                                                   String                @unique(map: "Product_sku_key")
+  metaTitle                                             String?
+  metaDescription                                       String?
+  status                                                product_status        @default(DRAFT)
+  publishAt                                             DateTime?
+  brandId                                               String?
+  createdAt                                             DateTime              @default(now())
+  updatedAt                                             DateTime
+  coverImage                                            String?               @db.Text
+  currency                                              String                @default("VND")
+  description                                           String?
+  heightMm                                              Int?
+  lengthMm                                              Int?
+  listPrice                                             Decimal?              @db.Decimal(12, 2)
+  minOrderQty                                           Int?                  @default(1)
+  name                                                  String
+  price                                                 Decimal               @db.Decimal(12, 2)
+  quantityLabel                                         String?
+  quantityUnitId                                        String?
+  quantityValue                                         Decimal?              @db.Decimal(20, 6)
+  stepQty                                               Int?                  @default(1)
+  stockOnHand                                           Int                   @default(0)
+  stockReserved                                         Int                   @default(0)
+  taxIncluded                                           Boolean               @default(true)
+  typeId                                                String
+  unitId                                                String?
+  weightGrams                                           Int?
+  widthMm                                               Int?
+  purchaseCount                                         Int                   @default(0)
+  ratingAvg                                             Float                 @default(0)
+  ratingCount                                           Int                   @default(0)
+  cartitem                                              cartitem[]
+  orderitem                                             orderitem[]
+  brand                                                 brand?                @relation(fields: [brandId], references: [id], map: "Product_brandId_fkey")
+  unitdefinition_product_quantityUnitIdTounitdefinition unitdefinition?       @relation("product_quantityUnitIdTounitdefinition", fields: [quantityUnitId], references: [id], map: "Product_quantityUnitId_fkey")
+  producttype                                           producttype           @relation(fields: [typeId], references: [id], map: "Product_typeId_fkey")
+  unitdefinition_product_unitIdTounitdefinition         unitdefinition?       @relation("product_unitIdTounitdefinition", fields: [unitId], references: [id], map: "Product_unitId_fkey")
+  productcategorylink                                   productcategorylink[]
+  productimage                                          productimage[]
+  productspecvalue                                      productspecvalue[]
+  review                                                review[]
+
+  @@index([brandId], map: "Product_brandId_idx")
+  @@index([name], map: "Product_name_idx")
+  @@index([price], map: "Product_price_idx")
+  @@index([purchaseCount], map: "Product_purchaseCount_idx")
+  @@index([quantityUnitId], map: "Product_quantityUnitId_idx")
+  @@index([quantityValue], map: "Product_quantityValue_idx")
+  @@index([ratingAvg], map: "Product_ratingAvg_idx")
+  @@index([ratingCount], map: "Product_ratingCount_idx")
+  @@index([status, publishAt], map: "Product_status_publishAt_idx")
+  @@index([typeId], map: "Product_typeId_idx")
+  @@index([unitId], map: "Product_unitId_fkey")
+}
+
+model productcategory {
+  coverImage          String?               @db.Text
+  createdAt           DateTime              @default(now())
+  description         String?
+  id                  String                @id
+  name                String
+  productCount        Int                   @default(0)
+  slug                String                @unique(map: "ProductCategory_slug_key")
+  updatedAt           DateTime
+  productcategorylink productcategorylink[]
+  producttype         producttype[]
+
+  @@index([name], map: "ProductCategory_name_idx")
+  @@index([productCount], map: "ProductCategory_productCount_idx")
+}
+
+model productcategorylink {
+  productId       String
+  categoryId      String
+  productcategory productcategory @relation(fields: [categoryId], references: [id], onDelete: Cascade, map: "ProductCategoryLink_categoryId_fkey")
+  product         product         @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ProductCategoryLink_productId_fkey")
+
+  @@id([productId, categoryId])
+  @@index([categoryId], map: "ProductCategoryLink_categoryId_idx")
+}
+
+model productimage {
+  id        String   @id
+  productId String
+  url       String   @db.Text
+  alt       String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  product   product  @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ProductImage_productId_fkey")
+
+  @@index([productId], map: "ProductImage_productId_idx")
+  @@index([sortOrder], map: "ProductImage_sortOrder_idx")
+}
+
+model productspecdefinition {
+  id               String             @id
+  name             String
+  slug             String             @unique(map: "ProductSpecDefinition_slug_key")
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime
+  productspecvalue productspecvalue[]
+
+  @@index([name], map: "ProductSpecDefinition_name_idx")
+}
+
+model productspecvalue {
+  id                    String                @id
+  productId             String
+  specDefinitionId      String
+  valueString           String?
+  valueNumber           Float?
+  valueBoolean          Boolean?
+  unitOverride          String?
+  note                  String?
+  sortOrder             Int                   @default(0)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime
+  product               product               @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ProductSpecValue_productId_fkey")
+  productspecdefinition productspecdefinition @relation(fields: [specDefinitionId], references: [id], map: "ProductSpecValue_specDefinitionId_fkey")
+
+  @@unique([productId, specDefinitionId], map: "ProductSpecValue_productId_specDefinitionId_key")
+  @@index([sortOrder], map: "ProductSpecValue_sortOrder_idx")
+  @@index([specDefinitionId], map: "ProductSpecValue_specDefinitionId_idx")
+}
+
+model producttype {
+  id              String          @id
+  slug            String
+  name            String
+  coverImage      String?         @db.Text
+  description     String?
+  categoryId      String
+  productCount    Int             @default(0)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime
+  product         product[]
+  productcategory productcategory @relation(fields: [categoryId], references: [id], map: "ProductType_categoryId_fkey")
+
+  @@unique([categoryId, slug], map: "ProductType_categoryId_slug_key")
+  @@index([categoryId], map: "ProductType_categoryId_idx")
+  @@index([name], map: "ProductType_name_idx")
+  @@index([productCount], map: "ProductType_productCount_idx")
+}
+
+model review {
+  id          String        @id
+  productId   String
+  userId      String?
+  rating      Int
+  feedback    String?
+  description String?
+  reply       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  product     product       @relation(fields: [productId], references: [id], onDelete: Cascade, map: "Review_productId_fkey")
+  user        user?         @relation(fields: [userId], references: [id], map: "Review_userId_fkey")
+  reviewimage reviewimage[]
+
+  @@index([productId], map: "Review_productId_idx")
+  @@index([userId], map: "Review_userId_idx")
+}
+
+model reviewimage {
+  id        String   @id
+  reviewId  String
+  url       String
+  alt       String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  review    review   @relation(fields: [reviewId], references: [id], onDelete: Cascade, map: "ReviewImage_reviewId_fkey")
+
+  @@index([reviewId], map: "ReviewImage_reviewId_idx")
+}
+
+model software {
+  id               String           @id
+  title            String
+  slug             String           @unique(map: "Software_slug_key")
+  summary          String?
+  coverImage       String?          @db.Text
+  bodyHtml         String           @db.LongText
+  status           software_status  @default(DRAFT)
+  publishedAt      DateTime?
+  metaTitle        String?
+  metaDescription  String?
+  canonicalUrl     String?
+  categoryId       String
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime
+  softwarecategory softwarecategory @relation(fields: [categoryId], references: [id], map: "Software_categoryId_fkey")
+
+  @@index([categoryId, status], map: "Software_categoryId_status_idx")
+  @@fulltext([title, bodyHtml], map: "Software_title_bodyHtml_idx")
+}
+
+model softwarecategory {
+  id                     String             @id
+  name                   String
+  slug                   String             @unique(map: "SoftwareCategory_slug_key")
+  description            String?
+  image                  String?            @db.Text
+  parentId               String?
+  sortOrder              Int                @default(0)
+  isActive               Boolean            @default(true)
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime
+  software               software[]
+  softwarecategory       softwarecategory?  @relation("softwarecategoryTosoftwarecategory", fields: [parentId], references: [id], map: "SoftwareCategory_parentId_fkey")
+  other_softwarecategory softwarecategory[] @relation("softwarecategoryTosoftwarecategory")
+
+  @@index([parentId, sortOrder], map: "SoftwareCategory_parentId_sortOrder_idx")
+}
+
+model solution {
+  id               String           @id
+  title            String
+  slug             String           @unique(map: "Solution_slug_key")
+  summary          String?
+  coverImage       String?          @db.Text
+  bodyHtml         String           @db.LongText
+  industry         String?
+  usecase          String?
+  status           solution_status  @default(DRAFT)
+  publishedAt      DateTime?
+  metaTitle        String?
+  metaDescription  String?
+  canonicalUrl     String?
+  categoryId       String
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime
+  solutioncategory solutioncategory @relation(fields: [categoryId], references: [id], map: "Solution_categoryId_fkey")
+  solutionimage    solutionimage[]
+
+  @@index([categoryId, status], map: "Solution_categoryId_status_idx")
+  @@fulltext([title, bodyHtml, usecase], map: "Solution_title_bodyHtml_usecase_idx")
+}
+
+model solutioncategory {
+  id                     String             @id
+  name                   String
+  slug                   String             @unique(map: "SolutionCategory_slug_key")
+  description            String?
+  image                  String?            @db.Text
+  parentId               String?
+  sortOrder              Int                @default(0)
+  isActive               Boolean            @default(true)
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime
+  solution               solution[]
+  solutioncategory       solutioncategory?  @relation("solutioncategoryTosolutioncategory", fields: [parentId], references: [id], map: "SolutionCategory_parentId_fkey")
+  other_solutioncategory solutioncategory[] @relation("solutioncategoryTosolutioncategory")
+
+  @@index([parentId, sortOrder], map: "SolutionCategory_parentId_sortOrder_idx")
+}
+
+model solutionimage {
+  id         String   @id
+  solutionId String
+  url        String   @db.Text
+  alt        String?
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  solution   solution @relation(fields: [solutionId], references: [id], onDelete: Cascade, map: "SolutionImage_solutionId_fkey")
+
+  @@index([solutionId, sortOrder], map: "SolutionImage_solutionId_sortOrder_idx")
+}
+
+model unitdefinition {
+  id                                             String    @id
+  name                                           String    @unique(map: "UnitDefinition_name_key")
+  symbol                                         String?
+  dimension                                      String?
+  baseName                                       String?
+  factorToBase                                   Decimal?  @db.Decimal(20, 8)
+  createdAt                                      DateTime  @default(now())
+  updatedAt                                      DateTime
+  product_product_quantityUnitIdTounitdefinition product[] @relation("product_quantityUnitIdTounitdefinition")
+  product_product_unitIdTounitdefinition         product[] @relation("product_unitIdTounitdefinition")
+}
+
+model user {
+  id                                      String    @id
+  username                                String    @unique(map: "User_username_key")
+  passwordHash                            String
+  fullName                                String
+  email                                   String    @unique(map: "User_email_key")
+  phoneE164                               String    @unique(map: "User_phoneE164_key")
+  taxCode                                 String?   @db.VarChar(13)
+  emailVerified                           Boolean   @default(false)
+  createdAt                               DateTime  @default(now())
+  updatedAt                               DateTime
+  shippingAddressId                       String    @unique(map: "User_shippingAddressId_key")
+  billingAddressId                        String?   @unique(map: "User_billingAddressId_key")
+  role                                    user_role @default(USER)
+  avatarUrl                               String?   @default("/logo.png")
+  isBlocked                               Boolean   @default(false)
+  order                                   order[]
+  review                                  review[]
+  address_user_billingAddressIdToaddress  address?  @relation("user_billingAddressIdToaddress", fields: [billingAddressId], references: [id], map: "User_billingAddressId_fkey")
+  address_user_shippingAddressIdToaddress address   @relation("user_shippingAddressIdToaddress", fields: [shippingAddressId], references: [id], map: "User_shippingAddressId_fkey")
+}
+
+enum cart_status {
+  ACTIVE
+  CHECKOUT
+  COMPLETED
+  ABANDONED
+}
+
+enum order_status {
   pending
   paid
   processing
@@ -33,590 +485,33 @@ enum OrderStatus {
   cancelled
 }
 
-enum PublishStatus {
+enum product_status {
   DRAFT
   PUBLISHED
   ARCHIVED
 }
 
-enum CartStatus {
-  ACTIVE
-  CHECKOUT
-  COMPLETED
-  ABANDONED
+enum software_status {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
-// Trạng thái thanh toán
-enum PaymentStatus {
-  pending // mới tạo (chưa làm gì)
-  awaiting_confirmation // user đã bấm "tôi đã thanh toán"
-  confirmed // staff đã xác nhận nhận tiền
-  failed // thanh toán lỗi / không thấy tiền
+enum payment_status {
+  pending
+  awaiting_confirmation
+  confirmed
+  failed
 }
 
-// ================================================
-// USER / ADDRESS / ORDER / PAYMENT
-// ================================================
-model User {
-  id            String   @id @default(cuid())
-  username      String   @unique
-  passwordHash  String
-  fullName      String
-  email         String   @unique
-  phoneE164     String   @unique
-  taxCode       String?  @db.VarChar(13)
-  emailVerified Boolean  @default(false)
-  isBlocked     Boolean  @default(false)
-  role          Role     @default(USER)
-  avatarUrl     String?  @default("/logo.png")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // Địa chỉ mặc định của user
-  shippingAddressId String   @unique
-  billingAddressId  String?  @unique
-  shippingAddress   Address  @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
-  billingAddress    Address? @relation("BillingAddress", fields: [billingAddressId], references: [id])
-
-  // Quan hệ khác
-  orders Order[]  @relation("UserOrders")
-  Review Review[]
+enum solution_status {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
-model Address {
-  id         String   @id @default(cuid())
-  line1      String
-  line2      String?
-  city       String
-  state      String?
-  postalCode String?
-  country    String   @default("VN") @db.Char(2)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  usersShipping User[] @relation("ShippingAddress")
-  usersBilling  User[] @relation("BillingAddress")
-
-  // Các đơn hàng tham chiếu đến address này (optional)
-  orders Order[] @relation("OrderAddress")
-}
-
-model Order {
-  id     String      @id @default(cuid())
-  code   String      @unique
-  status OrderStatus @default(pending)
-
-  // ===== Thông tin khách hàng (snapshot, kể cả guest) =====
-  customerFullName String
-  customerEmail    String
-  customerPhone    String
-  customerTaxCode  String? @db.VarChar(13)
-
-  // ===== Địa chỉ giao hàng (snapshot, luôn có) =====
-  shippingLine1      String
-  shippingLine2      String?
-  shippingCity       String
-  shippingState      String?
-  shippingPostalCode String?
-  shippingCountry    String  @default("VN") @db.Char(2)
-
-  // ===== Địa chỉ hóa đơn (snapshot, optional) =====
-  billingLine1      String?
-  billingLine2      String?
-  billingCity       String?
-  billingState      String?
-  billingPostalCode String?
-  billingCountry    String  @default("VN") @db.Char(2)
-
-  // ===== Giao hàng & ghi chú =====
-  shippingMethod String?
-  shippingFee    Decimal @default(0) @db.Decimal(12, 2)
-  note           String?
-
-  // ===== Tiền tệ & tổng tiền snapshot =====
-  currency      String  @default("VND")
-  subtotal      Decimal @db.Decimal(12, 2) // tổng line items trước giảm
-  discountTotal Decimal @default(0) @db.Decimal(12, 2)
-  taxTotal      Decimal @default(0) @db.Decimal(12, 2)
-  grandTotal    Decimal @db.Decimal(12, 2) // số tiền khách phải trả
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // ===== Quan hệ =====
-  items   OrderItem[]
-  payment Payment?
-
-  // Optional link về Address canonical (địa chỉ user lúc đó)
-  address   Address? @relation("OrderAddress", fields: [addressId], references: [id])
-  addressId String?
-
-  // Optional link về User (guest = null)
-  user   User?   @relation("UserOrders", fields: [userId], references: [id])
-  userId String?
-
-  @@index([userId])
-  @@index([addressId])
-  @@index([status, createdAt])
-}
-
-model OrderItem {
-  id String @id @default(cuid())
-
-  order   Order  @relation(fields: [orderId], references: [id])
-  orderId String
-
-  // Optional link tới Product để truy vấn sau này
-  productId String?
-  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
-
-  // Snapshot dữ liệu product tại thời điểm đặt
-  sku           String
-  name          String
-  slug          String
-  image         String? @db.Text
-  brandName     String?
-  unitLabel     String?
-  quantityLabel String?
-
-  unitPrice Decimal @db.Decimal(12, 2)
-  currency  String  @default("VND")
-  discount  Decimal @default(0) @db.Decimal(12, 2)
-  quantity  Int     @default(1)
-  lineTotal Decimal @db.Decimal(12, 2)
-
-  createdAt DateTime @default(now())
-
-  @@index([orderId])
-  @@index([productId])
-  @@index([sku])
-}
-
-model Payment {
-  id String @id @default(cuid())
-
-  order   Order  @relation(fields: [orderId], references: [id])
-  orderId String @unique
-
-  method String
-  amount Decimal @db.Decimal(12, 2)
-
-  status               PaymentStatus @default(pending)
-  requestedAt          DateTime      @default(now()) // lúc hiển thị QR / tạo payment
-  customerMarkedPaidAt DateTime? // lúc user bấm "tôi đã thanh toán"
-  confirmedAt          DateTime? // lúc staff xác nhận đã nhận tiền
-
-  @@index([orderId])
-  @@index([status])
-}
-
-// ================================================
-// SOLUTION CATALOG
-// ================================================
-model SolutionCategory {
-  id          String  @id @default(cuid())
-  name        String
-  slug        String  @unique
-  description String?
-  image       String? @db.Text
-
-  parentId String?
-  parent   SolutionCategory?  @relation("SolutionCategoryToParent", fields: [parentId], references: [id])
-  children SolutionCategory[] @relation("SolutionCategoryToParent")
-
-  sortOrder Int     @default(0)
-  isActive  Boolean @default(true)
-
-  solutions Solution[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([parentId, sortOrder])
-}
-
-model Solution {
-  id         String  @id @default(cuid())
-  title      String
-  slug       String  @unique
-  summary    String?
-  coverImage String? @db.Text
-  bodyHtml   String  @db.LongText
-
-  industry String?
-  usecase  String?
-
-  status      PublishStatus @default(DRAFT)
-  publishedAt DateTime?
-
-  metaTitle       String?
-  metaDescription String?
-  canonicalUrl    String?
-
-  categoryId String
-  category   SolutionCategory @relation(fields: [categoryId], references: [id])
-
-  images SolutionImage[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([categoryId, status])
-  @@fulltext([title, bodyHtml, usecase])
-}
-
-model SolutionImage {
-  id         String   @id @default(cuid())
-  solutionId String
-  solution   Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
-
-  url       String  @db.Text
-  alt       String?
-  sortOrder Int     @default(0)
-
-  createdAt DateTime @default(now())
-
-  @@index([solutionId, sortOrder])
-}
-
-// ================================================
-// SOFTWARE CATALOG
-// ================================================
-model SoftwareCategory {
-  id          String  @id @default(cuid())
-  name        String
-  slug        String  @unique
-  description String?
-  image       String? @db.Text
-
-  parentId String?
-  parent   SoftwareCategory?  @relation("SoftwareCategoryToParent", fields: [parentId], references: [id])
-  children SoftwareCategory[] @relation("SoftwareCategoryToParent")
-
-  sortOrder Int     @default(0)
-  isActive  Boolean @default(true)
-
-  softwares Software[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([parentId, sortOrder])
-}
-
-model Software {
-  id         String  @id @default(cuid())
-  title      String
-  slug       String  @unique
-  summary    String?
-  coverImage String? @db.Text
-  bodyHtml   String  @db.LongText
-
-  status      PublishStatus @default(DRAFT)
-  publishedAt DateTime?
-
-  metaTitle       String?
-  metaDescription String?
-  canonicalUrl    String?
-
-  categoryId String
-  category   SoftwareCategory @relation(fields: [categoryId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([categoryId, status])
-  @@fulltext([title, bodyHtml])
-}
-
-// ================================================
-// PRODUCT CATALOG
-// ================================================
-model Brand {
-  id           String    @id @default(cuid())
-  slug         String    @unique
-  logoUrl      String?   @db.Text
-  name         String
-  summary      String?
-  productCount Int       @default(0)
-  products     Product[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-}
-
-model ProductCategory {
-  id          String  @id @default(cuid())
-  slug        String  @unique
-  name        String
-  coverImage  String? @db.Text
-  description String?
-
-  productLinks ProductCategoryLink[]
-  productCount Int                   @default(0)
-
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  ProductType ProductType[]
-
-  @@index([name])
-  @@index([productCount])
-}
-
-model ProductCategoryLink {
-  productId  String
-  categoryId String
-
-  product  Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
-  category ProductCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@id([productId, categoryId])
-  @@index([categoryId])
-}
-
-model ProductType {
-  id          String  @id @default(cuid())
-  slug        String
-  name        String
-  coverImage  String? @db.Text
-  description String?
-
-  categoryId String
-  category   ProductCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-
-  productCount Int       @default(0)
-  products     Product[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([categoryId, slug])
-  @@index([name])
-  @@index([categoryId])
-  @@index([productCount])
-}
-
-model UnitDefinition {
-  id           String   @id @default(cuid())
-  name         String   @unique
-  symbol       String?
-  dimension    String?
-  baseName     String?
-  factorToBase Decimal? @db.Decimal(20, 8)
-
-  productsByUnit    Product[] @relation("ProductBaseUnit")
-  productsByQtyUnit Product[] @relation("ProductQtyUnit")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model ProductSpecDefinition {
-  id   String @id @default(cuid())
-  name String
-  slug String @unique
-
-  productSpecs ProductSpecValue[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([name])
-}
-
-model Product {
-  id          String  @id @default(cuid())
-  slug        String  @unique
-  name        String
-  sku         String  @unique
-  description String?
-  coverImage  String? @db.Text
-
-  metaTitle       String?
-  metaDescription String?
-  status          PublishStatus @default(DRAFT)
-  publishAt       DateTime?
-
-  images ProductImage[]
-  specs  ProductSpecValue[]
-
-  price         Decimal  @db.Decimal(12, 2)
-  listPrice     Decimal? @db.Decimal(12, 2)
-  currency      String   @default("VND")
-  taxIncluded   Boolean  @default(true)
-  stockOnHand   Int      @default(0)
-  stockReserved Int      @default(0)
-
-  weightGrams Int?
-  lengthMm    Int?
-  widthMm     Int?
-  heightMm    Int?
-
-  typeId String
-  type   ProductType @relation(fields: [typeId], references: [id], onDelete: Restrict)
-
-  brandId String?
-  brand   Brand?  @relation(fields: [brandId], references: [id], onDelete: SetNull)
-
-  categoryLinks ProductCategoryLink[]
-
-  unitId String?
-  unit   UnitDefinition? @relation("ProductBaseUnit", fields: [unitId], references: [id], onDelete: SetNull)
-
-  quantityValue  Decimal?        @db.Decimal(20, 6)
-  quantityUnitId String?
-  quantityUnit   UnitDefinition? @relation("ProductQtyUnit", fields: [quantityUnitId], references: [id], onDelete: SetNull)
-  quantityLabel  String?
-
-  minOrderQty Int? @default(1)
-  stepQty     Int? @default(1)
-
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  CartItem  CartItem[]
-
-  // ⭐ Counters & reviews
-  ratingAvg     Float       @default(0)
-  ratingCount   Int         @default(0)
-  purchaseCount Int         @default(0)
-  reviews       Review[]
-  OrderItem     OrderItem[]
-
-  @@index([name])
-  @@index([brandId])
-  @@index([typeId])
-  @@index([price])
-  @@index([quantityUnitId])
-  @@index([quantityValue])
-  @@index([status, publishAt])
-  @@index([ratingAvg])
-  @@index([ratingCount])
-  @@index([purchaseCount])
-}
-
-model ProductImage {
-  id        String  @id @default(cuid())
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  url       String  @db.Text
-  alt       String?
-  sortOrder Int     @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([productId])
-  @@index([sortOrder])
-}
-
-model ProductSpecValue {
-  id        String  @id @default(cuid())
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  specDefinitionId String
-  specDefinition   ProductSpecDefinition @relation(fields: [specDefinitionId], references: [id], onDelete: Restrict)
-
-  valueString  String?
-  valueNumber  Float?
-  valueBoolean Boolean?
-
-  unitOverride String?
-  note         String?
-  sortOrder    Int     @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([productId, specDefinitionId])
-  @@index([specDefinitionId])
-  @@index([sortOrder])
-}
-
-// ================================================
-// SHOPPING CART
-// ================================================
-model Cart {
-  id     String     @id @default(cuid())
-  userId String?
-  status CartStatus @default(ACTIVE)
-
-  currency      String  @default("VND")
-  subtotal      Decimal @default(0) @db.Decimal(12, 2)
-  discountTotal Decimal @default(0) @db.Decimal(12, 2)
-  taxTotal      Decimal @default(0) @db.Decimal(12, 2)
-  shippingFee   Decimal @default(0) @db.Decimal(12, 2)
-  grandTotal    Decimal @default(0) @db.Decimal(12, 2)
-
-  items CartItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-  @@index([status])
-}
-
-model CartItem {
-  id String @id @default(cuid())
-
-  cartId String
-  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
-
-  productId String?
-  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
-
-  productName  String
-  productSku   String
-  productSlug  String
-  productImage String? @db.Text
-  brandName    String?
-
-  unitLabel     String?
-  quantityLabel String?
-
-  unitPrice   Decimal @db.Decimal(12, 2)
-  currency    String  @default("VND")
-  taxIncluded Boolean @default(true)
-
-  quantity  Int     @default(1)
-  lineTotal Decimal @db.Decimal(12, 2)
-
-  addedAt DateTime @default(now())
-
-  @@index([cartId])
-  @@index([productId])
-}
-
-model Review {
-  id        String  @id @default(cuid())
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId String
-
-  user   User?   @relation(fields: [userId], references: [id])
-  userId String?
-
-  rating      Int
-  feedback    String?
-  description String?
-  reply       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  images ReviewImage[]
-
-  @@index([productId])
-  @@index([userId])
-}
-
-model ReviewImage {
-  id        String   @id @default(cuid())
-  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-  reviewId  String
-  url       String
-  alt       String?
-  sortOrder Int      @default(0)
-  createdAt DateTime @default(now())
-
-  @@index([reviewId])
+enum user_role {
+  USER
+  STAFF
+  ADMIN
 }

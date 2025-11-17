@@ -1,4 +1,5 @@
 // app/api/cart/items/route.ts
+import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -36,8 +37,9 @@ async function getOrCreateUserCart(userId: string) {
 
   if (!cart) {
     cart = await prisma.cart.create({
-      data: { userId, status: "ACTIVE" },
+      data: { id: randomUUID(), userId, status: "ACTIVE", updatedAt: new Date() },
     });
+    return { cart, created: true };
   }
 
   return { cart, created: false };
@@ -56,7 +58,7 @@ async function getOrCreateGuestCart(cookieId: string | null) {
   }
 
   const created = await prisma.cart.create({
-    data: { status: "ACTIVE", userId: null },
+    data: { id: randomUUID(), status: "ACTIVE", userId: null, updatedAt: new Date() },
   });
 
   return { cart: created, created: true };
@@ -110,7 +112,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Kiểm tra item đã có trong cart chưa
-    const existing = await prisma.cartItem.findFirst({
+    const existing = await prisma.cartitem.findFirst({
       where: { cartId: cart.id, productId: product.id },
     });
 
@@ -128,7 +130,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      await prisma.cartItem.update({
+      await prisma.cartitem.update({
         where: { id: existing.id },
         data: {
           quantity: newQty,
@@ -138,8 +140,9 @@ export async function POST(req: NextRequest) {
       });
     } else {
       // Tạo mới
-      await prisma.cartItem.create({
+      await prisma.cartitem.create({
         data: {
+          id: randomUUID(),
           cartId: cart.id,
           productId: product.id,
           productName: product.name,
@@ -158,7 +161,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Cập nhật tổng tiền
-    const items = await prisma.cartItem.findMany({ where: { cartId: cart.id } });
+    const items = await prisma.cartitem.findMany({ where: { cartId: cart.id } });
     const totals = calcTotals(items);
 
     await prisma.cart.update({
@@ -169,16 +172,18 @@ export async function POST(req: NextRequest) {
         taxTotal: totals.taxTotal,
         shippingFee: totals.shippingFee,
         grandTotal: totals.grandTotal,
+        updatedAt: new Date(),
       },
     });
 
     // Lấy cart đầy đủ
     const full = await prisma.cart.findUnique({
       where: { id: cart.id },
-      include: { items: true },
+      include: { cartitem: true },
     });
 
-    const res = NextResponse.json(full, { status: 201 });
+    const responseCart = full ? (({ cartitem, ...rest }) => ({ ...rest, items: cartitem }))(full) : full;
+    const res = NextResponse.json(responseCart, { status: 201 });
 
     // Set cookie cho guest nếu cart mới
     if (!user?.sub && created) {

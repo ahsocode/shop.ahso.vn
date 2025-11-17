@@ -17,10 +17,10 @@ export async function GET(req: Request) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 12);
 
-    const where: Prisma.SoftwareWhereInput = { status: "PUBLISHED" };
+    const where: Prisma.softwareWhereInput = { status: "PUBLISHED" };
 
     if (categoryId) where.categoryId = categoryId;
-    else if (category) where.category = { is: { slug: category } };
+    else if (category) where.softwarecategory = { is: { slug: category } };
 
     if (q) {
       where.OR = [
@@ -43,7 +43,7 @@ export async function GET(req: Request) {
           title: true,
           coverImage: true,
           summary: true,
-          category: { select: { name: true, slug: true } },
+          softwarecategory: { select: { name: true, slug: true } },
         },
       }),
     ]);
@@ -55,7 +55,7 @@ export async function GET(req: Request) {
         title: r.title,
         summary: r.summary ?? null,
         image: r.coverImage ?? null,
-        category: r.category,
+        category: r.softwarecategory,
       })),
       meta: { total, page, pageSize },
     });

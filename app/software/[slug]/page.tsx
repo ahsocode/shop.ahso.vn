@@ -8,20 +8,31 @@ import { buildMetadata } from "@/lib/metadata";
 
 export const revalidate = 60;
 
-const softwareInclude = Prisma.validator<Prisma.SoftwareInclude>()({
-  category: { select: { name: true, slug: true } },
+const softwareInclude = Prisma.validator<Prisma.softwareInclude>()({
+  softwarecategory: { select: { name: true, slug: true } },
 });
 
-type SoftwareWithRelations = Prisma.SoftwareGetPayload<{
+type SoftwareRecord = Prisma.softwareGetPayload<{
   include: typeof softwareInclude;
 }>;
 
+type SoftwareWithRelations = ReturnType<typeof transformSoftware>;
+
+function transformSoftware(record: SoftwareRecord) {
+  const { softwarecategory, ...rest } = record;
+  return {
+    ...rest,
+    category: softwarecategory,
+  };
+}
+
 async function getSoftware(slug: string): Promise<SoftwareWithRelations | null> {
   if (!slug) return null;
-  return prisma.software.findUnique({
+  const record = await prisma.software.findUnique({
     where: { slug, status: "PUBLISHED" },
     include: softwareInclude,
   });
+  return record ? transformSoftware(record) : null;
 }
 
 export async function generateMetadata({

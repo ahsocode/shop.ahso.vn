@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -24,18 +25,18 @@ export async function GET(req: Request) {
       );
     }
 
-    // Build category filter allowing both slug or id
-    const categoryFilter: Prisma.SoftwareWhereInput =
-      category.length > 20
-        ? { categoryId: category }
-        : { category: { is: { slug: category } } };
+    const where: Prisma.softwareWhereInput = {
+      status: "PUBLISHED",
+      AND: exclude ? [{ slug: { not: exclude } }, { id: { not: exclude } }] : undefined,
+    };
+    if (category.length > 20) {
+      where.categoryId = category;
+    } else {
+      where.softwarecategory = { is: { slug: category } };
+    }
 
     const rows = await prisma.software.findMany({
-      where: {
-        status: "PUBLISHED",
-        ...categoryFilter,
-        AND: exclude ? [{ slug: { not: exclude } }, { id: { not: exclude } }] : undefined,
-      },
+      where,
       take: limit,
       orderBy: [{ updatedAt: "desc" }],
       select: {

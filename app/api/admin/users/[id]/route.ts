@@ -34,9 +34,9 @@ const BASE_ADMIN_USER_SELECT = {
   phoneE164: true,
   role: true,
   createdAt: true,
-} satisfies Prisma.UserSelect;
+} satisfies Prisma.userSelect;
 
-const userSelect: Prisma.UserSelect = prismaSupportsUserBlockField
+const userSelect: Prisma.userSelect = prismaSupportsUserBlockField
   ? { ...BASE_ADMIN_USER_SELECT, isBlocked: true }
   : BASE_ADMIN_USER_SELECT;
 
@@ -71,7 +71,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (!parsed.success) return NextResponse.json({ error: "VALIDATION_ERROR", details: parsed.error.flatten() }, { status: 400 });
 
     const data = parsed.data;
-    const updates: Prisma.UserUpdateInput = {};
+    const updates: Prisma.userUpdateInput = {};
     if (data.fullName) updates.fullName = data.fullName;
     if (data.email) updates.email = data.email.toLowerCase();
     if (data.phone) updates.phoneE164 = data.phone;

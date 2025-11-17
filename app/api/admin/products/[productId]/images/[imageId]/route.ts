@@ -18,16 +18,16 @@ export async function PATCH(
     const me = await verifyBearerAuth(req); requireRole(me, ["ADMIN"]);
     const { productId, imageId } = await ctx.params;
 
-    const img = await prisma.productImage.findUnique({ where: { id: imageId } });
+    const img = await prisma.productimage.findUnique({ where: { id: imageId } });
     if (!img || img.productId !== productId) return jsonError("Not Found", 404);
 
     const body = await req.json();
     const parsed = UpdateImage.safeParse(body);
     if (!parsed.success) return jsonError("Validation Error", 400, { issues: parsed.error.issues });
 
-    const updated = await prisma.productImage.update({
+    const updated = await prisma.productimage.update({
       where: { id: imageId },
-      data: parsed.data,
+      data: { ...parsed.data, updatedAt: new Date() },
     });
 
     return jsonOk({ data: updated });
@@ -45,10 +45,10 @@ export async function DELETE(
     const me = await verifyBearerAuth(req); requireRole(me, ["ADMIN"]);
     const { productId, imageId } = await ctx.params;
 
-    const img = await prisma.productImage.findUnique({ where: { id: imageId } });
+    const img = await prisma.productimage.findUnique({ where: { id: imageId } });
     if (!img || img.productId !== productId) return jsonError("Not Found", 404);
 
-    await prisma.productImage.delete({ where: { id: imageId } });
+    await prisma.productimage.delete({ where: { id: imageId } });
     return jsonOk({ ok: true });
   } catch (error) {
     const err = toHttpError(error);

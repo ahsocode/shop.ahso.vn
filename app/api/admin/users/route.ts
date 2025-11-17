@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
@@ -36,9 +37,9 @@ const BASE_ADMIN_USER_SELECT = {
   phoneE164: true,
   role: true,
   createdAt: true,
-} satisfies Prisma.UserSelect;
+} satisfies Prisma.userSelect;
 
-const adminUserSelect: Prisma.UserSelect = prismaSupportsUserBlockField
+const adminUserSelect: Prisma.userSelect = prismaSupportsUserBlockField
   ? { ...BASE_ADMIN_USER_SELECT, isBlocked: true }
   : BASE_ADMIN_USER_SELECT;
 
@@ -88,8 +89,8 @@ export async function GET(req: NextRequest) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 20);
 
-    const where: Prisma.UserWhereInput = {};
-    if (role) where.role = role as Prisma.UserScalarWhereWithAggregatesInput["role"];
+    const where: Prisma.userWhereInput = {};
+    if (role) where.role = role as Prisma.userScalarWhereWithAggregatesInput["role"];
     if (q) where.OR = [
       { username: { contains: q } },
       { fullName: { contains: q } },
@@ -165,15 +166,38 @@ export async function POST(req: NextRequest) {
       : undefined;
 
     const user = await prisma.$transaction(async (tx) => {
-      const shipAddr = await tx.address.create({ data: { line1: shipNorm.line1, line2: shipNorm.line2 ?? null, city: shipNorm.city, state: shipNorm.state ?? null, postalCode: shipNorm.postalCode ?? null, country: shipNorm.country } });
+      const shipAddr = await tx.address.create({
+        data: {
+          id: randomUUID(),
+          line1: shipNorm.line1,
+          line2: shipNorm.line2 ?? null,
+          city: shipNorm.city,
+          state: shipNorm.state ?? null,
+          postalCode: shipNorm.postalCode ?? null,
+          country: shipNorm.country,
+          updatedAt: new Date(),
+        },
+      });
       let billingAddrId = shipAddr.id;
       if (billNorm && !addressesEqual(shipNorm, billNorm)) {
-        const billAddr = await tx.address.create({ data: { line1: billNorm.line1, line2: billNorm.line2 ?? null, city: billNorm.city, state: billNorm.state ?? null, postalCode: billNorm.postalCode ?? null, country: billNorm.country } });
+        const billAddr = await tx.address.create({
+          data: {
+            id: randomUUID(),
+            line1: billNorm.line1,
+            line2: billNorm.line2 ?? null,
+            city: billNorm.city,
+            state: billNorm.state ?? null,
+            postalCode: billNorm.postalCode ?? null,
+            country: billNorm.country,
+            updatedAt: new Date(),
+          },
+        });
         billingAddrId = billAddr.id;
       }
 
       const created = await tx.user.create({
         data: {
+          id: randomUUID(),
           username,
           passwordHash,
           fullName: data.fullName,
@@ -183,6 +207,7 @@ export async function POST(req: NextRequest) {
           shippingAddressId: shipAddr.id,
           billingAddressId: billingAddrId,
           role: "USER",
+          updatedAt: new Date(),
         },
         select: adminUserSelect,
       });

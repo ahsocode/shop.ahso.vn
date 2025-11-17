@@ -1,7 +1,7 @@
 // app/api/profile/orders/route.ts
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "../../../../lib/prisma";
 
 import { verifyRequestUser } from "../../../../lib/auth";
@@ -17,12 +17,12 @@ export async function GET(req: NextRequest) {
 
   const rows = await prisma.order.findMany({
     where: { userId: user.sub },
-    include: { items: true },
+    include: { orderitem: true },
     orderBy: { createdAt: "desc" },
     take: 50,
   });
 
-  type OrderWithItems = Prisma.OrderGetPayload<{ include: { items: true } }>;
+  type OrderWithItems = Prisma.orderGetPayload<{ include: { orderitem: true } }>;
   const data = rows.map((r: OrderWithItems) =>
     toOrderListItemDTO(
       {
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
         shippingFee: r.shippingFee ? Number(r.shippingFee) : undefined,
         note: r.note ?? undefined,
       },
-      r.items.map((it) => ({
+      r.orderitem.map((it) => ({
         sku: it.sku,
         name: it.name,
         quantity: it.quantity,
