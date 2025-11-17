@@ -343,10 +343,10 @@ export async function GET(req: NextRequest) {
           name: true,
           logoUrl: true,
           summary: true,
-          productCount: true,
+          _count: { select: { products: true } },
         },
         orderBy: [
-          { productCount: "desc" },
+          { products: { _count: "desc" } },
           { name: "asc" },
         ],
       });
@@ -357,7 +357,7 @@ export async function GET(req: NextRequest) {
         name: b.name,
         logo: b.logoUrl,
         summary: b.summary,
-        productCount: b.productCount ?? 0,
+        productCount: b._count.products ?? 0,
       }));
     }
 
@@ -378,10 +378,10 @@ export async function GET(req: NextRequest) {
           name: true,
           coverImage: true,
           description: true,
-          productCount: true,
+          _count: { select: { productLinks: true } },
         },
         orderBy: [
-          { productCount: "desc" },
+          { productLinks: { _count: "desc" } },
           { name: "asc" },
         ],
       });
@@ -392,7 +392,7 @@ export async function GET(req: NextRequest) {
         name: c.name,
         image: c.coverImage,
         description: c.description,
-        productCount: c.productCount ?? 0,
+        productCount: c._count.productLinks ?? 0,
       }));
     }
 

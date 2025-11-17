@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
       ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { slug: { contains: q, mode: "insensitive" } }] }
       : {};
 
-    const [total, data] = await Promise.all([
+    const [total, rows] = await Promise.all([
       prisma.brand.count({ where }),
       prisma.brand.findMany({
         where,
@@ -30,12 +30,16 @@ export async function GET(req: NextRequest) {
           name: true,
           logoUrl: true,
           summary: true,
-          productCount: true,
           createdAt: true,
           updatedAt: true,
+          _count: { select: { products: true } },
         },
       }),
     ]);
+    const data = rows.map(({ _count, ...rest }) => ({
+      ...rest,
+      productCount: _count.products,
+    }));
     return jsonOk({ data, meta: { total, page, pageSize } });
   } catch (error) {
     const err = toHttpError(error);

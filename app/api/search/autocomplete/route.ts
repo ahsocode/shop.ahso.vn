@@ -96,7 +96,7 @@ export async function GET(req: NextRequest) {
             slug: true,
             logoUrl: true,
           },
-          orderBy: { productCount: "desc" },
+          orderBy: { products: { _count: "desc" } },
         }),
 
         // Category suggestions
@@ -113,7 +113,7 @@ export async function GET(req: NextRequest) {
             slug: true,
             coverImage: true,
           },
-          orderBy: { productCount: "desc" },
+          orderBy: { productLinks: { _count: "desc" } },
         }),
       ]);
 

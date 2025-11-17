@@ -7,15 +7,27 @@ import Link from "next/link";
 import Image from "next/image";
 import FilterLayout from "../shop/filterlayout";
 
-
-export type Solution = {
+export type SolutionCard = {
   id: string;
-  title: string; 
+  title: string;
   slug: string;
-  industry?: string; 
-  type?: string | null; 
-  usecase?: string | null; 
-  coverImage?: string | null;
+  industry?: string;
+  type?: string | null;
+  usecase?: string | null;
+  image?: string | null;
+  summary?: string | null;
+};
+
+type SolutionsSearchClientProps = {
+  initialData?: SolutionCard[];
+  initialTotal?: number;
+  initialQuery?: {
+    q?: string;
+    industry?: string;
+    usecase?: string;
+    page?: number;
+    pageSize?: number;
+  };
 };
 
 const INDUSTRIES = [
@@ -26,19 +38,30 @@ const INDUSTRIES = [
   { value: "other", label: "Khác" },
 ];
 
-export default function SolutionsSearchClient() {
+export default function SolutionsSearchClient({
+  initialData = [],
+  initialTotal = 0,
+  initialQuery,
+}: SolutionsSearchClientProps = {}) {
   const router = useRouter();
   const sp = useSearchParams();
 
-  const [q, setQ] = useState(sp.get("q") ?? "");
-  const [industry, setIndustry] = useState(sp.get("industry") ?? "");
-  const [usecase, setUsecase] = useState(sp.get("usecase") ?? "");
-  const [page, setPage] = useState(Number(sp.get("page") ?? "1"));
+  const defaultQ = sp.get("q") ?? initialQuery?.q ?? "";
+  const defaultIndustry = sp.get("industry") ?? initialQuery?.industry ?? "";
+  const defaultUsecase = sp.get("usecase") ?? initialQuery?.usecase ?? "";
+  const defaultPage = Number(
+    sp.get("page") ?? initialQuery?.page ?? 1
+  );
+  const pageSize = initialQuery?.pageSize ?? 12;
+
+  const [q, setQ] = useState(defaultQ);
+  const [industry, setIndustry] = useState(defaultIndustry);
+  const [usecase, setUsecase] = useState(defaultUsecase);
+  const [page, setPage] = useState(defaultPage);
 
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<Solution[]>([]);
-  const [total, setTotal] = useState(0);
-  const pageSize = 12;
+  const [data, setData] = useState<SolutionCard[]>(initialData);
+  const [total, setTotal] = useState(initialTotal);
 
   const params = useMemo(() => {
     const p = new URLSearchParams();
@@ -48,7 +71,7 @@ export default function SolutionsSearchClient() {
     p.set("page", String(page));
     p.set("pageSize", String(pageSize));
     return p;
-  }, [q, industry, usecase, page]);
+  }, [q, industry, usecase, page, pageSize]);
 
   useEffect(() => {
     const url = `/api/search/solutions?${params.toString()}`;
@@ -95,7 +118,7 @@ export default function SolutionsSearchClient() {
         }
 
         if (!aborted) {
-          const payload = json as { data?: Solution[]; meta?: { total?: number } };
+          const payload = json as { data?: SolutionCard[]; meta?: { total?: number } };
           setData(payload.data ?? []);
           setTotal(payload.meta?.total ?? 0);
         }
@@ -180,10 +203,10 @@ export default function SolutionsSearchClient() {
             >
               
               <Link href={`/solutions/${encodeURIComponent(s.slug)}`} className="block">
-                {s.coverImage ? (
+                {s.image ? (
                   <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-gray-100">
                     <Image
-                      src={s.coverImage}
+                      src={s.image}
                       alt={s.title}
                       fill
                       className="object-cover"
@@ -198,6 +221,11 @@ export default function SolutionsSearchClient() {
               
               <div className="mt-3 flex-1 flex flex-col">
                 <h3 className="font-semibold line-clamp-2">{s.title}</h3>
+                {s.summary && (
+                  <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                    {s.summary}
+                  </p>
+                )}
 
                 <dl className="mt-2 text-sm text-gray-700 space-y-1">
                   <div className="flex gap-2">
