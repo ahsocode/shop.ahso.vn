@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     if (q) where.OR = [{ name: { contains: q } }, { slug: { contains: q } }];
     if (categoryId) where.categoryId = categoryId;
 
-    const [total, data] = await Promise.all([
+    const [total, rows] = await Promise.all([
       prisma.productType.count({ where }),
       prisma.productType.findMany({
         where,
@@ -39,17 +39,18 @@ export async function GET(req: NextRequest) {
           categoryId: true,
           coverImage: true,
           description: true,
-          productCount: true,
           createdAt: true,
           updatedAt: true,
           category: { select: { name: true } },
+          _count: { select: { products: true } },
         },
       }),
     ]);
 
-    const mapped = data.map(({ category, ...rest }) => ({
+    const mapped = rows.map(({ category, _count, ...rest }) => ({
       ...rest,
       categoryName: category?.name ?? "",
+      productCount: _count.products,
     }));
 
     return jsonOk({ data: mapped, meta: { total, page, pageSize } });

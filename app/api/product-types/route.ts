@@ -22,17 +22,26 @@ export async function GET(req: Request) {
 
     const items = await prisma.productType.findMany({
       where,
-      orderBy: [{ productCount: "desc" }, { name: "asc" }],
+      orderBy: [
+        { products: { _count: "desc" } },
+        { name: "asc" },
+      ],
       include: {
         category: { select: { slug: true, name: true } },
+        _count: { select: { products: true } },
       },
     });
+
+    const data = items.map(({ _count, ...rest }) => ({
+      ...rest,
+      productCount: _count.products,
+    }));
 
     return NextResponse.json(
       {
         success: true,
-        data: items,
-        meta: { total: items.length },
+        data,
+        meta: { total: data.length },
       },
       {
         headers: {

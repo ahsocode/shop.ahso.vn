@@ -20,24 +20,32 @@ export async function GET(req: Request) {
 
     const items = await prisma.brand.findMany({
       where,
-      orderBy: [{ productCount: "desc" }, { name: "asc" }],
+      orderBy: [
+        { products: { _count: "desc" } },
+        { name: "asc" },
+      ],
       select: {
         id: true,
         slug: true,
         name: true,
         logoUrl: true,
         summary: true,
-        productCount: true,
+        _count: { select: { products: true } },
       },
     });
+
+    const data = items.map(({ _count, ...rest }) => ({
+      ...rest,
+      productCount: _count.products,
+    }));
 
     // ✅ Format nhất quán: { success: true, data: [...], meta: {...} }
     return NextResponse.json(
       {
         success: true,
-        data: items,
+        data,
         meta: {
-          total: items.length,
+          total: data.length,
         },
       },
       {
