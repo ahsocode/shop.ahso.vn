@@ -458,7 +458,11 @@ export default async function ProductDetailPage({
                     const value = fmtSpec(spec);
                     return value ? { label, value } : null;
                   })
-                  .filter((row): row is { label: string; value: string } => Boolean(row))
+                  .filter(
+                    (
+                      row: { label: string; value: string } | null
+                    ): row is { label: string; value: string } => Boolean(row)
+                  )
                   .map((row, i: number) => (
                     <div key={i} className="flex gap-2">
                       <dt className="text-gray-500 min-w-28">{row.label}</dt>
