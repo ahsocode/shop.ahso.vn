@@ -37,7 +37,8 @@ export async function GET(req: NextRequest) {
         },
       }),
     ]);
-    const data = rows.map((row) => {
+    type BrandRow = (typeof rows)[number];
+    const data = rows.map((row: BrandRow) => {
       const { _count, ...rest } = row;
       return {
         ...rest,
