@@ -463,7 +463,7 @@ export default async function ProductDetailPage({
                       row: { label: string; value: string } | null
                     ): row is { label: string; value: string } => Boolean(row)
                   )
-                  .map((row, i: number) => (
+                  .map((row: { label: string; value: string }, i: number) => (
                     <div key={i} className="flex gap-2">
                       <dt className="text-gray-500 min-w-28">{row.label}</dt>
                       <dd className="flex-1">{row.value}</dd>
