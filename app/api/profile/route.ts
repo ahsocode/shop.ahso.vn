@@ -2,7 +2,7 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client/index";
 import { prisma } from "../../../lib/prisma";
 
 function getTokenFromReq(req: Request): string | null {

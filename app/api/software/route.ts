@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
 
 function toInt(v: string | null, def = 1) {
@@ -17,18 +17,18 @@ export async function GET(req: Request) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 12);
 
-    const where: Prisma.softwareWhereInput = { status: "PUBLISHED" };
-
-    if (categoryId) where.categoryId = categoryId;
-    else if (category) where.softwarecategory = { is: { slug: category } };
-
-    if (q) {
-      where.OR = [
-        { title:   { contains: q } },
-        { summary: { contains: q } },
-        { bodyHtml:{ contains: q } },
-      ];
-    }
+    const where: Prisma.softwareWhereInput = {
+      status: "PUBLISHED",
+      ...(categoryId && { categoryId }),
+      ...(!categoryId && category && { softwarecategory: { is: { slug: category } } }),
+      ...(q && {
+        OR: [
+          { title: { contains: q } },
+          { summary: { contains: q } },
+          { bodyHtml: { contains: q } },
+        ],
+      }),
+    };
 
     const [total, rows] = await Promise.all([
       prisma.software.count({ where }),

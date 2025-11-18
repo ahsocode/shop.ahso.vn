@@ -89,14 +89,17 @@ export async function GET(req: NextRequest) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 20);
 
-    const where: Prisma.userWhereInput = {};
-    if (role) where.role = role as Prisma.userScalarWhereWithAggregatesInput["role"];
-    if (q) where.OR = [
-      { username: { contains: q } },
-      { fullName: { contains: q } },
-      { email: { contains: q } },
-      { phoneE164: { contains: q } },
-    ];
+    const where: Prisma.userWhereInput = {
+      ...(role && { role: role as Prisma.userScalarWhereWithAggregatesInput["role"] }),
+      ...(q && {
+        OR: [
+          { username: { contains: q } },
+          { fullName: { contains: q } },
+          { email: { contains: q } },
+          { phoneE164: { contains: q } },
+        ],
+      }),
+    };
 
     const [total, rawRows] = await Promise.all([
       prisma.user.count({ where }),

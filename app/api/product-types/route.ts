@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 
@@ -12,14 +12,15 @@ export async function GET(req: Request) {
     const categorySlug = searchParams.get("category") ?? undefined;
     const q = searchParams.get("q") ?? undefined;
 
-    const where: Prisma.producttypeWhereInput = {};
-    if (categorySlug) where.productcategory = { slug: categorySlug };
-    if (q) {
-      where.OR = [
-        { name: { contains: q } },
-        { slug: { contains: q } },
-      ];
-    }
+    const where: Prisma.producttypeWhereInput = {
+      ...(categorySlug && { productcategory: { slug: categorySlug } }),
+      ...(q && {
+        OR: [
+          { name: { contains: q } },
+          { slug: { contains: q } },
+        ],
+      }),
+    };
 
     const items = await prisma.producttype.findMany({
       where,

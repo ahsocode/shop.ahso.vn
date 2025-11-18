@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
 import { z } from "zod";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client/index";
 import { prisma, prismaSupportsUserBlockField } from "@/lib/prisma";
 
 const loginSchema = z.object({

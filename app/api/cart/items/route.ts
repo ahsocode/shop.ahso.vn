@@ -1,7 +1,7 @@
 // app/api/cart/items/route.ts
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
 import { verifyRequestUser } from "@/lib/auth";
 

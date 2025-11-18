@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { parsePaging, jsonOk, jsonError, toHttpError } from "@/lib/http";
@@ -14,41 +15,43 @@ export async function GET(req: NextRequest) {
     const q = searchParams.get("q") || "";
     const { page, pageSize, skip, take } = parsePaging(req);
 
-    const where = q
-      ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { slug: { contains: q, mode: "insensitive" } }] }
-      : {};
+    const where: Prisma.brandWhereInput = {
+      ...(q && {
+        OR: [
+          { name: { contains: q } },
+          { slug: { contains: q } },
+        ],
+      }),
+    };
 
-    // ✅ ĐÚNG:
-const [total, rows] = await Promise.all([
-  prisma.brand.count({ where }),
-  prisma.brand.findMany({
-    where,
-    orderBy: { name: "asc" },
-    skip,
-    take,
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      logoUrl: true,
-      summary: true,
-      createdAt: true,
-      updatedAt: true,
-      _count: { select: { product: true } },
-    },
-  }),
-]);
+    const [total, rows] = await Promise.all([
+      prisma.brand.count({ where }),
+      prisma.brand.findMany({
+        where,
+        orderBy: { name: "asc" },
+        skip,
+        take,
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          logoUrl: true,
+          summary: true,
+          createdAt: true,
+          updatedAt: true,
+          _count: { select: { product: true } },
+        },
+      }),
+    ]);
 
-// ✅ Khai báo type rõ ràng cho row
-type BrandRow = (typeof rows)[number];
-
-const data = rows.map((row: BrandRow) => {
-  const { _count, ...rest } = row;
-  return {
-    ...rest,
-    productCount: _count.product,
-  };
-});
+    type BrandRow = (typeof rows)[number];
+    const data = rows.map((row: BrandRow) => {
+      const { _count, ...rest } = row;
+      return {
+        ...rest,
+        productCount: _count.product,
+      };
+    });
     return jsonOk({ data, meta: { total, page, pageSize } });
   } catch (error) {
     const err = toHttpError(error);
