@@ -44,31 +44,30 @@ export async function GET(req: NextRequest) {
       maxPageSize: 50,
     });
 
-    const where: Prisma.orderWhereInput = {};
-
-    if (q) {
-      where.OR = [
-        { code: { contains: q } },
-        { customerFullName: { contains: q } },
-        { customerEmail: { contains: q } },
-        { customerPhone: { contains: q } },
-      ];
+    const toEndOfDay = to ? new Date(to) : undefined;
+    if (toEndOfDay) {
+      toEndOfDay.setHours(23, 59, 59, 999);
     }
 
-    if (statusParam && ORDER_STATUSES.includes(statusParam as OrderStatus)) {
-      where.status = statusParam as OrderStatus;
-    }
-
-    if (from || to) {
-      where.createdAt = {};
-      if (from) where.createdAt.gte = from;
-      if (to) {
-        // add end-of-day
-        const toEnd = new Date(to);
-        toEnd.setHours(23, 59, 59, 999);
-        where.createdAt.lte = toEnd;
-      }
-    }
+    const where: Prisma.orderWhereInput = {
+      ...(q && {
+        OR: [
+          { code: { contains: q } },
+          { customerFullName: { contains: q } },
+          { customerEmail: { contains: q } },
+          { customerPhone: { contains: q } },
+        ],
+      }),
+      ...(statusParam && ORDER_STATUSES.includes(statusParam as OrderStatus) && {
+        status: statusParam as OrderStatus,
+      }),
+      ...((from || toEndOfDay) && {
+        createdAt: {
+          ...(from && { gte: from }),
+          ...(toEndOfDay && { lte: toEndOfDay }),
+        },
+      }),
+    };
 
     const [total, rows, stats] = await prisma.$transaction([
       prisma.order.count({ where }),

@@ -6,7 +6,7 @@
  */
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth } from "@/lib/auth";
 

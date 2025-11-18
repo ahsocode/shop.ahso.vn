@@ -54,13 +54,17 @@ export async function GET(req: NextRequest) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 20);
 
-    const where: Prisma.userWhereInput = { role: "STAFF" };
-    if (q) where.OR = [
-      { username: { contains: q } },
-      { fullName: { contains: q } },
-      { email: { contains: q } },
-      { phoneE164: { contains: q } },
-    ];
+    const where: Prisma.userWhereInput = {
+      role: "STAFF",
+      ...(q && {
+        OR: [
+          { username: { contains: q } },
+          { fullName: { contains: q } },
+          { email: { contains: q } },
+          { phoneE164: { contains: q } },
+        ],
+      }),
+    };
 
     const [total, rawRows] = await Promise.all([
       prisma.user.count({ where }),

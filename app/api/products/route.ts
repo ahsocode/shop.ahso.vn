@@ -172,52 +172,33 @@ export async function GET(request: NextRequest) {
     const statusParam = searchParams.get("status");
 
     // Build where clause
-    const where: Prisma.productWhereInput = {};
-    
     const { isAll, status } = normalizeStatus(statusParam);
-    if (!isAll && status) {
-      where.status = status;
-    }
-    
-    // Search - optimized with OR
-    if (search) {
-      where.OR = [
-        { name: { contains: search } },
-        { description: { contains: search } },
-        { sku: { contains: search } },
-      ];
-    }
-    
-    // Brand filter
-    if (brandSlug) {
-      where.brand = { is: { slug: brandSlug } };
-    }
-    
-    // Type filter
-    if (typeSlug) {
-      where.producttype = { is: { slug: typeSlug } };
-    }
-    
-    // Category filter
-    if (categorySlug) {
-      where.productcategorylink = {
-        some: {
-          productcategory: { slug: categorySlug },
+    const where: Prisma.productWhereInput = {
+      ...(!isAll && status && { status }),
+      ...(search && {
+        OR: [
+          { name: { contains: search } },
+          { description: { contains: search } },
+          { sku: { contains: search } },
+        ],
+      }),
+      ...(brandSlug && { brand: { is: { slug: brandSlug } } }),
+      ...(typeSlug && { producttype: { is: { slug: typeSlug } } }),
+      ...(categorySlug && {
+        productcategorylink: {
+          some: {
+            productcategory: { slug: categorySlug },
+          },
         },
-      };
-    }
-    
-    // Price range
-    if (minPrice || maxPrice) {
-      where.price = {};
-      if (minPrice) where.price.gte = parseFloat(minPrice);
-      if (maxPrice) where.price.lte = parseFloat(maxPrice);
-    }
-    
-    // Stock filter
-    if (inStock) {
-      where.stockOnHand = { gt: 0 };
-    }
+      }),
+      ...((minPrice || maxPrice) && {
+        price: {
+          ...(minPrice && { gte: parseFloat(minPrice) }),
+          ...(maxPrice && { lte: parseFloat(maxPrice) }),
+        },
+      }),
+      ...(inStock && { stockOnHand: { gt: 0 } }),
+    };
 
     // Build query options
     const queryOptions: Prisma.productFindManyArgs = {

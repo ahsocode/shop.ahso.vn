@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { parsePaging, jsonOk, jsonError, toHttpError } from "@/lib/http";
@@ -23,9 +23,15 @@ export async function GET(req: NextRequest) {
     const categoryId = searchParams.get("categoryId") || undefined;
     const { page, pageSize, skip, take } = parsePaging(req);
 
-    const where: Prisma.producttypeWhereInput = {};
-    if (q) where.OR = [{ name: { contains: q } }, { slug: { contains: q } }];
-    if (categoryId) where.categoryId = categoryId;
+    const where: Prisma.producttypeWhereInput = {
+      ...(q && {
+        OR: [
+          { name: { contains: q } },
+          { slug: { contains: q } },
+        ],
+      }),
+      ...(categoryId && { categoryId }),
+    };
 
     const [total, rows] = await Promise.all([
       prisma.producttype.count({ where }),
@@ -48,17 +54,15 @@ export async function GET(req: NextRequest) {
       }),
     ]);
 
-  
-type ProductTypeRow = (typeof rows)[number];
-
-const mapped = rows.map((row: ProductTypeRow) => {
-  const { productcategory, _count, ...rest } = row;
-  return {
-    ...rest,
-    categoryName: productcategory?.name ?? "",
-    productCount: _count.product,
-  };
-});
+    type ProductTypeRow = (typeof rows)[number];
+    const mapped = rows.map((row: ProductTypeRow) => {
+      const { productcategory, _count, ...rest } = row;
+      return {
+        ...rest,
+        categoryName: productcategory?.name ?? "",
+        productCount: _count.product,
+      };
+    });
 
     return jsonOk({ data: mapped, meta: { total, page, pageSize } });
   } catch (error) {

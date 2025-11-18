@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client/index";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
@@ -18,11 +18,17 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status") as z.infer<typeof PublishStatusEnum> | null;
     const { page, pageSize, skip, take } = parsePaging(req);
 
-    const where: Prisma.productWhereInput = {};
-    if (q) where.OR = [{ name: { contains: q } }, { sku: { contains: q } }];
-    if (brandId) where.brandId = brandId;
-    if (typeId) where.typeId = typeId;
-    if (status) where.status = status;
+    const where: Prisma.productWhereInput = {
+      ...(q && {
+        OR: [
+          { name: { contains: q } },
+          { sku: { contains: q } },
+        ],
+      }),
+      ...(brandId && { brandId }),
+      ...(typeId && { typeId }),
+      ...(status && { status }),
+    };
 
     const [total, rows] = await Promise.all([
       prisma.product.count({ where }),

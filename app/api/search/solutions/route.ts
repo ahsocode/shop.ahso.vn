@@ -1,6 +1,6 @@
 // app/api/search/solutions/route.ts
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
 
 function toInt(v: string | null, def = 1) {
@@ -19,21 +19,17 @@ export async function GET(req: Request) {
 
     const where: Prisma.solutionWhereInput = {
       status: "PUBLISHED",
+      ...(industry && { industry }),
+      ...(usecase && { usecase }),
+      ...(q && {
+        OR: [
+          { title: { contains: q } },
+          { summary: { contains: q } },
+          { bodyHtml: { contains: q } },
+          { usecase: { contains: q } },
+        ],
+      }),
     };
-
-    if (industry) where.industry = industry;   // so khớp đúng giá trị
-    if (usecase) where.usecase = usecase;
-
-    if (q) {
-      // ❌ KHÔNG dùng mode: "insensitive" (DB/Prisma bạn không hỗ trợ)
-      // Nếu DB của bạn là MySQL với collation *_ci thì đã case-insensitive sẵn
-      where.OR = [
-        { title:   { contains: q } },
-        { summary: { contains: q } },
-        { bodyHtml:{ contains: q } },
-        { usecase: { contains: q } },
-      ];
-    }
 
     const [total, rows] = await Promise.all([
       prisma.solution.count({ where }),     // đếm
