@@ -2,17 +2,17 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { buildMetadata } from "@/lib/metadata";
+import type { softwareInclude as SoftwareInclude, softwareGetPayload } from "@/lib/prisma-types";
 
 export const revalidate = 60;
 
-const softwareInclude = Prisma.validator<Prisma.softwareInclude>()({
+const softwareInclude = {
   softwarecategory: { select: { name: true, slug: true } },
-});
+} satisfies SoftwareInclude;
 
-type SoftwareRecord = Prisma.softwareGetPayload<{
+type SoftwareRecord = softwareGetPayload<{
   include: typeof softwareInclude;
 }>;
 

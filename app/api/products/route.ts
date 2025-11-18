@@ -1,9 +1,15 @@
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import type {
+  productGetPayload,
+  productOrderByWithRelationInput,
+  productWhereInput,
+  productFindManyArgs,
+} from "@/lib/prisma-types";
+import type { Prisma } from "@prisma/client";
 
-type ProductListRow = Prisma.productGetPayload<{
+type ProductListRow = productGetPayload<{
   include: {
     brand: {
       select: {
@@ -35,7 +41,7 @@ type ProductListRow = Prisma.productGetPayload<{
   };
 }>;
 
-type ProductCreateResponse = Prisma.productGetPayload<{
+type ProductCreateResponse = productGetPayload<{
   include: {
     brand: true;
     producttype: { include: { productcategory: true } };
@@ -96,7 +102,7 @@ function normalizeStatus(value?: string | null): { isAll: boolean; status: Produ
 
 type SortDirection = "asc" | "desc";
 
-function getOrderBy(sortField: string, order: SortDirection): Prisma.productOrderByWithRelationInput {
+function getOrderBy(sortField: string, order: SortDirection): productOrderByWithRelationInput {
   switch (sortField) {
     case "price":
       return { price: order };
@@ -111,7 +117,7 @@ function getOrderBy(sortField: string, order: SortDirection): Prisma.productOrde
   }
 }
 
-function mapUiSort(value: string | null): Prisma.productOrderByWithRelationInput | null {
+function mapUiSort(value: string | null): productOrderByWithRelationInput | null {
   switch (value) {
     case "price_asc":
       return { price: "asc" };
@@ -173,7 +179,7 @@ export async function GET(request: NextRequest) {
 
     // Build where clause
     const { isAll, status } = normalizeStatus(statusParam);
-    const where: Prisma.productWhereInput = {
+    const where: productWhereInput = {
       ...(!isAll && status && { status }),
       ...(search && {
         OR: [
@@ -201,7 +207,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Build query options
-    const queryOptions: Prisma.productFindManyArgs = {
+    const queryOptions: productFindManyArgs = {
       where,
       orderBy,
       include: {
@@ -236,7 +242,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Execute queries in transaction for consistency
-    const { rows, total } = await prisma.$transaction(async (tx) => {
+    const { rows, total } = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const items = await tx.product.findMany(queryOptions);
       const count = await tx.product.count({ where });
       return { rows: items as ProductListRow[], total: count };

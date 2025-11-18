@@ -4,8 +4,9 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
 import { z } from "zod";
-import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import type { Prisma } from "@prisma/client";
 
 // ===== Validation =====
 const addressSchema = z.object({
@@ -154,7 +155,7 @@ export async function POST(req: Request) {
 
     const passwordHash = await bcrypt.hash(data.password, 12);
 
-    const user = await prisma.$transaction(async (tx) => {
+    const user = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const now = new Date();
       const shipAddr = await tx.address.create({
         data: {
@@ -247,7 +248,7 @@ export async function POST(req: Request) {
     return res;
   } catch (error) {
     console.error("REGISTER ERROR:", error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+    if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
       return NextResponse.json({ error: "CONFLICT", meta: error.meta }, { status: 409 });
     }
     const message = error instanceof Error ? error.message : "Internal Server Error";

@@ -3,15 +3,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 import { Home, ArrowLeft, ShoppingCart, Star, StarHalf } from "lucide-react";
 import AddToCartClient from "./AddToCartClient";
 import { buildMetadata } from "@/lib/metadata";
+import type { productInclude as ProductInclude, productGetPayload } from "@/lib/prisma-types";
+import type { Decimal } from "@prisma/client/runtime/library";
 
 export const revalidate = 60;
 
 /* ================== Types ================== */
-const productInclude = Prisma.validator<Prisma.productInclude>()({
+const productInclude = {
   brand: { select: { id: true, name: true, slug: true } },
   productimage: {
     select: { id: true, url: true, alt: true, sortOrder: true },
@@ -42,9 +43,9 @@ const productInclude = Prisma.validator<Prisma.productInclude>()({
       },
     },
   },
-});
+} satisfies ProductInclude;
 
-type ProductRecord = Prisma.productGetPayload<{
+type ProductRecord = productGetPayload<{
   include: typeof productInclude;
 }>;
 
@@ -66,21 +67,25 @@ function transformProduct(record: ProductRecord) {
         }
       : null,
     images: productimage,
-    specs: productspecvalue.map(({ productspecdefinition, ...spec }) => ({
-      ...spec,
-      specDefinition: productspecdefinition,
-    })),
-    categoryLinks: productcategorylink.map(({ productcategory, ...link }) => ({
-      ...link,
-      category: productcategory,
-    })),
+    specs: productspecvalue.map(
+      ({ productspecdefinition, ...spec }: ProductRecord["productspecvalue"][number]) => ({
+        ...spec,
+        specDefinition: productspecdefinition,
+      }),
+    ),
+    categoryLinks: productcategorylink.map(
+      ({ productcategory, ...link }: ProductRecord["productcategorylink"][number]) => ({
+        ...link,
+        category: productcategory,
+      }),
+    ),
   };
 }
 
 type ProductWithRelations = ReturnType<typeof transformProduct>;
 
 type ProductWithMetrics = ProductWithRelations & {
-  ratingAvg?: number | Prisma.Decimal | null;
+  ratingAvg?: number | Decimal | null;
   ratingCount?: number | null;
   purchaseCount?: number | null;
 };
@@ -125,7 +130,7 @@ async function getReviews(productId: string): Promise<ReviewDTO[]> {
     },
   });
 
-  return raw.map(({ reviewimage, ...rest }) => ({
+  return raw.map(({ reviewimage, ...rest }: (typeof raw)[number]) => ({
     ...rest,
     images: reviewimage,
   }));
@@ -199,11 +204,11 @@ function StarRating({
   const rest = 5 - full - (hasHalf ? 1 : 0);
   return (
     <div className={`inline-flex items-center gap-0.5 ${className}`} aria-label={`Đánh giá ${v.toFixed(1)} / 5`}>
-      {Array.from({ length: full }).map((_, i) => (
+      {Array.from({ length: full }).map((_, i: number) => (
         <Star key={`f-${i}`} width={size} height={size} />
       ))}
       {hasHalf && <StarHalf width={size} height={size} />}
-      {Array.from({ length: rest }).map((_, i) => (
+      {Array.from({ length: rest }).map((_, i: number) => (
         <Star key={`e-${i}`} width={size} height={size} className="opacity-25" />
       ))}
     </div>
@@ -274,7 +279,7 @@ export default async function ProductDetailPage({
 
           {p.images.length > 0 && (
             <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
-              {p.images.map((img, i) => (
+              {p.images.map((img: ProductWithRelations["images"][number], i: number) => (
                 <div
                   key={`${img.url}-${i}`}
                   className="overflow-hidden rounded-xl border bg-white"
@@ -326,7 +331,7 @@ export default async function ProductDetailPage({
               <p className="mt-3 text-sm text-gray-500">Chưa có đánh giá nào cho sản phẩm này.</p>
             ) : (
               <ul className="mt-4 space-y-4">
-                {reviews.map((rv) => {
+                {reviews.map((rv: ReviewDTO) => {
                   const displayName =
                     rv.user?.email?.split?.("@")?.[0] ?? "Khách hàng";
                   return (
@@ -349,7 +354,7 @@ export default async function ProductDetailPage({
                       {/* images */}
                       {rv.images?.length > 0 && (
                         <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {rv.images.map((im) => (
+                          {rv.images.map((im: ReviewDTO["images"][number]) => (
                             <a
                               key={im.id}
                               href={im.url}
@@ -447,14 +452,14 @@ export default async function ProductDetailPage({
               <h3 className="font-semibold">Thông số kỹ thuật</h3>
               <dl className="mt-3 text-sm text-gray-700 space-y-1">
                 {p.specs
-                  .map((spec) => {
+                  .map((spec: ProductWithRelations["specs"][number]) => {
                     const label =
                       spec.specDefinition?.name || spec.specDefinition?.slug || "—";
                     const value = fmtSpec(spec);
                     return value ? { label, value } : null;
                   })
                   .filter((row): row is { label: string; value: string } => Boolean(row))
-                  .map((row, i) => (
+                  .map((row, i: number) => (
                     <div key={i} className="flex gap-2">
                       <dt className="text-gray-500 min-w-28">{row.label}</dt>
                       <dd className="flex-1">{row.value}</dd>

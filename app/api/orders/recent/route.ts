@@ -1,14 +1,15 @@
 // app/api/orders/recent/route.ts
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import type { Prisma, order_status } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { verifyRequestUser } from "@/lib/auth";
 import { toOrderListItemDTO } from "@/dto/order.mapper";
+import type { orderGetPayload, orderWhereInput } from "@/lib/prisma-types";
+import type { order_status } from "@/generated/enums";
 
 export const dynamic = "force-dynamic";
 
-type OrderWithItems = Prisma.orderGetPayload<{
+type OrderWithItems = orderGetPayload<{
   include: { orderitem: true };
 }>;
 
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
 
   const excludedStatuses: order_status[] = ["cancelled", "delivered"];
 
-  const where: Prisma.orderWhereInput = {
+  const where: orderWhereInput = {
     userId: user.sub,
     // loại trừ đã giao (hoàn thành) + đã huỷ
     status: {
@@ -57,7 +58,7 @@ export async function GET(req: NextRequest) {
         grandTotal: r.grandTotal ? Number(r.grandTotal) : undefined,
         note: r.note ?? undefined,
       },
-      r.orderitem.map((it) => ({
+      r.orderitem.map((it: (typeof r.orderitem)[number]) => ({
         sku: it.sku,
         name: it.name,
         quantity: it.quantity,

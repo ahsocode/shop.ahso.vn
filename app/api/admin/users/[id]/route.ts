@@ -2,9 +2,9 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { z } from "zod";
-import type { Prisma } from "@prisma/client";
 import { prisma, prismaSupportsUserBlockField } from "../../../../../lib/prisma";
 import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../../lib/auth";
+import type { userSelect, userUpdateInput } from "@/lib/prisma-types";
 
 const updateSchema = z.object({
   fullName: z.string().min(1).max(128).optional(),
@@ -34,9 +34,9 @@ const BASE_ADMIN_USER_SELECT = {
   phoneE164: true,
   role: true,
   createdAt: true,
-} satisfies Prisma.userSelect;
+} satisfies userSelect;
 
-const userSelect: Prisma.userSelect = prismaSupportsUserBlockField
+const userSelect: userSelect = prismaSupportsUserBlockField
   ? { ...BASE_ADMIN_USER_SELECT, isBlocked: true }
   : BASE_ADMIN_USER_SELECT;
 
@@ -71,7 +71,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (!parsed.success) return NextResponse.json({ error: "VALIDATION_ERROR", details: parsed.error.flatten() }, { status: 400 });
 
     const data = parsed.data;
-    const updates: Prisma.userUpdateInput = {};
+    const updates: userUpdateInput = {};
     if (data.fullName) updates.fullName = data.fullName;
     if (data.email) updates.email = data.email.toLowerCase();
     if (data.phone) updates.phoneE164 = data.phone;

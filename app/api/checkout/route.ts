@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyRequestUser } from "@/lib/auth";
 import { sendMail } from "@/lib/mailer";
+import type { Prisma } from "@prisma/client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -132,7 +133,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ====== Lọc items theo itemIds ======
-    const selectedItems = cart.cartitem.filter((it) => itemIds.includes(it.id));
+    const selectedItems = cart.cartitem.filter((it: (typeof cart.cartitem)[number]) => itemIds.includes(it.id));
 
     if (selectedItems.length === 0) {
       return NextResponse.json(
@@ -143,7 +144,7 @@ export async function POST(req: NextRequest) {
 
     // ====== Tính tiền theo selected items ======
     const subtotal = selectedItems.reduce(
-      (sum, item) => sum + Number(item.unitPrice) * item.quantity,
+      (sum: number, item: (typeof selectedItems)[number]) => sum + Number(item.unitPrice) * item.quantity,
       0,
     );
 
@@ -184,7 +185,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ====== Tạo đơn hàng trong transaction ======
-    const order = await prisma.$transaction(async (tx) => {
+    const order = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const created = await tx.order.create({
         data: {
           id: randomUUID(),
@@ -228,7 +229,7 @@ export async function POST(req: NextRequest) {
 
       // ==== Order Items theo selected items ====
       await tx.orderitem.createMany({
-        data: selectedItems.map((it) => ({
+        data: selectedItems.map((it: (typeof selectedItems)[number]) => ({
           id: randomUUID(),
           orderId: created.id,
           sku: it.productSku,
@@ -264,7 +265,7 @@ export async function POST(req: NextRequest) {
     // ====== Gửi mail xác nhận đơn (không chặn luồng nếu fail) ======
     try {
       const itemsText = selectedItems
-        .map((it) => {
+        .map((it: (typeof selectedItems)[number]) => {
           const lineTotal = Number(it.unitPrice) * it.quantity;
           return `- ${it.productName} (SKU: ${it.productSku}) x${it.quantity} = ${formatVND(
             lineTotal,

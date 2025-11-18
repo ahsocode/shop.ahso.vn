@@ -1,8 +1,9 @@
 import type { NextRequest } from "next/server";
-import type { Prisma, order_status, payment_status } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonError, jsonOk, parsePaging, toHttpError } from "@/lib/http";
+import type { order_status, payment_status } from "@/generated/enums";
+import type { orderWhereInput } from "@/lib/prisma-types";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +50,7 @@ export async function GET(req: NextRequest) {
       toEndOfDay.setHours(23, 59, 59, 999);
     }
 
-    const where: Prisma.orderWhereInput = {
+    const where: orderWhereInput = {
       ...(q && {
         OR: [
           { code: { contains: q } },
@@ -103,7 +104,7 @@ export async function GET(req: NextRequest) {
       }),
     ]);
 
-    const data: StaffListItem[] = rows.map((order) => {
+    const data: StaffListItem[] = rows.map((order: (typeof rows)[number]) => {
       const grandTotal = order.grandTotal ? Number(order.grandTotal) : null;
       const subtotal = order.subtotal ? Number(order.subtotal) : 0;
       const shippingFee = order.shippingFee ? Number(order.shippingFee) : 0;
@@ -130,14 +131,15 @@ export async function GET(req: NextRequest) {
       delivered: 0,
       cancelled: 0,
     };
-    stats.forEach((row) => {
+    stats.forEach((row: (typeof stats)[number]) => {
       const countValue =
         typeof row._count === "object"
           ? row._count?.status
           : row._count === true
             ? 1
             : row._count;
-      statsMap[row.status] = typeof countValue === "number" ? countValue : 0;
+      const status = row.status as OrderStatus;
+      statsMap[status] = typeof countValue === "number" ? countValue : 0;
     });
 
     return jsonOk({

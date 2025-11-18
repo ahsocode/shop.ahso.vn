@@ -10,4 +10,6 @@ export const prisma =
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
-export const prismaSupportsUserBlockField = Boolean(Prisma?.UserScalarFieldEnum?.isBlocked);
+type PrismaNamespace = { UserScalarFieldEnum?: Record<string, string> };
+const prismaNamespace = Prisma as unknown as PrismaNamespace;
+export const prismaSupportsUserBlockField = Boolean(prismaNamespace.UserScalarFieldEnum?.isBlocked);

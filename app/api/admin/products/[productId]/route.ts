@@ -1,10 +1,10 @@
 import { NextRequest } from "next/server";
-import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonOk, jsonError, toHttpError } from "@/lib/http";
 import { ProductUpdateSchema } from "@/lib/validators";
 import { slugify } from "@/lib/slug";
+import type { productGetPayload, productUpdateInput } from "@/lib/prisma-types";
 
 const productSelect = {
   id: true,
@@ -27,7 +27,7 @@ const productSelect = {
   producttype: { select: { id: true, name: true } },
 } as const;
 
-type AdminProductRow = Prisma.productGetPayload<{ select: typeof productSelect }>;
+type AdminProductRow = productGetPayload<{ select: typeof productSelect }>;
 
 const mapProduct = (row: AdminProductRow | null) => {
   if (!row) return row;
@@ -69,7 +69,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ pr
 
     const data = parsed.data;
     if ("slug" in data && data.slug) data.slug = data.slug.trim();
-    const updates: Prisma.productUpdateInput = { ...data };
+    const updates: productUpdateInput = { ...data };
 
     if (data.slug) {
       const slugTaken = await prisma.product.findFirst({ where: { slug: data.slug, NOT: { id: productId } }, select: { id: true } });

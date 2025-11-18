@@ -1,0 +1,15 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+
+RUN npm ci
+
+COPY . .
+
+# Chạy kiểm tra lỗi TypeScript (in ra toàn bộ)
+RUN npx tsc --noEmit
+
+# Chạy lint để bắt lỗi import, casing, eslint (in ra toàn bộ)
+RUN npm run lint

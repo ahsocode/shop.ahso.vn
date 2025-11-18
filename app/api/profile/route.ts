@@ -2,8 +2,8 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import { Prisma } from "@prisma/client/index";
 import { prisma } from "../../../lib/prisma";
+import type { userUncheckedUpdateInput } from "@/lib/prisma-types";
 
 function getTokenFromReq(req: Request): string | null {
   const auth = req.headers.get("authorization") || "";
@@ -148,7 +148,7 @@ export async function PATCH(req: Request) {
     if (!me) return NextResponse.json({ error: "USER_NOT_FOUND" }, { status: 404 });
 
     
-    const userUpdate: Prisma.userUncheckedUpdateInput = {};
+    const userUpdate: userUncheckedUpdateInput = {};
     if (data.fullName !== undefined) userUpdate.fullName = data.fullName;
     if (data.taxCode !== undefined) userUpdate.taxCode = data.taxCode ?? null;
     if (data.phone !== undefined) userUpdate.phoneE164 = toE164VN(data.phone);

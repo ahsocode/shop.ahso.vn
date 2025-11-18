@@ -3,9 +3,10 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { z } from "zod";
-import type { Prisma } from "@prisma/client";
 import { prisma, prismaSupportsUserBlockField } from "../../../../lib/prisma";
 import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../lib/auth";
+import type { userSelect, userWhereInput, userScalarWhereWithAggregatesInput } from "@/lib/prisma-types";
+import type { Prisma } from "@prisma/client";
 
 const baseAddressSchema = z.object({
   line1: z.string().min(1),
@@ -37,9 +38,9 @@ const BASE_ADMIN_USER_SELECT = {
   phoneE164: true,
   role: true,
   createdAt: true,
-} satisfies Prisma.userSelect;
+} satisfies userSelect;
 
-const adminUserSelect: Prisma.userSelect = prismaSupportsUserBlockField
+const adminUserSelect: userSelect = prismaSupportsUserBlockField
   ? { ...BASE_ADMIN_USER_SELECT, isBlocked: true }
   : BASE_ADMIN_USER_SELECT;
 
@@ -89,8 +90,8 @@ export async function GET(req: NextRequest) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 20);
 
-    const where: Prisma.userWhereInput = {
-      ...(role && { role: role as Prisma.userScalarWhereWithAggregatesInput["role"] }),
+    const where: userWhereInput = {
+      ...(role && { role: role as userScalarWhereWithAggregatesInput["role"] }),
       ...(q && {
         OR: [
           { username: { contains: q } },
@@ -114,7 +115,10 @@ export async function GET(req: NextRequest) {
 
     const rows: AdminUserRow[] = prismaSupportsUserBlockField
       ? (rawRows as AdminUserRow[])
-      : (rawRows as Omit<AdminUserRow, "isBlocked">[]).map((row) => ({ ...row, isBlocked: false }));
+      : (rawRows as Omit<AdminUserRow, "isBlocked">[]).map((row: Omit<AdminUserRow, "isBlocked">) => ({
+          ...row,
+          isBlocked: false,
+        }));
 
     return NextResponse.json({ data: rows, meta: { total, page, pageSize, blockable: prismaSupportsUserBlockField } });
   } catch (e) {
@@ -168,7 +172,7 @@ export async function POST(req: NextRequest) {
         }
       : undefined;
 
-    const user = await prisma.$transaction(async (tx) => {
+    const user = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const shipAddr = await tx.address.create({
         data: {
           id: randomUUID(),

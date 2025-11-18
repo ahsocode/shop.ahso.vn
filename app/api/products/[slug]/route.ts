@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import type { productGetPayload, productInclude as ProductInclude } from '@/lib/prisma-types';
 
 const productInclude = {
   brand: {
@@ -64,9 +64,9 @@ const productInclude = {
     include: { productspecdefinition: { select: { id: true, name: true, slug: true } } },
     orderBy: { sortOrder: 'asc' },
   },
-} as const;
+} satisfies ProductInclude;
 
-type ProductRecord = Prisma.productGetPayload<{ include: typeof productInclude }>;
+type ProductRecord = productGetPayload<{ include: typeof productInclude }>;
 
 const mapProductRecord = (record: ProductRecord | null) => {
   if (!record) return null;
@@ -102,14 +102,14 @@ const mapProductRecord = (record: ProductRecord | null) => {
 };
 
 function categoryLinksFrom(links: ProductRecord['productcategorylink']) {
-  return links.map(({ productcategory, ...linkRest }) => ({
+  return links.map(({ productcategory, ...linkRest }: ProductRecord["productcategorylink"][number]) => ({
     ...linkRest,
     category: productcategory,
   }));
 }
 
 function specsFrom(specs: ProductRecord['productspecvalue']) {
-  return specs.map(({ productspecdefinition, ...specRest }) => ({
+  return specs.map(({ productspecdefinition, ...specRest }: ProductRecord["productspecvalue"][number]) => ({
     ...specRest,
     specDefinition: productspecdefinition,
   }));
@@ -164,7 +164,7 @@ const reviewsRaw = await prisma.review.findMany({
 });
 
 // Chuẩn hóa dữ liệu user (tạo displayName từ email nếu cần)
-const reviews = reviewsRaw.map((r) => ({
+const reviews = reviewsRaw.map((r: (typeof reviewsRaw)[number]) => ({
   id: r.id,
   rating: r.rating,
   feedback: r.feedback,
@@ -201,11 +201,13 @@ const reviews = reviewsRaw.map((r) => ({
       },
     });
 
-    const relatedProducts = relatedProductsRaw.map(({ producttype, productimage, ...rest }) => ({
-      ...rest,
-      type: producttype,
-      images: productimage,
-    }));
+    const relatedProducts = relatedProductsRaw.map(
+      ({ producttype, productimage, ...rest }: (typeof relatedProductsRaw)[number]) => ({
+        ...rest,
+        type: producttype,
+        images: productimage,
+      }),
+    );
 
     return NextResponse.json({
       success: true,

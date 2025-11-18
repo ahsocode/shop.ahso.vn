@@ -2,11 +2,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { toOrderListItemDTO } from "@/dto/order.mapper";
-import type { Prisma } from "@prisma/client";
+import type { orderGetPayload } from "@/lib/prisma-types";
 
 export const dynamic = "force-dynamic";
 
-type OrderWithItems = Prisma.orderGetPayload<{
+type OrderWithItems = orderGetPayload<{
   include: { orderitem: true };
 }>;
 
@@ -36,7 +36,7 @@ export async function GET() {
 
         note: r.note ?? undefined,
       },
-      r.orderitem.map((it) => ({
+      r.orderitem.map((it: (typeof r.orderitem)[number]) => ({
         sku: it.sku,
         name: it.name,
         quantity: it.quantity,

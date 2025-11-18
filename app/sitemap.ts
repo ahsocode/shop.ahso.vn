@@ -40,19 +40,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
 
   const entries: MetadataRoute.Sitemap = [
-    ...staticRoutes.map((path) => ({
+    ...staticRoutes.map((path: string) => ({
       url: absolute(path),
       lastModified: new Date(),
     })),
-    ...products.map((p) => ({
+    ...products.map((p: (typeof products)[number]) => ({
       url: absolute(`/shop/products/${p.slug}`),
       lastModified: p.updatedAt ?? p.publishAt ?? new Date(),
     })),
-    ...solutions.map((s) => ({
+    ...solutions.map((s: (typeof solutions)[number]) => ({
       url: absolute(`/solutions/${s.slug}`),
       lastModified: s.updatedAt ?? s.publishedAt ?? new Date(),
     })),
-    ...softwares.map((s) => ({
+    ...softwares.map((s: (typeof softwares)[number]) => ({
       url: absolute(`/software/${s.slug}`),
       lastModified: s.updatedAt ?? s.publishedAt ?? new Date(),
     })),

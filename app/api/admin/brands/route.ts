@@ -1,6 +1,5 @@
 import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
-import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { parsePaging, jsonOk, jsonError, toHttpError } from "@/lib/http";
@@ -15,7 +14,7 @@ export async function GET(req: NextRequest) {
     const q = searchParams.get("q") || "";
     const { page, pageSize, skip, take } = parsePaging(req);
 
-    const where: Prisma.brandWhereInput = {
+    const where = {
       ...(q && {
         OR: [
           { name: { contains: q } },
