@@ -35,10 +35,15 @@ export async function GET(req: Request) {
       },
     });
 
-    const data = items.map(({ _count, ...rest }) => ({
-      ...rest,
-      productCount: _count.product,
-    }));
+type BrandItem = (typeof items)[number];
+
+const data = items.map((item: BrandItem) => {
+  const { _count, ...rest } = item;
+  return {
+    ...rest,
+    productCount: _count.product,
+  };
+});
 
     // ✅ Format nhất quán: { success: true, data: [...], meta: {...} }
     return NextResponse.json(

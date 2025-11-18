@@ -44,10 +44,14 @@ export async function GET(req: NextRequest) {
       }),
     ]);
 
-    const data = rows.map(({ _count, ...rest }) => ({
-      ...rest,
-      productCount: _count.productcategorylink,
-    }));
+    type CategoryRow = (typeof rows)[number];
+const data = rows.map((row: CategoryRow) => {
+  const { _count, ...rest } = row;
+  return {
+    ...rest,
+    productCount: _count.productcategorylink,
+  };
+});
 
     return jsonOk({ data, meta: { total, page, pageSize } });
   } catch (error) {

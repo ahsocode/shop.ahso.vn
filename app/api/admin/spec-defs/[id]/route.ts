@@ -56,7 +56,6 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
   try {
     const me = await verifyBearerAuth(req); requireRole(me, ["ADMIN"]);
     const { id } = await ctx.params;
-
     await prisma.productspecdefinition.delete({ where: { id } });
     return jsonOk({ ok: true });
   } catch (error) {

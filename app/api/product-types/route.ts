@@ -33,11 +33,16 @@ export async function GET(req: Request) {
       },
     });
 
-    const data = items.map(({ _count, productcategory, ...rest }) => ({
-      ...rest,
-      category: productcategory,
-      productCount: _count.product,
-    }));
+    type ProductTypeItem = (typeof items)[number];
+
+const data = items.map((item: ProductTypeItem) => {
+  const { _count, productcategory, ...rest } = item;
+  return {
+    ...rest,
+    category: productcategory,
+    productCount: _count.product,
+  };
+});
 
     return NextResponse.json(
       {

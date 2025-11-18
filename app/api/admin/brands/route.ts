@@ -18,33 +18,37 @@ export async function GET(req: NextRequest) {
       ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { slug: { contains: q, mode: "insensitive" } }] }
       : {};
 
-    const [total, rows] = await Promise.all([
-      prisma.brand.count({ where }),
-      prisma.brand.findMany({
-        where,
-        orderBy: { name: "asc" },
-        skip,
-        take,
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          logoUrl: true,
-          summary: true,
-          createdAt: true,
-          updatedAt: true,
-          _count: { select: { product: true } },
-        },
-      }),
-    ]);
-    type BrandRow = (typeof rows)[number];
-    const data = rows.map((row: BrandRow) => {
-      const { _count, ...rest } = row;
-      return {
-        ...rest,
-        productCount: _count.product,
-      };
-    });
+    // ✅ ĐÚNG:
+const [total, rows] = await Promise.all([
+  prisma.brand.count({ where }),
+  prisma.brand.findMany({
+    where,
+    orderBy: { name: "asc" },
+    skip,
+    take,
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      logoUrl: true,
+      summary: true,
+      createdAt: true,
+      updatedAt: true,
+      _count: { select: { product: true } },
+    },
+  }),
+]);
+
+// ✅ Khai báo type rõ ràng cho row
+type BrandRow = (typeof rows)[number];
+
+const data = rows.map((row: BrandRow) => {
+  const { _count, ...rest } = row;
+  return {
+    ...rest,
+    productCount: _count.product,
+  };
+});
     return jsonOk({ data, meta: { total, page, pageSize } });
   } catch (error) {
     const err = toHttpError(error);
