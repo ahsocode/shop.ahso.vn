@@ -48,11 +48,17 @@ export async function GET(req: NextRequest) {
       }),
     ]);
 
-    const mapped = rows.map(({ productcategory, _count, ...rest }) => ({
-      ...rest,
-      categoryName: productcategory?.name ?? "",
-      productCount: _count.product,
-    }));
+  
+type ProductTypeRow = (typeof rows)[number];
+
+const mapped = rows.map((row: ProductTypeRow) => {
+  const { productcategory, _count, ...rest } = row;
+  return {
+    ...rest,
+    categoryName: productcategory?.name ?? "",
+    productCount: _count.product,
+  };
+});
 
     return jsonOk({ data: mapped, meta: { total, page, pageSize } });
   } catch (error) {
