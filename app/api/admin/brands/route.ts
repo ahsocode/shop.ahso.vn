@@ -37,10 +37,13 @@ export async function GET(req: NextRequest) {
         },
       }),
     ]);
-    const data = rows.map(({ _count, ...rest }) => ({
-      ...rest,
-      productCount: _count.product,
-    }));
+    const data = rows.map((row) => {
+      const { _count, ...rest } = row;
+      return {
+        ...rest,
+        productCount: _count.product,
+      };
+    });
     return jsonOk({ data, meta: { total, page, pageSize } });
   } catch (error) {
     const err = toHttpError(error);
