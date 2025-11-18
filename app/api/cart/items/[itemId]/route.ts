@@ -43,7 +43,10 @@ async function verifyCartItemOwnership(
 /** Tính lại tổng tiền của cart */
 async function recalcCart(cartId: string) {
   const items = await prisma.cartitem.findMany({ where: { cartId } });
-  const subtotal = items.reduce((sum, item) => sum + Number(item.lineTotal ?? 0), 0);
+  const subtotal = items.reduce(
+    (sum: number, item: (typeof items)[number]) => sum + Number(item.lineTotal ?? 0),
+    0,
+  );
 
   const cart = await prisma.cart.findUnique({
     where: { id: cartId },

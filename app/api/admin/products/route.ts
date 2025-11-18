@@ -1,12 +1,12 @@
 import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
-import { Prisma } from "@prisma/client/index";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { parsePaging, jsonOk, jsonError, toHttpError } from "@/lib/http";
 import { slugify } from "@/lib/slug";
 import { ProductCreateSchema, PublishStatusEnum } from "@/lib/validators";
+import type { productWhereInput } from "@/lib/prisma-types";
 
 export async function GET(req: NextRequest) {
   try {
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status") as z.infer<typeof PublishStatusEnum> | null;
     const { page, pageSize, skip, take } = parsePaging(req);
 
-    const where: Prisma.productWhereInput = {
+    const where: productWhereInput = {
       ...(q && {
         OR: [
           { name: { contains: q } },
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
       }),
     ]);
 
-    const data = rows.map(({ producttype, ...rest }) => ({ ...rest, type: producttype }));
+    const data = rows.map(({ producttype, ...rest }: (typeof rows)[number]) => ({ ...rest, type: producttype }));
     return jsonOk({ data, meta: { total, page, pageSize } });
   } catch (error) {
     const err = toHttpError(error);

@@ -4,8 +4,8 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
 import { z } from "zod";
-import { Prisma } from "@prisma/client/index";
 import { prisma, prismaSupportsUserBlockField } from "@/lib/prisma";
+import type { userWhereInput } from "@/lib/prisma-types";
 
 const loginSchema = z.object({
   identifier: z.string().optional(), // Support cả username/email/phone
@@ -73,7 +73,7 @@ async function mergeGuestCartToUser(guestCartId: string, userId: string) {
     // Merge items
     for (const guestItem of guestCart.cartitem) {
       const existingUserItem = userCart.cartitem.find(
-        (ui) => ui.productId === guestItem.productId
+        (ui: (typeof userCart.cartitem)[number]) => ui.productId === guestItem.productId
       );
 
       if (existingUserItem) {
@@ -115,7 +115,10 @@ async function mergeGuestCartToUser(guestCartId: string, userId: string) {
     const updatedItems = await prisma.cartitem.findMany({
       where: { cartId: userCart.id },
     });
-    const subtotal = updatedItems.reduce((sum: number, item) => sum + Number(item.lineTotal ?? 0), 0);
+    const subtotal = updatedItems.reduce(
+      (sum: number, item: (typeof updatedItems)[number]) => sum + Number(item.lineTotal ?? 0),
+      0,
+    );
 
     await prisma.cart.update({
       where: { id: userCart.id },
@@ -150,7 +153,7 @@ export async function POST(req: Request) {
     const data = parsed.data;
     
     // Xác định where clause
-    let where: Prisma.userWhereInput;
+    let where: userWhereInput;
     if (data.identifier) {
       const id = data.identifier.toLowerCase();
       where = {

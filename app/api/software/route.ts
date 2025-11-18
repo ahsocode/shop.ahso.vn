@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
+import type { softwareWhereInput } from "@/lib/prisma-types";
 
 function toInt(v: string | null, def = 1) {
   const n = v ? Number(v) : NaN;
@@ -17,7 +17,7 @@ export async function GET(req: Request) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 12);
 
-    const where: Prisma.softwareWhereInput = {
+    const where: softwareWhereInput = {
       status: "PUBLISHED",
       ...(categoryId && { categoryId }),
       ...(!categoryId && category && { softwarecategory: { is: { slug: category } } }),
@@ -49,7 +49,7 @@ export async function GET(req: Request) {
     ]);
 
     return NextResponse.json({
-      data: rows.map((r) => ({
+      data: rows.map((r: (typeof rows)[number]) => ({
         id: r.id,
         slug: r.slug,
         title: r.title,

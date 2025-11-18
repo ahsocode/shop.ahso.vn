@@ -3,9 +3,10 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { z } from "zod";
-import type { Prisma } from "@prisma/client";
 import { prisma, prismaSupportsUserBlockField } from "../../../../../lib/prisma";
 import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../../lib/auth";
+import type { userSelect, userWhereInput } from "@/lib/prisma-types";
+import type { Prisma } from "@prisma/client";
 
 const createStaffSchema = z.object({
   // Chấp nhận hoa/thường, sẽ lưu lowercase
@@ -33,9 +34,9 @@ const BASE_STAFF_SELECT = {
   phoneE164: true,
   role: true,
   createdAt: true,
-} satisfies Prisma.userSelect;
+} satisfies userSelect;
 
-const staffSelect: Prisma.userSelect = prismaSupportsUserBlockField
+const staffSelect: userSelect = prismaSupportsUserBlockField
   ? { ...BASE_STAFF_SELECT, isBlocked: true }
   : BASE_STAFF_SELECT;
 
@@ -54,7 +55,7 @@ export async function GET(req: NextRequest) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 20);
 
-    const where: Prisma.userWhereInput = {
+    const where: userWhereInput = {
       role: "STAFF",
       ...(q && {
         OR: [
@@ -79,7 +80,10 @@ export async function GET(req: NextRequest) {
 
     const rows: StaffRow[] = prismaSupportsUserBlockField
       ? (rawRows as StaffRow[])
-      : (rawRows as Omit<StaffRow, "isBlocked">[]).map((row) => ({ ...row, isBlocked: false }));
+      : (rawRows as Omit<StaffRow, "isBlocked">[]).map((row: Omit<StaffRow, "isBlocked">) => ({
+          ...row,
+          isBlocked: false,
+        }));
 
     return NextResponse.json({ data: rows, meta: { total, page, pageSize, blockable: prismaSupportsUserBlockField } });
   } catch (e) {
@@ -120,7 +124,7 @@ export async function POST(req: NextRequest) {
 
     const passwordHash = await bcrypt.hash(data.password, 12);
 
-    const user = await prisma.$transaction(async (tx) => {
+    const user = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const now = new Date();
       const addr = await tx.address.create({
         data: {

@@ -2,21 +2,21 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { buildMetadata } from "@/lib/metadata";
+import type { solutionInclude as SolutionInclude, solutionGetPayload } from "@/lib/prisma-types";
 
 export const revalidate = 60;
 
-const solutionInclude = Prisma.validator<Prisma.solutionInclude>()({
+const solutionInclude = {
   solutioncategory: { select: { name: true, slug: true } },
   solutionimage: {
     select: { id: true, url: true, alt: true, sortOrder: true },
     orderBy: { sortOrder: "asc" },
   },
-});
+} satisfies SolutionInclude;
 
-type SolutionRecord = Prisma.solutionGetPayload<{
+type SolutionRecord = solutionGetPayload<{
   include: typeof solutionInclude;
 }>;
 

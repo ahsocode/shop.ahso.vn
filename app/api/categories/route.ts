@@ -1,7 +1,6 @@
 // app/api/categories/route.ts
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
 
 export const revalidate = 60; // Revalidate every 60 seconds
@@ -11,7 +10,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get("q") ?? undefined;
 
-    const where: Prisma.productcategoryWhereInput = {
+    const where = {
       ...(q && {
         OR: [
           { name: { contains: q } },

@@ -121,7 +121,7 @@ export async function GET(req: NextRequest) {
     const suggestions: Suggestion[] = [];
 
     // Add product suggestions
-    productSuggestions.forEach((p) => {
+    productSuggestions.forEach((p: (typeof productSuggestions)[number]) => {
       suggestions.push({
         type: "product",
         text: p.name,
@@ -133,7 +133,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Add brand suggestions
-    brandSuggestions.forEach((b) => {
+    brandSuggestions.forEach((b: (typeof brandSuggestions)[number]) => {
       suggestions.push({
         type: "brand",
         text: b.name,

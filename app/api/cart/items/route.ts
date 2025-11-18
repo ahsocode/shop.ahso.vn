@@ -1,9 +1,9 @@
 // app/api/cart/items/route.ts
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
 import { verifyRequestUser } from "@/lib/auth";
+import type { Decimal } from "@prisma/client/runtime/library";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,7 @@ const COOKIE_OPTS = {
   maxAge: 60 * 60 * 24 * 30,
 };
 
-type TotItem = { quantity: number; unitPrice: Prisma.Decimal | number | string | null };
+type TotItem = { quantity: number; unitPrice: Decimal | number | string | null };
 
 function calcTotals(items: TotItem[]) {
   const subtotal = items.reduce((s, it) => s + Number(it.unitPrice ?? 0) * it.quantity, 0);

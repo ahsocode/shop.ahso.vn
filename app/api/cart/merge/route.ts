@@ -6,18 +6,21 @@
  */
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth } from "@/lib/auth";
+import type { Decimal } from "@prisma/client/runtime/library";
 
 export const dynamic = "force-dynamic";
 
 const CART_COOKIE = "cart_id";
 
-type TotItem = { quantity: number; unitPrice: Prisma.Decimal | number | string | null };
+type TotItem = { quantity: number; unitPrice: Decimal | number | string | null };
 
 function calcTotals(items: TotItem[]) {
-  const subtotal = items.reduce((s, it) => s + Number(it.unitPrice ?? 0) * it.quantity, 0);
+  const subtotal = items.reduce(
+    (sum: number, it: TotItem) => sum + Number(it.unitPrice ?? 0) * it.quantity,
+    0,
+  );
   const discountTotal = 0;
   const taxTotal = 0;
   const shippingFee = 0;
@@ -64,7 +67,7 @@ export async function POST(req: NextRequest) {
     // Gộp items từ guest cart vào user cart
     for (const guestItem of guestCart.cartitem) {
       const existingUserItem = userCart.cartitem.find(
-        (ui) => ui.productId === guestItem.productId
+        (ui: (typeof userCart.cartitem)[number]) => ui.productId === guestItem.productId
       );
 
       if (existingUserItem) {

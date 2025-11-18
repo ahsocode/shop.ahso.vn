@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { buildMetadata } from "@/lib/metadata";
+import type { softwareWhereInput } from "@/lib/prisma-types";
 import SoftwareSearchClient, {
   SoftwareCard,
   SoftwareCategoryOption,
@@ -43,7 +43,7 @@ export default async function SoftwarePage({
   const page = toInt(pickParam(params, "page"), 1);
   const pageSize = toInt(pickParam(params, "pageSize"), 12);
 
-  const where: Prisma.softwareWhereInput = { status: "PUBLISHED" };
+  const where: softwareWhereInput = { status: "PUBLISHED" };
   if (category) where.softwarecategory = { is: { slug: category } };
   if (q) {
     where.OR = [
@@ -75,7 +75,7 @@ export default async function SoftwarePage({
     }),
   ]);
 
-  const initialData: SoftwareCard[] = rows.map((r): SoftwareCard => ({
+  const initialData: SoftwareCard[] = rows.map((r: (typeof rows)[number]): SoftwareCard => ({
     id: r.id,
     slug: r.slug,
     title: r.title,
@@ -84,7 +84,7 @@ export default async function SoftwarePage({
   }));
 
   const initialCategories: SoftwareCategoryOption[] = categories.map(
-    (c): SoftwareCategoryOption => ({
+    (c: (typeof categories)[number]): SoftwareCategoryOption => ({
       id: c.id,
       slug: c.slug,
       name: c.name,

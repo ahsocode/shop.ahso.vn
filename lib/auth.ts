@@ -2,8 +2,9 @@
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 import { z } from "zod";
-import type { Prisma, user_role } from "@prisma/client";
 import { prisma, prismaSupportsUserBlockField } from "./prisma";
+import type { userSelect } from "@/lib/prisma-types";
+import type { user_role } from "@/generated/enums";
 
 /** Payload JWT (ký bằng jose trong login) */
 export const JwtPayloadSchema = z.object({
@@ -107,8 +108,8 @@ type ActiveUserRecord = { id: string; role: user_role; isBlocked: boolean };
 
 async function fetchUserRecord(userId: string): Promise<ActiveUserRecord | null> {
   if (!userId) return null;
-  const BASE_SELECT = { id: true, role: true } satisfies Prisma.userSelect;
-  const select: Prisma.userSelect = prismaSupportsUserBlockField
+  const BASE_SELECT = { id: true, role: true } satisfies userSelect;
+  const select: userSelect = prismaSupportsUserBlockField
     ? { ...BASE_SELECT, isBlocked: true }
     : BASE_SELECT;
   const record = await prisma.user.findUnique({

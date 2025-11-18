@@ -1,6 +1,5 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 
@@ -12,7 +11,7 @@ export async function GET(req: Request) {
     const categorySlug = searchParams.get("category") ?? undefined;
     const q = searchParams.get("q") ?? undefined;
 
-    const where: Prisma.producttypeWhereInput = {
+    const where = {
       ...(categorySlug && { productcategory: { slug: categorySlug } }),
       ...(q && {
         OR: [

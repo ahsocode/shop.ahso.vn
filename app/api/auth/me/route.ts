@@ -1,8 +1,8 @@
 // app/api/auth/me/route.ts
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import type { Prisma } from "@prisma/client";
 import { prisma, prismaSupportsUserBlockField } from "../../../../lib/prisma";
+import type { userSelect } from "@/lib/prisma-types";
 
 function getTokenFromRequest(req: Request): string | null {
   // 1. Check Authorization header
@@ -55,8 +55,8 @@ export async function GET(req: Request) {
       role: true,
       createdAt: true,
       avatarUrl: true,
-    } satisfies Prisma.userSelect;
-    const select: Prisma.userSelect = prismaSupportsUserBlockField
+    } satisfies userSelect;
+    const select: userSelect = prismaSupportsUserBlockField
       ? { ...BASE_SELECT, isBlocked: true }
       : BASE_SELECT;
 

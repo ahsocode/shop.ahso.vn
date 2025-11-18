@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
+import type { softwareWhereInput } from "@/lib/prisma-types";
 
 export const revalidate = 60;
 
@@ -25,7 +25,7 @@ export async function GET(req: Request) {
       );
     }
 
-    const where: Prisma.softwareWhereInput = {
+    const where: softwareWhereInput = {
       status: "PUBLISHED",
       AND: exclude ? [{ slug: { not: exclude } }, { id: { not: exclude } }] : undefined,
     };
@@ -48,7 +48,7 @@ export async function GET(req: Request) {
       },
     });
 
-    const data = rows.map((r) => ({
+    const data = rows.map((r: (typeof rows)[number]) => ({
       id: r.id,
       slug: r.slug,
       title: r.title,

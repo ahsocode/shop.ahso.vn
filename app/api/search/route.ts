@@ -1,7 +1,7 @@
 // app/api/search/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client/index";
 import { prisma } from "@/lib/prisma";
+import type { productWhereInput, productGetPayload } from "@/lib/prisma-types";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +24,7 @@ function splitWords(query: string): string[] {
 // Helper: Build search conditions (MySQL compatible - no mode)
 function buildSearchConditions(query: string) {
   // Exact match conditions (case-insensitive by default in MySQL)
-  const exactConditions: Prisma.productWhereInput[] = [
+  const exactConditions: productWhereInput[] = [
     { name: { contains: query } },
     { sku: { contains: query } },
     { description: { contains: query } },
@@ -32,19 +32,19 @@ function buildSearchConditions(query: string) {
 
   // Word-by-word match conditions
   const words = splitWords(query);
-  const wordConditions: Prisma.productWhereInput[] = words.flatMap((word) => [
+  const wordConditions: productWhereInput[] = words.flatMap((word) => [
     { name: { contains: word } },
     { description: { contains: word } },
   ]);
 
   // Brand name search
-  const brandConditions: Prisma.productWhereInput[] = [
+  const brandConditions: productWhereInput[] = [
     { brand: { is: { name: { contains: query } } } },
     { brand: { is: { slug: { contains: query } } } },
   ];
 
   // Category search
-  const categoryConditions: Prisma.productWhereInput[] = [
+  const categoryConditions: productWhereInput[] = [
     { producttype: { is: { name: { contains: query } } } },
     {
       producttype: {
@@ -68,7 +68,7 @@ function buildSearchConditions(query: string) {
 }
 
 // Helper: Calculate relevance score
-type ProductRecord = Prisma.productGetPayload<{
+type ProductRecord = productGetPayload<{
   select: {
     id: true;
     slug: true;
@@ -105,6 +105,7 @@ type ProductRecord = Prisma.productGetPayload<{
 }>;
 
 type ProductForSearch = ReturnType<typeof mapProductRecord>;
+type ScoredProduct = ProductForSearch & { relevance: number };
 
 function mapProductRecord(record: ProductRecord) {
   const { producttype, ...rest } = record;
@@ -310,14 +311,14 @@ export async function GET(req: NextRequest) {
 
       // Calculate relevance and sort
       const scoredProducts = products
-        .map((p) => ({
+        .map((p: ProductForSearch): ScoredProduct => ({
           ...p,
           relevance: calculateRelevance(p, query),
         }))
-        .sort((a, b) => b.relevance - a.relevance)
+        .sort((a: ScoredProduct, b: ScoredProduct) => b.relevance - a.relevance)
         .slice(0, limit);
 
-      results.products = scoredProducts.map((p) => ({
+      results.products = scoredProducts.map((p: ScoredProduct) => ({
         id: p.id,
         slug: p.slug,
         name: p.name,
@@ -374,7 +375,7 @@ export async function GET(req: NextRequest) {
         ],
       });
 
-      results.brands = brands.map((b) => ({
+      results.brands = brands.map((b: (typeof brands)[number]) => ({
         id: b.id,
         slug: b.slug,
         name: b.name,
@@ -409,7 +410,7 @@ export async function GET(req: NextRequest) {
         ],
       });
 
-      results.categories = categories.map((c) => ({
+      results.categories = categories.map((c: (typeof categories)[number]) => ({
         id: c.id,
         slug: c.slug,
         name: c.name,
