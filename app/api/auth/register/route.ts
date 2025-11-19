@@ -7,6 +7,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import type { Prisma } from "@prisma/client";
+import { shouldUseSecureAuthCookie } from "@/lib/auth";
 
 // ===== Validation =====
 const addressSchema = z.object({
@@ -234,9 +235,10 @@ export async function POST(req: Request) {
     );
 
     // Set auth cookie
+    const secureCookie = shouldUseSecureAuthCookie();
     res.cookies.set("auth_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: secureCookie,
       sameSite: "lax",
       path: "/",
       maxAge: 7 * 24 * 60 * 60,
