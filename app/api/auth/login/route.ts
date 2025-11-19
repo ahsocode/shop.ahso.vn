@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
 import { z } from "zod";
 import { prisma, prismaSupportsUserBlockField } from "@/lib/prisma";
+import { shouldUseSecureAuthCookie } from "@/lib/auth";
 import type { userWhereInput } from "@/lib/prisma-types";
 
 const loginSchema = z.object({
@@ -227,9 +228,10 @@ export async function POST(req: Request) {
     });
 
     // Set auth cookie
+    const secureCookie = shouldUseSecureAuthCookie();
     res.cookies.set("auth_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: secureCookie,
       sameSite: "lax",
       path: "/",
       maxAge: 7 * 24 * 60 * 60,
