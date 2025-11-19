@@ -22,7 +22,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # ======================
+      # Prisma generate (bắt buộc nếu dùng Prisma)
+      # ======================
       - name: Prisma generate (nếu dùng Prisma)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           if [ -f prisma/schema.prisma ]; then
             npx prisma generate
@@ -30,7 +35,12 @@ jobs:
             echo "No Prisma schema, skip."
           fi
 
+      # ======================
+      # Prisma validate
+      # ======================
       - name: Prisma validate (optional)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           if [ -f prisma/schema.prisma ]; then
             npx prisma validate
@@ -38,6 +48,9 @@ jobs:
             echo "No Prisma schema, skip."
           fi
 
+      # ======================
+      # TypeScript
+      # ======================
       - name: TypeScript check
         run: |
           if npx tsc -v >/dev/null 2>&1; then
@@ -46,6 +59,9 @@ jobs:
             echo "TS not configured, skip."
           fi
 
+      # ======================
+      # Lint
+      # ======================
       - name: Lint
         run: |
           if npm run | grep -q "lint"; then
@@ -54,6 +70,9 @@ jobs:
             echo "No lint script, skip."
           fi
 
+      # ======================
+      # Tests (optional)
+      # ======================
       - name: Test (optional)
         run: |
           if npm run | grep -q "test"; then
@@ -62,9 +81,15 @@ jobs:
             echo "No test script, skip."
           fi
 
+      # ======================
+      # Build Next.js
+      # ======================
       - name: Build Next.js
         run: npm run build
 
+  # ======================================================
+  # Deploy to VPS when CI passes
+  # ======================================================
   deploy:
     runs-on: ubuntu-latest
     needs: check_on_linux
