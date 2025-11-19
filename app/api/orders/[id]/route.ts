@@ -4,12 +4,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyRequestUser } from "@/lib/auth";
 import { toOrderDetailDTO } from "@/dto/order.mapper";
-import type { Prisma } from "@prisma/client";
+import type { orderGetPayload } from "@/lib/prisma-types";
 
 export const dynamic = "force-dynamic";
 
-type OrderWithRelations = Prisma.OrderGetPayload<{
-  include: { items: true; payment: true; address: true };
+type OrderWithRelations = orderGetPayload<{
+  include: { orderitem: true; payment: true; address: true };
 }>;
 
 export async function GET(
@@ -23,7 +23,7 @@ export async function GET(
 
   const r: OrderWithRelations | null = await prisma.order.findUnique({
     where: { id },
-    include: { items: true, payment: true, address: true },
+    include: { orderitem: true, payment: true, address: true },
   });
 
   if (!r) {
@@ -55,7 +55,7 @@ export async function GET(
       taxTotal: Number(r.taxTotal),
       grandTotal: Number(r.grandTotal),
     },
-    items: r.items.map((it) => ({
+    items: r.orderitem.map((it: (typeof r.orderitem)[number]) => ({
       sku: it.sku,
       name: it.name,
       quantity: it.quantity,

@@ -1,4 +1,5 @@
 // app/api/categories/route.ts
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -9,19 +10,19 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get("q") ?? undefined;
 
-    const where = q
-      ? {
-          OR: [
-            { name: { contains: q, mode: "insensitive" as const } },
-            { slug: { contains: q, mode: "insensitive" as const } },
-          ],
-        }
-      : {};
+    const where = {
+      ...(q && {
+        OR: [
+          { name: { contains: q } },
+          { slug: { contains: q } },
+        ],
+      }),
+    };
 
-    const items = await prisma.productCategory.findMany({
+    const items = await prisma.productcategory.findMany({
       where,
       orderBy: [
-        { productLinks: { _count: "desc" } },
+        { productcategorylink: { _count: "desc" } },
         { name: "asc" },
       ],
       select: {
@@ -30,14 +31,19 @@ export async function GET(req: Request) {
         name: true,
         coverImage: true,
         description: true,
-        _count: { select: { productLinks: true } },
+        _count: { select: { productcategorylink: true } },
       },
     });
 
-    const data = items.map(({ _count, ...rest }) => ({
-      ...rest,
-      productCount: _count.productLinks,
-    }));
+    type CategoryItem = (typeof items)[number];
+
+    const data = items.map((item: CategoryItem) => {
+      const { _count, ...rest } = item;
+      return {
+        ...rest,
+        productCount: _count.productcategorylink,
+      };
+    });
 
     // ✅ Format nhất quán: { success: true, data: [...], meta: {...} }
     return NextResponse.json(
@@ -82,7 +88,7 @@ export async function POST(req: Request) {
     const slug = body.slug ? String(body.slug) : slugify(body.name);
 
     // Check if slug already exists
-    const existingCategory = await prisma.productCategory.findUnique({
+    const existingCategory = await prisma.productcategory.findUnique({
       where: { slug },
     });
 
@@ -93,12 +99,16 @@ export async function POST(req: Request) {
       );
     }
 
-    const category = await prisma.productCategory.create({
+    const now = new Date();
+    const category = await prisma.productcategory.create({
       data: {
+        id: randomUUID(),
         slug,
         name: body.name,
         coverImage: body.coverImage ?? null,
         description: body.description ?? null,
+        createdAt: now,
+        updatedAt: now,
       },
     });
 

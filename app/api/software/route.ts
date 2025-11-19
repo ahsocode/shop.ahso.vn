@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import type { softwareWhereInput } from "@/lib/prisma-types";
 
 function toInt(v: string | null, def = 1) {
   const n = v ? Number(v) : NaN;
@@ -17,18 +17,18 @@ export async function GET(req: Request) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 12);
 
-    const where: Prisma.SoftwareWhereInput = { status: "PUBLISHED" };
-
-    if (categoryId) where.categoryId = categoryId;
-    else if (category) where.category = { is: { slug: category } };
-
-    if (q) {
-      where.OR = [
-        { title:   { contains: q } },
-        { summary: { contains: q } },
-        { bodyHtml:{ contains: q } },
-      ];
-    }
+    const where: softwareWhereInput = {
+      status: "PUBLISHED",
+      ...(categoryId && { categoryId }),
+      ...(!categoryId && category && { softwarecategory: { is: { slug: category } } }),
+      ...(q && {
+        OR: [
+          { title: { contains: q } },
+          { summary: { contains: q } },
+          { bodyHtml: { contains: q } },
+        ],
+      }),
+    };
 
     const [total, rows] = await Promise.all([
       prisma.software.count({ where }),
@@ -43,19 +43,19 @@ export async function GET(req: Request) {
           title: true,
           coverImage: true,
           summary: true,
-          category: { select: { name: true, slug: true } },
+          softwarecategory: { select: { name: true, slug: true } },
         },
       }),
     ]);
 
     return NextResponse.json({
-      data: rows.map((r) => ({
+      data: rows.map((r: (typeof rows)[number]) => ({
         id: r.id,
         slug: r.slug,
         title: r.title,
         summary: r.summary ?? null,
         image: r.coverImage ?? null,
-        category: r.category,
+        category: r.softwarecategory,
       })),
       meta: { total, page, pageSize },
     });

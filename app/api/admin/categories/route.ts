@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
@@ -19,13 +20,18 @@ export async function GET(req: NextRequest) {
     const q = searchParams.get("q") || "";
     const { page, pageSize, skip, take } = parsePaging(req);
 
-    const where = q
-      ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { slug: { contains: q, mode: "insensitive" } }] }
-      : {};
+    const where = {
+      ...(q && {
+        OR: [
+          { name: { contains: q } },
+          { slug: { contains: q } },
+        ],
+      }),
+    };
 
     const [total, rows] = await Promise.all([
-      prisma.productCategory.count({ where }),
-      prisma.productCategory.findMany({
+      prisma.productcategory.count({ where }),
+      prisma.productcategory.findMany({
         where,
         orderBy: { name: "asc" },
         skip,
@@ -38,15 +44,19 @@ export async function GET(req: NextRequest) {
           description: true,
           createdAt: true,
           updatedAt: true,
-          _count: { select: { productLinks: true } },
+          _count: { select: { productcategorylink: true } },
         },
       }),
     ]);
 
-    const data = rows.map(({ _count, ...rest }) => ({
-      ...rest,
-      productCount: _count.productLinks,
-    }));
+    type CategoryRow = (typeof rows)[number];
+    const data = rows.map((row: CategoryRow) => {
+      const { _count, ...rest } = row;
+      return {
+        ...rest,
+        productCount: _count.productcategorylink,
+      };
+    });
 
     return jsonOk({ data, meta: { total, page, pageSize } });
   } catch (error) {
@@ -65,15 +75,19 @@ export async function POST(req: NextRequest) {
     const { name, slug, coverImage, description } = parsed.data;
     const finalSlug = slug?.trim() || slugify(name);
 
-    const dup = await prisma.productCategory.findUnique({ where: { slug: finalSlug } });
+    const dup = await prisma.productcategory.findUnique({ where: { slug: finalSlug } });
     if (dup) return jsonError("Slug already exists", 409);
 
-    const created = await prisma.productCategory.create({
+    const now = new Date();
+    const created = await prisma.productcategory.create({
       data: {
+        id: randomUUID(),
         name,
         slug: finalSlug,
         coverImage: coverImage ?? null,
         description: description ?? null,
+        createdAt: now,
+        updatedAt: now,
       },
     });
 

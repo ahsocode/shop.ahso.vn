@@ -1,7 +1,7 @@
 // app/api/search/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import type { productWhereInput, productGetPayload } from "@/lib/prisma-types";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +24,7 @@ function splitWords(query: string): string[] {
 // Helper: Build search conditions (MySQL compatible - no mode)
 function buildSearchConditions(query: string) {
   // Exact match conditions (case-insensitive by default in MySQL)
-  const exactConditions: Prisma.ProductWhereInput[] = [
+  const exactConditions: productWhereInput[] = [
     { name: { contains: query } },
     { sku: { contains: query } },
     { description: { contains: query } },
@@ -32,24 +32,24 @@ function buildSearchConditions(query: string) {
 
   // Word-by-word match conditions
   const words = splitWords(query);
-  const wordConditions: Prisma.ProductWhereInput[] = words.flatMap((word) => [
+  const wordConditions: productWhereInput[] = words.flatMap((word) => [
     { name: { contains: word } },
     { description: { contains: word } },
   ]);
 
   // Brand name search
-  const brandConditions: Prisma.ProductWhereInput[] = [
+  const brandConditions: productWhereInput[] = [
     { brand: { is: { name: { contains: query } } } },
     { brand: { is: { slug: { contains: query } } } },
   ];
 
   // Category search
-  const categoryConditions: Prisma.ProductWhereInput[] = [
-    { type: { is: { name: { contains: query } } } },
+  const categoryConditions: productWhereInput[] = [
+    { producttype: { is: { name: { contains: query } } } },
     {
-      type: {
+      producttype: {
         is: {
-          category: {
+          productcategory: {
             is: { name: { contains: query } },
           },
         },
@@ -68,7 +68,7 @@ function buildSearchConditions(query: string) {
 }
 
 // Helper: Calculate relevance score
-type ProductForSearch = Prisma.ProductGetPayload<{
+type ProductRecord = productGetPayload<{
   select: {
     id: true;
     slug: true;
@@ -89,11 +89,11 @@ type ProductForSearch = Prisma.ProductGetPayload<{
         logoUrl: true;
       };
     };
-    type: {
+    producttype: {
       select: {
         name: true;
         slug: true;
-        category: {
+        productcategory: {
           select: {
             name: true;
             slug: true;
@@ -103,6 +103,28 @@ type ProductForSearch = Prisma.ProductGetPayload<{
     };
   };
 }>;
+
+type ProductForSearch = ReturnType<typeof mapProductRecord>;
+type ScoredProduct = ProductForSearch & { relevance: number };
+
+function mapProductRecord(record: ProductRecord) {
+  const { producttype, ...rest } = record;
+  return {
+    ...rest,
+    type: producttype
+      ? {
+          name: producttype.name,
+          slug: producttype.slug,
+          category: producttype.productcategory
+            ? {
+                name: producttype.productcategory.name,
+                slug: producttype.productcategory.slug,
+              }
+            : null,
+        }
+      : null,
+  };
+}
 
 type ProductSearchSummary = {
   id: string;
@@ -241,7 +263,7 @@ export async function GET(req: NextRequest) {
         ? {}
         : { stockOnHand: { gt: 0 } };
 
-      const products = await prisma.product.findMany({
+      const productRecords = await prisma.product.findMany({
         where: {
           AND: [
             searchConditions,
@@ -270,11 +292,11 @@ export async function GET(req: NextRequest) {
               logoUrl: true,
             },
           },
-          type: {
+          producttype: {
             select: {
               name: true,
               slug: true,
-              category: {
+              productcategory: {
                 select: {
                   name: true,
                   slug: true,
@@ -285,16 +307,18 @@ export async function GET(req: NextRequest) {
         },
       });
 
+      const products = productRecords.map(mapProductRecord);
+
       // Calculate relevance and sort
       const scoredProducts = products
-        .map((p) => ({
+        .map((p: ProductForSearch): ScoredProduct => ({
           ...p,
           relevance: calculateRelevance(p, query),
         }))
-        .sort((a, b) => b.relevance - a.relevance)
+        .sort((a: ScoredProduct, b: ScoredProduct) => b.relevance - a.relevance)
         .slice(0, limit);
 
-      results.products = scoredProducts.map((p) => ({
+      results.products = scoredProducts.map((p: ScoredProduct) => ({
         id: p.id,
         slug: p.slug,
         name: p.name,
@@ -343,27 +367,27 @@ export async function GET(req: NextRequest) {
           name: true,
           logoUrl: true,
           summary: true,
-          _count: { select: { products: true } },
+          _count: { select: { product: true } },
         },
         orderBy: [
-          { products: { _count: "desc" } },
+          { product: { _count: "desc" } },
           { name: "asc" },
         ],
       });
 
-      results.brands = brands.map((b) => ({
+      results.brands = brands.map((b: (typeof brands)[number]) => ({
         id: b.id,
         slug: b.slug,
         name: b.name,
         logo: b.logoUrl,
         summary: b.summary,
-        productCount: b._count.products ?? 0,
+        productCount: b._count.product ?? 0,
       }));
     }
 
     // Search Categories
     if (type === "categories" || type === "all") {
-      const categories = await prisma.productCategory.findMany({
+      const categories = await prisma.productcategory.findMany({
         where: {
           OR: [
             { name: { contains: query } },
@@ -378,21 +402,21 @@ export async function GET(req: NextRequest) {
           name: true,
           coverImage: true,
           description: true,
-          _count: { select: { productLinks: true } },
+          _count: { select: { productcategorylink: true } },
         },
         orderBy: [
-          { productLinks: { _count: "desc" } },
+          { productcategorylink: { _count: "desc" } },
           { name: "asc" },
         ],
       });
 
-      results.categories = categories.map((c) => ({
+      results.categories = categories.map((c: (typeof categories)[number]) => ({
         id: c.id,
         slug: c.slug,
         name: c.name,
         image: c.coverImage,
         description: c.description,
-        productCount: c._count.productLinks ?? 0,
+        productCount: c._count.productcategorylink ?? 0,
       }));
     }
 

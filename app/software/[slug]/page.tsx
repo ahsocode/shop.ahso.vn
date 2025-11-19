@@ -2,26 +2,37 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { buildMetadata } from "@/lib/metadata";
+import type { softwareInclude as SoftwareInclude, softwareGetPayload } from "@/lib/prisma-types";
 
 export const revalidate = 60;
 
-const softwareInclude = Prisma.validator<Prisma.SoftwareInclude>()({
-  category: { select: { name: true, slug: true } },
-});
+const softwareInclude = {
+  softwarecategory: { select: { name: true, slug: true } },
+} satisfies SoftwareInclude;
 
-type SoftwareWithRelations = Prisma.SoftwareGetPayload<{
+type SoftwareRecord = softwareGetPayload<{
   include: typeof softwareInclude;
 }>;
 
+type SoftwareWithRelations = ReturnType<typeof transformSoftware>;
+
+function transformSoftware(record: SoftwareRecord) {
+  const { softwarecategory, ...rest } = record;
+  return {
+    ...rest,
+    category: softwarecategory,
+  };
+}
+
 async function getSoftware(slug: string): Promise<SoftwareWithRelations | null> {
   if (!slug) return null;
-  return prisma.software.findUnique({
+  const record = await prisma.software.findUnique({
     where: { slug, status: "PUBLISHED" },
     include: softwareInclude,
   });
+  return record ? transformSoftware(record) : null;
 }
 
 export async function generateMetadata({

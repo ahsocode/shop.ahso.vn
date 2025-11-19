@@ -1,11 +1,12 @@
+import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
-import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { parsePaging, jsonOk, jsonError, toHttpError } from "@/lib/http";
 import { slugify } from "@/lib/slug";
 import { ProductCreateSchema, PublishStatusEnum } from "@/lib/validators";
+import type { productWhereInput } from "@/lib/prisma-types";
 
 export async function GET(req: NextRequest) {
   try {
@@ -17,13 +18,19 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status") as z.infer<typeof PublishStatusEnum> | null;
     const { page, pageSize, skip, take } = parsePaging(req);
 
-    const where: Prisma.ProductWhereInput = {};
-    if (q) where.OR = [{ name: { contains: q } }, { sku: { contains: q } }];
-    if (brandId) where.brandId = brandId;
-    if (typeId) where.typeId = typeId;
-    if (status) where.status = status;
+    const where: productWhereInput = {
+      ...(q && {
+        OR: [
+          { name: { contains: q } },
+          { sku: { contains: q } },
+        ],
+      }),
+      ...(brandId && { brandId }),
+      ...(typeId && { typeId }),
+      ...(status && { status }),
+    };
 
-    const [total, data] = await Promise.all([
+    const [total, rows] = await Promise.all([
       prisma.product.count({ where }),
       prisma.product.findMany({
         where,
@@ -47,11 +54,12 @@ export async function GET(req: NextRequest) {
           createdAt: true,
           updatedAt: true,
           brand: { select: { id: true, name: true } },
-          type: { select: { id: true, name: true } },
+          producttype: { select: { id: true, name: true } },
         },
       }),
     ]);
 
+    const data = rows.map(({ producttype, ...rest }: (typeof rows)[number]) => ({ ...rest, type: producttype }));
     return jsonOk({ data, meta: { total, page, pageSize } });
   } catch (error) {
     const err = toHttpError(error);
@@ -81,7 +89,7 @@ export async function POST(req: NextRequest) {
     if (dupSlug) return jsonError("Slug already exists", 409);
 
     const [typeRow, brandRow] = await Promise.all([
-      prisma.productType.findUnique({ where: { id: typeId } }),
+      prisma.producttype.findUnique({ where: { id: typeId } }),
       brandId ? prisma.brand.findUnique({ where: { id: brandId } }) : Promise.resolve(null),
     ]);
     if (!typeRow) return jsonError("typeId not found", 400);
@@ -89,7 +97,11 @@ export async function POST(req: NextRequest) {
 
     const created = await prisma.product.create({
       data: {
-        name, sku, typeId, price,
+        id: randomUUID(),
+        name,
+        sku,
+        typeId,
+        price,
         slug: finalSlug,
         description: description ?? null,
         coverImage: coverImage ?? null,
@@ -97,6 +109,7 @@ export async function POST(req: NextRequest) {
         listPrice: listPrice ?? null,
         stockOnHand: stockOnHand ?? 0,
         status: status ?? "DRAFT",
+        updatedAt: new Date(),
       },
     });
     return jsonOk({ data: created }, 201);

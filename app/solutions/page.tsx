@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { buildMetadata } from "@/lib/metadata";
 import SolutionsSearchClient, {
   SolutionCard,
 } from "./solutions-search-client";
+import type { solutionWhereInput } from "@/lib/prisma-types";
 
 export const revalidate = 60;
 
@@ -43,7 +43,7 @@ export default async function SolutionsPage({
   const page = toInt(pickParam(params, "page"), 1);
   const pageSize = toInt(pickParam(params, "pageSize"), 12);
 
-  const where: Prisma.SolutionWhereInput = { status: "PUBLISHED" };
+  const where: solutionWhereInput = { status: "PUBLISHED" };
   if (industry) where.industry = industry;
   if (usecase) where.usecase = usecase;
   if (q) {
@@ -74,7 +74,7 @@ export default async function SolutionsPage({
     }),
   ]);
 
-  const initialData: SolutionCard[] = rows.map((r) => ({
+  const initialData: SolutionCard[] = rows.map((r: (typeof rows)[number]): SolutionCard => ({
     id: r.id,
     slug: r.slug,
     title: r.title,

@@ -1,7 +1,7 @@
 // app/api/search/solutions/route.ts
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import type { solutionWhereInput } from "@/lib/prisma-types";
 
 function toInt(v: string | null, def = 1) {
   const n = v ? Number(v) : NaN;
@@ -17,23 +17,19 @@ export async function GET(req: Request) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 12);
 
-    const where: Prisma.SolutionWhereInput = {
+    const where: solutionWhereInput = {
       status: "PUBLISHED",
+      ...(industry && { industry }),
+      ...(usecase && { usecase }),
+      ...(q && {
+        OR: [
+          { title: { contains: q } },
+          { summary: { contains: q } },
+          { bodyHtml: { contains: q } },
+          { usecase: { contains: q } },
+        ],
+      }),
     };
-
-    if (industry) where.industry = industry;   // so khớp đúng giá trị
-    if (usecase) where.usecase = usecase;
-
-    if (q) {
-      // ❌ KHÔNG dùng mode: "insensitive" (DB/Prisma bạn không hỗ trợ)
-      // Nếu DB của bạn là MySQL với collation *_ci thì đã case-insensitive sẵn
-      where.OR = [
-        { title:   { contains: q } },
-        { summary: { contains: q } },
-        { bodyHtml:{ contains: q } },
-        { usecase: { contains: q } },
-      ];
-    }
 
     const [total, rows] = await Promise.all([
       prisma.solution.count({ where }),     // đếm
@@ -50,13 +46,13 @@ export async function GET(req: Request) {
           summary: true,
           industry: true,
           usecase: true,
-          category: { select: { name: true, slug: true } },
+          solutioncategory: { select: { name: true, slug: true } },
         },
       }),
     ]);
 
     return NextResponse.json({
-      data: rows.map((r) => ({
+      data: rows.map((r: (typeof rows)[number]) => ({
         id: r.id,
         slug: r.slug,
         title: r.title,
@@ -64,7 +60,7 @@ export async function GET(req: Request) {
         industry: r.industry,
         usecase: r.usecase,
         image: r.coverImage ?? null,
-        category: r.category,
+        category: r.solutioncategory,
       })),
       meta: { total, page, pageSize },
     });

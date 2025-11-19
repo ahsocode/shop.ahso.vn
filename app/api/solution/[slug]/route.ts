@@ -29,8 +29,8 @@ export async function GET(
         metaTitle: true,
         metaDescription: true,
         canonicalUrl: true,
-        category: { select: { id: true, slug: true, name: true } },
-        images: {
+        solutioncategory: { select: { id: true, slug: true, name: true } },
+        solutionimage: {
           select: { id: true, url: true, alt: true, sortOrder: true },
           orderBy: { sortOrder: "asc" },
         },
@@ -41,7 +41,8 @@ export async function GET(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ data: row });
+    const { solutioncategory, solutionimage, ...rest } = row;
+    return NextResponse.json({ data: { ...rest, category: solutioncategory, images: solutionimage } });
   } catch (err) {
     console.error("[GET /api/solution/[slug]]", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

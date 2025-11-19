@@ -2,9 +2,9 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { z } from "zod";
-import type { Prisma } from "@prisma/client";
 import { prisma, prismaSupportsUserBlockField } from "../../../../../../lib/prisma";
 import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../../../lib/auth";
+import type { userSelect, userUpdateInput } from "@/lib/prisma-types";
 
 const updateSchema = z.object({
   fullName: z.string().min(1).max(128).optional(),
@@ -33,9 +33,9 @@ const BASE_STAFF_SELECT = {
   phoneE164: true,
   role: true,
   createdAt: true,
-} satisfies Prisma.UserSelect;
+} satisfies userSelect;
 
-const staffSelect: Prisma.UserSelect = prismaSupportsUserBlockField
+const staffSelect: userSelect = prismaSupportsUserBlockField
   ? { ...BASE_STAFF_SELECT, isBlocked: true }
   : BASE_STAFF_SELECT;
 
@@ -43,14 +43,15 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   try {
     const { id } = await params;
     const record = await prisma.user.findUnique({
-      where: { id, role: "STAFF" },
+      where: { id },
       select: staffSelect,
     });
-    const user: StaffDetailRow | null = record
-      ? (prismaSupportsUserBlockField
-          ? (record as StaffDetailRow)
-          : ({ ...(record as Omit<StaffDetailRow, "isBlocked">), isBlocked: false } as StaffDetailRow))
-      : null;
+    const user: StaffDetailRow | null =
+      record && record.role === "STAFF"
+        ? (prismaSupportsUserBlockField
+            ? (record as StaffDetailRow)
+            : ({ ...(record as Omit<StaffDetailRow, "isBlocked">), isBlocked: false } as StaffDetailRow))
+        : null;
     if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json({ data: user });
   } catch (error) {
@@ -69,7 +70,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (!parsed.success) return NextResponse.json({ error: "VALIDATION_ERROR", details: parsed.error.flatten() }, { status: 400 });
 
     const data = parsed.data;
-    const updates: Prisma.UserUpdateInput = {};
+    const updates: userUpdateInput = {};
     if (data.fullName) updates.fullName = data.fullName;
     if (data.email) updates.email = data.email.toLowerCase();
     if (data.phone) updates.phoneE164 = data.phone;

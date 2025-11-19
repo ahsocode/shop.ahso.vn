@@ -2,30 +2,42 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { buildMetadata } from "@/lib/metadata";
+import type { solutionInclude as SolutionInclude, solutionGetPayload } from "@/lib/prisma-types";
 
 export const revalidate = 60;
 
-const solutionInclude = Prisma.validator<Prisma.SolutionInclude>()({
-  category: { select: { name: true, slug: true } },
-  images: {
+const solutionInclude = {
+  solutioncategory: { select: { name: true, slug: true } },
+  solutionimage: {
     select: { id: true, url: true, alt: true, sortOrder: true },
     orderBy: { sortOrder: "asc" },
   },
-});
+} satisfies SolutionInclude;
 
-type SolutionWithRelations = Prisma.SolutionGetPayload<{
+type SolutionRecord = solutionGetPayload<{
   include: typeof solutionInclude;
 }>;
 
+type SolutionWithRelations = ReturnType<typeof transformSolution>;
+
+function transformSolution(record: SolutionRecord) {
+  const { solutioncategory, solutionimage, ...rest } = record;
+  return {
+    ...rest,
+    category: solutioncategory,
+    images: solutionimage,
+  };
+}
+
 async function getSolution(slug: string): Promise<SolutionWithRelations | null> {
   if (!slug) return null;
-  return prisma.solution.findUnique({
+  const record = await prisma.solution.findUnique({
     where: { slug, status: "PUBLISHED" },
     include: solutionInclude,
   });
+  return record ? transformSolution(record) : null;
 }
 
 export async function generateMetadata({
@@ -192,19 +204,21 @@ export default async function SolutionDetailPage({
 
       {solution.images.length > 1 && (
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          {solution.images.slice(1).map((img) => (
-            <div
-              key={img.id}
-              className="relative aspect-video overflow-hidden rounded-xl bg-gray-100"
-            >
-              <Image
-                src={img.url}
-                alt={img.alt || solution.title}
-                fill
-                className="object-cover"
-              />
-            </div>
-          ))}
+          {solution.images
+            .slice(1)
+            .map((img: SolutionWithRelations["images"][number]) => (
+              <div
+                key={img.id}
+                className="relative aspect-video overflow-hidden rounded-xl bg-gray-100"
+              >
+                <Image
+                  src={img.url}
+                  alt={img.alt || solution.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ))}
         </div>
       )}
 

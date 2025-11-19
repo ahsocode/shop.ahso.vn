@@ -1,6 +1,7 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import type { softwareWhereInput } from "@/lib/prisma-types";
 
 export const revalidate = 60;
 
@@ -24,18 +25,18 @@ export async function GET(req: Request) {
       );
     }
 
-    // Build category filter allowing both slug or id
-    const categoryFilter: Prisma.SoftwareWhereInput =
-      category.length > 20
-        ? { categoryId: category }
-        : { category: { is: { slug: category } } };
+    const where: softwareWhereInput = {
+      status: "PUBLISHED",
+      AND: exclude ? [{ slug: { not: exclude } }, { id: { not: exclude } }] : undefined,
+    };
+    if (category.length > 20) {
+      where.categoryId = category;
+    } else {
+      where.softwarecategory = { is: { slug: category } };
+    }
 
     const rows = await prisma.software.findMany({
-      where: {
-        status: "PUBLISHED",
-        ...categoryFilter,
-        AND: exclude ? [{ slug: { not: exclude } }, { id: { not: exclude } }] : undefined,
-      },
+      where,
       take: limit,
       orderBy: [{ updatedAt: "desc" }],
       select: {
@@ -47,7 +48,7 @@ export async function GET(req: Request) {
       },
     });
 
-    const data = rows.map((r) => ({
+    const data = rows.map((r: (typeof rows)[number]) => ({
       id: r.id,
       slug: r.slug,
       title: r.title,

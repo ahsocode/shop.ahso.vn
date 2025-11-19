@@ -1,9 +1,10 @@
 // app/api/checkout/route.ts
+import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyRequestUser } from "@/lib/auth";
-import { CartStatus, OrderStatus } from "@prisma/client";
 import { sendMail } from "@/lib/mailer";
+import type { Prisma } from "@prisma/client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -99,8 +100,8 @@ export async function POST(req: NextRequest) {
 
     if (user?.sub) {
       cart = await prisma.cart.findFirst({
-        where: { userId: user.sub, status: CartStatus.ACTIVE },
-        include: { items: true },
+        where: { userId: user.sub, status: "ACTIVE" },
+        include: { cartitem: true },
       });
     } else {
       const cartId = req.cookies.get(CART_COOKIE)?.value;
@@ -113,7 +114,7 @@ export async function POST(req: NextRequest) {
 
       cart = await prisma.cart.findUnique({
         where: { id: cartId },
-        include: { items: true },
+        include: { cartitem: true },
       });
 
       if (cart && cart.userId) {
@@ -124,7 +125,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (!cart || cart.items.length === 0) {
+    if (!cart || cart.cartitem.length === 0) {
       return NextResponse.json(
         { ok: false, error: "Giỏ hàng trống" },
         { status: 400 },
@@ -132,7 +133,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ====== Lọc items theo itemIds ======
-    const selectedItems = cart.items.filter((it) => itemIds.includes(it.id));
+    const selectedItems = cart.cartitem.filter((it: (typeof cart.cartitem)[number]) => itemIds.includes(it.id));
 
     if (selectedItems.length === 0) {
       return NextResponse.json(
@@ -143,7 +144,7 @@ export async function POST(req: NextRequest) {
 
     // ====== Tính tiền theo selected items ======
     const subtotal = selectedItems.reduce(
-      (sum, item) => sum + Number(item.unitPrice) * item.quantity,
+      (sum: number, item: (typeof selectedItems)[number]) => sum + Number(item.unitPrice) * item.quantity,
       0,
     );
 
@@ -184,11 +185,12 @@ export async function POST(req: NextRequest) {
     }
 
     // ====== Tạo đơn hàng trong transaction ======
-    const order = await prisma.$transaction(async (tx) => {
+    const order = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const created = await tx.order.create({
         data: {
+          id: randomUUID(),
           code: generateOrderCode(),
-          status: OrderStatus.pending,
+          status: "pending",
 
           customerFullName: guest.fullName,
           customerEmail: guest.email,
@@ -221,12 +223,14 @@ export async function POST(req: NextRequest) {
           grandTotal,
 
           userId: user?.sub ?? null,
+          updatedAt: new Date(),
         },
       });
 
       // ==== Order Items theo selected items ====
-      await tx.orderItem.createMany({
-        data: selectedItems.map((it) => ({
+      await tx.orderitem.createMany({
+        data: selectedItems.map((it: (typeof selectedItems)[number]) => ({
+          id: randomUUID(),
           orderId: created.id,
           sku: it.productSku,
           name: it.productName,
@@ -240,17 +244,18 @@ export async function POST(req: NextRequest) {
       });
 
       // ==== Chỉ xoá những item đã chọn ====
-      await tx.cartItem.deleteMany({
+      await tx.cartitem.deleteMany({
         where: { id: { in: itemIds } },
       });
 
       // ==== Nếu cart hết item thì CHECKOUT, nếu còn thì giữ ACTIVE ====
-      const remaining = await tx.cartItem.count({ where: { cartId: cart.id } });
+      const remaining = await tx.cartitem.count({ where: { cartId: cart.id } });
 
       await tx.cart.update({
         where: { id: cart.id },
         data: {
-          status: remaining === 0 ? CartStatus.CHECKOUT : CartStatus.ACTIVE,
+          status: remaining === 0 ? "CHECKOUT" : "ACTIVE",
+          updatedAt: new Date(),
         },
       });
 
@@ -260,7 +265,7 @@ export async function POST(req: NextRequest) {
     // ====== Gửi mail xác nhận đơn (không chặn luồng nếu fail) ======
     try {
       const itemsText = selectedItems
-        .map((it) => {
+        .map((it: (typeof selectedItems)[number]) => {
           const lineTotal = Number(it.unitPrice) * it.quantity;
           return `- ${it.productName} (SKU: ${it.productSku}) x${it.quantity} = ${formatVND(
             lineTotal,

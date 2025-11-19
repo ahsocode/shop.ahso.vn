@@ -2,8 +2,9 @@
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 import { z } from "zod";
-import type { Prisma, Role } from "@prisma/client";
 import { prisma, prismaSupportsUserBlockField } from "./prisma";
+import type { userSelect } from "@/lib/prisma-types";
+import type { user_role } from "@/generated/enums";
 
 /** Payload JWT (ký bằng jose trong login) */
 export const JwtPayloadSchema = z.object({
@@ -52,6 +53,19 @@ export class ForbiddenError extends HttpError {
   constructor(message = "Forbidden") {
     super(403, message);
   }
+}
+
+/**
+ * Cho phép override secure flag của auth cookie thông qua biến môi trường.
+ * - AUTH_COOKIE_SECURE=true  => luôn bật secure
+ * - AUTH_COOKIE_SECURE=false => luôn tắt secure (dành cho môi trường HTTP tạm thời)
+ * - Không set                => theo NODE_ENV (production => true)
+ */
+export function shouldUseSecureAuthCookie(): boolean {
+  const override = process.env.AUTH_COOKIE_SECURE?.toLowerCase();
+  if (override === "true") return true;
+  if (override === "false") return false;
+  return process.env.NODE_ENV === "production";
 }
 
 /** Xác thực: trả về payload hoặc null (không ném lỗi) */
@@ -103,12 +117,12 @@ export function requireRole(user: JwtPayload, allowed: Array<"ADMIN" | "STAFF" |
   if (!allowed.includes(role)) throw new ForbiddenError();
 }
 
-type ActiveUserRecord = { id: string; role: Role; isBlocked: boolean };
+type ActiveUserRecord = { id: string; role: user_role; isBlocked: boolean };
 
 async function fetchUserRecord(userId: string): Promise<ActiveUserRecord | null> {
   if (!userId) return null;
-  const BASE_SELECT = { id: true, role: true } satisfies Prisma.UserSelect;
-  const select: Prisma.UserSelect = prismaSupportsUserBlockField
+  const BASE_SELECT = { id: true, role: true } satisfies userSelect;
+  const select: userSelect = prismaSupportsUserBlockField
     ? { ...BASE_SELECT, isBlocked: true }
     : BASE_SELECT;
   const record = await prisma.user.findUnique({
@@ -118,7 +132,7 @@ async function fetchUserRecord(userId: string): Promise<ActiveUserRecord | null>
   if (!record) return null;
   return {
     id: record.id,
-    role: record.role as Role,
+    role: record.role,
     isBlocked: prismaSupportsUserBlockField ? Boolean(record.isBlocked) : false,
   };
 }

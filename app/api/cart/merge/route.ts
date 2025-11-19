@@ -4,19 +4,23 @@
  * Gộp cart guest (từ cookie) vào cart của user đã đăng nhập
  * Gọi sau khi user login thành công
  */
+import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth } from "@/lib/auth";
+import type { Decimal } from "@prisma/client/runtime/library";
 
 export const dynamic = "force-dynamic";
 
 const CART_COOKIE = "cart_id";
 
-type TotItem = { quantity: number; unitPrice: Prisma.Decimal | number | string | null };
+type TotItem = { quantity: number; unitPrice: Decimal | number | string | null };
 
 function calcTotals(items: TotItem[]) {
-  const subtotal = items.reduce((s, it) => s + Number(it.unitPrice ?? 0) * it.quantity, 0);
+  const subtotal = items.reduce(
+    (sum: number, it: TotItem) => sum + Number(it.unitPrice ?? 0) * it.quantity,
+    0,
+  );
   const discountTotal = 0;
   const taxTotal = 0;
   const shippingFee = 0;
@@ -39,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     const guestCart = await prisma.cart.findUnique({
       where: { id: guestCartId },
-      include: { items: true },
+      include: { cartitem: true },
     });
 
     // Guest cart không tồn tại hoặc đã thuộc user khác
@@ -50,26 +54,26 @@ export async function POST(req: NextRequest) {
     // Tìm hoặc tạo user cart
     let userCart = await prisma.cart.findFirst({
       where: { userId, status: "ACTIVE" },
-      include: { items: true },
+      include: { cartitem: true },
     });
 
     if (!userCart) {
       userCart = await prisma.cart.create({
-        data: { userId, status: "ACTIVE" },
-        include: { items: true },
+        data: { id: randomUUID(), userId, status: "ACTIVE", updatedAt: new Date() },
+        include: { cartitem: true },
       });
     }
 
     // Gộp items từ guest cart vào user cart
-    for (const guestItem of guestCart.items) {
-      const existingUserItem = userCart.items.find(
-        (ui) => ui.productId === guestItem.productId
+    for (const guestItem of guestCart.cartitem) {
+      const existingUserItem = userCart.cartitem.find(
+        (ui: (typeof userCart.cartitem)[number]) => ui.productId === guestItem.productId
       );
 
       if (existingUserItem) {
         // Tăng số lượng
         const newQty = existingUserItem.quantity + guestItem.quantity;
-        await prisma.cartItem.update({
+        await prisma.cartitem.update({
           where: { id: existingUserItem.id },
           data: {
             quantity: newQty,
@@ -78,8 +82,9 @@ export async function POST(req: NextRequest) {
         });
       } else {
         // Tạo mới trong user cart
-        await prisma.cartItem.create({
+        await prisma.cartitem.create({
           data: {
+            id: randomUUID(),
             cartId: userCart.id,
             productId: guestItem.productId,
             productName: guestItem.productName,
@@ -100,7 +105,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Tính lại tổng cho user cart
-    const updatedItems = await prisma.cartItem.findMany({
+    const updatedItems = await prisma.cartitem.findMany({
       where: { cartId: userCart.id },
     });
     const totals = calcTotals(updatedItems);
@@ -113,6 +118,7 @@ export async function POST(req: NextRequest) {
         taxTotal: totals.taxTotal,
         shippingFee: totals.shippingFee,
         grandTotal: totals.grandTotal,
+        updatedAt: new Date(),
       },
     });
 
@@ -122,12 +128,12 @@ export async function POST(req: NextRequest) {
     // Trả về user cart đã merge
     const finalCart = await prisma.cart.findUnique({
       where: { id: userCart.id },
-      include: { items: true },
+      include: { cartitem: true },
     });
 
     const res = NextResponse.json({
       message: "Cart merged successfully",
-      cart: finalCart,
+      cart: finalCart ? (({ cartitem, ...rest }) => ({ ...rest, items: cartitem }))(finalCart) : finalCart,
     });
 
     // Clear cookie

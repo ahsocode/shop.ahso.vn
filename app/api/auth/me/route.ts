@@ -1,8 +1,8 @@
 // app/api/auth/me/route.ts
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-import type { Prisma } from "@prisma/client";
 import { prisma, prismaSupportsUserBlockField } from "../../../../lib/prisma";
+import type { userSelect } from "@/lib/prisma-types";
 
 function getTokenFromRequest(req: Request): string | null {
   // 1. Check Authorization header
@@ -46,17 +46,6 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "INVALID_TOKEN" }, { status: 401 });
     }
 
-    const baseSelect: Record<string, true> = {
-      id: true,
-      username: true,
-      fullName: true,
-      email: true,
-      phoneE164: true,
-      role: true,
-      createdAt: true,
-      avatarUrl: true,
-    };
-    if (prismaSupportsUserBlockField) baseSelect.isBlocked = true;
     const BASE_SELECT = {
       id: true,
       username: true,
@@ -66,8 +55,8 @@ export async function GET(req: Request) {
       role: true,
       createdAt: true,
       avatarUrl: true,
-    } satisfies Prisma.UserSelect;
-    const select: Prisma.UserSelect = prismaSupportsUserBlockField
+    } satisfies userSelect;
+    const select: userSelect = prismaSupportsUserBlockField
       ? { ...BASE_SELECT, isBlocked: true }
       : BASE_SELECT;
 

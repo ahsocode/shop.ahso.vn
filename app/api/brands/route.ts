@@ -1,4 +1,5 @@
 // app/api/brands/route.ts
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -9,19 +10,19 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get("q") ?? undefined;
 
-    const where = q
-      ? {
-          OR: [
-            { name: { contains: q, mode: "insensitive" as const } },
-            { slug: { contains: q, mode: "insensitive" as const } },
-          ],
-        }
-      : {};
+    const where = {
+      ...(q && {
+        OR: [
+          { name: { contains: q } },
+          { slug: { contains: q } },
+        ],
+      }),
+    };
 
     const items = await prisma.brand.findMany({
       where,
       orderBy: [
-        { products: { _count: "desc" } },
+        { product: { _count: "desc" } },
         { name: "asc" },
       ],
       select: {
@@ -30,14 +31,19 @@ export async function GET(req: Request) {
         name: true,
         logoUrl: true,
         summary: true,
-        _count: { select: { products: true } },
+        _count: { select: { product: true } },
       },
     });
 
-    const data = items.map(({ _count, ...rest }) => ({
-      ...rest,
-      productCount: _count.products,
-    }));
+type BrandItem = (typeof items)[number];
+
+const data = items.map((item: BrandItem) => {
+  const { _count, ...rest } = item;
+  return {
+    ...rest,
+    productCount: _count.product,
+  };
+});
 
     // ✅ Format nhất quán: { success: true, data: [...], meta: {...} }
     return NextResponse.json(
@@ -94,12 +100,16 @@ export async function POST(req: Request) {
       );
     }
 
+    const now = new Date();
     const brand = await prisma.brand.create({
       data: {
+        id: randomUUID(),
         slug,
         name,
         logoUrl: body.logoUrl ?? null,
         summary: body.summary ?? null,
+        createdAt: now,
+        updatedAt: now,
       },
     });
 

@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
@@ -17,13 +18,18 @@ export async function GET(req: NextRequest) {
     const q = searchParams.get("q") || "";
     const { page, pageSize, skip, take } = parsePaging(req);
 
-    const where = q
-      ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { slug: { contains: q, mode: "insensitive" } }] }
-      : {};
+    const where = {
+      ...(q && {
+        OR: [
+          { name: { contains: q } },
+          { slug: { contains: q } },
+        ],
+      }),
+    };
 
     const [total, data] = await Promise.all([
-      prisma.productSpecDefinition.count({ where }),
-      prisma.productSpecDefinition.findMany({
+      prisma.productspecdefinition.count({ where }),
+      prisma.productspecdefinition.findMany({
         where,
         orderBy: { name: "asc" },
         skip, take,
@@ -47,11 +53,12 @@ export async function POST(req: NextRequest) {
 
     const finalSlug = parsed.data.slug?.trim() || slugify(parsed.data.name);
 
-    const dup = await prisma.productSpecDefinition.findUnique({ where: { slug: finalSlug } });
+    const dup = await prisma.productspecdefinition.findUnique({ where: { slug: finalSlug } });
     if (dup) return jsonError("Slug already exists", 409);
 
-    const created = await prisma.productSpecDefinition.create({
-      data: { name: parsed.data.name, slug: finalSlug },
+    const now = new Date();
+    const created = await prisma.productspecdefinition.create({
+      data: { id: randomUUID(), name: parsed.data.name, slug: finalSlug, createdAt: now, updatedAt: now },
     });
 
     return jsonOk({ data: created }, 201);

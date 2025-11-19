@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
@@ -22,8 +23,15 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ productId:
     const product = await prisma.product.findUnique({ where: { id: productId } });
     if (!product) return jsonError("productId not found", 404);
 
-    const created = await prisma.productImage.create({
-      data: { productId, ...parsed.data },
+    const created = await prisma.productimage.create({
+      data: {
+        id: randomUUID(),
+        productId,
+        url: parsed.data.url,
+        alt: parsed.data.alt ?? null,
+        sortOrder: parsed.data.sortOrder ?? 0,
+        updatedAt: new Date(),
+      },
     });
 
     return jsonOk({ data: created }, 201);

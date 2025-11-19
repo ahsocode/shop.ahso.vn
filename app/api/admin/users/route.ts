@@ -1,10 +1,12 @@
+import { randomUUID } from "crypto";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { z } from "zod";
-import type { Prisma } from "@prisma/client";
 import { prisma, prismaSupportsUserBlockField } from "../../../../lib/prisma";
 import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../lib/auth";
+import type { userSelect, userWhereInput, userScalarWhereWithAggregatesInput } from "@/lib/prisma-types";
+import type { Prisma } from "@prisma/client";
 
 const baseAddressSchema = z.object({
   line1: z.string().min(1),
@@ -36,9 +38,9 @@ const BASE_ADMIN_USER_SELECT = {
   phoneE164: true,
   role: true,
   createdAt: true,
-} satisfies Prisma.UserSelect;
+} satisfies userSelect;
 
-const adminUserSelect: Prisma.UserSelect = prismaSupportsUserBlockField
+const adminUserSelect: userSelect = prismaSupportsUserBlockField
   ? { ...BASE_ADMIN_USER_SELECT, isBlocked: true }
   : BASE_ADMIN_USER_SELECT;
 
@@ -88,14 +90,17 @@ export async function GET(req: NextRequest) {
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 20);
 
-    const where: Prisma.UserWhereInput = {};
-    if (role) where.role = role as Prisma.UserScalarWhereWithAggregatesInput["role"];
-    if (q) where.OR = [
-      { username: { contains: q } },
-      { fullName: { contains: q } },
-      { email: { contains: q } },
-      { phoneE164: { contains: q } },
-    ];
+    const where: userWhereInput = {
+      ...(role && { role: role as userScalarWhereWithAggregatesInput["role"] }),
+      ...(q && {
+        OR: [
+          { username: { contains: q } },
+          { fullName: { contains: q } },
+          { email: { contains: q } },
+          { phoneE164: { contains: q } },
+        ],
+      }),
+    };
 
     const [total, rawRows] = await Promise.all([
       prisma.user.count({ where }),
@@ -110,7 +115,10 @@ export async function GET(req: NextRequest) {
 
     const rows: AdminUserRow[] = prismaSupportsUserBlockField
       ? (rawRows as AdminUserRow[])
-      : (rawRows as Omit<AdminUserRow, "isBlocked">[]).map((row) => ({ ...row, isBlocked: false }));
+      : (rawRows as Omit<AdminUserRow, "isBlocked">[]).map((row: Omit<AdminUserRow, "isBlocked">) => ({
+          ...row,
+          isBlocked: false,
+        }));
 
     return NextResponse.json({ data: rows, meta: { total, page, pageSize, blockable: prismaSupportsUserBlockField } });
   } catch (e) {
@@ -164,16 +172,39 @@ export async function POST(req: NextRequest) {
         }
       : undefined;
 
-    const user = await prisma.$transaction(async (tx) => {
-      const shipAddr = await tx.address.create({ data: { line1: shipNorm.line1, line2: shipNorm.line2 ?? null, city: shipNorm.city, state: shipNorm.state ?? null, postalCode: shipNorm.postalCode ?? null, country: shipNorm.country } });
+    const user = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const shipAddr = await tx.address.create({
+        data: {
+          id: randomUUID(),
+          line1: shipNorm.line1,
+          line2: shipNorm.line2 ?? null,
+          city: shipNorm.city,
+          state: shipNorm.state ?? null,
+          postalCode: shipNorm.postalCode ?? null,
+          country: shipNorm.country,
+          updatedAt: new Date(),
+        },
+      });
       let billingAddrId = shipAddr.id;
       if (billNorm && !addressesEqual(shipNorm, billNorm)) {
-        const billAddr = await tx.address.create({ data: { line1: billNorm.line1, line2: billNorm.line2 ?? null, city: billNorm.city, state: billNorm.state ?? null, postalCode: billNorm.postalCode ?? null, country: billNorm.country } });
+        const billAddr = await tx.address.create({
+          data: {
+            id: randomUUID(),
+            line1: billNorm.line1,
+            line2: billNorm.line2 ?? null,
+            city: billNorm.city,
+            state: billNorm.state ?? null,
+            postalCode: billNorm.postalCode ?? null,
+            country: billNorm.country,
+            updatedAt: new Date(),
+          },
+        });
         billingAddrId = billAddr.id;
       }
 
       const created = await tx.user.create({
         data: {
+          id: randomUUID(),
           username,
           passwordHash,
           fullName: data.fullName,
@@ -183,6 +214,7 @@ export async function POST(req: NextRequest) {
           shippingAddressId: shipAddr.id,
           billingAddressId: billingAddrId,
           role: "USER",
+          updatedAt: new Date(),
         },
         select: adminUserSelect,
       });

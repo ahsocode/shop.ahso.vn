@@ -17,117 +17,117 @@ export { Prisma }
 export * as $Enums from './enums'
 export * from './enums';
 /**
- * Model User
+ * Model address
  * 
  */
-export type User = Prisma.UserModel
+export type address = Prisma.addressModel
 /**
- * Model Address
+ * Model brand
  * 
  */
-export type Address = Prisma.AddressModel
+export type brand = Prisma.brandModel
 /**
- * Model Order
+ * Model cart
  * 
  */
-export type Order = Prisma.OrderModel
+export type cart = Prisma.cartModel
 /**
- * Model OrderItem
+ * Model cartitem
  * 
  */
-export type OrderItem = Prisma.OrderItemModel
+export type cartitem = Prisma.cartitemModel
 /**
- * Model Payment
+ * Model order
  * 
  */
-export type Payment = Prisma.PaymentModel
+export type order = Prisma.orderModel
 /**
- * Model SolutionCategory
+ * Model orderitem
  * 
  */
-export type SolutionCategory = Prisma.SolutionCategoryModel
+export type orderitem = Prisma.orderitemModel
 /**
- * Model Solution
+ * Model payment
  * 
  */
-export type Solution = Prisma.SolutionModel
+export type payment = Prisma.paymentModel
 /**
- * Model SolutionImage
+ * Model product
  * 
  */
-export type SolutionImage = Prisma.SolutionImageModel
+export type product = Prisma.productModel
 /**
- * Model SoftwareCategory
+ * Model productcategory
  * 
  */
-export type SoftwareCategory = Prisma.SoftwareCategoryModel
+export type productcategory = Prisma.productcategoryModel
 /**
- * Model Software
+ * Model productcategorylink
  * 
  */
-export type Software = Prisma.SoftwareModel
+export type productcategorylink = Prisma.productcategorylinkModel
 /**
- * Model Brand
+ * Model productimage
  * 
  */
-export type Brand = Prisma.BrandModel
+export type productimage = Prisma.productimageModel
 /**
- * Model ProductCategory
+ * Model productspecdefinition
  * 
  */
-export type ProductCategory = Prisma.ProductCategoryModel
+export type productspecdefinition = Prisma.productspecdefinitionModel
 /**
- * Model ProductCategoryLink
+ * Model productspecvalue
  * 
  */
-export type ProductCategoryLink = Prisma.ProductCategoryLinkModel
+export type productspecvalue = Prisma.productspecvalueModel
 /**
- * Model ProductType
+ * Model producttype
  * 
  */
-export type ProductType = Prisma.ProductTypeModel
+export type producttype = Prisma.producttypeModel
 /**
- * Model UnitDefinition
+ * Model review
  * 
  */
-export type UnitDefinition = Prisma.UnitDefinitionModel
+export type review = Prisma.reviewModel
 /**
- * Model ProductSpecDefinition
+ * Model reviewimage
  * 
  */
-export type ProductSpecDefinition = Prisma.ProductSpecDefinitionModel
+export type reviewimage = Prisma.reviewimageModel
 /**
- * Model Product
+ * Model software
  * 
  */
-export type Product = Prisma.ProductModel
+export type software = Prisma.softwareModel
 /**
- * Model ProductImage
+ * Model softwarecategory
  * 
  */
-export type ProductImage = Prisma.ProductImageModel
+export type softwarecategory = Prisma.softwarecategoryModel
 /**
- * Model ProductSpecValue
+ * Model solution
  * 
  */
-export type ProductSpecValue = Prisma.ProductSpecValueModel
+export type solution = Prisma.solutionModel
 /**
- * Model Cart
+ * Model solutioncategory
  * 
  */
-export type Cart = Prisma.CartModel
+export type solutioncategory = Prisma.solutioncategoryModel
 /**
- * Model CartItem
+ * Model solutionimage
  * 
  */
-export type CartItem = Prisma.CartItemModel
+export type solutionimage = Prisma.solutionimageModel
 /**
- * Model Review
+ * Model unitdefinition
  * 
  */
-export type Review = Prisma.ReviewModel
+export type unitdefinition = Prisma.unitdefinitionModel
 /**
- * Model ReviewImage
+ * Model user
  * 
  */
-export type ReviewImage = Prisma.ReviewImageModel
+export type user = Prisma.userModel

@@ -1,10 +1,13 @@
 // app/api/auth/register/route.ts
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
 import { z } from "zod";
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import type { Prisma } from "@prisma/client";
+import { shouldUseSecureAuthCookie } from "@/lib/auth";
 
 // ===== Validation =====
 const addressSchema = z.object({
@@ -95,7 +98,6 @@ async function mergeGuestCartToNewUser(guestCartId: string, userId: string) {
   try {
     const guestCart = await prisma.cart.findUnique({
       where: { id: guestCartId },
-      include: { items: true },
     });
 
     if (!guestCart || guestCart.userId) {
@@ -105,7 +107,7 @@ async function mergeGuestCartToNewUser(guestCartId: string, userId: string) {
     // Gán cart này cho user mới
     await prisma.cart.update({
       where: { id: guestCartId },
-      data: { userId },
+      data: { userId, updatedAt: new Date() },
     });
 
     console.log(`✅ Assigned guest cart ${guestCartId} to new user ${userId}`);
@@ -154,15 +156,18 @@ export async function POST(req: Request) {
 
     const passwordHash = await bcrypt.hash(data.password, 12);
 
-    const user = await prisma.$transaction(async (tx) => {
+    const user = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const now = new Date();
       const shipAddr = await tx.address.create({
         data: {
+          id: randomUUID(),
           line1: shipping.line1,
           line2: shipping.line2 ?? null,
           city: shipping.city,
           state: shipping.state ?? null,
           postalCode: shipping.postalCode ?? null,
           country: shipping.country,
+          updatedAt: now,
         },
       });
 
@@ -170,12 +175,14 @@ export async function POST(req: Request) {
       if (billingInput && !addressesEqual(shipping, billingInput)) {
         const billAddr = await tx.address.create({
           data: {
+            id: randomUUID(),
             line1: billingInput.line1,
             line2: billingInput.line2 ?? null,
             city: billingInput.city,
             state: billingInput.state ?? null,
             postalCode: billingInput.postalCode ?? null,
             country: billingInput.country,
+            updatedAt: now,
           },
         });
         billingAddrId = billAddr.id;
@@ -183,6 +190,7 @@ export async function POST(req: Request) {
 
       return tx.user.create({
         data: {
+          id: randomUUID(),
           username,
           passwordHash,
           fullName: data.fullName,
@@ -192,6 +200,7 @@ export async function POST(req: Request) {
           shippingAddressId: shipAddr.id,
           billingAddressId: billingAddrId,
           role: "USER",
+          updatedAt: now,
         },
         select: {
           id: true,
@@ -226,9 +235,10 @@ export async function POST(req: Request) {
     );
 
     // Set auth cookie
+    const secureCookie = shouldUseSecureAuthCookie();
     res.cookies.set("auth_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: secureCookie,
       sameSite: "lax",
       path: "/",
       maxAge: 7 * 24 * 60 * 60,
@@ -240,7 +250,7 @@ export async function POST(req: Request) {
     return res;
   } catch (error) {
     console.error("REGISTER ERROR:", error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+    if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
       return NextResponse.json({ error: "CONFLICT", meta: error.meta }, { status: 409 });
     }
     const message = error instanceof Error ? error.message : "Internal Server Error";

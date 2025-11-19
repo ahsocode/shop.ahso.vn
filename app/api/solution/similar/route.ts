@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -44,7 +45,7 @@ export async function GET(req: Request) {
       },
     });
 
-    const data = rows.map((r) => ({
+    const data = rows.map((r: (typeof rows)[number]) => ({
       id: r.id,
       slug: r.slug,
       title: r.title,

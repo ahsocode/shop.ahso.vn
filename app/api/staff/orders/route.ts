@@ -1,11 +1,14 @@
 import type { NextRequest } from "next/server";
-import type { Prisma, OrderStatus, PaymentStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonError, jsonOk, parsePaging, toHttpError } from "@/lib/http";
+import type { order_status, payment_status } from "@/generated/enums";
+import type { orderWhereInput } from "@/lib/prisma-types";
 
 export const dynamic = "force-dynamic";
 
+type OrderStatus = order_status;
+type PaymentStatus = payment_status;
 const ORDER_STATUSES: OrderStatus[] = ["pending", "paid", "processing", "shipped", "delivered", "cancelled"];
 
 function parseDate(value?: string | null) {
@@ -42,31 +45,30 @@ export async function GET(req: NextRequest) {
       maxPageSize: 50,
     });
 
-    const where: Prisma.OrderWhereInput = {};
-
-    if (q) {
-      where.OR = [
-        { code: { contains: q } },
-        { customerFullName: { contains: q } },
-        { customerEmail: { contains: q } },
-        { customerPhone: { contains: q } },
-      ];
+    const toEndOfDay = to ? new Date(to) : undefined;
+    if (toEndOfDay) {
+      toEndOfDay.setHours(23, 59, 59, 999);
     }
 
-    if (statusParam && ORDER_STATUSES.includes(statusParam as OrderStatus)) {
-      where.status = statusParam as OrderStatus;
-    }
-
-    if (from || to) {
-      where.createdAt = {};
-      if (from) where.createdAt.gte = from;
-      if (to) {
-        // add end-of-day
-        const toEnd = new Date(to);
-        toEnd.setHours(23, 59, 59, 999);
-        where.createdAt.lte = toEnd;
-      }
-    }
+    const where: orderWhereInput = {
+      ...(q && {
+        OR: [
+          { code: { contains: q } },
+          { customerFullName: { contains: q } },
+          { customerEmail: { contains: q } },
+          { customerPhone: { contains: q } },
+        ],
+      }),
+      ...(statusParam && ORDER_STATUSES.includes(statusParam as OrderStatus) && {
+        status: statusParam as OrderStatus,
+      }),
+      ...((from || toEndOfDay) && {
+        createdAt: {
+          ...(from && { gte: from }),
+          ...(toEndOfDay && { lte: toEndOfDay }),
+        },
+      }),
+    };
 
     const [total, rows, stats] = await prisma.$transaction([
       prisma.order.count({ where }),
@@ -102,7 +104,7 @@ export async function GET(req: NextRequest) {
       }),
     ]);
 
-    const data: StaffListItem[] = rows.map((order) => {
+    const data: StaffListItem[] = rows.map((order: (typeof rows)[number]) => {
       const grandTotal = order.grandTotal ? Number(order.grandTotal) : null;
       const subtotal = order.subtotal ? Number(order.subtotal) : 0;
       const shippingFee = order.shippingFee ? Number(order.shippingFee) : 0;
@@ -129,14 +131,15 @@ export async function GET(req: NextRequest) {
       delivered: 0,
       cancelled: 0,
     };
-    stats.forEach((row) => {
+    stats.forEach((row: (typeof stats)[number]) => {
       const countValue =
         typeof row._count === "object"
           ? row._count?.status
           : row._count === true
             ? 1
             : row._count;
-      statsMap[row.status] = typeof countValue === "number" ? countValue : 0;
+      const status = row.status as OrderStatus;
+      statsMap[status] = typeof countValue === "number" ? countValue : 0;
     });
 
     return jsonOk({

@@ -1,9 +1,10 @@
 import type { NextRequest } from "next/server";
-import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonError, jsonOk, toHttpError } from "@/lib/http";
+import type { orderUpdateInput } from "@/lib/prisma-types";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ export async function PATCH(
       return jsonError("Dữ liệu không hợp lệ", 400, { issues: parsed.error.issues });
     }
 
-    const updates: Prisma.OrderUpdateInput = {};
+    const updates: orderUpdateInput = {};
     const { status, note, shippingMethod } = parsed.data;
 
     if (status) updates.status = status;
@@ -63,7 +64,7 @@ export async function PATCH(
 
     return jsonOk({ data: updated });
   } catch (err: unknown) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {
+    if (err instanceof PrismaClientKnownRequestError && err.code === "P2025") {
       return jsonError("Không tìm thấy đơn hàng", 404);
     }
     const httpError = toHttpError(err);
