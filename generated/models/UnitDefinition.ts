@@ -440,26 +440,16 @@ export type unitdefinitionSumOrderByAggregateInput = {
   factorToBase?: Prisma.SortOrder
 }
 
-export type unitdefinitionCreateNestedOneWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
-  create?: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
-  connectOrCreate?: Prisma.unitdefinitionCreateOrConnectWithoutProduct_product_quantityUnitIdTounitdefinitionInput
-  connect?: Prisma.unitdefinitionWhereUniqueInput
-}
-
 export type unitdefinitionCreateNestedOneWithoutProduct_product_unitIdTounitdefinitionInput = {
   create?: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_unitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_unitIdTounitdefinitionInput>
   connectOrCreate?: Prisma.unitdefinitionCreateOrConnectWithoutProduct_product_unitIdTounitdefinitionInput
   connect?: Prisma.unitdefinitionWhereUniqueInput
 }
 
-export type unitdefinitionUpdateOneWithoutProduct_product_quantityUnitIdTounitdefinitionNestedInput = {
+export type unitdefinitionCreateNestedOneWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
   create?: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
   connectOrCreate?: Prisma.unitdefinitionCreateOrConnectWithoutProduct_product_quantityUnitIdTounitdefinitionInput
-  upsert?: Prisma.unitdefinitionUpsertWithoutProduct_product_quantityUnitIdTounitdefinitionInput
-  disconnect?: Prisma.unitdefinitionWhereInput | boolean
-  delete?: Prisma.unitdefinitionWhereInput | boolean
   connect?: Prisma.unitdefinitionWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.unitdefinitionUpdateToOneWithWhereWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>, Prisma.unitdefinitionUncheckedUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
 }
 
 export type unitdefinitionUpdateOneWithoutProduct_product_unitIdTounitdefinitionNestedInput = {
@@ -472,33 +462,14 @@ export type unitdefinitionUpdateOneWithoutProduct_product_unitIdTounitdefinition
   update?: Prisma.XOR<Prisma.XOR<Prisma.unitdefinitionUpdateToOneWithWhereWithoutProduct_product_unitIdTounitdefinitionInput, Prisma.unitdefinitionUpdateWithoutProduct_product_unitIdTounitdefinitionInput>, Prisma.unitdefinitionUncheckedUpdateWithoutProduct_product_unitIdTounitdefinitionInput>
 }
 
-export type unitdefinitionCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
-  id: string
-  name: string
-  symbol?: string | null
-  dimension?: string | null
-  baseName?: string | null
-  factorToBase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  createdAt?: Date | string
-  updatedAt: Date | string
-  product_product_unitIdTounitdefinition?: Prisma.productCreateNestedManyWithoutUnitdefinition_product_unitIdTounitdefinitionInput
-}
-
-export type unitdefinitionUncheckedCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
-  id: string
-  name: string
-  symbol?: string | null
-  dimension?: string | null
-  baseName?: string | null
-  factorToBase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  createdAt?: Date | string
-  updatedAt: Date | string
-  product_product_unitIdTounitdefinition?: Prisma.productUncheckedCreateNestedManyWithoutUnitdefinition_product_unitIdTounitdefinitionInput
-}
-
-export type unitdefinitionCreateOrConnectWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
-  where: Prisma.unitdefinitionWhereUniqueInput
-  create: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
+export type unitdefinitionUpdateOneWithoutProduct_product_quantityUnitIdTounitdefinitionNestedInput = {
+  create?: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
+  connectOrCreate?: Prisma.unitdefinitionCreateOrConnectWithoutProduct_product_quantityUnitIdTounitdefinitionInput
+  upsert?: Prisma.unitdefinitionUpsertWithoutProduct_product_quantityUnitIdTounitdefinitionInput
+  disconnect?: Prisma.unitdefinitionWhereInput | boolean
+  delete?: Prisma.unitdefinitionWhereInput | boolean
+  connect?: Prisma.unitdefinitionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.unitdefinitionUpdateToOneWithWhereWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>, Prisma.unitdefinitionUncheckedUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
 }
 
 export type unitdefinitionCreateWithoutProduct_product_unitIdTounitdefinitionInput = {
@@ -530,39 +501,33 @@ export type unitdefinitionCreateOrConnectWithoutProduct_product_unitIdTounitdefi
   create: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_unitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_unitIdTounitdefinitionInput>
 }
 
-export type unitdefinitionUpsertWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
-  update: Prisma.XOR<Prisma.unitdefinitionUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
+export type unitdefinitionCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
+  id: string
+  name: string
+  symbol?: string | null
+  dimension?: string | null
+  baseName?: string | null
+  factorToBase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt: Date | string
+  product_product_unitIdTounitdefinition?: Prisma.productCreateNestedManyWithoutUnitdefinition_product_unitIdTounitdefinitionInput
+}
+
+export type unitdefinitionUncheckedCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
+  id: string
+  name: string
+  symbol?: string | null
+  dimension?: string | null
+  baseName?: string | null
+  factorToBase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Date | string
+  updatedAt: Date | string
+  product_product_unitIdTounitdefinition?: Prisma.productUncheckedCreateNestedManyWithoutUnitdefinition_product_unitIdTounitdefinitionInput
+}
+
+export type unitdefinitionCreateOrConnectWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
+  where: Prisma.unitdefinitionWhereUniqueInput
   create: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
-  where?: Prisma.unitdefinitionWhereInput
-}
-
-export type unitdefinitionUpdateToOneWithWhereWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
-  where?: Prisma.unitdefinitionWhereInput
-  data: Prisma.XOR<Prisma.unitdefinitionUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
-}
-
-export type unitdefinitionUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dimension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  factorToBase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  product_product_unitIdTounitdefinition?: Prisma.productUpdateManyWithoutUnitdefinition_product_unitIdTounitdefinitionNestedInput
-}
-
-export type unitdefinitionUncheckedUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  dimension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  baseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  factorToBase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  product_product_unitIdTounitdefinition?: Prisma.productUncheckedUpdateManyWithoutUnitdefinition_product_unitIdTounitdefinitionNestedInput
 }
 
 export type unitdefinitionUpsertWithoutProduct_product_unitIdTounitdefinitionInput = {
@@ -598,6 +563,41 @@ export type unitdefinitionUncheckedUpdateWithoutProduct_product_unitIdTounitdefi
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   product_product_quantityUnitIdTounitdefinition?: Prisma.productUncheckedUpdateManyWithoutUnitdefinition_product_quantityUnitIdTounitdefinitionNestedInput
+}
+
+export type unitdefinitionUpsertWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
+  update: Prisma.XOR<Prisma.unitdefinitionUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
+  create: Prisma.XOR<Prisma.unitdefinitionCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedCreateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
+  where?: Prisma.unitdefinitionWhereInput
+}
+
+export type unitdefinitionUpdateToOneWithWhereWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
+  where?: Prisma.unitdefinitionWhereInput
+  data: Prisma.XOR<Prisma.unitdefinitionUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput, Prisma.unitdefinitionUncheckedUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput>
+}
+
+export type unitdefinitionUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dimension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  factorToBase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  product_product_unitIdTounitdefinition?: Prisma.productUpdateManyWithoutUnitdefinition_product_unitIdTounitdefinitionNestedInput
+}
+
+export type unitdefinitionUncheckedUpdateWithoutProduct_product_quantityUnitIdTounitdefinitionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dimension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  factorToBase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  product_product_unitIdTounitdefinition?: Prisma.productUncheckedUpdateManyWithoutUnitdefinition_product_unitIdTounitdefinitionNestedInput
 }
 
 

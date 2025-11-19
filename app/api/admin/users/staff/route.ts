@@ -6,7 +6,7 @@ import { z } from "zod";
 import { prisma, prismaSupportsUserBlockField } from "../../../../../lib/prisma";
 import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../../lib/auth";
 import type { userSelect, userWhereInput } from "@/lib/prisma-types";
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "@/generated/client";
 
 const createStaffSchema = z.object({
   // Chấp nhận hoa/thường, sẽ lưu lowercase

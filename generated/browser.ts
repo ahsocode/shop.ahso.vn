@@ -52,6 +52,11 @@ export type orderitem = Prisma.orderitemModel
  */
 export type payment = Prisma.paymentModel
 /**
+ * Model supplier
+ * 
+ */
+export type supplier = Prisma.supplierModel
+/**
  * Model product
  * 
  */
@@ -131,3 +136,18 @@ export type unitdefinition = Prisma.unitdefinitionModel
  * 
  */
 export type user = Prisma.userModel
+/**
+ * Model contacttype
+ * 
+ */
+export type contacttype = Prisma.contacttypeModel
+/**
+ * Model contact
+ * 
+ */
+export type contact = Prisma.contactModel
+/**
+ * Model quoterequest
+ * 
+ */
+export type quoterequest = Prisma.quoterequestModel

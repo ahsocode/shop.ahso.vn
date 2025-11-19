@@ -396,6 +396,7 @@ export const ModelName = {
   order: 'order',
   orderitem: 'orderitem',
   payment: 'payment',
+  supplier: 'supplier',
   product: 'product',
   productcategory: 'productcategory',
   productcategorylink: 'productcategorylink',
@@ -411,7 +412,10 @@ export const ModelName = {
   solutioncategory: 'solutioncategory',
   solutionimage: 'solutionimage',
   unitdefinition: 'unitdefinition',
-  user: 'user'
+  user: 'user',
+  contacttype: 'contacttype',
+  contact: 'contact',
+  quoterequest: 'quoterequest'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -427,7 +431,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "address" | "brand" | "cart" | "cartitem" | "order" | "orderitem" | "payment" | "product" | "productcategory" | "productcategorylink" | "productimage" | "productspecdefinition" | "productspecvalue" | "producttype" | "review" | "reviewimage" | "software" | "softwarecategory" | "solution" | "solutioncategory" | "solutionimage" | "unitdefinition" | "user"
+    modelProps: "address" | "brand" | "cart" | "cartitem" | "order" | "orderitem" | "payment" | "supplier" | "product" | "productcategory" | "productcategorylink" | "productimage" | "productspecdefinition" | "productspecvalue" | "producttype" | "review" | "reviewimage" | "software" | "softwarecategory" | "solution" | "solutioncategory" | "solutionimage" | "unitdefinition" | "user" | "contacttype" | "contact" | "quoterequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -890,6 +894,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.paymentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PaymentCountAggregateOutputType> | number
+        }
+      }
+    }
+    supplier: {
+      payload: Prisma.$supplierPayload<ExtArgs>
+      fields: Prisma.supplierFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.supplierFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$supplierPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.supplierFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$supplierPayload>
+        }
+        findFirst: {
+          args: Prisma.supplierFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$supplierPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.supplierFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$supplierPayload>
+        }
+        findMany: {
+          args: Prisma.supplierFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$supplierPayload>[]
+        }
+        create: {
+          args: Prisma.supplierCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$supplierPayload>
+        }
+        createMany: {
+          args: Prisma.supplierCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.supplierDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$supplierPayload>
+        }
+        update: {
+          args: Prisma.supplierUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$supplierPayload>
+        }
+        deleteMany: {
+          args: Prisma.supplierDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.supplierUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.supplierUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$supplierPayload>
+        }
+        aggregate: {
+          args: Prisma.SupplierAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSupplier>
+        }
+        groupBy: {
+          args: Prisma.supplierGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SupplierGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.supplierCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SupplierCountAggregateOutputType> | number
         }
       }
     }
@@ -1949,6 +2019,204 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    contacttype: {
+      payload: Prisma.$contacttypePayload<ExtArgs>
+      fields: Prisma.contacttypeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.contacttypeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contacttypePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.contacttypeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contacttypePayload>
+        }
+        findFirst: {
+          args: Prisma.contacttypeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contacttypePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.contacttypeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contacttypePayload>
+        }
+        findMany: {
+          args: Prisma.contacttypeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contacttypePayload>[]
+        }
+        create: {
+          args: Prisma.contacttypeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contacttypePayload>
+        }
+        createMany: {
+          args: Prisma.contacttypeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.contacttypeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contacttypePayload>
+        }
+        update: {
+          args: Prisma.contacttypeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contacttypePayload>
+        }
+        deleteMany: {
+          args: Prisma.contacttypeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.contacttypeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.contacttypeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contacttypePayload>
+        }
+        aggregate: {
+          args: Prisma.ContacttypeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContacttype>
+        }
+        groupBy: {
+          args: Prisma.contacttypeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContacttypeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.contacttypeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContacttypeCountAggregateOutputType> | number
+        }
+      }
+    }
+    contact: {
+      payload: Prisma.$contactPayload<ExtArgs>
+      fields: Prisma.contactFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.contactFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contactPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.contactFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contactPayload>
+        }
+        findFirst: {
+          args: Prisma.contactFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contactPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.contactFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contactPayload>
+        }
+        findMany: {
+          args: Prisma.contactFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contactPayload>[]
+        }
+        create: {
+          args: Prisma.contactCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contactPayload>
+        }
+        createMany: {
+          args: Prisma.contactCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.contactDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contactPayload>
+        }
+        update: {
+          args: Prisma.contactUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contactPayload>
+        }
+        deleteMany: {
+          args: Prisma.contactDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.contactUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.contactUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$contactPayload>
+        }
+        aggregate: {
+          args: Prisma.ContactAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContact>
+        }
+        groupBy: {
+          args: Prisma.contactGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContactGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.contactCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContactCountAggregateOutputType> | number
+        }
+      }
+    }
+    quoterequest: {
+      payload: Prisma.$quoterequestPayload<ExtArgs>
+      fields: Prisma.quoterequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.quoterequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$quoterequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.quoterequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$quoterequestPayload>
+        }
+        findFirst: {
+          args: Prisma.quoterequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$quoterequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.quoterequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$quoterequestPayload>
+        }
+        findMany: {
+          args: Prisma.quoterequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$quoterequestPayload>[]
+        }
+        create: {
+          args: Prisma.quoterequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$quoterequestPayload>
+        }
+        createMany: {
+          args: Prisma.quoterequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.quoterequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$quoterequestPayload>
+        }
+        update: {
+          args: Prisma.quoterequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$quoterequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.quoterequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.quoterequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.quoterequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$quoterequestPayload>
+        }
+        aggregate: {
+          args: Prisma.QuoterequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateQuoterequest>
+        }
+        groupBy: {
+          args: Prisma.quoterequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuoterequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.quoterequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.QuoterequestCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2129,40 +2397,76 @@ export const PaymentScalarFieldEnum = {
 export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
 
 
+export const SupplierScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  code: 'code',
+  contactPerson: 'contactPerson',
+  email: 'email',
+  phone: 'phone',
+  address: 'address',
+  taxCode: 'taxCode',
+  paymentTerms: 'paymentTerms',
+  minOrderValue: 'minOrderValue',
+  shippingFee: 'shippingFee',
+  rating: 'rating',
+  totalOrders: 'totalOrders',
+  notes: 'notes',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typeof SupplierScalarFieldEnum]
+
+
 export const ProductScalarFieldEnum = {
   id: 'id',
-  slug: 'slug',
   sku: 'sku',
-  metaTitle: 'metaTitle',
-  metaDescription: 'metaDescription',
-  status: 'status',
-  publishAt: 'publishAt',
-  brandId: 'brandId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  coverImage: 'coverImage',
-  currency: 'currency',
-  description: 'description',
-  heightMm: 'heightMm',
-  lengthMm: 'lengthMm',
-  listPrice: 'listPrice',
-  minOrderQty: 'minOrderQty',
+  saleCode: 'saleCode',
+  slug: 'slug',
   name: 'name',
+  description: 'description',
+  supplierId: 'supplierId',
+  supplierSku: 'supplierSku',
+  costPrice: 'costPrice',
   price: 'price',
-  quantityLabel: 'quantityLabel',
-  quantityUnitId: 'quantityUnitId',
-  quantityValue: 'quantityValue',
-  stepQty: 'stepQty',
+  listPrice: 'listPrice',
+  profitAmount: 'profitAmount',
+  profitMargin: 'profitMargin',
+  taxRate: 'taxRate',
+  taxIncluded: 'taxIncluded',
+  currency: 'currency',
+  requiresQuote: 'requiresQuote',
+  quoteNote: 'quoteNote',
   stockOnHand: 'stockOnHand',
   stockReserved: 'stockReserved',
-  taxIncluded: 'taxIncluded',
+  reorderLevel: 'reorderLevel',
+  reorderQty: 'reorderQty',
+  minOrderQty: 'minOrderQty',
+  stepQty: 'stepQty',
+  status: 'status',
   typeId: 'typeId',
-  unitId: 'unitId',
+  brandId: 'brandId',
+  coverImage: 'coverImage',
   weightGrams: 'weightGrams',
+  lengthMm: 'lengthMm',
   widthMm: 'widthMm',
-  purchaseCount: 'purchaseCount',
+  heightMm: 'heightMm',
+  unitId: 'unitId',
+  quantityValue: 'quantityValue',
+  quantityUnitId: 'quantityUnitId',
+  quantityLabel: 'quantityLabel',
+  metaTitle: 'metaTitle',
+  metaDescription: 'metaDescription',
   ratingAvg: 'ratingAvg',
-  ratingCount: 'ratingCount'
+  ratingCount: 'ratingCount',
+  purchaseCount: 'purchaseCount',
+  viewCount: 'viewCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  publishAt: 'publishAt'
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
@@ -2394,6 +2698,82 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const ContacttypeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  icon: 'icon',
+  color: 'color',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContacttypeScalarFieldEnum = (typeof ContacttypeScalarFieldEnum)[keyof typeof ContacttypeScalarFieldEnum]
+
+
+export const ContactScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
+  company: 'company',
+  subject: 'subject',
+  message: 'message',
+  typeId: 'typeId',
+  source: 'source',
+  status: 'status',
+  priority: 'priority',
+  assignedTo: 'assignedTo',
+  response: 'response',
+  respondedAt: 'respondedAt',
+  respondedBy: 'respondedBy',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  referrer: 'referrer',
+  internalNotes: 'internalNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContactScalarFieldEnum = (typeof ContactScalarFieldEnum)[keyof typeof ContactScalarFieldEnum]
+
+
+export const QuoterequestScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
+  company: 'company',
+  taxCode: 'taxCode',
+  productId: 'productId',
+  productName: 'productName',
+  quantity: 'quantity',
+  message: 'message',
+  quotedPrice: 'quotedPrice',
+  quotedTotal: 'quotedTotal',
+  validUntil: 'validUntil',
+  paymentTerms: 'paymentTerms',
+  deliveryTerms: 'deliveryTerms',
+  status: 'status',
+  priority: 'priority',
+  assignedTo: 'assignedTo',
+  respondedBy: 'respondedBy',
+  respondedAt: 'respondedAt',
+  customerNotes: 'customerNotes',
+  internalNotes: 'internalNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  expiresAt: 'expiresAt'
+} as const
+
+export type QuoterequestScalarFieldEnum = (typeof QuoterequestScalarFieldEnum)[keyof typeof QuoterequestScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -2515,21 +2895,42 @@ export const paymentOrderByRelevanceFieldEnum = {
 export type paymentOrderByRelevanceFieldEnum = (typeof paymentOrderByRelevanceFieldEnum)[keyof typeof paymentOrderByRelevanceFieldEnum]
 
 
+export const supplierOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  code: 'code',
+  contactPerson: 'contactPerson',
+  email: 'email',
+  phone: 'phone',
+  address: 'address',
+  taxCode: 'taxCode',
+  paymentTerms: 'paymentTerms',
+  notes: 'notes'
+} as const
+
+export type supplierOrderByRelevanceFieldEnum = (typeof supplierOrderByRelevanceFieldEnum)[keyof typeof supplierOrderByRelevanceFieldEnum]
+
+
 export const productOrderByRelevanceFieldEnum = {
   id: 'id',
-  slug: 'slug',
   sku: 'sku',
-  metaTitle: 'metaTitle',
-  metaDescription: 'metaDescription',
+  saleCode: 'saleCode',
+  slug: 'slug',
+  name: 'name',
+  description: 'description',
+  supplierId: 'supplierId',
+  supplierSku: 'supplierSku',
+  currency: 'currency',
+  quoteNote: 'quoteNote',
+  typeId: 'typeId',
   brandId: 'brandId',
   coverImage: 'coverImage',
-  currency: 'currency',
-  description: 'description',
-  name: 'name',
-  quantityLabel: 'quantityLabel',
+  unitId: 'unitId',
   quantityUnitId: 'quantityUnitId',
-  typeId: 'typeId',
-  unitId: 'unitId'
+  quantityLabel: 'quantityLabel',
+  metaTitle: 'metaTitle',
+  metaDescription: 'metaDescription'
 } as const
 
 export type productOrderByRelevanceFieldEnum = (typeof productOrderByRelevanceFieldEnum)[keyof typeof productOrderByRelevanceFieldEnum]
@@ -2714,6 +3115,63 @@ export const userOrderByRelevanceFieldEnum = {
 export type userOrderByRelevanceFieldEnum = (typeof userOrderByRelevanceFieldEnum)[keyof typeof userOrderByRelevanceFieldEnum]
 
 
+export const contacttypeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  icon: 'icon',
+  color: 'color'
+} as const
+
+export type contacttypeOrderByRelevanceFieldEnum = (typeof contacttypeOrderByRelevanceFieldEnum)[keyof typeof contacttypeOrderByRelevanceFieldEnum]
+
+
+export const contactOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
+  company: 'company',
+  subject: 'subject',
+  message: 'message',
+  typeId: 'typeId',
+  source: 'source',
+  assignedTo: 'assignedTo',
+  response: 'response',
+  respondedBy: 'respondedBy',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  referrer: 'referrer',
+  internalNotes: 'internalNotes'
+} as const
+
+export type contactOrderByRelevanceFieldEnum = (typeof contactOrderByRelevanceFieldEnum)[keyof typeof contactOrderByRelevanceFieldEnum]
+
+
+export const quoterequestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
+  company: 'company',
+  taxCode: 'taxCode',
+  productId: 'productId',
+  productName: 'productName',
+  message: 'message',
+  paymentTerms: 'paymentTerms',
+  deliveryTerms: 'deliveryTerms',
+  assignedTo: 'assignedTo',
+  respondedBy: 'respondedBy',
+  customerNotes: 'customerNotes',
+  internalNotes: 'internalNotes'
+} as const
+
+export type quoterequestOrderByRelevanceFieldEnum = (typeof quoterequestOrderByRelevanceFieldEnum)[keyof typeof quoterequestOrderByRelevanceFieldEnum]
+
+
 
 /**
  * Field references
@@ -2777,16 +3235,16 @@ export type Enumpayment_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
- * Reference to a field of type 'product_status'
+ * Reference to a field of type 'Float'
  */
-export type Enumproduct_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'product_status'>
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
 
 
 /**
- * Reference to a field of type 'Float'
+ * Reference to a field of type 'product_status'
  */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+export type Enumproduct_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'product_status'>
     
 
 
@@ -2808,6 +3266,27 @@ export type Enumsolution_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$
  * Reference to a field of type 'user_role'
  */
 export type Enumuser_roleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'user_role'>
+    
+
+
+/**
+ * Reference to a field of type 'contact_status'
+ */
+export type Enumcontact_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'contact_status'>
+    
+
+
+/**
+ * Reference to a field of type 'contact_priority'
+ */
+export type Enumcontact_priorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'contact_priority'>
+    
+
+
+/**
+ * Reference to a field of type 'quote_status'
+ */
+export type Enumquote_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'quote_status'>
     
 
 /**
@@ -2904,6 +3383,7 @@ export type GlobalOmitConfig = {
   order?: Prisma.orderOmit
   orderitem?: Prisma.orderitemOmit
   payment?: Prisma.paymentOmit
+  supplier?: Prisma.supplierOmit
   product?: Prisma.productOmit
   productcategory?: Prisma.productcategoryOmit
   productcategorylink?: Prisma.productcategorylinkOmit
@@ -2920,6 +3400,9 @@ export type GlobalOmitConfig = {
   solutionimage?: Prisma.solutionimageOmit
   unitdefinition?: Prisma.unitdefinitionOmit
   user?: Prisma.userOmit
+  contacttype?: Prisma.contacttypeOmit
+  contact?: Prisma.contactOmit
+  quoterequest?: Prisma.quoterequestOmit
 }
 
 /* Types for Logging */

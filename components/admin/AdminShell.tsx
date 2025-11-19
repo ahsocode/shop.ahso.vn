@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import {
   Package, Settings, Users, Shield, PanelsTopLeft, Code2, Home,
-  Menu, X, ChevronRight, LogOut, User as UserIcon, Layers, Tag, Grid3x3
+  Menu, X, ChevronRight, LogOut, User as UserIcon, Layers, Tag, Grid3x3, Building2, Inbox, FileText
 } from "lucide-react";
 
 const navSections = [
@@ -24,8 +24,16 @@ const navSections = [
       { href: "/admin/brands", label: "Thương hiệu", icon: Tag },
       { href: "/admin/categories", label: "Danh mục", icon: Grid3x3 },
       { href: "/admin/product-types", label: "Loại SP", icon: Layers },
+      { href: "/admin/suppliers", label: "Nhà cung cấp", icon: Building2 },
       { href: "/admin/products", label: "Sản phẩm", icon: Package },
       { href: "/admin/specs", label: "Thông số", icon: Settings },
+    ],
+  },
+  {
+    title: "Yêu cầu",
+    items: [
+      { href: "/admin/contact-requests", label: "Liên hệ", icon: Inbox },
+      { href: "/admin/quote-requests", label: "Báo giá", icon: FileText },
     ],
   },
   {
