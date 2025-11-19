@@ -63,7 +63,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-full bg-linear-to-b from-blue-600 to-blue-800 text-white transition-all duration-300 z-50 ${
+        className={`fixed left-0 top-0 h-full bg-linear-to-b from-blue-600 to-blue-800 text-white transition-all duration-300 z-50 flex flex-col ${
           sidebarOpen ? "w-64" : "w-20"
         }`}
       >
@@ -90,7 +90,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </div>
 
         {/* Nav */}
-        <nav className="py-4 overflow-y-auto h-[calc(100vh-8rem)]">
+        <nav className="py-4 overflow-y-auto flex-1">
           {navSections.map((section, idx) => (
             <div key={idx} className="mb-6">
               {sidebarOpen && (
@@ -133,10 +133,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </nav>
 
         {/* Bottom */}
-        <div className="absolute bottom-0 left-0 right-0 border-t border-blue-700 p-4">
+        <div className="border-t border-blue-700 p-4 space-y-2">
           <Link
             href="/"
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-700 hover:text-white transition-all mb-2 ${
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-blue-700 hover:text-white transition-all ${
               !sidebarOpen && "justify-center"
             }`}
           >

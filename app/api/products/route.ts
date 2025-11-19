@@ -241,12 +241,13 @@ export async function GET(request: NextRequest) {
       queryOptions.take = limit;
     }
 
-    // Execute queries in transaction for consistency
-    const { rows, total } = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const items = await tx.product.findMany(queryOptions);
-      const count = await tx.product.count({ where });
-      return { rows: items as ProductListRow[], total: count };
-    });
+    // Execute queries together without interactive transaction (compatible with serverless DBs)
+    const [items, count] = await Promise.all([
+      prisma.product.findMany(queryOptions),
+      prisma.product.count({ where }),
+    ]);
+    const rows = items as ProductListRow[];
+    const total = count;
 
     // Map to client-friendly format
     const data = rows.map(mapListItem);
