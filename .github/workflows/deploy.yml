@@ -9,6 +9,10 @@ jobs:
   check_on_linux:
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,11 +27,9 @@ jobs:
         run: npm ci
 
       # ======================
-      # Prisma generate (bắt buộc nếu dùng Prisma)
+      # Prisma generate
       # ======================
       - name: Prisma generate (nếu dùng Prisma)
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           if [ -f prisma/schema.prisma ]; then
             npx prisma generate
@@ -39,8 +41,6 @@ jobs:
       # Prisma validate
       # ======================
       - name: Prisma validate (optional)
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           if [ -f prisma/schema.prisma ]; then
             npx prisma validate
@@ -71,7 +71,7 @@ jobs:
           fi
 
       # ======================
-      # Tests (optional)
+      # Tests
       # ======================
       - name: Test (optional)
         run: |
@@ -82,10 +82,10 @@ jobs:
           fi
 
       # ======================
-      # Build Next.js
+      # ❗ Bỏ build tại đây (Next.js prerender cần DB)
       # ======================
-      - name: Build Next.js
-        run: npm run build
+      - name: Skip build here
+        run: echo "Skipping next build on CI. Build will run on VPS."
 
   # ======================================================
   # Deploy to VPS when CI passes
