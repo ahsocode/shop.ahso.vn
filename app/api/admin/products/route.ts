@@ -42,8 +42,11 @@ export async function GET(req: NextRequest) {
           slug: true,
           name: true,
           sku: true,
+          supplierSku: true,
+          supplierId: true,
           price: true,
           listPrice: true,
+          costPrice: true,
           currency: true,
           coverImage: true,
           status: true,
@@ -51,15 +54,28 @@ export async function GET(req: NextRequest) {
           typeId: true,
           stockOnHand: true,
           stockReserved: true,
+          reorderLevel: true,
+          reorderQty: true,
+          minOrderQty: true,
+          stepQty: true,
+          requiresQuote: true,
+          quoteNote: true,
+          taxRate: true,
+          taxIncluded: true,
           createdAt: true,
           updatedAt: true,
           brand: { select: { id: true, name: true } },
           producttype: { select: { id: true, name: true } },
+          supplier: { select: { id: true, name: true } },
         },
       }),
     ]);
 
-    const data = rows.map(({ producttype, ...rest }: (typeof rows)[number]) => ({ ...rest, type: producttype }));
+    const data = rows.map(({ producttype, supplier, ...rest }: (typeof rows)[number]) => ({
+      ...rest,
+      type: producttype,
+      supplier,
+    }));
     return jsonOk({ data, meta: { total, page, pageSize } });
   } catch (error) {
     const err = toHttpError(error);
@@ -80,7 +96,31 @@ export async function POST(req: NextRequest) {
     });
     if (!parsed.success) return jsonError("Validation Error", 400, { issues: parsed.error.issues });
 
-    const { name, sku, typeId, price, slug, description, coverImage, brandId, listPrice, stockOnHand, status } = parsed.data;
+    const {
+      name,
+      sku,
+      typeId,
+      price,
+      slug,
+      description,
+      coverImage,
+      brandId,
+      supplierId,
+      supplierSku,
+      listPrice,
+      costPrice,
+      stockOnHand,
+      currency,
+      requiresQuote,
+      quoteNote,
+      taxRate,
+      taxIncluded,
+      minOrderQty,
+      stepQty,
+      reorderLevel,
+      reorderQty,
+      status,
+    } = parsed.data;
     const finalSlug = slug?.trim() || slugify(name);
 
     const dupSku = await prisma.product.findUnique({ where: { sku } });
@@ -106,8 +146,20 @@ export async function POST(req: NextRequest) {
         description: description ?? null,
         coverImage: coverImage ?? null,
         brandId: brandId ?? null,
+        supplierId: supplierId ?? null,
+        supplierSku: supplierSku ?? null,
         listPrice: listPrice ?? null,
+        costPrice: costPrice ?? null,
         stockOnHand: stockOnHand ?? 0,
+        currency: currency ?? "VND",
+        requiresQuote: requiresQuote ?? false,
+        quoteNote: quoteNote ?? null,
+        taxRate: taxRate ?? undefined,
+        taxIncluded: taxIncluded ?? true,
+        minOrderQty: minOrderQty ?? null,
+        stepQty: stepQty ?? null,
+        reorderLevel: reorderLevel ?? null,
+        reorderQty: reorderQty ?? null,
         status: status ?? "DRAFT",
         updatedAt: new Date(),
       },
