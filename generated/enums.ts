@@ -33,7 +33,8 @@ export type order_status = (typeof order_status)[keyof typeof order_status]
 export const product_status = {
   DRAFT: 'DRAFT',
   PUBLISHED: 'PUBLISHED',
-  ARCHIVED: 'ARCHIVED'
+  ARCHIVED: 'ARCHIVED',
+  OUT_OF_STOCK: 'OUT_OF_STOCK'
 } as const
 
 export type product_status = (typeof product_status)[keyof typeof product_status]
@@ -74,3 +75,36 @@ export const user_role = {
 } as const
 
 export type user_role = (typeof user_role)[keyof typeof user_role]
+
+
+export const contact_status = {
+  new: 'new',
+  in_progress: 'in_progress',
+  responded: 'responded',
+  closed: 'closed',
+  spam: 'spam'
+} as const
+
+export type contact_status = (typeof contact_status)[keyof typeof contact_status]
+
+
+export const contact_priority = {
+  low: 'low',
+  normal: 'normal',
+  high: 'high',
+  urgent: 'urgent'
+} as const
+
+export type contact_priority = (typeof contact_priority)[keyof typeof contact_priority]
+
+
+export const quote_status = {
+  pending: 'pending',
+  quoted: 'quoted',
+  accepted: 'accepted',
+  rejected: 'rejected',
+  expired: 'expired',
+  converted: 'converted'
+} as const
+
+export type quote_status = (typeof quote_status)[keyof typeof quote_status]

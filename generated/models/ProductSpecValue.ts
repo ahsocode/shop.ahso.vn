@@ -597,14 +597,6 @@ export type productspecvalueUncheckedUpdateManyWithoutProductspecdefinitionNeste
   deleteMany?: Prisma.productspecvalueScalarWhereInput | Prisma.productspecvalueScalarWhereInput[]
 }
 
-export type NullableFloatFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type NullableBoolFieldUpdateOperationsInput = {
   set?: boolean | null
 }

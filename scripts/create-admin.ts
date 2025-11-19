@@ -1,17 +1,17 @@
 import { randomUUID } from "crypto";
 import bcrypt from "bcrypt";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@/generated/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const username = (process.argv[2] || "admin").toLowerCase();
-  const password = process.argv[3] || "admin123";
+  const username = (process.argv[2] || "duyhai0308").toLowerCase();
+  const password = process.argv[3] || "DuyHai03082003@gmail.com";
 
   // Minimal placeholders to satisfy required fields
-  const fullName = "AHSO Admin";
-  const email = `${username}@example.local`;
-  const phoneE164 = "+84000000000";
+  const fullName = "Duy Hai";
+  const email = `duyhai03082003@gmail.com`;
+  const phoneE164 = "0856686130";
 
   const passwordHash = await bcrypt.hash(password, 12);
 

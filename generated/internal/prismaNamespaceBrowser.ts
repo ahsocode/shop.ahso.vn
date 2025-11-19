@@ -55,6 +55,7 @@ export const ModelName = {
   order: 'order',
   orderitem: 'orderitem',
   payment: 'payment',
+  supplier: 'supplier',
   product: 'product',
   productcategory: 'productcategory',
   productcategorylink: 'productcategorylink',
@@ -70,7 +71,10 @@ export const ModelName = {
   solutioncategory: 'solutioncategory',
   solutionimage: 'solutionimage',
   unitdefinition: 'unitdefinition',
-  user: 'user'
+  user: 'user',
+  contacttype: 'contacttype',
+  contact: 'contact',
+  quoterequest: 'quoterequest'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -230,40 +234,76 @@ export const PaymentScalarFieldEnum = {
 export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
 
 
+export const SupplierScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  code: 'code',
+  contactPerson: 'contactPerson',
+  email: 'email',
+  phone: 'phone',
+  address: 'address',
+  taxCode: 'taxCode',
+  paymentTerms: 'paymentTerms',
+  minOrderValue: 'minOrderValue',
+  shippingFee: 'shippingFee',
+  rating: 'rating',
+  totalOrders: 'totalOrders',
+  notes: 'notes',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typeof SupplierScalarFieldEnum]
+
+
 export const ProductScalarFieldEnum = {
   id: 'id',
-  slug: 'slug',
   sku: 'sku',
-  metaTitle: 'metaTitle',
-  metaDescription: 'metaDescription',
-  status: 'status',
-  publishAt: 'publishAt',
-  brandId: 'brandId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  coverImage: 'coverImage',
-  currency: 'currency',
-  description: 'description',
-  heightMm: 'heightMm',
-  lengthMm: 'lengthMm',
-  listPrice: 'listPrice',
-  minOrderQty: 'minOrderQty',
+  saleCode: 'saleCode',
+  slug: 'slug',
   name: 'name',
+  description: 'description',
+  supplierId: 'supplierId',
+  supplierSku: 'supplierSku',
+  costPrice: 'costPrice',
   price: 'price',
-  quantityLabel: 'quantityLabel',
-  quantityUnitId: 'quantityUnitId',
-  quantityValue: 'quantityValue',
-  stepQty: 'stepQty',
+  listPrice: 'listPrice',
+  profitAmount: 'profitAmount',
+  profitMargin: 'profitMargin',
+  taxRate: 'taxRate',
+  taxIncluded: 'taxIncluded',
+  currency: 'currency',
+  requiresQuote: 'requiresQuote',
+  quoteNote: 'quoteNote',
   stockOnHand: 'stockOnHand',
   stockReserved: 'stockReserved',
-  taxIncluded: 'taxIncluded',
+  reorderLevel: 'reorderLevel',
+  reorderQty: 'reorderQty',
+  minOrderQty: 'minOrderQty',
+  stepQty: 'stepQty',
+  status: 'status',
   typeId: 'typeId',
-  unitId: 'unitId',
+  brandId: 'brandId',
+  coverImage: 'coverImage',
   weightGrams: 'weightGrams',
+  lengthMm: 'lengthMm',
   widthMm: 'widthMm',
-  purchaseCount: 'purchaseCount',
+  heightMm: 'heightMm',
+  unitId: 'unitId',
+  quantityValue: 'quantityValue',
+  quantityUnitId: 'quantityUnitId',
+  quantityLabel: 'quantityLabel',
+  metaTitle: 'metaTitle',
+  metaDescription: 'metaDescription',
   ratingAvg: 'ratingAvg',
-  ratingCount: 'ratingCount'
+  ratingCount: 'ratingCount',
+  purchaseCount: 'purchaseCount',
+  viewCount: 'viewCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  publishAt: 'publishAt'
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
@@ -495,6 +535,82 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const ContacttypeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  icon: 'icon',
+  color: 'color',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContacttypeScalarFieldEnum = (typeof ContacttypeScalarFieldEnum)[keyof typeof ContacttypeScalarFieldEnum]
+
+
+export const ContactScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
+  company: 'company',
+  subject: 'subject',
+  message: 'message',
+  typeId: 'typeId',
+  source: 'source',
+  status: 'status',
+  priority: 'priority',
+  assignedTo: 'assignedTo',
+  response: 'response',
+  respondedAt: 'respondedAt',
+  respondedBy: 'respondedBy',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  referrer: 'referrer',
+  internalNotes: 'internalNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContactScalarFieldEnum = (typeof ContactScalarFieldEnum)[keyof typeof ContactScalarFieldEnum]
+
+
+export const QuoterequestScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
+  company: 'company',
+  taxCode: 'taxCode',
+  productId: 'productId',
+  productName: 'productName',
+  quantity: 'quantity',
+  message: 'message',
+  quotedPrice: 'quotedPrice',
+  quotedTotal: 'quotedTotal',
+  validUntil: 'validUntil',
+  paymentTerms: 'paymentTerms',
+  deliveryTerms: 'deliveryTerms',
+  status: 'status',
+  priority: 'priority',
+  assignedTo: 'assignedTo',
+  respondedBy: 'respondedBy',
+  respondedAt: 'respondedAt',
+  customerNotes: 'customerNotes',
+  internalNotes: 'internalNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  expiresAt: 'expiresAt'
+} as const
+
+export type QuoterequestScalarFieldEnum = (typeof QuoterequestScalarFieldEnum)[keyof typeof QuoterequestScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -616,21 +732,42 @@ export const paymentOrderByRelevanceFieldEnum = {
 export type paymentOrderByRelevanceFieldEnum = (typeof paymentOrderByRelevanceFieldEnum)[keyof typeof paymentOrderByRelevanceFieldEnum]
 
 
+export const supplierOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  code: 'code',
+  contactPerson: 'contactPerson',
+  email: 'email',
+  phone: 'phone',
+  address: 'address',
+  taxCode: 'taxCode',
+  paymentTerms: 'paymentTerms',
+  notes: 'notes'
+} as const
+
+export type supplierOrderByRelevanceFieldEnum = (typeof supplierOrderByRelevanceFieldEnum)[keyof typeof supplierOrderByRelevanceFieldEnum]
+
+
 export const productOrderByRelevanceFieldEnum = {
   id: 'id',
-  slug: 'slug',
   sku: 'sku',
-  metaTitle: 'metaTitle',
-  metaDescription: 'metaDescription',
+  saleCode: 'saleCode',
+  slug: 'slug',
+  name: 'name',
+  description: 'description',
+  supplierId: 'supplierId',
+  supplierSku: 'supplierSku',
+  currency: 'currency',
+  quoteNote: 'quoteNote',
+  typeId: 'typeId',
   brandId: 'brandId',
   coverImage: 'coverImage',
-  currency: 'currency',
-  description: 'description',
-  name: 'name',
-  quantityLabel: 'quantityLabel',
+  unitId: 'unitId',
   quantityUnitId: 'quantityUnitId',
-  typeId: 'typeId',
-  unitId: 'unitId'
+  quantityLabel: 'quantityLabel',
+  metaTitle: 'metaTitle',
+  metaDescription: 'metaDescription'
 } as const
 
 export type productOrderByRelevanceFieldEnum = (typeof productOrderByRelevanceFieldEnum)[keyof typeof productOrderByRelevanceFieldEnum]
@@ -813,4 +950,61 @@ export const userOrderByRelevanceFieldEnum = {
 } as const
 
 export type userOrderByRelevanceFieldEnum = (typeof userOrderByRelevanceFieldEnum)[keyof typeof userOrderByRelevanceFieldEnum]
+
+
+export const contacttypeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  icon: 'icon',
+  color: 'color'
+} as const
+
+export type contacttypeOrderByRelevanceFieldEnum = (typeof contacttypeOrderByRelevanceFieldEnum)[keyof typeof contacttypeOrderByRelevanceFieldEnum]
+
+
+export const contactOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
+  company: 'company',
+  subject: 'subject',
+  message: 'message',
+  typeId: 'typeId',
+  source: 'source',
+  assignedTo: 'assignedTo',
+  response: 'response',
+  respondedBy: 'respondedBy',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  referrer: 'referrer',
+  internalNotes: 'internalNotes'
+} as const
+
+export type contactOrderByRelevanceFieldEnum = (typeof contactOrderByRelevanceFieldEnum)[keyof typeof contactOrderByRelevanceFieldEnum]
+
+
+export const quoterequestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  code: 'code',
+  fullName: 'fullName',
+  phone: 'phone',
+  email: 'email',
+  company: 'company',
+  taxCode: 'taxCode',
+  productId: 'productId',
+  productName: 'productName',
+  message: 'message',
+  paymentTerms: 'paymentTerms',
+  deliveryTerms: 'deliveryTerms',
+  assignedTo: 'assignedTo',
+  respondedBy: 'respondedBy',
+  customerNotes: 'customerNotes',
+  internalNotes: 'internalNotes'
+} as const
+
+export type quoterequestOrderByRelevanceFieldEnum = (typeof quoterequestOrderByRelevanceFieldEnum)[keyof typeof quoterequestOrderByRelevanceFieldEnum]
 
