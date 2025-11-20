@@ -16,23 +16,24 @@ import {
 } from "lucide-react";
 import type { OrderDetailDTO, OrderStatus } from "@/dto/order.dto";
 import StatusManager from "./status-manager";
-
+import { cookies } from "next/headers";
 function formatVND(value: number | undefined | null) {
   const num = typeof value === "number" ? value : Number(value ?? 0);
   return num.toLocaleString("vi-VN") + " ₫";
 }
 
 async function fetchOrder(orderId: string) {
-  const hdrs = await headers();
-  const host = hdrs.get("host");
-  if (!host) notFound();
-  const protocol = hdrs.get("x-forwarded-proto") ?? "http";
-  const base = `${protocol}://${host}`;
+  const cookieStore = await cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
 
-  const res = await fetch(`${base}/api/orders/${orderId}`, {
+  if (!authToken) {
+    redirect(`/login?redirect=/staff/orders/${orderId}`);
+  }
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/orders/${orderId}`, {
     cache: "no-store",
     headers: {
-      cookie: hdrs.get("cookie") ?? "",
+      "Authorization": `Bearer ${authToken}`,
     },
   });
 
