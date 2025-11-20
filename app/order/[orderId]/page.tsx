@@ -14,7 +14,7 @@ import {
   Receipt,
 } from "lucide-react";
 import type { OrderDetailDTO } from "@/dto/order.dto";
-
+import { cookies } from "next/headers";
 function formatVND(n: number | undefined | null) {
   const num = typeof n === "number" ? n : Number(n || 0);
   return num.toLocaleString("vi-VN") + " ₫";
@@ -46,28 +46,27 @@ function paymentMethodLabel(method?: string | null) {
   return method || "Không rõ";
 }
 
-// Next 16: params là Promise => cần await
 export default async function OrderDetailPage(props: {
   params: Promise<{ orderId: string }>;
 }) {
   const { orderId } = await props.params;
 
- // ✅ đúng
-const hdrs = await headers(); // ReadonlyHeaders
-const host = hdrs.get("host");
-if (!host) return notFound();
-const protocol = hdrs.get("x-forwarded-proto") ?? "http";
-const base = `${protocol}://${host}`;
+  // ✅ Đọc cookie trực tiếp
+  const cookieStore = await cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
 
-const res = await fetch(`${base}/api/orders/${orderId}`, {
-  cache: "no-store",
-  headers: {
-    cookie: hdrs.get("cookie") ?? "",
-  },
-});
+  if (!authToken) {
+    redirect(`/login?redirect=/order/${orderId}`);
+  }
 
+  // ✅ Fetch với Authorization header
+  const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/orders/${orderId}`, {
+    cache: "no-store",
+    headers: {
+      "Authorization": `Bearer ${authToken}`,
+    },
+  });
 
-  // Nếu chưa đăng nhập hoặc bị cấm → cho về trang login, không chơi 404
   if (res.status === 401 || res.status === 403) {
     redirect(`/login?redirect=/order/${orderId}`);
   }
@@ -77,7 +76,6 @@ const res = await fetch(`${base}/api/orders/${orderId}`, {
   }
 
   if (!res.ok) {
-    // cho nó nổ lỗi rõ ràng hơn khi dev
     throw new Error(`Failed to load order ${orderId}: ${res.status}`);
   }
 

@@ -175,18 +175,29 @@ export async function generateMetadata({
 type ProductSpec = ProductWithRelations["specs"][number];
 
 function fmtSpec(spec: ProductSpec): string | null {
-  if (spec.valueString) return spec.valueString;
+  const unit =
+    spec.unitOverride && spec.unitOverride.trim()
+      ? ` ${spec.unitOverride.trim()}`
+      : "";
+
+  // Ưu tiên valueString
+  if (spec.valueString && spec.valueString.trim() !== "") {
+    return `${spec.valueString.trim()}${unit}`;
+  }
+
+  // Nếu không có valueString thì fallback sang valueNumber
   if (spec.valueNumber != null) {
     const n = Number(spec.valueNumber);
-    return Number.isFinite(n)
-      ? `${n}${spec.unitOverride ? ` ${spec.unitOverride}` : ""}`
-      : null;
+    return Number.isFinite(n) ? `${n}${unit}` : null;
   }
+
   if (typeof spec.valueBoolean === "boolean") {
-    return spec.valueBoolean ? "Có" : "Không";
+    return spec.valueBoolean ? `Có${unit}` : `Không${unit}`;
   }
+
   return null;
 }
+
 
 function StarRating({
   value = 0,

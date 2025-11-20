@@ -13,7 +13,8 @@ const CreateImage = z.object({
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ productId: string }> }) {
   try {
-    const me = await verifyBearerAuth(req); requireRole(me, ["ADMIN"]);
+    const me = await verifyBearerAuth(req); 
+    requireRole(me, ["ADMIN"]);
     const { productId } = await ctx.params;
 
     const body = await req.json();
@@ -23,15 +24,30 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ productId:
     const product = await prisma.product.findUnique({ where: { id: productId } });
     if (!product) return jsonError("productId not found", 404);
 
-    const created = await prisma.productimage.create({
-      data: {
-        id: randomUUID(),
-        productId,
-        url: parsed.data.url,
-        alt: parsed.data.alt ?? null,
-        sortOrder: parsed.data.sortOrder ?? 0,
-        updatedAt: new Date(),
-      },
+    const now = new Date();
+
+    const created = await prisma.$transaction(async (tx) => {
+      const img = await tx.productimage.create({
+        data: {
+          id: randomUUID(),
+          productId,
+          url: parsed.data.url,
+          alt: parsed.data.alt ?? null,
+          sortOrder: parsed.data.sortOrder ?? 0,
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
+
+      // Nếu product chưa có coverImage, set luôn ảnh này làm cover
+      if (!product.coverImage) {
+        await tx.product.update({
+          where: { id: productId },
+          data: { coverImage: img.url, updatedAt: now },
+        });
+      }
+
+      return img;
     });
 
     return jsonOk({ data: created }, 201);
