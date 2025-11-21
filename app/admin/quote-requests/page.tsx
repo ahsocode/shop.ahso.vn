@@ -133,7 +133,7 @@ export default function QuoteRequestsPage() {
     return () => {
       ignore = true;
     };
-  }, [page, pageSize, filters, reloadToken]);
+  }, [page, pageSize, filters, reloadToken, selected?.id]);
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total, pageSize]);
 

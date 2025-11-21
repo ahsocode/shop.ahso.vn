@@ -7,12 +7,26 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, ArrowLeft, User, Mail, Phone, MapPin } from "lucide-react";
+import {
+  Loader2,
+  ArrowLeft,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+} from "lucide-react";
 import { setUser } from "@/lib/auth-store";
+import { toast } from "sonner";
 
 type Address = {
   line1: string;
@@ -43,113 +57,62 @@ type ApiResponse =
   | { profile: Profile }
   | { error: string; details?: unknown };
 
-type CloudinaryUploadInfo = {
-  secure_url?: string;
-};
-
-type CloudinaryUploadResult = {
-  event?: string;
-  info?: CloudinaryUploadInfo;
-};
-
-type CloudinaryUploadWidgetInstance = {
-  open?: () => void;
-};
-
-type CloudinaryGlobal = {
-  createUploadWidget: (
-    options: Record<string, unknown>,
-    callback: (error: unknown, result: CloudinaryUploadResult) => void,
-  ) => CloudinaryUploadWidgetInstance;
-};
-
 const addressSchema = z.object({
   line1: z.string().min(1, "Bắt buộc"),
   line2: z.string().optional().or(z.literal("").transform(() => undefined)),
   city: z.string().min(1, "Bắt buộc"),
   state: z.string().optional().or(z.literal("").transform(() => undefined)),
-  postalCode: z.string().optional().or(z.literal("").transform(() => undefined)),
-  country: z.string().length(2, "Dùng mã quốc gia 2 ký tự (VD: VN, US)").toUpperCase(),
+  postalCode: z
+    .string()
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
+  country: z
+    .string()
+    .length(2, "Dùng mã quốc gia 2 ký tự (VD: VN, US)")
+    .toUpperCase(),
 });
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Bắt buộc").max(128),
-  email: z.string().email(), 
+  email: z.string().email(),
   phone: z.string().min(9, "Số đt không hợp lệ").max(20),
   taxCode: z
     .string()
     .regex(/^\d{10}(\d{3})?$/, "MST 10 hoặc 13 chữ số")
     .optional()
     .or(z.literal("").transform(() => undefined)),
-  avatarUrl: z.string().url().optional().or(z.literal("").transform(() => undefined)),
+
+  // 👇 sửa ở đây
+  avatarUrl: z
+    .string()
+    .optional()
+    .or(
+      z.literal("").transform(() => undefined),
+    ),
+  // nếu muốn chặt chẽ hơn:
+  // avatarUrl: z
+  //   .string()
+  //   .refine(
+  //     (v) => !v || v.startsWith("/") || /^https?:\/\//.test(v),
+  //     "Avatar URL không hợp lệ",
+  //   )
+  //   .optional()
+  //   .or(z.literal("").transform(() => undefined)),
+
   shippingAddress: addressSchema,
   billingAddress: addressSchema,
 });
 
-type FormValues = z.infer<typeof formSchema>;
 
-/** Cloudinary Upload Widget */
-declare global {
-  interface Window {
-    cloudinary?: CloudinaryGlobal;
-  }
-}
+type FormValues = z.infer<typeof formSchema>;
 
 const getErrorMessage = (payload: unknown, fallback: string) => {
   if (typeof payload === "object" && payload !== null && "error" in payload) {
     const value = (payload as { error?: unknown }).error;
-    if (typeof value === "string") {
-      return value;
-    }
+    if (typeof value === "string") return value;
   }
   return fallback;
 };
-
-function useCloudinaryWidget(onUploaded: (url: string) => void) {
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!;
-  const widgetRef = useRef<CloudinaryUploadWidgetInstance | null>(null);
-
-  useEffect(() => {
-    const ensureWidget = () => {
-      if (!window.cloudinary) return;
-      widgetRef.current = window.cloudinary.createUploadWidget(
-        {
-          cloudName,
-          uploadPreset, // UNSIGNED preset name (vd: "shop.ahso.vn")
-          multiple: false,
-          sources: ["local", "url", "camera"],
-          folder: "avatars",
-          clientAllowedFormats: ["jpg", "jpeg", "png", "webp"],
-          maxFileSize: 5_000_000,
-        },
-        (error: unknown, result: CloudinaryUploadResult) => {
-          if (!error && result?.event === "success") {
-            const url = result?.info?.secure_url;
-            if (url) onUploaded(url);
-          }
-        },
-      );
-    };
-
-    // nạp script widget nếu chưa có
-    const existing = document.querySelector<HTMLScriptElement>(
-      'script[src="https://widget.cloudinary.com/v2.0/global/all.js"]',
-    );
-    if (!existing) {
-      const s = document.createElement("script");
-      s.src = "https://widget.cloudinary.com/v2.0/global/all.js";
-      s.async = true;
-      s.onload = ensureWidget;
-      document.body.appendChild(s);
-    } else {
-      ensureWidget();
-    }
-  }, [onUploaded, cloudName, uploadPreset]);
-
-  const open = () => widgetRef.current?.open?.();
-  return { open };
-}
 
 function formatPhoneHuman(e164?: string | null) {
   if (!e164) return "";
@@ -157,6 +120,7 @@ function formatPhoneHuman(e164?: string | null) {
   if (m) return `+${m[1]} ${m[2]} ${m[3]} ${m[4]}`;
   return e164;
 }
+
 function addressToLine(a?: Address | null) {
   if (!a) return "—";
   const parts = [
@@ -191,7 +155,9 @@ function ProfilePreview({
     <Card>
       <CardHeader className="pb-0">
         <CardTitle>Xem trước hồ sơ</CardTitle>
-        <CardDescription>Giao diện người dùng sẽ thấy sau khi lưu</CardDescription>
+        <CardDescription>
+          Giao diện người dùng sẽ thấy sau khi lưu
+        </CardDescription>
       </CardHeader>
       <CardContent className="pt-4">
         <div className="bg-linear-to-r from-blue-600 to-blue-800 rounded-xl text-white p-6 mb-6">
@@ -259,6 +225,12 @@ export default function EditProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // file mới chọn nhưng chưa upload
+  const avatarFileRef = useRef<File | null>(null);
+  // url preview local
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -288,9 +260,24 @@ export default function EditProfilePage() {
   });
 
   const watch = form.watch();
-  const { open: openUpload } = useCloudinaryWidget((url) => {
-    form.setValue("avatarUrl", url, { shouldDirty: true, shouldValidate: true });
-  });
+
+  // chọn file → chỉ preview, chưa upload
+  const handleSelectAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    avatarFileRef.current = file;
+
+    const objectUrl = URL.createObjectURL(file);
+    setAvatarPreview((prev) => {
+      if (prev && prev.startsWith("blob:")) {
+        URL.revokeObjectURL(prev);
+      }
+      return objectUrl;
+    });
+
+    setError(null);
+  };
 
   // Load profile ban đầu
   useEffect(() => {
@@ -355,63 +342,124 @@ export default function EditProfilePage() {
     })();
     return () => {
       mounted = false;
+      // dọn url blob
+      setAvatarPreview((prev) => {
+        if (prev && prev.startsWith("blob:")) {
+          URL.revokeObjectURL(prev);
+        }
+        return null;
+      });
     };
   }, [form, router]);
 
   // Submit PATCH
   const onSubmit = async (values: FormValues) => {
-    setSaving(true);
-    setError(null);
-    try {
-      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  setSaving(true);
+  setError(null);
+  toast.dismiss();
+  toast.info("Đang lưu hồ sơ...");
 
-      const payload = {
-        fullName: values.fullName,
-        phone: values.phone, // server sẽ normalize sang E.164
-        taxCode: values.taxCode,
-        avatarUrl: values.avatarUrl,
-        shippingAddress: values.shippingAddress,
-        billingAddress: values.billingAddress,
-      };
+  try {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-      const res = await fetch("/api/profile", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify(payload),
+    // 👇 TS-friendly
+    const authHeaders: HeadersInit = token
+      ? { Authorization: `Bearer ${token}` }
+      : {};
+
+    let avatarUrl = values.avatarUrl;
+
+    // nếu có file mới chọn → upload trước
+    if (avatarFileRef.current) {
+      const formData = new FormData();
+      formData.append("file", avatarFileRef.current);
+
+      const uploadRes = await fetch("/api/profile/upload-avatar", {
+        method: "POST",
+        headers: authHeaders, // ← giờ không lỗi TS nữa
+        body: formData,
       });
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        throw new Error(getErrorMessage(body, "PATCH_FAILED"));
+      const uploadData = await uploadRes.json().catch(() => null);
+
+      if (!uploadRes.ok) {
+        throw new Error(getErrorMessage(uploadData, "UPLOAD_AVATAR_FAILED"));
       }
 
-      // Lấy dữ liệu mới để cập nhật navbar (không cần logout)
-      const meRes = await fetch("/api/auth/me", {
-        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        cache: "no-store",
+      avatarUrl = uploadData?.avatarUrl || avatarUrl;
+      form.setValue("avatarUrl", avatarUrl || "", {
+        shouldDirty: true,
+        shouldValidate: false,
       });
-      if (meRes.ok) {
-        const { user } = await meRes.json();
-       setUser({
-          id: user.id,
-          email: user.email,
-          fullName: user.fullName,
-          avatarUrl: user.avatarUrl,
-          role: user.role,
-        });
-      }
-
-      router.push("/profile");
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "ERROR";
-      setError(message);
-    } finally {
-      setSaving(false);
+      avatarFileRef.current = null;
     }
+
+    const payload = {
+      fullName: values.fullName,
+      phone: values.phone,
+      taxCode: values.taxCode,
+      avatarUrl,
+      shippingAddress: values.shippingAddress,
+      billingAddress: values.billingAddress,
+    };
+
+    // 👇 tạo headers JSON riêng, vẫn reuse authHeaders
+    const jsonHeaders: HeadersInit = {
+      "Content-Type": "application/json",
+      ...authHeaders,
+    };
+
+    const res = await fetch("/api/profile", {
+      method: "PATCH",
+      headers: jsonHeaders,
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      throw new Error(getErrorMessage(body, "PATCH_FAILED"));
+    }
+
+    const meRes = await fetch("/api/auth/me", {
+      headers: jsonHeaders,
+      cache: "no-store",
+    });
+    if (meRes.ok) {
+      const { user } = await meRes.json();
+      setUser({
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        avatarUrl: user.avatarUrl,
+        role: user.role,
+      });
+    }
+
+    toast.dismiss();
+    toast.success("Cập nhật hồ sơ thành công");
+    router.push("/profile");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "ERROR";
+    setError(message);
+    toast.dismiss();
+    toast.error(`Lỗi: ${message}`);
+    console.error("PROFILE_SAVE_ERROR", error);
+  } finally {
+    setSaving(false);
+  }
+};
+
+
+
+  // khi submit fail vì lỗi validate
+  const onSubmitError = (errors: unknown) => {
+    console.log("Form validation errors:", errors);
+    toast.error("Vui lòng kiểm tra lại các trường bắt buộc");
   };
+
+  const currentAvatarForUI =
+    avatarPreview || watch.avatarUrl || "/logo.png";
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
@@ -436,166 +484,261 @@ export default function EditProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Thông tin</CardTitle>
-              <CardDescription>Cập nhật ảnh đại diện, thông tin liên hệ và địa chỉ</CardDescription>
+              <CardDescription>
+                Cập nhật ảnh đại diện, thông tin liên hệ và địa chỉ
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Avatar */}
-              <div className="space-y-2">
-                <Label>Ảnh đại diện</Label>
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 border">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={watch.avatarUrl || "/logo.png"}
-                      alt="avatar"
-                      className="w-full h-full object-cover"
+              <form
+                className="space-y-6"
+                onSubmit={form.handleSubmit(onSubmit, onSubmitError)}
+              >
+                {/* Avatar */}
+                <div className="space-y-2">
+                  <Label>Ảnh đại diện</Label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 border">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={currentAvatarForUI}
+                        alt="avatar"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        Chọn ảnh
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          avatarFileRef.current = null;
+                          setAvatarPreview((prev) => {
+                            if (prev && prev.startsWith("blob:")) {
+                              URL.revokeObjectURL(prev);
+                            }
+                            return null;
+                          });
+                          form.setValue("avatarUrl", "", {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                        }}
+                      >
+                        Xoá ảnh
+                      </Button>
+                    </div>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleSelectAvatar}
+                  />
+                </div>
+
+                {/* Basic info */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Họ và tên</Label>
+                    <Input id="fullName" {...form.register("fullName")} />
+                    {form.formState.errors.fullName && (
+                      <p className="text-sm text-red-600">
+                        {form.formState.errors.fullName.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      {...form.register("email")}
+                      readOnly
+                      className="bg-gray-50"
                     />
                   </div>
-                  <div className="flex gap-2">
-                    <Button type="button" onClick={openUpload}>
-                      Tải ảnh 
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Số điện thoại</Label>
+                    <Input
+                      id="phone"
+                      placeholder="+84..."
+                      {...form.register("phone")}
+                    />
+                    {form.formState.errors.phone && (
+                      <p className="text-sm text-red-600">
+                        {form.formState.errors.phone.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="taxCode">
+                      Mã số thuế (tuỳ chọn)
+                    </Label>
+                    <Input
+                      id="taxCode"
+                      placeholder="VD: 0312345678"
+                      {...form.register("taxCode")}
+                    />
+                    {form.formState.errors.taxCode && (
+                      <p className="text-sm text-red-600">
+                        {form.formState.errors.taxCode.message as string}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Shipping Address */}
+                <div className="space-y-3">
+                  <div className="font-medium">Địa chỉ giao hàng</div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Địa chỉ (dòng 1)</Label>
+                      <Input {...form.register("shippingAddress.line1")} />
+                      {form.formState.errors.shippingAddress?.line1 && (
+                        <p className="text-sm text-red-600">
+                          {
+                            form.formState.errors.shippingAddress.line1
+                              .message
+                          }
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Địa chỉ (dòng 2)</Label>
+                      <Input {...form.register("shippingAddress.line2")} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Thành phố</Label>
+                      <Input {...form.register("shippingAddress.city")} />
+                      {form.formState.errors.shippingAddress?.city && (
+                        <p className="text-sm text-red-600">
+                          {
+                            form.formState.errors.shippingAddress.city
+                              .message
+                          }
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Tỉnh/Bang</Label>
+                      <Input {...form.register("shippingAddress.state")} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Mã bưu điện</Label>
+                      <Input
+                        {...form.register(
+                          "shippingAddress.postalCode",
+                        )}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Quốc gia (ISO-2)</Label>
+                      <Input
+                        placeholder="VN"
+                        {...form.register("shippingAddress.country")}
+                      />
+                      {form.formState.errors.shippingAddress?.country && (
+                        <p className="text-sm text-red-600">
+                          {
+                            form.formState.errors.shippingAddress.country
+                              .message
+                          }
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Billing Address */}
+                <div className="space-y-3">
+                  <div className="font-medium">
+                    Địa chỉ nhận hóa đơn
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Địa chỉ (dòng 1)</Label>
+                      <Input {...form.register("billingAddress.line1")} />
+                      {form.formState.errors.billingAddress?.line1 && (
+                        <p className="text-sm text-red-600">
+                          {
+                            form.formState.errors.billingAddress.line1
+                              .message
+                          }
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Địa chỉ (dòng 2)</Label>
+                      <Input {...form.register("billingAddress.line2")} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Thành phố</Label>
+                      <Input {...form.register("billingAddress.city")} />
+                      {form.formState.errors.billingAddress?.city && (
+                        <p className="text-sm text-red-600">
+                          {
+                            form.formState.errors.billingAddress.city
+                              .message
+                          }
+                        </p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Tỉnh/Bang</Label>
+                      <Input {...form.register("billingAddress.state")} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Mã bưu điện</Label>
+                      <Input
+                        {...form.register(
+                          "billingAddress.postalCode",
+                        )}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Quốc gia (ISO-2)</Label>
+                      <Input
+                        placeholder="VN"
+                        {...form.register("billingAddress.country")}
+                      />
+                      {form.formState.errors.billingAddress?.country && (
+                        <p className="text-sm text-red-600">
+                          {
+                            form.formState.errors.billingAddress.country
+                              .message
+                          }
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-3 pt-2">
+                  <Button type="submit" disabled={saving}>
+                    {saving ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : null}
+                    Lưu thay đổi
+                  </Button>
+                  <Link href="/profile">
+                    <Button type="button" variant="outline">
+                      Huỷ
                     </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => form.setValue("avatarUrl", "", { shouldDirty: true })}
-                    >
-                      Xoá ảnh
-                    </Button>
-                  </div>
+                  </Link>
                 </div>
-                <Input
-                  placeholder="https://res.cloudinary.com/<cloud_name>/image/upload/..."
-                  value={watch.avatarUrl || ""}
-                  onChange={(e) => form.setValue("avatarUrl", e.target.value, { shouldDirty: true })}
-                />
-              </div>
 
-              {/* Basic info */}
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Họ và tên</Label>
-                  <Input id="fullName" {...form.register("fullName")} />
-                  {form.formState.errors.fullName && (
-                    <p className="text-sm text-red-600">{form.formState.errors.fullName.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" {...form.register("email")} readOnly className="bg-gray-50" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Số điện thoại</Label>
-                  <Input id="phone" placeholder="+84..." {...form.register("phone")} />
-                  {form.formState.errors.phone && (
-                    <p className="text-sm text-red-600">{form.formState.errors.phone.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="taxCode">Mã số thuế (tuỳ chọn)</Label>
-                  <Input id="taxCode" placeholder="VD: 0312345678" {...form.register("taxCode")} />
-                  {form.formState.errors.taxCode && (
-                    <p className="text-sm text-red-600">{form.formState.errors.taxCode.message as string}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Shipping Address */}
-              <div className="space-y-3">
-                <div className="font-medium">Địa chỉ giao hàng</div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Địa chỉ (dòng 1)</Label>
-                    <Input {...form.register("shippingAddress.line1")} />
-                    {form.formState.errors.shippingAddress?.line1 && (
-                      <p className="text-sm text-red-600">{form.formState.errors.shippingAddress.line1.message}</p>
-                    )}
+                {error && (
+                  <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700">
+                    Lỗi: {error}
                   </div>
-                  <div className="space-y-2">
-                    <Label>Địa chỉ (dòng 2)</Label>
-                    <Input {...form.register("shippingAddress.line2")} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Thành phố</Label>
-                    <Input {...form.register("shippingAddress.city")} />
-                    {form.formState.errors.shippingAddress?.city && (
-                      <p className="text-sm text-red-600">{form.formState.errors.shippingAddress.city.message}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Tỉnh/Bang</Label>
-                    <Input {...form.register("shippingAddress.state")} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Mã bưu điện</Label>
-                    <Input {...form.register("shippingAddress.postalCode")} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Quốc gia (ISO-2)</Label>
-                    <Input placeholder="VN" {...form.register("shippingAddress.country")} />
-                    {form.formState.errors.shippingAddress?.country && (
-                      <p className="text-sm text-red-600">{form.formState.errors.shippingAddress.country.message}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Billing Address */}
-              <div className="space-y-3">
-                <div className="font-medium">Địa chỉ nhận hóa đơn</div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Địa chỉ (dòng 1)</Label>
-                    <Input {...form.register("billingAddress.line1")} />
-                    {form.formState.errors.billingAddress?.line1 && (
-                      <p className="text-sm text-red-600">{form.formState.errors.billingAddress.line1.message}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Địa chỉ (dòng 2)</Label>
-                    <Input {...form.register("billingAddress.line2")} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Thành phố</Label>
-                    <Input {...form.register("billingAddress.city")} />
-                    {form.formState.errors.billingAddress?.city && (
-                      <p className="text-sm text-red-600">{form.formState.errors.billingAddress.city.message}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Tỉnh/Bang</Label>
-                    <Input {...form.register("billingAddress.state")} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Mã bưu điện</Label>
-                    <Input {...form.register("billingAddress.postalCode")} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Quốc gia (ISO-2)</Label>
-                    <Input placeholder="VN" {...form.register("billingAddress.country")} />
-                    {form.formState.errors.billingAddress?.country && (
-                      <p className="text-sm text-red-600">{form.formState.errors.billingAddress.country.message}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-3 pt-2">
-                <Button disabled={saving} onClick={form.handleSubmit(onSubmit)}>
-                  {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-                  Lưu thay đổi
-                </Button>
-                <Link href="/profile">
-                  <Button variant="outline">Huỷ</Button>
-                </Link>
-              </div>
-
-              {error && (
-                <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700">
-                  Lỗi: {error}
-                </div>
-              )}
+                )}
+              </form>
             </CardContent>
           </Card>
 
@@ -604,7 +747,7 @@ export default function EditProfilePage() {
             fullName={watch.fullName}
             email={watch.email}
             phone={watch.phone}
-            avatarUrl={watch.avatarUrl}
+            avatarUrl={currentAvatarForUI}
             shippingAddress={watch.shippingAddress}
             billingAddress={watch.billingAddress}
           />

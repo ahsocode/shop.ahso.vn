@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { headers } from "next/headers";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowLeft,
@@ -30,7 +29,12 @@ async function fetchOrder(orderId: string) {
     redirect(`/login?redirect=/staff/orders/${orderId}`);
   }
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/orders/${orderId}`, {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXTAUTH_URL ||
+    "http://localhost:3000";
+
+  const res = await fetch(new URL(`/api/orders/${orderId}`, baseUrl).toString(), {
     cache: "no-store",
     headers: {
       "Authorization": `Bearer ${authToken}`,

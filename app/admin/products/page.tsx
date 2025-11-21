@@ -176,13 +176,13 @@ export default function ProductsPage() {
         setSuppliers(supplierResp.data);
         setSpecDefs(specDefResp.data);
 
-        setForm((prev) => ({
-          ...prev,
-          typeId: prev.typeId || typesResp.data[0]?.id || "",
-          brandId: prev.brandId || "",
-        }));
-      } catch (_e) {
-        // TODO: toast log lỗi
+      setForm((prev) => ({
+        ...prev,
+        typeId: prev.typeId || typesResp.data[0]?.id || "",
+        brandId: prev.brandId || "",
+      }));
+      } catch (err) {
+        console.error("Failed to load product options", err);
       }
     };
     fetchOptions();

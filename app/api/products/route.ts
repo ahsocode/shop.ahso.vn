@@ -7,7 +7,6 @@ import type {
   productWhereInput,
   productFindManyArgs,
 } from "@/lib/prisma-types";
-import type { Prisma } from "@/generated/client";
 
 type ProductListRow = productGetPayload<{
   include: {

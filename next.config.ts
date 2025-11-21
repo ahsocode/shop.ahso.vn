@@ -7,8 +7,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "img.vietqr.io",
       },
+      {
+        protocol: "https",
+        hostname: "drive.google.com",
+        pathname: "/uc*",
+      },
     ],
   },
+
   async redirects() {
     return [
       { source: "/shop/solutions", destination: "/solutions", permanent: true },

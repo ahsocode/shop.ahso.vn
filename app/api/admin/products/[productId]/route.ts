@@ -115,16 +115,18 @@ const mapProduct = (row: AdminProductRow | null) => {
     type: producttype,
     supplier,
     images: productimage,
-    specs: productspecvalue.map((v) => ({
-      id: v.id,
-      name: v.productspecdefinition.name,
-      valueString: v.valueString,
-      valueNumber: v.valueNumber,
-      valueBoolean: v.valueBoolean,
-      unitOverride: v.unitOverride,
-      note: v.note,
-      sortOrder: v.sortOrder,
-    })),
+    specs: productspecvalue.map(
+      (v: (typeof productspecvalue)[number]) => ({
+        id: v.id,
+        name: v.productspecdefinition.name,
+        valueString: v.valueString,
+        valueNumber: v.valueNumber,
+        valueBoolean: v.valueBoolean,
+        unitOverride: v.unitOverride,
+        note: v.note,
+        sortOrder: v.sortOrder,
+      }),
+    ),
   };
 };
 
@@ -204,6 +206,8 @@ export async function PATCH(
     // loại images/specs ra khỏi body để validate
     const { images: _ignoreImages, specs: _ignoreSpecs, ...rawForSchema } =
       raw;
+    void _ignoreImages;
+    void _ignoreSpecs;
 
     const body = normalizePayload(rawForSchema) as Record<string, unknown>;
 
