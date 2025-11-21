@@ -115,7 +115,12 @@ export const mapQuoteRequestRow = (row: QuoteRequestRow) => {
     quotedTotal: quotedTotal !== null ? Number(quotedTotal) : null,
     product: product
       ? {
-          ...product,
+          id: product.id,
+          name: product.name,
+          slug: product.slug,
+          sku: product.sku,
+          currency: product.currency,
+          coverImage: product.coverImage,
           price: Number(product.price),
         }
       : null,
