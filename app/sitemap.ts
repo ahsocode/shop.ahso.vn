@@ -24,6 +24,18 @@ function absolute(path: string) {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Luôn build được kể cả khi chưa có DB
+  const baseEntries: MetadataRoute.Sitemap = staticRoutes.map((path) => ({
+    url: absolute(path),
+    lastModified: new Date(),
+  }));
+
+  // Cloudflare Pages hiện tại không có DATABASE_URL → chỉ trả static
+  if (!process.env.DATABASE_URL) {
+    return baseEntries;
+  }
+
+  // Khi chạy trên môi trường có DB thật (VPS, server…) thì mới query
   const [products, solutions, softwares] = await Promise.all([
     prisma.product.findMany({
       where: { status: "PUBLISHED" },
@@ -39,24 +51,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   ]);
 
-  const entries: MetadataRoute.Sitemap = [
-    ...staticRoutes.map((path: string) => ({
-      url: absolute(path),
-      lastModified: new Date(),
-    })),
-    ...products.map((p: (typeof products)[number]) => ({
+  return [
+    ...baseEntries,
+    ...products.map((p) => ({
       url: absolute(`/shop/products/${p.slug}`),
       lastModified: p.updatedAt ?? p.publishAt ?? new Date(),
     })),
-    ...solutions.map((s: (typeof solutions)[number]) => ({
+    ...solutions.map((s) => ({
       url: absolute(`/solutions/${s.slug}`),
       lastModified: s.updatedAt ?? s.publishedAt ?? new Date(),
     })),
-    ...softwares.map((s: (typeof softwares)[number]) => ({
+    ...softwares.map((s) => ({
       url: absolute(`/software/${s.slug}`),
       lastModified: s.updatedAt ?? s.publishedAt ?? new Date(),
     })),
   ];
-
-  return entries;
 }
