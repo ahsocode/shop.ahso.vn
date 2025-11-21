@@ -2,14 +2,25 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# 1) Copy package để cài dependency
 COPY package.json package-lock.json* ./
 
+# 2) Copy Prisma schema (rất quan trọng)
+COPY prisma ./prisma
+# Nếu có prisma.config.ts thì thêm:
+# COPY prisma.config.ts ./prisma.config.ts
+
+# 3) Cài dependency
 RUN npm ci
 
+# 4) Copy toàn bộ source
 COPY . .
 
-# Chạy kiểm tra lỗi TypeScript (in ra toàn bộ)
+# 5) Chạy TypeScript check
 RUN npx tsc --noEmit
 
-# Chạy lint để bắt lỗi import, casing, eslint (in ra toàn bộ)
+# 6) Chạy lint
 RUN npm run lint
+
+# 7) Build (nếu cần)
+# RUN npm run build
