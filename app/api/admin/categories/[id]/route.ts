@@ -59,7 +59,12 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
     return jsonOk({ ok: true });
   } catch (error) {
     const err = toHttpError(error);
-    if (err.code === "P2003") return jsonError("Cannot delete: category in use", 409);
+    if (err.code === "P2003") {
+      return jsonError(
+        "Không thể xóa danh mục vì còn loại sản phẩm đang gắn với danh mục này.",
+        409,
+      );
+    }
     return jsonError(err.message || "Internal Error", err.status || 500);
   }
 }

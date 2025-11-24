@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { setUser } from "@/lib/auth-store";
 import { toast } from "sonner";
+import { ImageCropDialog } from "@/components/image/image-crop-dialog";
 
 type Address = {
   line1: string;
@@ -230,6 +231,12 @@ export default function EditProfilePage() {
   // url preview local
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [cropSource, setCropSource] = useState<{
+    url: string;
+    fileName: string;
+    revokeOnClose: boolean;
+  } | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -266,16 +273,18 @@ export default function EditProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    avatarFileRef.current = file;
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
 
     const objectUrl = URL.createObjectURL(file);
-    setAvatarPreview((prev) => {
-      if (prev && prev.startsWith("blob:")) {
-        URL.revokeObjectURL(prev);
+    setCropSource((prev) => {
+      if (prev?.revokeOnClose && prev.url) {
+        URL.revokeObjectURL(prev.url);
       }
-      return objectUrl;
+      return { url: objectUrl, fileName: file.name, revokeOnClose: true };
     });
-
+    setCropDialogOpen(true);
     setError(null);
   };
 
@@ -461,6 +470,69 @@ export default function EditProfilePage() {
   const currentAvatarForUI =
     avatarPreview || watch.avatarUrl || "/logo.png";
 
+  const openCropDialogWithCurrentPreview = () => {
+    if (!avatarPreview) return;
+    setCropSource((prev) => {
+      if (prev?.revokeOnClose && prev.url && prev.url !== avatarPreview) {
+        URL.revokeObjectURL(prev.url);
+      }
+      return { url: avatarPreview, fileName: "avatar.webp", revokeOnClose: false };
+    });
+    setCropDialogOpen(true);
+  };
+
+  const handleAvatarCropped = (result: { file: File; previewUrl: string }) => {
+    if (avatarPreview && avatarPreview.startsWith("blob:")) {
+      URL.revokeObjectURL(avatarPreview);
+    }
+    avatarFileRef.current = result.file;
+    setAvatarPreview(result.previewUrl);
+    setCropSource({ url: result.previewUrl, fileName: result.file.name, revokeOnClose: false });
+    setCropDialogOpen(false);
+  };
+
+  const clearAvatarSelection = () => {
+    avatarFileRef.current = null;
+    setAvatarPreview((prev) => {
+      if (prev && prev.startsWith("blob:")) {
+        URL.revokeObjectURL(prev);
+      }
+      return null;
+    });
+    if (cropSource?.revokeOnClose && cropSource.url) {
+      URL.revokeObjectURL(cropSource.url);
+    }
+    setCropSource(null);
+    setCropDialogOpen(false);
+    form.setValue("avatarUrl", "", {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
+
+  const handleCropDialogOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      setCropDialogOpen(false);
+      setCropSource((prev) => {
+        if (prev?.revokeOnClose && prev.url) {
+          URL.revokeObjectURL(prev.url);
+          return null;
+        }
+        return prev;
+      });
+    } else if (cropSource) {
+      setCropDialogOpen(true);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (cropSource?.revokeOnClose && cropSource.url) {
+        URL.revokeObjectURL(cropSource.url);
+      }
+    };
+  }, [cropSource]);
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6 flex items-center gap-3">
@@ -505,7 +577,7 @@ export default function EditProfilePage() {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
@@ -515,19 +587,15 @@ export default function EditProfilePage() {
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => {
-                          avatarFileRef.current = null;
-                          setAvatarPreview((prev) => {
-                            if (prev && prev.startsWith("blob:")) {
-                              URL.revokeObjectURL(prev);
-                            }
-                            return null;
-                          });
-                          form.setValue("avatarUrl", "", {
-                            shouldDirty: true,
-                            shouldValidate: true,
-                          });
-                        }}
+                        onClick={openCropDialogWithCurrentPreview}
+                        disabled={!avatarPreview}
+                      >
+                        Chỉnh sửa
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={clearAvatarSelection}
                       >
                         Xoá ảnh
                       </Button>
@@ -753,6 +821,14 @@ export default function EditProfilePage() {
           />
         </div>
       )}
+
+      <ImageCropDialog
+        open={cropDialogOpen && Boolean(cropSource?.url)}
+        imageSrc={cropSource?.url ?? null}
+        fileName={cropSource?.fileName}
+        onOpenChange={handleCropDialogOpenChange}
+        onComplete={handleAvatarCropped}
+      />
     </div>
   );
 }

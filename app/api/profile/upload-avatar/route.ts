@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserIdFromReq } from "../route"; // đã export ở file profile/route.ts
-import { ensureUserAvatarFolder, uploadImageToDriveWebp } from "@/lib/drive";
+import { uploadAvatarToCloudinary } from "@/lib/cloudinary";
 
 export const runtime = "nodejs";
 
@@ -21,21 +21,14 @@ export async function POST(req: NextRequest) {
     // Next.js File -> Buffer
     const arrayBuffer = await (file as File).arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const originalName = (file as File).name || "avatar";
-
-    // lấy folder /users/{userId}/avatar
-    const avatarFolderId = await ensureUserAvatarFolder(userId);
-
-    // upload lên Drive
-    const { publicUrl } = await uploadImageToDriveWebp({
+    const { secureUrl } = await uploadAvatarToCloudinary({
       buffer,
-      originalName,
-      parentFolderId: avatarFolderId,
+      userId,
     });
 
-    console.log("UPLOAD_AVATAR_SUCCESS", { userId, publicUrl });
+    console.log("UPLOAD_AVATAR_SUCCESS", { userId, secureUrl });
 
-    return NextResponse.json({ avatarUrl: publicUrl });
+    return NextResponse.json({ avatarUrl: secureUrl });
   } catch (err) {
     console.error("UPLOAD_AVATAR_ERROR", err);
     const msg =

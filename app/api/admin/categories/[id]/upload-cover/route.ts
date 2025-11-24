@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
-import { uploadImageToDriveWebp, ensureCategoryFolder } from "@/lib/drive";
+import { uploadCategoryCoverToCloudinary } from "@/lib/cloudinary";
 
 export const runtime = "nodejs";
 
@@ -14,7 +14,10 @@ export async function POST(
     requireRole(me, ["ADMIN"]);
     const { id } = await ctx.params;
 
-    const cate = await prisma.productcategory.findUnique({ where: { id } });
+    const cate = await prisma.productcategory.findUnique({
+      where: { id },
+      select: { id: true, slug: true },
+    });
     if (!cate) {
       return NextResponse.json(
         { success: false, error: "Category not found" },
@@ -32,17 +35,16 @@ export async function POST(
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const folderId = await ensureCategoryFolder(id);
 
-    const { publicUrl } = await uploadImageToDriveWebp({
+    const { secureUrl } = await uploadCategoryCoverToCloudinary({
       buffer,
-      originalName: file.name,
-      parentFolderId: folderId,
+      categoryId: id,
+      categorySlug: cate.slug,
     });
 
     const updated = await prisma.productcategory.update({
       where: { id },
-      data: { coverImage: publicUrl, updatedAt: new Date() },
+      data: { coverImage: secureUrl, updatedAt: new Date() },
     });
 
     return NextResponse.json({ success: true, data: updated });

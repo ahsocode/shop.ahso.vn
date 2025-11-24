@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { uploadImageToDriveWebp, ensureProductTypeCoverFolder } from "@/lib/drive";
+import { uploadProductTypeCoverToCloudinary } from "@/lib/cloudinary";
 
 export const runtime = "nodejs";
 
@@ -18,25 +18,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "FILE_REQUIRED" }, { status: 400 });
     }
 
-    const pt = await prisma.producttype.findUnique({ where: { id: typeId } });
+    const pt = await prisma.producttype.findUnique({
+      where: { id: typeId },
+      select: {
+        id: true,
+        slug: true,
+        productcategory: { select: { slug: true } },
+      },
+    });
     if (!pt) {
       return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
     }
 
-    const folderId = await ensureProductTypeCoverFolder(typeId); // ✅ truyền typeId
-
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const { publicUrl } = await uploadImageToDriveWebp({
+    const { secureUrl } = await uploadProductTypeCoverToCloudinary({
       buffer,
-      originalName: file.name || `product-type-${typeId}`,
-      parentFolderId: folderId,
+      productTypeId: typeId,
+      productTypeSlug: pt.slug,
+      categorySlug: pt.productcategory?.slug,
     });
 
     const updated = await prisma.producttype.update({
       where: { id: typeId },
-      data: { coverImage: publicUrl },
+      data: { coverImage: secureUrl },
       select: {
         id: true,
         name: true,

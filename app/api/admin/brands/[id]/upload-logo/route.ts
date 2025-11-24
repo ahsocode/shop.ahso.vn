@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
-import { uploadImageToDriveWebp, ensureBrandFolder } from "@/lib/drive";
+import { uploadBrandLogoToCloudinary } from "@/lib/cloudinary";
 
 export const runtime = "nodejs";
 
@@ -35,19 +35,14 @@ export async function POST(
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const folderId = await ensureBrandFolder(id);
-
-    const { publicUrl } = await uploadImageToDriveWebp({
+    const { secureUrl } = await uploadBrandLogoToCloudinary({
       buffer,
-      originalName: file.name,
-      parentFolderId: folderId,
+      brandId: id,
     });
-
-    // nếu muốn xoá logo cũ trên Drive (nếu biết fileId) thì ở đây xử lý thêm
 
     const updated = await prisma.brand.update({
       where: { id },
-      data: { logoUrl: publicUrl, updatedAt: new Date() },
+      data: { logoUrl: secureUrl, updatedAt: new Date() },
     });
 
     return NextResponse.json({ success: true, data: updated });

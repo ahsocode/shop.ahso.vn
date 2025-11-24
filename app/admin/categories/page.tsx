@@ -1,7 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { getJSON, postJSON, del, patchJSON } from "../_lib/fetcher";
+import { Loader2, Upload, Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { ImageCropDialog } from "@/components/image/image-crop-dialog";
+import { getJSON, postJSON, del, patchJSON, makeHeaders } from "../_lib/fetcher";
 
 type Category = {
   id: string;
@@ -29,6 +33,17 @@ export default function CategoriesPage() {
   const [reloadToken, setReloadToken] = useState(0);
   const [editing, setEditing] = useState<Category | null>(null);
   const [editForm, setEditForm] = useState({ name: "", slug: "", coverImage: "", description: "" });
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createStatus, setCreateStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const coverFileRef = useRef<File | null>(null);
+  const coverInputRef = useRef<HTMLInputElement | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [coverCropOpen, setCoverCropOpen] = useState(false);
+  const [coverCropSource, setCoverCropSource] = useState<{
+    url: string;
+    fileName: string;
+    revokeOnClose: boolean;
+  } | null>(null);
 
   const triggerReload = () => setReloadToken((token) => token + 1);
 
@@ -69,6 +84,100 @@ export default function CategoriesPage() {
       triggerReload();
     } else {
       setSearchQuery(term);
+    }
+  };
+
+  const revokePreview = (url: string | null) => {
+    if (url && url.startsWith("blob:")) {
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const handleSelectCover = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (coverInputRef.current) {
+      coverInputRef.current.value = "";
+    }
+    const objectUrl = URL.createObjectURL(file);
+    setCoverCropSource((prev) => {
+      if (prev?.revokeOnClose && prev.url) {
+        URL.revokeObjectURL(prev.url);
+      }
+      return { url: objectUrl, fileName: file.name, revokeOnClose: true };
+    });
+    setCoverCropOpen(true);
+  };
+
+  const handleCoverCropped = (result: { file: File; previewUrl: string }) => {
+    revokePreview(coverPreview);
+    coverFileRef.current = result.file;
+    setCoverPreview(result.previewUrl);
+    setCoverCropSource({ url: result.previewUrl, fileName: result.file.name, revokeOnClose: false });
+    setCoverCropOpen(false);
+  };
+
+  const clearCoverSelection = () => {
+    coverFileRef.current = null;
+    revokePreview(coverPreview);
+    setCoverPreview(null);
+    if (coverCropSource?.revokeOnClose && coverCropSource.url) {
+      URL.revokeObjectURL(coverCropSource.url);
+    }
+    setCoverCropSource(null);
+  };
+
+  const handleCoverDialogOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      setCoverCropOpen(false);
+      setCoverCropSource((prev) => {
+        if (prev?.revokeOnClose && prev.url) {
+          URL.revokeObjectURL(prev.url);
+          return null;
+        }
+        return prev;
+      });
+    } else if (coverCropSource) {
+      setCoverCropOpen(true);
+    }
+  };
+
+  const handleCreateCategory = async () => {
+    if (!form.name.trim()) return;
+    setCreateLoading(true);
+    setCreateStatus(null);
+    try {
+      const payload = {
+        name: form.name.trim(),
+        slug: form.slug.trim() || undefined,
+        description: form.description.trim() || undefined,
+        coverImage: coverFileRef.current ? undefined : form.coverImage.trim() || undefined,
+      };
+      const res = await postJSON<{ data: Category }>("/api/admin/categories", payload);
+      const created = res.data;
+
+      if (coverFileRef.current) {
+        const fd = new FormData();
+        fd.append("file", coverFileRef.current);
+        const uploadRes = await fetch(`/api/admin/categories/${created.id}/upload-cover`, {
+          method: "POST",
+          headers: makeHeaders(),
+          body: fd,
+        });
+        if (!uploadRes.ok) {
+          throw new Error("Upload ảnh nền thất bại");
+        }
+      }
+
+      setForm({ name: "", slug: "", coverImage: "", description: "" });
+      clearCoverSelection();
+      setCreateStatus({ type: "success", message: "Tạo danh mục thành công" });
+      triggerReload();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Không thể tạo danh mục";
+      setCreateStatus({ type: "error", message });
+    } finally {
+      setCreateLoading(false);
     }
   };
 
@@ -125,8 +234,17 @@ export default function CategoriesPage() {
                   <button onClick={()=>openEdit(r)} className="text-blue-600 hover:underline">Sửa</button>
                   <button
                     onClick={async () => {
-                      await del(`/api/admin/categories/${r.id}`);
-                      triggerReload();
+                      try {
+                        await del(`/api/admin/categories/${r.id}`);
+                        toast.success("Đã xóa danh mục");
+                        triggerReload();
+                      } catch (error) {
+                        const message =
+                          error instanceof Error
+                            ? extractErrorMessage(error)
+                            : "Không thể xóa danh mục";
+                        toast.error(message);
+                      }
                     }}
                     className="text-red-600"
                   >
@@ -140,44 +258,145 @@ export default function CategoriesPage() {
         </table>
       </div>
 
-      <div className="rounded border bg-white p-4 space-y-4">
-        <div className="font-semibold text-lg">Tạo danh mục</div>
-        <div className="grid sm:grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Tên danh mục *</label>
-            <input className="border rounded px-3 py-2" placeholder="Ví dụ: Máy móc" value={form.name} onChange={e=>setForm({...form, name:e.target.value})}/>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Slug (tùy chọn)</label>
-            <input className="border rounded px-3 py-2" placeholder="Tự tạo nếu bỏ trống" value={form.slug} onChange={e=>setForm({...form, slug:e.target.value})}/>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Ảnh nền</label>
-            <input className="border rounded px-3 py-2" placeholder="https://..." value={form.coverImage} onChange={e=>setForm({...form, coverImage:e.target.value})}/>
-          </div>
-          <div className="space-y-2 sm:col-span-2">
-            <label className="text-sm font-medium text-gray-700">Mô tả</label>
-            <textarea className="border rounded px-3 py-2 min-h-[120px]" placeholder="Mô tả ngắn về danh mục" value={form.description} onChange={e=>setForm({...form, description:e.target.value})}/>
+      <div className="rounded-2xl border bg-white shadow-sm">
+        <div className="border-b px-6 py-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
+            Bộ sưu tập
+          </p>
+          <div className="mt-1 flex flex-col gap-1">
+            <h3 className="text-xl font-semibold">Tạo danh mục sản phẩm</h3>
+            <p className="text-sm text-gray-500">Thêm mô tả, ảnh nền để trang danh mục hấp dẫn hơn.</p>
           </div>
         </div>
-        {form.coverImage && (
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">Xem thử ảnh:</span>
-            <div className="relative w-24 h-24 border rounded bg-white overflow-hidden">
-              <Image src={form.coverImage} alt="Category preview" fill className="object-cover" />
+        <div className="grid gap-8 px-6 py-6 lg:grid-cols-3">
+          <div className="space-y-4 lg:col-span-2">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-gray-800">
+                Tên danh mục <span className="text-red-500">*</span>
+              </label>
+              <input
+                className="w-full rounded-lg border px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                placeholder="Ví dụ: Máy nén khí"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-gray-800">Slug (tùy chọn)</label>
+                <input
+                  className="w-full rounded-lg border px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                  placeholder="Tự tạo nếu bỏ trống"
+                  value={form.slug}
+                  onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-gray-800">Ảnh nền (URL tùy chọn)</label>
+                <input
+                  className="w-full rounded-lg border px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                  placeholder="Dán URL đã có nếu muốn"
+                  value={form.coverImage}
+                  onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-gray-800">Mô tả</label>
+              <textarea
+                className="w-full rounded-lg border px-3 py-2 text-sm min-h-[140px] focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                placeholder="Giới thiệu danh mục, dòng sản phẩm..."
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+              />
             </div>
           </div>
-        )}
-        <button onClick={async()=>{
-          await postJSON("/api/admin/categories", {
-            name: form.name,
-            slug: form.slug || undefined,
-            coverImage: form.coverImage || undefined,
-            description: form.description || undefined,
-          });
-          setForm({ name:"", slug:"", coverImage:"", description:"" });
-          triggerReload();
-        }} className="px-3 py-2 rounded bg-green-600 text-white disabled:opacity-50" disabled={!form.name.trim()}>Tạo</button>
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-gray-800">Ảnh nền tải lên</label>
+            <p className="text-xs text-gray-500">
+              Nên dùng tỉ lệ 16:9 và ảnh chất lượng cao. Hệ thống sẽ tự chuyển sang WebP.
+            </p>
+            <div className="flex gap-4">
+              <div className="relative h-28 w-48 overflow-hidden rounded-xl border bg-gray-50">
+                {coverPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={coverPreview} alt="Cover preview" className="h-full w-full object-cover" />
+                ) : form.coverImage ? (
+                  <Image src={form.coverImage} alt="Cover preview" fill sizes="192px" className="object-cover" />
+                ) : (
+                  <div className="flex h-full w-full flex-col items-center justify-center text-xs text-gray-400">
+                    <Upload className="h-6 w-6" />
+                    <span>Chưa có ảnh</span>
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => coverInputRef.current?.click()}
+                  className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white shadow hover:bg-emerald-700"
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Chọn ảnh
+                </button>
+                <button
+                  type="button"
+                  disabled={!coverPreview}
+                  onClick={() => {
+                    if (!coverPreview) return;
+                    setCoverCropSource({
+                      url: coverPreview,
+                      fileName: "category-cover.webp",
+                      revokeOnClose: false,
+                    });
+                    setCoverCropOpen(true);
+                  }}
+                  className="inline-flex items-center rounded-lg border px-3 py-2 text-sm font-medium text-gray-700 transition disabled:opacity-50"
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Chỉnh sửa
+                </button>
+                <button
+                  type="button"
+                  disabled={!coverPreview}
+                  onClick={clearCoverSelection}
+                  className="inline-flex items-center rounded-lg border px-3 py-2 text-sm font-medium text-gray-700 transition disabled:opacity-50"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Xoá ảnh
+                </button>
+                <input
+                  ref={coverInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleSelectCover}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t bg-gray-50 px-6 py-4">
+          {createStatus ? (
+            <div
+              className={`text-sm ${
+                createStatus.type === "success" ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {createStatus.message}
+            </div>
+          ) : (
+            <div className="text-sm text-gray-500">Ảnh tải lên được lưu tại Cloudinary với preset danh mục.</div>
+          )}
+          <button
+            onClick={handleCreateCategory}
+            disabled={!form.name.trim() || createLoading}
+            className="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 disabled:opacity-60"
+          >
+            {createLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Lưu danh mục
+          </button>
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
@@ -219,6 +438,30 @@ export default function CategoriesPage() {
           </div>
         </div>
       )}
+
+      <ImageCropDialog
+        open={coverCropOpen && Boolean(coverCropSource?.url)}
+        imageSrc={coverCropSource?.url ?? null}
+        fileName={coverCropSource?.fileName}
+        aspectRatio={16 / 9}
+        onOpenChange={handleCoverDialogOpenChange}
+        onComplete={handleCoverCropped}
+      />
     </div>
   );
+}
+
+function extractErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    try {
+      const parsed = JSON.parse(error.message);
+      if (parsed && typeof parsed.error === "string") {
+        return parsed.error;
+      }
+    } catch {
+      // ignore
+    }
+    return error.message || "Đã có lỗi xảy ra";
+  }
+  return "Đã có lỗi xảy ra";
 }
