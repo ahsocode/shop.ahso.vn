@@ -354,7 +354,6 @@ export type supplierOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   product?: Prisma.productOrderByRelationAggregateInput
-  _relevance?: Prisma.supplierOrderByRelevanceInput
 }
 
 export type supplierWhereUniqueInput = Prisma.AtLeast<{
@@ -581,12 +580,6 @@ export type supplierUncheckedUpdateManyInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type supplierOrderByRelevanceInput = {
-  fields: Prisma.supplierOrderByRelevanceFieldEnum | Prisma.supplierOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type supplierCountOrderByAggregateInput = {
@@ -857,7 +850,47 @@ export type supplierSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   _count?: boolean | Prisma.SupplierCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["supplier"]>
 
+export type supplierSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  name?: boolean
+  slug?: boolean
+  code?: boolean
+  contactPerson?: boolean
+  email?: boolean
+  phone?: boolean
+  address?: boolean
+  taxCode?: boolean
+  paymentTerms?: boolean
+  minOrderValue?: boolean
+  shippingFee?: boolean
+  rating?: boolean
+  totalOrders?: boolean
+  notes?: boolean
+  isActive?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+}, ExtArgs["result"]["supplier"]>
 
+export type supplierSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  name?: boolean
+  slug?: boolean
+  code?: boolean
+  contactPerson?: boolean
+  email?: boolean
+  phone?: boolean
+  address?: boolean
+  taxCode?: boolean
+  paymentTerms?: boolean
+  minOrderValue?: boolean
+  shippingFee?: boolean
+  rating?: boolean
+  totalOrders?: boolean
+  notes?: boolean
+  isActive?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+}, ExtArgs["result"]["supplier"]>
 
 export type supplierSelectScalar = {
   id?: boolean
@@ -885,6 +918,8 @@ export type supplierInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   product?: boolean | Prisma.supplier$productArgs<ExtArgs>
   _count?: boolean | Prisma.SupplierCountOutputTypeDefaultArgs<ExtArgs>
 }
+export type supplierIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type supplierIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $supplierPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "supplier"
@@ -1028,6 +1063,30 @@ export interface supplierDelegate<ExtArgs extends runtime.Types.Extensions.Inter
   createMany<T extends supplierCreateManyArgs>(args?: Prisma.SelectSubset<T, supplierCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
+   * Create many Suppliers and returns the data saved in the database.
+   * @param {supplierCreateManyAndReturnArgs} args - Arguments to create many Suppliers.
+   * @example
+   * // Create many Suppliers
+   * const supplier = await prisma.supplier.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Suppliers and only return the `id`
+   * const supplierWithIdOnly = await prisma.supplier.createManyAndReturn({
+   *   select: { id: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends supplierCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, supplierCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$supplierPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a Supplier.
    * @param {supplierDeleteArgs} args - Arguments to delete one Supplier.
    * @example
@@ -1090,6 +1149,36 @@ export interface supplierDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * 
    */
   updateMany<T extends supplierUpdateManyArgs>(args: Prisma.SelectSubset<T, supplierUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Update zero or more Suppliers and returns the data updated in the database.
+   * @param {supplierUpdateManyAndReturnArgs} args - Arguments to update many Suppliers.
+   * @example
+   * // Update many Suppliers
+   * const supplier = await prisma.supplier.updateManyAndReturn({
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Update zero or more Suppliers and only return the `id`
+   * const supplierWithIdOnly = await prisma.supplier.updateManyAndReturn({
+   *   select: { id: true },
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  updateManyAndReturn<T extends supplierUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, supplierUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$supplierPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
    * Create or update one Supplier.
@@ -1531,6 +1620,25 @@ export type supplierCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
+ * supplier createManyAndReturn
+ */
+export type supplierCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the supplier
+   */
+  select?: Prisma.supplierSelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the supplier
+   */
+  omit?: Prisma.supplierOmit<ExtArgs> | null
+  /**
+   * The data used to create many suppliers.
+   */
+  data: Prisma.supplierCreateManyInput | Prisma.supplierCreateManyInput[]
+  skipDuplicates?: boolean
+}
+
+/**
  * supplier update
  */
 export type supplierUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1560,6 +1668,32 @@ export type supplierUpdateArgs<ExtArgs extends runtime.Types.Extensions.Internal
  * supplier updateMany
  */
 export type supplierUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The data used to update suppliers.
+   */
+  data: Prisma.XOR<Prisma.supplierUpdateManyMutationInput, Prisma.supplierUncheckedUpdateManyInput>
+  /**
+   * Filter which suppliers to update
+   */
+  where?: Prisma.supplierWhereInput
+  /**
+   * Limit how many suppliers to update.
+   */
+  limit?: number
+}
+
+/**
+ * supplier updateManyAndReturn
+ */
+export type supplierUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the supplier
+   */
+  select?: Prisma.supplierSelectUpdateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the supplier
+   */
+  omit?: Prisma.supplierOmit<ExtArgs> | null
   /**
    * The data used to update suppliers.
    */

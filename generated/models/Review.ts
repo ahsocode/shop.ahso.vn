@@ -265,7 +265,6 @@ export type reviewOrderByWithRelationInput = {
   product?: Prisma.productOrderByWithRelationInput
   user?: Prisma.userOrderByWithRelationInput
   reviewimage?: Prisma.reviewimageOrderByRelationAggregateInput
-  _relevance?: Prisma.reviewOrderByRelevanceInput
 }
 
 export type reviewWhereUniqueInput = Prisma.AtLeast<{
@@ -412,12 +411,6 @@ export type ReviewListRelationFilter = {
 
 export type reviewOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type reviewOrderByRelevanceInput = {
-  fields: Prisma.reviewOrderByRelevanceFieldEnum | Prisma.reviewOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type reviewCountOrderByAggregateInput = {
@@ -885,7 +878,33 @@ export type reviewSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   _count?: boolean | Prisma.ReviewCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["review"]>
 
+export type reviewSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  productId?: boolean
+  userId?: boolean
+  rating?: boolean
+  feedback?: boolean
+  description?: boolean
+  reply?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  product?: boolean | Prisma.productDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.review$userArgs<ExtArgs>
+}, ExtArgs["result"]["review"]>
 
+export type reviewSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  productId?: boolean
+  userId?: boolean
+  rating?: boolean
+  feedback?: boolean
+  description?: boolean
+  reply?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  product?: boolean | Prisma.productDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.review$userArgs<ExtArgs>
+}, ExtArgs["result"]["review"]>
 
 export type reviewSelectScalar = {
   id?: boolean
@@ -905,6 +924,14 @@ export type reviewInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   user?: boolean | Prisma.review$userArgs<ExtArgs>
   reviewimage?: boolean | Prisma.review$reviewimageArgs<ExtArgs>
   _count?: boolean | Prisma.ReviewCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type reviewIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  product?: boolean | Prisma.productDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.review$userArgs<ExtArgs>
+}
+export type reviewIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  product?: boolean | Prisma.productDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.review$userArgs<ExtArgs>
 }
 
 export type $reviewPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1042,6 +1069,30 @@ export interface reviewDelegate<ExtArgs extends runtime.Types.Extensions.Interna
   createMany<T extends reviewCreateManyArgs>(args?: Prisma.SelectSubset<T, reviewCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
+   * Create many Reviews and returns the data saved in the database.
+   * @param {reviewCreateManyAndReturnArgs} args - Arguments to create many Reviews.
+   * @example
+   * // Create many Reviews
+   * const review = await prisma.review.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Reviews and only return the `id`
+   * const reviewWithIdOnly = await prisma.review.createManyAndReturn({
+   *   select: { id: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends reviewCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, reviewCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$reviewPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a Review.
    * @param {reviewDeleteArgs} args - Arguments to delete one Review.
    * @example
@@ -1104,6 +1155,36 @@ export interface reviewDelegate<ExtArgs extends runtime.Types.Extensions.Interna
    * 
    */
   updateMany<T extends reviewUpdateManyArgs>(args: Prisma.SelectSubset<T, reviewUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Update zero or more Reviews and returns the data updated in the database.
+   * @param {reviewUpdateManyAndReturnArgs} args - Arguments to update many Reviews.
+   * @example
+   * // Update many Reviews
+   * const review = await prisma.review.updateManyAndReturn({
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Update zero or more Reviews and only return the `id`
+   * const reviewWithIdOnly = await prisma.review.updateManyAndReturn({
+   *   select: { id: true },
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  updateManyAndReturn<T extends reviewUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, reviewUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$reviewPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
    * Create or update one Review.
@@ -1538,6 +1619,29 @@ export type reviewCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 /**
+ * review createManyAndReturn
+ */
+export type reviewCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the review
+   */
+  select?: Prisma.reviewSelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the review
+   */
+  omit?: Prisma.reviewOmit<ExtArgs> | null
+  /**
+   * The data used to create many reviews.
+   */
+  data: Prisma.reviewCreateManyInput | Prisma.reviewCreateManyInput[]
+  skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.reviewIncludeCreateManyAndReturn<ExtArgs> | null
+}
+
+/**
  * review update
  */
 export type reviewUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1579,6 +1683,36 @@ export type reviewUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Limit how many reviews to update.
    */
   limit?: number
+}
+
+/**
+ * review updateManyAndReturn
+ */
+export type reviewUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the review
+   */
+  select?: Prisma.reviewSelectUpdateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the review
+   */
+  omit?: Prisma.reviewOmit<ExtArgs> | null
+  /**
+   * The data used to update reviews.
+   */
+  data: Prisma.XOR<Prisma.reviewUpdateManyMutationInput, Prisma.reviewUncheckedUpdateManyInput>
+  /**
+   * Filter which reviews to update
+   */
+  where?: Prisma.reviewWhereInput
+  /**
+   * Limit how many reviews to update.
+   */
+  limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.reviewIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

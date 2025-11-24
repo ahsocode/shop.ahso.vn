@@ -481,7 +481,6 @@ export type orderOrderByWithRelationInput = {
   user?: Prisma.userOrderByWithRelationInput
   orderitem?: Prisma.orderitemOrderByRelationAggregateInput
   payment?: Prisma.paymentOrderByWithRelationInput
-  _relevance?: Prisma.orderOrderByRelevanceInput
 }
 
 export type orderWhereUniqueInput = Prisma.AtLeast<{
@@ -853,12 +852,6 @@ export type OrderListRelationFilter = {
 
 export type orderOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type orderOrderByRelevanceInput = {
-  fields: Prisma.orderOrderByRelevanceFieldEnum | Prisma.orderOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type orderCountOrderByAggregateInput = {
@@ -1983,7 +1976,77 @@ export type orderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   _count?: boolean | Prisma.OrderCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["order"]>
 
+export type orderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  code?: boolean
+  status?: boolean
+  shippingMethod?: boolean
+  shippingFee?: boolean
+  note?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  addressId?: boolean
+  userId?: boolean
+  billingCity?: boolean
+  billingCountry?: boolean
+  billingLine1?: boolean
+  billingLine2?: boolean
+  billingPostalCode?: boolean
+  billingState?: boolean
+  currency?: boolean
+  customerEmail?: boolean
+  customerFullName?: boolean
+  customerPhone?: boolean
+  customerTaxCode?: boolean
+  discountTotal?: boolean
+  grandTotal?: boolean
+  shippingCity?: boolean
+  shippingCountry?: boolean
+  shippingLine1?: boolean
+  shippingLine2?: boolean
+  shippingPostalCode?: boolean
+  shippingState?: boolean
+  subtotal?: boolean
+  taxTotal?: boolean
+  address?: boolean | Prisma.order$addressArgs<ExtArgs>
+  user?: boolean | Prisma.order$userArgs<ExtArgs>
+}, ExtArgs["result"]["order"]>
 
+export type orderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  code?: boolean
+  status?: boolean
+  shippingMethod?: boolean
+  shippingFee?: boolean
+  note?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  addressId?: boolean
+  userId?: boolean
+  billingCity?: boolean
+  billingCountry?: boolean
+  billingLine1?: boolean
+  billingLine2?: boolean
+  billingPostalCode?: boolean
+  billingState?: boolean
+  currency?: boolean
+  customerEmail?: boolean
+  customerFullName?: boolean
+  customerPhone?: boolean
+  customerTaxCode?: boolean
+  discountTotal?: boolean
+  grandTotal?: boolean
+  shippingCity?: boolean
+  shippingCountry?: boolean
+  shippingLine1?: boolean
+  shippingLine2?: boolean
+  shippingPostalCode?: boolean
+  shippingState?: boolean
+  subtotal?: boolean
+  taxTotal?: boolean
+  address?: boolean | Prisma.order$addressArgs<ExtArgs>
+  user?: boolean | Prisma.order$userArgs<ExtArgs>
+}, ExtArgs["result"]["order"]>
 
 export type orderSelectScalar = {
   id?: boolean
@@ -2026,6 +2089,14 @@ export type orderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   orderitem?: boolean | Prisma.order$orderitemArgs<ExtArgs>
   payment?: boolean | Prisma.order$paymentArgs<ExtArgs>
   _count?: boolean | Prisma.OrderCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type orderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  address?: boolean | Prisma.order$addressArgs<ExtArgs>
+  user?: boolean | Prisma.order$userArgs<ExtArgs>
+}
+export type orderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  address?: boolean | Prisma.order$addressArgs<ExtArgs>
+  user?: boolean | Prisma.order$userArgs<ExtArgs>
 }
 
 export type $orderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2186,6 +2257,30 @@ export interface orderDelegate<ExtArgs extends runtime.Types.Extensions.Internal
   createMany<T extends orderCreateManyArgs>(args?: Prisma.SelectSubset<T, orderCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
+   * Create many Orders and returns the data saved in the database.
+   * @param {orderCreateManyAndReturnArgs} args - Arguments to create many Orders.
+   * @example
+   * // Create many Orders
+   * const order = await prisma.order.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Orders and only return the `id`
+   * const orderWithIdOnly = await prisma.order.createManyAndReturn({
+   *   select: { id: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends orderCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, orderCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$orderPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a Order.
    * @param {orderDeleteArgs} args - Arguments to delete one Order.
    * @example
@@ -2248,6 +2343,36 @@ export interface orderDelegate<ExtArgs extends runtime.Types.Extensions.Internal
    * 
    */
   updateMany<T extends orderUpdateManyArgs>(args: Prisma.SelectSubset<T, orderUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Update zero or more Orders and returns the data updated in the database.
+   * @param {orderUpdateManyAndReturnArgs} args - Arguments to update many Orders.
+   * @example
+   * // Update many Orders
+   * const order = await prisma.order.updateManyAndReturn({
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Update zero or more Orders and only return the `id`
+   * const orderWithIdOnly = await prisma.order.updateManyAndReturn({
+   *   select: { id: true },
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  updateManyAndReturn<T extends orderUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, orderUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$orderPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
    * Create or update one Order.
@@ -2705,6 +2830,29 @@ export type orderCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
 }
 
 /**
+ * order createManyAndReturn
+ */
+export type orderCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the order
+   */
+  select?: Prisma.orderSelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the order
+   */
+  omit?: Prisma.orderOmit<ExtArgs> | null
+  /**
+   * The data used to create many orders.
+   */
+  data: Prisma.orderCreateManyInput | Prisma.orderCreateManyInput[]
+  skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.orderIncludeCreateManyAndReturn<ExtArgs> | null
+}
+
+/**
  * order update
  */
 export type orderUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2746,6 +2894,36 @@ export type orderUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Limit how many orders to update.
    */
   limit?: number
+}
+
+/**
+ * order updateManyAndReturn
+ */
+export type orderUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the order
+   */
+  select?: Prisma.orderSelectUpdateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the order
+   */
+  omit?: Prisma.orderOmit<ExtArgs> | null
+  /**
+   * The data used to update orders.
+   */
+  data: Prisma.XOR<Prisma.orderUpdateManyMutationInput, Prisma.orderUncheckedUpdateManyInput>
+  /**
+   * Filter which orders to update
+   */
+  where?: Prisma.orderWhereInput
+  /**
+   * Limit how many orders to update.
+   */
+  limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.orderIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

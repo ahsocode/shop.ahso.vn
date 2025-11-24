@@ -254,7 +254,6 @@ export type unitdefinitionOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   product_product_quantityUnitIdTounitdefinition?: Prisma.productOrderByRelationAggregateInput
   product_product_unitIdTounitdefinition?: Prisma.productOrderByRelationAggregateInput
-  _relevance?: Prisma.unitdefinitionOrderByRelevanceInput
 }
 
 export type unitdefinitionWhereUniqueInput = Prisma.AtLeast<{
@@ -391,12 +390,6 @@ export type unitdefinitionUncheckedUpdateManyInput = {
 export type UnitdefinitionNullableScalarRelationFilter = {
   is?: Prisma.unitdefinitionWhereInput | null
   isNot?: Prisma.unitdefinitionWhereInput | null
-}
-
-export type unitdefinitionOrderByRelevanceInput = {
-  fields: Prisma.unitdefinitionOrderByRelevanceFieldEnum | Prisma.unitdefinitionOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type unitdefinitionCountOrderByAggregateInput = {
@@ -654,7 +647,27 @@ export type unitdefinitionSelect<ExtArgs extends runtime.Types.Extensions.Intern
   _count?: boolean | Prisma.UnitdefinitionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["unitdefinition"]>
 
+export type unitdefinitionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  name?: boolean
+  symbol?: boolean
+  dimension?: boolean
+  baseName?: boolean
+  factorToBase?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+}, ExtArgs["result"]["unitdefinition"]>
 
+export type unitdefinitionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  name?: boolean
+  symbol?: boolean
+  dimension?: boolean
+  baseName?: boolean
+  factorToBase?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+}, ExtArgs["result"]["unitdefinition"]>
 
 export type unitdefinitionSelectScalar = {
   id?: boolean
@@ -673,6 +686,8 @@ export type unitdefinitionInclude<ExtArgs extends runtime.Types.Extensions.Inter
   product_product_unitIdTounitdefinition?: boolean | Prisma.unitdefinition$product_product_unitIdTounitdefinitionArgs<ExtArgs>
   _count?: boolean | Prisma.UnitdefinitionCountOutputTypeDefaultArgs<ExtArgs>
 }
+export type unitdefinitionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type unitdefinitionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $unitdefinitionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "unitdefinition"
@@ -807,6 +822,30 @@ export interface unitdefinitionDelegate<ExtArgs extends runtime.Types.Extensions
   createMany<T extends unitdefinitionCreateManyArgs>(args?: Prisma.SelectSubset<T, unitdefinitionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
+   * Create many Unitdefinitions and returns the data saved in the database.
+   * @param {unitdefinitionCreateManyAndReturnArgs} args - Arguments to create many Unitdefinitions.
+   * @example
+   * // Create many Unitdefinitions
+   * const unitdefinition = await prisma.unitdefinition.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Unitdefinitions and only return the `id`
+   * const unitdefinitionWithIdOnly = await prisma.unitdefinition.createManyAndReturn({
+   *   select: { id: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends unitdefinitionCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, unitdefinitionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$unitdefinitionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a Unitdefinition.
    * @param {unitdefinitionDeleteArgs} args - Arguments to delete one Unitdefinition.
    * @example
@@ -869,6 +908,36 @@ export interface unitdefinitionDelegate<ExtArgs extends runtime.Types.Extensions
    * 
    */
   updateMany<T extends unitdefinitionUpdateManyArgs>(args: Prisma.SelectSubset<T, unitdefinitionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Update zero or more Unitdefinitions and returns the data updated in the database.
+   * @param {unitdefinitionUpdateManyAndReturnArgs} args - Arguments to update many Unitdefinitions.
+   * @example
+   * // Update many Unitdefinitions
+   * const unitdefinition = await prisma.unitdefinition.updateManyAndReturn({
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Update zero or more Unitdefinitions and only return the `id`
+   * const unitdefinitionWithIdOnly = await prisma.unitdefinition.updateManyAndReturn({
+   *   select: { id: true },
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  updateManyAndReturn<T extends unitdefinitionUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, unitdefinitionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$unitdefinitionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
    * Create or update one Unitdefinition.
@@ -1301,6 +1370,25 @@ export type unitdefinitionCreateManyArgs<ExtArgs extends runtime.Types.Extension
 }
 
 /**
+ * unitdefinition createManyAndReturn
+ */
+export type unitdefinitionCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the unitdefinition
+   */
+  select?: Prisma.unitdefinitionSelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the unitdefinition
+   */
+  omit?: Prisma.unitdefinitionOmit<ExtArgs> | null
+  /**
+   * The data used to create many unitdefinitions.
+   */
+  data: Prisma.unitdefinitionCreateManyInput | Prisma.unitdefinitionCreateManyInput[]
+  skipDuplicates?: boolean
+}
+
+/**
  * unitdefinition update
  */
 export type unitdefinitionUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1330,6 +1418,32 @@ export type unitdefinitionUpdateArgs<ExtArgs extends runtime.Types.Extensions.In
  * unitdefinition updateMany
  */
 export type unitdefinitionUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The data used to update unitdefinitions.
+   */
+  data: Prisma.XOR<Prisma.unitdefinitionUpdateManyMutationInput, Prisma.unitdefinitionUncheckedUpdateManyInput>
+  /**
+   * Filter which unitdefinitions to update
+   */
+  where?: Prisma.unitdefinitionWhereInput
+  /**
+   * Limit how many unitdefinitions to update.
+   */
+  limit?: number
+}
+
+/**
+ * unitdefinition updateManyAndReturn
+ */
+export type unitdefinitionUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the unitdefinition
+   */
+  select?: Prisma.unitdefinitionSelectUpdateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the unitdefinition
+   */
+  omit?: Prisma.unitdefinitionOmit<ExtArgs> | null
   /**
    * The data used to update unitdefinitions.
    */

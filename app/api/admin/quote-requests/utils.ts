@@ -105,18 +105,37 @@ export const quoteRequestSelect = {
   },
 } as const satisfies Prisma.quoterequestSelect;
 
-export type QuoteRequestRow = Prisma.quoterequestGetPayload<{ select: typeof quoteRequestSelect }>;
+export type QuoteRequestRow = Prisma.quoterequestGetPayload<{
+  select: typeof quoteRequestSelect;
+}>;
 
+type QuoteRequestProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  sku: string | null;
+  price: Prisma.Decimal | number;
+  currency: string;
+  coverImage: string | null;
+};
 export const mapQuoteRequestRow = (row: QuoteRequestRow) => {
   const { product, quotedPrice, quotedTotal, ...rest } = row;
+
+  const p = product as QuoteRequestProduct | null; // 👈 ép kiểu rõ ràng
+
   return {
     ...rest,
     quotedPrice: quotedPrice !== null ? Number(quotedPrice) : null,
     quotedTotal: quotedTotal !== null ? Number(quotedTotal) : null,
-    product: product
+    product: p
       ? {
-          ...product,
-          price: Number(product.price),
+          id: p.id,
+          name: p.name,
+          slug: p.slug,
+          sku: p.sku,
+          currency: p.currency,
+          coverImage: p.coverImage,
+          price: Number(p.price),
         }
       : null,
   };

@@ -15,7 +15,7 @@ function getTokenFromReq(req: Request): string | null {
   return cookieMatch ? decodeURIComponent(cookieMatch[1]) : null;
 }
 
-async function getUserIdFromReq(req: Request) {
+export async function getUserIdFromReq(req: Request) {
   const token = getTokenFromReq(req);
   if (!token) return null;
   const secret = process.env.JWT_SECRET;

@@ -1,7 +1,6 @@
 // app/order/[orderId]/page.tsx
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { headers } from "next/headers";
 
 import {
   Package,
@@ -59,8 +58,13 @@ export default async function OrderDetailPage(props: {
     redirect(`/login?redirect=/order/${orderId}`);
   }
 
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXTAUTH_URL ||
+    "http://localhost:3000";
+
   // ✅ Fetch với Authorization header
-  const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/orders/${orderId}`, {
+  const res = await fetch(new URL(`/api/orders/${orderId}`, baseUrl).toString(), {
     cache: "no-store",
     headers: {
       "Authorization": `Bearer ${authToken}`,

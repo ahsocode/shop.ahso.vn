@@ -123,7 +123,7 @@ export default function ContactRequestsPage() {
     return () => {
       ignore = true;
     };
-  }, [page, pageSize, filters, reloadToken]);
+  }, [page, pageSize, filters, reloadToken, selected?.id]);
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total, pageSize]);
 
