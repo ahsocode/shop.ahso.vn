@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, use, useCallback } from "react";
+import { useEffect, useState, use, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { getJSON, patchJSON, del } from "../../_lib/fetcher";
+import { ImageCropDialog } from "@/components/image/image-crop-dialog";
+import { getJSON, patchJSON, del, makeHeaders } from "../../_lib/fetcher";
 
 type Option = { id: string; name: string };
 
@@ -186,8 +187,24 @@ export default function AdminProductDetail({
     sortOrder: string;
   };
 
-  const [imageList, setImageList] = useState<EditableImage[]>([]);
-  const [specList, setSpecList] = useState<EditableSpec[]>([]);
+const [imageList, setImageList] = useState<EditableImage[]>([]);
+const [specList, setSpecList] = useState<EditableSpec[]>([]);
+  const coverFileInputRef = useRef<HTMLInputElement | null>(null);
+  const galleryFileInputRef = useRef<HTMLInputElement | null>(null);
+  const [coverCropOpen, setCoverCropOpen] = useState(false);
+  const [coverCropSource, setCoverCropSource] = useState<{
+    url: string;
+    fileName: string;
+    revokeOnClose: boolean;
+  } | null>(null);
+  const [coverUploading, setCoverUploading] = useState(false);
+  const [galleryCropOpen, setGalleryCropOpen] = useState(false);
+  const [galleryCropSource, setGalleryCropSource] = useState<{
+    url: string;
+    fileName: string;
+    revokeOnClose: boolean;
+  } | null>(null);
+  const [galleryUploading, setGalleryUploading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -467,6 +484,171 @@ export default function AdminProductDetail({
       ...prev,
       { url: "", alt: "", sortOrder: String(prev.length + 1) },
     ]);
+  };
+
+  const handleCoverUploadClick = () => {
+    coverFileInputRef.current?.click();
+  };
+
+  const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (coverFileInputRef.current) {
+      coverFileInputRef.current.value = "";
+    }
+    const url = URL.createObjectURL(file);
+    setCoverCropSource((prev) => {
+      if (prev?.revokeOnClose && prev.url) {
+        URL.revokeObjectURL(prev.url);
+      }
+      return { url, fileName: file.name, revokeOnClose: true };
+    });
+    setCoverCropOpen(true);
+  };
+
+  const uploadCoverImage = async (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch(`/api/admin/products/${productId}/upload-cover`, {
+      method: "POST",
+      headers: makeHeaders(),
+      body: fd,
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      throw new Error(getErrorMessage(data, "Không thể tải ảnh đại diện"));
+    }
+    const url =
+      data?.data?.coverImage || data?.coverImage || data?.data?.url || "";
+    setMedia({ coverImage: url });
+    toast.success("Đã cập nhật ảnh đại diện");
+  };
+
+  const handleCoverCropComplete = async (result: {
+    file: File;
+    previewUrl: string;
+  }) => {
+    setCoverCropOpen(false);
+    setCoverUploading(true);
+    try {
+      await uploadCoverImage(result.file);
+    } catch (error) {
+      toast.error(extractErrorMessage(error));
+    } finally {
+      URL.revokeObjectURL(result.previewUrl);
+      setCoverCropSource((prev) => {
+        if (prev?.revokeOnClose && prev.url) {
+          URL.revokeObjectURL(prev.url);
+        }
+        return null;
+      });
+      setCoverUploading(false);
+    }
+  };
+
+  const handleGalleryUploadClick = () => {
+    galleryFileInputRef.current?.click();
+  };
+
+  const handleGalleryFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (galleryFileInputRef.current) {
+      galleryFileInputRef.current.value = "";
+    }
+    const url = URL.createObjectURL(file);
+    setGalleryCropSource((prev) => {
+      if (prev?.revokeOnClose && prev.url) {
+        URL.revokeObjectURL(prev.url);
+      }
+      return { url, fileName: file.name, revokeOnClose: true };
+    });
+    setGalleryCropOpen(true);
+  };
+
+  const uploadGalleryImage = async (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch(
+      `/api/admin/products/${productId}/upload-image`,
+      {
+        method: "POST",
+        headers: makeHeaders(),
+        body: fd,
+      },
+    );
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      throw new Error(getErrorMessage(data, "Không thể tải ảnh gallery"));
+    }
+    const created = data?.data;
+    if (created?.url) {
+      setImageList((prev) => [
+        ...prev,
+        {
+          id: created.id,
+          url: created.url,
+          alt: created.alt ?? "",
+          sortOrder:
+            created.sortOrder !== undefined
+              ? String(created.sortOrder)
+              : String(prev.length + 1),
+        },
+      ]);
+    }
+    toast.success("Đã thêm ảnh vào thư viện");
+  };
+
+  const handleGalleryCropComplete = async (result: {
+    file: File;
+    previewUrl: string;
+  }) => {
+    setGalleryCropOpen(false);
+    setGalleryUploading(true);
+    try {
+      await uploadGalleryImage(result.file);
+    } catch (error) {
+      toast.error(extractErrorMessage(error));
+    } finally {
+      URL.revokeObjectURL(result.previewUrl);
+      setGalleryCropSource((prev) => {
+        if (prev?.revokeOnClose && prev.url) {
+          URL.revokeObjectURL(prev.url);
+        }
+        return null;
+      });
+      setGalleryUploading(false);
+    }
+  };
+
+  const handleCoverDialogOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      setCoverCropOpen(false);
+      setCoverCropSource((prev) => {
+        if (prev?.revokeOnClose && prev.url) {
+          URL.revokeObjectURL(prev.url);
+          return null;
+        }
+        return prev;
+      });
+    } else if (coverCropSource) {
+      setCoverCropOpen(true);
+    }
+  };
+
+  const handleGalleryDialogOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      setGalleryCropOpen(false);
+      setGalleryCropSource((prev) => {
+        if (prev?.revokeOnClose && prev.url) {
+          URL.revokeObjectURL(prev.url);
+          return null;
+        }
+        return prev;
+      });
+    } else if (galleryCropSource) {
+      setGalleryCropOpen(true);
+    }
   };
 
   if (loading && !product) {
@@ -1286,14 +1468,40 @@ export default function AdminProductDetail({
               <label className="text-xs font-medium text-gray-700">
                 URL ảnh đại diện
               </label>
-              <input
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                value={media.coverImage}
-                onChange={(e) =>
-                  setMedia({ coverImage: e.target.value })
-                }
-                placeholder="https://..."
-              />
+              <div className="space-y-2">
+                <input
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  value={media.coverImage}
+                  onChange={(e) =>
+                    setMedia({ coverImage: e.target.value })
+                  }
+                  placeholder="https://..."
+                />
+                <div className="flex flex-wrap gap-2 text-xs">
+                  <button
+                    type="button"
+                    onClick={handleCoverUploadClick}
+                    className="inline-flex items-center rounded-md bg-blue-600 px-3 py-1.5 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                    disabled={coverUploading}
+                  >
+                    {coverUploading ? "Đang tải..." : "Tải ảnh"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMedia({ coverImage: "" })}
+                    className="inline-flex items-center rounded-md border border-gray-300 px-3 py-1.5 font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Xoá URL
+                  </button>
+                </div>
+                <input
+                  ref={coverFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleCoverFileChange}
+                />
+              </div>
             </div>
           </div>
 
@@ -1304,6 +1512,14 @@ export default function AdminProductDetail({
                 Thư viện ảnh
               </h2>
               <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleGalleryUploadClick}
+                  className="text-xs rounded-lg border border-blue-200 bg-blue-50 px-2 py-1 font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-60"
+                  disabled={galleryUploading}
+                >
+                  {galleryUploading ? "Đang tải..." : "Tải ảnh"}
+                </button>
                 <button
                   type="button"
                   onClick={addImageRow}
@@ -1332,6 +1548,13 @@ export default function AdminProductDetail({
                   Lưu
                 </button>
               </div>
+              <input
+                ref={galleryFileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleGalleryFileChange}
+              />
             </div>
 
             {imageList.length === 0 && (
@@ -1459,6 +1682,43 @@ export default function AdminProductDetail({
           </div>
         </div>
       </div>
+      <ImageCropDialog
+        open={coverCropOpen && Boolean(coverCropSource?.url)}
+        imageSrc={coverCropSource?.url ?? null}
+        fileName={coverCropSource?.fileName}
+        aspectRatio={4 / 3}
+        onOpenChange={handleCoverDialogOpenChange}
+        onComplete={handleCoverCropComplete}
+      />
+      <ImageCropDialog
+        open={galleryCropOpen && Boolean(galleryCropSource?.url)}
+        imageSrc={galleryCropSource?.url ?? null}
+        fileName={galleryCropSource?.fileName}
+        aspectRatio={4 / 3}
+        onOpenChange={handleGalleryDialogOpenChange}
+        onComplete={handleGalleryCropComplete}
+      />
     </div>
   );
+}
+
+function getErrorMessage(payload: unknown, fallback: string) {
+  if (payload && typeof payload === "object" && "error" in payload) {
+    const value = (payload as { error?: unknown }).error;
+    if (typeof value === "string") return value;
+  }
+  return fallback;
+}
+
+function extractErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    try {
+      const parsed = JSON.parse(error.message);
+      if (parsed && typeof parsed.error === "string") return parsed.error;
+    } catch {
+      // ignore
+    }
+    return error.message || "Đã có lỗi xảy ra";
+  }
+  return "Đã có lỗi xảy ra";
 }

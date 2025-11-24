@@ -7,16 +7,12 @@ type Supplier = {
   id: string;
   name: string;
   slug: string;
-  code: string | null;
   contactPerson: string | null;
   email: string | null;
   phone: string | null;
   address: string | null;
   taxCode: string | null;
   paymentTerms: string | null;
-  minOrderValue: string | number | null;
-  shippingFee: string | number | null;
-  rating: number | null;
   totalOrders: number;
   productCount: number;
   notes: string | null;
@@ -33,15 +29,11 @@ type ListResp = {
 const emptyForm = {
   name: "",
   slug: "",
-  code: "",
   contactPerson: "",
   email: "",
   phone: "",
   address: "",
   paymentTerms: "",
-  minOrderValue: "",
-  shippingFee: "",
-  rating: "",
   notes: "",
   isActive: true,
 };
@@ -97,13 +89,6 @@ export default function SuppliersAdminPage() {
     setSearchQuery(term);
   };
 
-  const parseNumber = (value: string) => {
-    const trimmed = value.trim();
-    if (!trimmed) return undefined;
-    const parsed = Number(trimmed.replace(/,/g, ""));
-    return Number.isFinite(parsed) ? parsed : undefined;
-  };
-
   const buildPayload = (payload: typeof form, opts?: { allowNull?: boolean }) => {
     const allowNull = opts?.allowNull ?? false;
     const result: Record<string, unknown> = {
@@ -112,7 +97,6 @@ export default function SuppliersAdminPage() {
     };
     const optionalFields: Array<[keyof typeof payload, string]> = [
       ["slug", "slug"],
-      ["code", "code"],
       ["contactPerson", "contactPerson"],
       ["email", "email"],
       ["phone", "phone"],
@@ -133,24 +117,6 @@ export default function SuppliersAdminPage() {
         result[name] = raw ?? null;
       }
     });
-    const minOrder = parseNumber(payload.minOrderValue);
-    if (minOrder !== undefined) {
-      result.minOrderValue = minOrder;
-    } else if (allowNull) {
-      result.minOrderValue = null;
-    }
-    const shipFee = parseNumber(payload.shippingFee);
-    if (shipFee !== undefined) {
-      result.shippingFee = shipFee;
-    } else if (allowNull) {
-      result.shippingFee = null;
-    }
-    const rating = parseNumber(payload.rating);
-    if (rating !== undefined) {
-      result.rating = rating;
-    } else if (allowNull) {
-      result.rating = null;
-    }
     return result;
   };
 
@@ -173,15 +139,11 @@ export default function SuppliersAdminPage() {
     setEditForm({
       name: row.name ?? "",
       slug: row.slug ?? "",
-      code: row.code ?? "",
       contactPerson: row.contactPerson ?? "",
       email: row.email ?? "",
       phone: row.phone ?? "",
       address: row.address ?? "",
       paymentTerms: row.paymentTerms ?? "",
-      minOrderValue: row.minOrderValue ? String(row.minOrderValue) : "",
-      shippingFee: row.shippingFee ? String(row.shippingFee) : "",
-      rating: row.rating != null ? String(row.rating) : "",
       notes: row.notes ?? "",
       isActive: row.isActive,
     });
@@ -254,11 +216,9 @@ export default function SuppliersAdminPage() {
             <thead className="bg-gray-50 text-left">
               <tr>
                 <th className="px-3 py-2">Tên</th>
-                <th className="px-3 py-2">Mã</th>
                 <th className="px-3 py-2">Liên hệ</th>
                 <th className="px-3 py-2">Điện thoại</th>
                 <th className="px-3 py-2">Email</th>
-                <th className="px-3 py-2">Đánh giá</th>
                 <th className="px-3 py-2">Đơn hàng</th>
                 <th className="px-3 py-2">SP liên kết</th>
                 <th className="px-3 py-2">Trạng thái</th>
@@ -272,11 +232,9 @@ export default function SuppliersAdminPage() {
                     <div className="font-semibold">{row.name}</div>
                     <div className="text-xs text-gray-500">{row.slug}</div>
                   </td>
-                  <td className="px-3 py-2 text-gray-600">{row.code || "—"}</td>
                   <td className="px-3 py-2 text-gray-700">{row.contactPerson || "—"}</td>
                   <td className="px-3 py-2">{row.phone || "—"}</td>
                   <td className="px-3 py-2">{row.email || "—"}</td>
-                  <td className="px-3 py-2">{row.rating != null ? row.rating.toFixed(1) : "—"}</td>
                   <td className="px-3 py-2">{row.totalOrders}</td>
                   <td className="px-3 py-2">{row.productCount}</td>
                   <td className="px-3 py-2">
@@ -300,7 +258,7 @@ export default function SuppliersAdminPage() {
               ))}
               {!rows.length && !loading && (
                 <tr>
-                  <td className="px-3 py-6 text-center text-gray-500" colSpan={10}>
+                  <td className="px-3 py-6 text-center text-gray-500" colSpan={8}>
                     Không có nhà cung cấp nào
                   </td>
                 </tr>
@@ -385,26 +343,15 @@ function FormFields({ form, setForm }: FormProps) {
           placeholder="Công ty TNHH ..."
         />
       </label>
-      <div className="grid md:grid-cols-2 gap-3">
-        <label className="text-sm font-medium text-gray-700">
-          Slug
-          <input
-            className="mt-1 w-full border rounded px-3 py-2"
-            value={form.slug}
-            onChange={(e) => update("slug", e.target.value)}
-            placeholder="auto nếu trống"
-          />
-        </label>
-        <label className="text-sm font-medium text-gray-700">
-          Mã
-          <input
-            className="mt-1 w-full border rounded px-3 py-2"
-            value={form.code}
-            onChange={(e) => update("code", e.target.value)}
-            placeholder="SUP-001"
-          />
-        </label>
-      </div>
+      <label className="text-sm font-medium text-gray-700">
+        Slug
+        <input
+          className="mt-1 w-full border rounded px-3 py-2"
+          value={form.slug}
+          onChange={(e) => update("slug", e.target.value)}
+          placeholder="auto nếu trống"
+        />
+      </label>
       <div className="grid md:grid-cols-2 gap-3">
         <label className="text-sm font-medium text-gray-700">
           Người liên hệ
@@ -453,35 +400,6 @@ function FormFields({ form, setForm }: FormProps) {
           onChange={(e) => update("address", e.target.value)}
         />
       </label>
-      <div className="grid md:grid-cols-3 gap-3">
-        <label className="text-sm font-medium text-gray-700">
-          Đơn tối thiểu (VND)
-          <input
-            className="mt-1 w-full border rounded px-3 py-2"
-            value={form.minOrderValue}
-            onChange={(e) => update("minOrderValue", e.target.value)}
-            placeholder="1000000"
-          />
-        </label>
-        <label className="text-sm font-medium text-gray-700">
-          Phí ship (VND)
-          <input
-            className="mt-1 w-full border rounded px-3 py-2"
-            value={form.shippingFee}
-            onChange={(e) => update("shippingFee", e.target.value)}
-            placeholder="50000"
-          />
-        </label>
-        <label className="text-sm font-medium text-gray-700">
-          Rating
-          <input
-            className="mt-1 w-full border rounded px-3 py-2"
-            value={form.rating}
-            onChange={(e) => update("rating", e.target.value)}
-            placeholder="0-5"
-          />
-        </label>
-      </div>
       <label className="text-sm font-medium text-gray-700">
         Ghi chú nội bộ
         <textarea

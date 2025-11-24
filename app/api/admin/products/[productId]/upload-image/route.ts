@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
-import { uploadImageToDriveWebp, ensureProductSubFolder } from "@/lib/drive";
+import { uploadProductImageToCloudinary } from "@/lib/cloudinary";
 
 export const runtime = "nodejs"; // cẩn thận để không rơi vào edge
 
@@ -17,7 +17,20 @@ export async function POST(
 
     const { productId } = await ctx.params;
 
-    const product = await prisma.product.findUnique({ where: { id: productId } });
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: {
+        id: true,
+        sku: true,
+        coverImage: true,
+        producttype: {
+          select: {
+            slug: true,
+            productcategory: { select: { slug: true } },
+          },
+        },
+      },
+    });
     if (!product) {
       return NextResponse.json(
         { success: false, error: "productId not found" },
@@ -39,33 +52,33 @@ export async function POST(
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Folder Drive: products/{productId}/images
-    const imagesFolderId = await ensureProductSubFolder(productId, "images");
+    const maxExistingOrder = await prisma.productimage.aggregate({
+      where: { productId },
+      _max: { sortOrder: true },
+    });
+    const nextSortOrder = (maxExistingOrder._max.sortOrder ?? 0) + 1;
 
-    const { publicUrl } = await uploadImageToDriveWebp({
+    const { secureUrl } = await uploadProductImageToCloudinary({
       buffer,
-      originalName: file.name,
-      parentFolderId: imagesFolderId,
+      productId,
+      sku: product.sku,
+      categorySlug: product.producttype?.productcategory?.slug,
+      productTypeSlug: product.producttype?.slug,
+      fileName: file.name,
+      type: "gallery",
+      sequence: nextSortOrder,
     });
 
     const now = new Date();
 
     const createdImage = await prisma.$transaction(async (tx) => {
-      // sortOrder = max + 1
-      const maxOrder = await tx.productimage.aggregate({
-        where: { productId },
-        _max: { sortOrder: true },
-      });
-
-      const sortOrder = (maxOrder._max.sortOrder ?? 0) + 1;
-
       const img = await tx.productimage.create({
         data: {
           id: randomUUID(),
           productId,
-          url: publicUrl,
+          url: secureUrl,
           alt: formData.get("alt")?.toString() ?? null,
-          sortOrder,
+          sortOrder: nextSortOrder,
           createdAt: now,
           updatedAt: now,
         },

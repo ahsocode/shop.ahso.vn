@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { getJSON, postJSON, del, patchJSON } from "../_lib/fetcher";
+import { Loader2, Upload, Pencil, Trash2 } from "lucide-react";
+import { ImageCropDialog } from "@/components/image/image-crop-dialog";
+import { getJSON, postJSON, del, patchJSON, makeHeaders } from "../_lib/fetcher";
 
 type Brand = {
   id: string;
@@ -33,6 +35,17 @@ export default function BrandsPage() {
   const [reloadToken, setReloadToken] = useState(0);
   const [editing, setEditing] = useState<Brand | null>(null);
   const [editForm, setEditForm] = useState({ name: "", slug: "", logoUrl: "", summary: "" });
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createStatus, setCreateStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const logoFileRef = useRef<File | null>(null);
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoCropOpen, setLogoCropOpen] = useState(false);
+  const [logoCropSource, setLogoCropSource] = useState<{
+    url: string;
+    fileName: string;
+    revokeOnClose: boolean;
+  } | null>(null);
 
   const triggerReload = () => setReloadToken((token) => token + 1);
   const openEdit = (row: Brand) => {
@@ -79,6 +92,104 @@ export default function BrandsPage() {
       triggerReload();
     } else {
       setSearchQuery(term);
+    }
+  };
+
+  const revokePreview = (url: string | null) => {
+    if (url && url.startsWith("blob:")) {
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const handleSelectLogo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (logoInputRef.current) {
+      logoInputRef.current.value = "";
+    }
+    const objectUrl = URL.createObjectURL(file);
+    setLogoCropSource((prev) => {
+      if (prev?.revokeOnClose && prev.url) {
+        URL.revokeObjectURL(prev.url);
+      }
+      return { url: objectUrl, fileName: file.name, revokeOnClose: true };
+    });
+    setLogoCropOpen(true);
+  };
+
+  const handleLogoCropped = (result: { file: File; previewUrl: string }) => {
+    revokePreview(logoPreview);
+    logoFileRef.current = result.file;
+    setLogoPreview(result.previewUrl);
+    setLogoCropSource({
+      url: result.previewUrl,
+      fileName: result.file.name,
+      revokeOnClose: false,
+    });
+    setLogoCropOpen(false);
+  };
+
+  const clearLogoSelection = () => {
+    logoFileRef.current = null;
+    revokePreview(logoPreview);
+    setLogoPreview(null);
+    if (logoCropSource?.revokeOnClose && logoCropSource.url) {
+      URL.revokeObjectURL(logoCropSource.url);
+    }
+    setLogoCropSource(null);
+  };
+
+  const handleLogoDialogOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      setLogoCropOpen(false);
+      setLogoCropSource((prev) => {
+        if (prev?.revokeOnClose && prev.url) {
+          URL.revokeObjectURL(prev.url);
+          return null;
+        }
+        return prev;
+      });
+    } else if (logoCropSource) {
+      setLogoCropOpen(true);
+    }
+  };
+
+  const handleCreateBrand = async () => {
+    if (!form.name.trim()) return;
+    setCreateLoading(true);
+    setCreateStatus(null);
+    try {
+      const payload = {
+        name: form.name.trim(),
+        slug: form.slug.trim() || undefined,
+        summary: form.summary.trim() || undefined,
+        logoUrl: logoFileRef.current ? undefined : form.logoUrl.trim() || undefined,
+      };
+      const res = await postJSON<{ data: Brand }>("/api/admin/brands", payload);
+      const created = res.data;
+
+      if (logoFileRef.current) {
+        const fd = new FormData();
+        fd.append("file", logoFileRef.current);
+        const uploadRes = await fetch(`/api/admin/brands/${created.id}/upload-logo`, {
+          method: "POST",
+          headers: makeHeaders(),
+          body: fd,
+        });
+        if (!uploadRes.ok) {
+          throw new Error("Upload logo thất bại");
+        }
+      }
+
+      setForm({ name: "", slug: "", logoUrl: "", summary: "" });
+      clearLogoSelection();
+      setCreateStatus({ type: "success", message: "Tạo thương hiệu thành công" });
+      triggerReload();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Không thể tạo thương hiệu";
+      setCreateStatus({ type: "error", message });
+    } finally {
+      setCreateLoading(false);
     }
   };
 
@@ -174,45 +285,158 @@ export default function BrandsPage() {
         </button>
       </div>
 
-      <div className="rounded border bg-white p-4 space-y-4">
-        <div className="font-semibold text-lg">Tạo thương hiệu</div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Tên thương hiệu *</label>
-            <input className="border rounded px-3 py-2" placeholder="VD: AHSO" value={form.name} onChange={e=>setForm({...form, name:e.target.value})}/>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Slug (tùy chọn)</label>
-            <input className="border rounded px-3 py-2" placeholder="auto tạo nếu bỏ trống" value={form.slug} onChange={e=>setForm({...form, slug:e.target.value})}/>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Logo URL</label>
-            <input className="border rounded px-3 py-2" placeholder="https://..." value={form.logoUrl} onChange={e=>setForm({...form, logoUrl:e.target.value})}/>
-          </div>
-          <div className="space-y-2 md:row-span-2">
-            <label className="text-sm font-medium text-gray-700">Giới thiệu ngắn</label>
-            <textarea className="border rounded px-3 py-2 h-full min-h-[120px]" placeholder="Tóm tắt sản phẩm, lĩnh vực..." value={form.summary} onChange={e=>setForm({...form, summary:e.target.value})}/>
+      <div className="rounded-2xl border bg-white shadow-sm">
+        <div className="border-b px-6 py-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+            Thiết lập nhanh
+          </p>
+          <div className="mt-1 flex flex-col gap-1">
+            <h3 className="text-xl font-semibold">Tạo thương hiệu mới</h3>
+            <p className="text-sm text-gray-500">
+              Thêm tên, mô tả và logo để hiển thị trong trang sản phẩm.
+            </p>
           </div>
         </div>
-        {form.logoUrl && (
-          <div className="flex items-center gap-4">
-            <div className="text-sm text-gray-600">Xem thử logo:</div>
-            <div className="relative w-20 h-20 border rounded bg-white overflow-hidden">
-              <Image src={form.logoUrl} alt="Logo preview" fill className="object-contain" />
+
+        <div className="grid gap-8 px-6 py-6 lg:grid-cols-3">
+          <div className="space-y-4 lg:col-span-2">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-gray-800">
+                Tên thương hiệu <span className="text-red-500">*</span>
+              </label>
+              <input
+                className="w-full rounded-lg border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                placeholder="VD: AHSO"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-gray-800">Slug (tùy chọn)</label>
+                <input
+                  className="w-full rounded-lg border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  placeholder="auto tạo nếu bỏ trống"
+                  value={form.slug}
+                  onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-gray-800">Logo URL (tuỳ chọn)</label>
+                <input
+                  className="w-full rounded-lg border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                  placeholder="Dán URL nếu đã host ở nơi khác"
+                  value={form.logoUrl}
+                  onChange={(e) => setForm({ ...form, logoUrl: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-gray-800">Giới thiệu ngắn</label>
+              <textarea
+                className="w-full rounded-lg border px-3 py-2 text-sm min-h-[140px] focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                placeholder="Tóm tắt lĩnh vực, sản phẩm nổi bật..."
+                value={form.summary}
+                onChange={(e) => setForm({ ...form, summary: e.target.value })}
+              />
             </div>
           </div>
-        )}
-        <button
-          onClick={async()=>{
-            await postJSON("/api/admin/brands", { ...form, logoUrl: form.logoUrl || undefined, summary: form.summary || undefined, slug: form.slug || undefined });
-            setForm({ name:"", slug:"", logoUrl:"", summary:"" });
-            triggerReload();
-          }}
-          className="px-3 py-2 rounded bg-green-600 text-white disabled:opacity-50"
-          disabled={!form.name.trim()}
-        >
-          Tạo thương hiệu
-        </button>
+
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-gray-800">Logo tải lên</label>
+            <p className="text-xs text-gray-500">
+              Kích thước vuông, nền trong suốt càng tốt. Ảnh sẽ được chuyển sang WebP trước khi lưu.
+            </p>
+            <div className="flex items-start gap-4">
+              <div className="relative h-28 w-28 overflow-hidden rounded-xl border bg-gray-50">
+                {logoPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={logoPreview} alt="Logo preview" className="h-full w-full object-contain" />
+                ) : form.logoUrl ? (
+                  <Image
+                    src={form.logoUrl}
+                    alt="Logo preview"
+                    fill
+                    sizes="112px"
+                    className="object-contain"
+                  />
+                ) : (
+                  <div className="flex h-full w-full flex-col items-center justify-center text-xs text-gray-400">
+                    <Upload className="h-6 w-6" />
+                    <span>Chưa có logo</span>
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => logoInputRef.current?.click()}
+                  className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow hover:bg-blue-700"
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Chọn ảnh
+                </button>
+                <button
+                  type="button"
+                  disabled={!logoPreview}
+                  onClick={() => {
+                    if (!logoPreview) return;
+                    setLogoCropSource({
+                      url: logoPreview,
+                      fileName: "logo.webp",
+                      revokeOnClose: false,
+                    });
+                    setLogoCropOpen(true);
+                  }}
+                  className="inline-flex items-center rounded-lg border px-3 py-2 text-sm font-medium text-gray-700 transition disabled:opacity-50"
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Chỉnh sửa
+                </button>
+                <button
+                  type="button"
+                  disabled={!logoPreview}
+                  onClick={clearLogoSelection}
+                  className="inline-flex items-center rounded-lg border px-3 py-2 text-sm font-medium text-gray-700 transition disabled:opacity-50"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Xoá ảnh
+                </button>
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleSelectLogo}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t bg-gray-50 px-6 py-4">
+          {createStatus ? (
+            <div
+              className={`text-sm ${
+                createStatus.type === "success" ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {createStatus.message}
+            </div>
+          ) : (
+            <div className="text-sm text-gray-500">Ảnh tải lên sẽ được xử lý và lưu tại Cloudinary.</div>
+          )}
+          <button
+            onClick={handleCreateBrand}
+            disabled={!form.name.trim() || createLoading}
+            className="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 disabled:opacity-60"
+          >
+            {createLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Lưu thương hiệu
+          </button>
+        </div>
       </div>
       {editing && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
@@ -248,6 +472,15 @@ export default function BrandsPage() {
           </div>
         </div>
       )}
+
+      <ImageCropDialog
+        open={logoCropOpen && Boolean(logoCropSource?.url)}
+        imageSrc={logoCropSource?.url ?? null}
+        fileName={logoCropSource?.fileName}
+        aspectRatio={1}
+        onOpenChange={handleLogoDialogOpenChange}
+        onComplete={handleLogoCropped}
+      />
     </div>
   );
 }

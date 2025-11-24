@@ -7,8 +7,7 @@ COPY package.json package-lock.json* ./
 
 # 2) Copy Prisma schema (rất quan trọng)
 COPY prisma ./prisma
-# Nếu có prisma.config.ts thì thêm:
-# COPY prisma.config.ts ./prisma.config.ts
+COPY prisma.config.ts ./prisma.config.ts
 
 # 3) Cài dependency
 RUN npm ci
@@ -21,6 +20,3 @@ RUN npx tsc --noEmit
 
 # 6) Chạy lint
 RUN npm run lint
-
-# 7) Build (nếu cần)
-# RUN npm run build
