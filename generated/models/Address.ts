@@ -231,7 +231,6 @@ export type addressOrderByWithRelationInput = {
   order?: Prisma.orderOrderByRelationAggregateInput
   user_user_billingAddressIdToaddress?: Prisma.userOrderByWithRelationInput
   user_user_shippingAddressIdToaddress?: Prisma.userOrderByWithRelationInput
-  _relevance?: Prisma.addressOrderByRelevanceInput
 }
 
 export type addressWhereUniqueInput = Prisma.AtLeast<{
@@ -376,12 +375,6 @@ export type addressUncheckedUpdateManyInput = {
   country?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type addressOrderByRelevanceInput = {
-  fields: Prisma.addressOrderByRelevanceFieldEnum | Prisma.addressOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type addressCountOrderByAggregateInput = {
@@ -751,7 +744,29 @@ export type addressSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   _count?: boolean | Prisma.AddressCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["address"]>
 
+export type addressSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  line1?: boolean
+  line2?: boolean
+  city?: boolean
+  state?: boolean
+  postalCode?: boolean
+  country?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+}, ExtArgs["result"]["address"]>
 
+export type addressSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  line1?: boolean
+  line2?: boolean
+  city?: boolean
+  state?: boolean
+  postalCode?: boolean
+  country?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+}, ExtArgs["result"]["address"]>
 
 export type addressSelectScalar = {
   id?: boolean
@@ -772,6 +787,8 @@ export type addressInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   user_user_shippingAddressIdToaddress?: boolean | Prisma.address$user_user_shippingAddressIdToaddressArgs<ExtArgs>
   _count?: boolean | Prisma.AddressCountOutputTypeDefaultArgs<ExtArgs>
 }
+export type addressIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type addressIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $addressPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "address"
@@ -908,6 +925,30 @@ export interface addressDelegate<ExtArgs extends runtime.Types.Extensions.Intern
   createMany<T extends addressCreateManyArgs>(args?: Prisma.SelectSubset<T, addressCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
+   * Create many Addresses and returns the data saved in the database.
+   * @param {addressCreateManyAndReturnArgs} args - Arguments to create many Addresses.
+   * @example
+   * // Create many Addresses
+   * const address = await prisma.address.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Addresses and only return the `id`
+   * const addressWithIdOnly = await prisma.address.createManyAndReturn({
+   *   select: { id: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends addressCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, addressCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$addressPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a Address.
    * @param {addressDeleteArgs} args - Arguments to delete one Address.
    * @example
@@ -970,6 +1011,36 @@ export interface addressDelegate<ExtArgs extends runtime.Types.Extensions.Intern
    * 
    */
   updateMany<T extends addressUpdateManyArgs>(args: Prisma.SelectSubset<T, addressUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Update zero or more Addresses and returns the data updated in the database.
+   * @param {addressUpdateManyAndReturnArgs} args - Arguments to update many Addresses.
+   * @example
+   * // Update many Addresses
+   * const address = await prisma.address.updateManyAndReturn({
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Update zero or more Addresses and only return the `id`
+   * const addressWithIdOnly = await prisma.address.updateManyAndReturn({
+   *   select: { id: true },
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  updateManyAndReturn<T extends addressUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, addressUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$addressPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
    * Create or update one Address.
@@ -1404,6 +1475,25 @@ export type addressCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
+ * address createManyAndReturn
+ */
+export type addressCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the address
+   */
+  select?: Prisma.addressSelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the address
+   */
+  omit?: Prisma.addressOmit<ExtArgs> | null
+  /**
+   * The data used to create many addresses.
+   */
+  data: Prisma.addressCreateManyInput | Prisma.addressCreateManyInput[]
+  skipDuplicates?: boolean
+}
+
+/**
  * address update
  */
 export type addressUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1433,6 +1523,32 @@ export type addressUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
  * address updateMany
  */
 export type addressUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The data used to update addresses.
+   */
+  data: Prisma.XOR<Prisma.addressUpdateManyMutationInput, Prisma.addressUncheckedUpdateManyInput>
+  /**
+   * Filter which addresses to update
+   */
+  where?: Prisma.addressWhereInput
+  /**
+   * Limit how many addresses to update.
+   */
+  limit?: number
+}
+
+/**
+ * address updateManyAndReturn
+ */
+export type addressUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the address
+   */
+  select?: Prisma.addressSelectUpdateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the address
+   */
+  omit?: Prisma.addressOmit<ExtArgs> | null
   /**
    * The data used to update addresses.
    */

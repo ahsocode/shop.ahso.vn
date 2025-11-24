@@ -97,6 +97,8 @@ const productSelect = {
 
 type AdminProductRow = productGetPayload<{ select: typeof productSelect }>;
 
+type AdminProductSpecValue = AdminProductRow["productspecvalue"][number];
+
 /* ========= mapProduct: trả structure đúng với trang edit ========= */
 
 const mapProduct = (row: AdminProductRow | null) => {
@@ -115,8 +117,7 @@ const mapProduct = (row: AdminProductRow | null) => {
     type: producttype,
     supplier,
     images: productimage,
-    specs: productspecvalue.map(
-      (v: (typeof productspecvalue)[number]) => ({
+    specs: productspecvalue.map((v: AdminProductSpecValue) => ({
         id: v.id,
         name: v.productspecdefinition.name,
         valueString: v.valueString,

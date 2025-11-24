@@ -270,7 +270,6 @@ export type contacttypeOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   contact?: Prisma.contactOrderByRelationAggregateInput
-  _relevance?: Prisma.contacttypeOrderByRelevanceInput
 }
 
 export type contacttypeWhereUniqueInput = Prisma.AtLeast<{
@@ -417,12 +416,6 @@ export type contacttypeUncheckedUpdateManyInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type contacttypeOrderByRelevanceInput = {
-  fields: Prisma.contacttypeOrderByRelevanceFieldEnum | Prisma.contacttypeOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type contacttypeCountOrderByAggregateInput = {
@@ -607,7 +600,31 @@ export type contacttypeSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   _count?: boolean | Prisma.ContacttypeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["contacttype"]>
 
+export type contacttypeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  name?: boolean
+  slug?: boolean
+  description?: boolean
+  icon?: boolean
+  color?: boolean
+  sortOrder?: boolean
+  isActive?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+}, ExtArgs["result"]["contacttype"]>
 
+export type contacttypeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  name?: boolean
+  slug?: boolean
+  description?: boolean
+  icon?: boolean
+  color?: boolean
+  sortOrder?: boolean
+  isActive?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+}, ExtArgs["result"]["contacttype"]>
 
 export type contacttypeSelectScalar = {
   id?: boolean
@@ -627,6 +644,8 @@ export type contacttypeInclude<ExtArgs extends runtime.Types.Extensions.Internal
   contact?: boolean | Prisma.contacttype$contactArgs<ExtArgs>
   _count?: boolean | Prisma.ContacttypeCountOutputTypeDefaultArgs<ExtArgs>
 }
+export type contacttypeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type contacttypeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $contacttypePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "contacttype"
@@ -762,6 +781,30 @@ export interface contacttypeDelegate<ExtArgs extends runtime.Types.Extensions.In
   createMany<T extends contacttypeCreateManyArgs>(args?: Prisma.SelectSubset<T, contacttypeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
+   * Create many Contacttypes and returns the data saved in the database.
+   * @param {contacttypeCreateManyAndReturnArgs} args - Arguments to create many Contacttypes.
+   * @example
+   * // Create many Contacttypes
+   * const contacttype = await prisma.contacttype.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Contacttypes and only return the `id`
+   * const contacttypeWithIdOnly = await prisma.contacttype.createManyAndReturn({
+   *   select: { id: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends contacttypeCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, contacttypeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$contacttypePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a Contacttype.
    * @param {contacttypeDeleteArgs} args - Arguments to delete one Contacttype.
    * @example
@@ -824,6 +867,36 @@ export interface contacttypeDelegate<ExtArgs extends runtime.Types.Extensions.In
    * 
    */
   updateMany<T extends contacttypeUpdateManyArgs>(args: Prisma.SelectSubset<T, contacttypeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Update zero or more Contacttypes and returns the data updated in the database.
+   * @param {contacttypeUpdateManyAndReturnArgs} args - Arguments to update many Contacttypes.
+   * @example
+   * // Update many Contacttypes
+   * const contacttype = await prisma.contacttype.updateManyAndReturn({
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Update zero or more Contacttypes and only return the `id`
+   * const contacttypeWithIdOnly = await prisma.contacttype.updateManyAndReturn({
+   *   select: { id: true },
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  updateManyAndReturn<T extends contacttypeUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, contacttypeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$contacttypePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
    * Create or update one Contacttype.
@@ -1257,6 +1330,25 @@ export type contacttypeCreateManyArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
+ * contacttype createManyAndReturn
+ */
+export type contacttypeCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the contacttype
+   */
+  select?: Prisma.contacttypeSelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the contacttype
+   */
+  omit?: Prisma.contacttypeOmit<ExtArgs> | null
+  /**
+   * The data used to create many contacttypes.
+   */
+  data: Prisma.contacttypeCreateManyInput | Prisma.contacttypeCreateManyInput[]
+  skipDuplicates?: boolean
+}
+
+/**
  * contacttype update
  */
 export type contacttypeUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1286,6 +1378,32 @@ export type contacttypeUpdateArgs<ExtArgs extends runtime.Types.Extensions.Inter
  * contacttype updateMany
  */
 export type contacttypeUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The data used to update contacttypes.
+   */
+  data: Prisma.XOR<Prisma.contacttypeUpdateManyMutationInput, Prisma.contacttypeUncheckedUpdateManyInput>
+  /**
+   * Filter which contacttypes to update
+   */
+  where?: Prisma.contacttypeWhereInput
+  /**
+   * Limit how many contacttypes to update.
+   */
+  limit?: number
+}
+
+/**
+ * contacttype updateManyAndReturn
+ */
+export type contacttypeUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the contacttype
+   */
+  select?: Prisma.contacttypeSelectUpdateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the contacttype
+   */
+  omit?: Prisma.contacttypeOmit<ExtArgs> | null
   /**
    * The data used to update contacttypes.
    */

@@ -285,7 +285,6 @@ export type productspecvalueOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   product?: Prisma.productOrderByWithRelationInput
   productspecdefinition?: Prisma.productspecdefinitionOrderByWithRelationInput
-  _relevance?: Prisma.productspecvalueOrderByRelevanceInput
 }
 
 export type productspecvalueWhereUniqueInput = Prisma.AtLeast<{
@@ -448,12 +447,6 @@ export type ProductspecvalueListRelationFilter = {
 
 export type productspecvalueOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type productspecvalueOrderByRelevanceInput = {
-  fields: Prisma.productspecvalueOrderByRelevanceFieldEnum | Prisma.productspecvalueOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type productspecvalueProductIdSpecDefinitionIdCompoundUniqueInput = {
@@ -844,7 +837,37 @@ export type productspecvalueSelect<ExtArgs extends runtime.Types.Extensions.Inte
   productspecdefinition?: boolean | Prisma.productspecdefinitionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productspecvalue"]>
 
+export type productspecvalueSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  productId?: boolean
+  specDefinitionId?: boolean
+  valueString?: boolean
+  valueNumber?: boolean
+  valueBoolean?: boolean
+  unitOverride?: boolean
+  note?: boolean
+  sortOrder?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  product?: boolean | Prisma.productDefaultArgs<ExtArgs>
+  productspecdefinition?: boolean | Prisma.productspecdefinitionDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["productspecvalue"]>
 
+export type productspecvalueSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  productId?: boolean
+  specDefinitionId?: boolean
+  valueString?: boolean
+  valueNumber?: boolean
+  valueBoolean?: boolean
+  unitOverride?: boolean
+  note?: boolean
+  sortOrder?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  product?: boolean | Prisma.productDefaultArgs<ExtArgs>
+  productspecdefinition?: boolean | Prisma.productspecdefinitionDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["productspecvalue"]>
 
 export type productspecvalueSelectScalar = {
   id?: boolean
@@ -862,6 +885,14 @@ export type productspecvalueSelectScalar = {
 
 export type productspecvalueOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "productId" | "specDefinitionId" | "valueString" | "valueNumber" | "valueBoolean" | "unitOverride" | "note" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["productspecvalue"]>
 export type productspecvalueInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  product?: boolean | Prisma.productDefaultArgs<ExtArgs>
+  productspecdefinition?: boolean | Prisma.productspecdefinitionDefaultArgs<ExtArgs>
+}
+export type productspecvalueIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  product?: boolean | Prisma.productDefaultArgs<ExtArgs>
+  productspecdefinition?: boolean | Prisma.productspecdefinitionDefaultArgs<ExtArgs>
+}
+export type productspecvalueIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.productDefaultArgs<ExtArgs>
   productspecdefinition?: boolean | Prisma.productspecdefinitionDefaultArgs<ExtArgs>
 }
@@ -1002,6 +1033,30 @@ export interface productspecvalueDelegate<ExtArgs extends runtime.Types.Extensio
   createMany<T extends productspecvalueCreateManyArgs>(args?: Prisma.SelectSubset<T, productspecvalueCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
+   * Create many Productspecvalues and returns the data saved in the database.
+   * @param {productspecvalueCreateManyAndReturnArgs} args - Arguments to create many Productspecvalues.
+   * @example
+   * // Create many Productspecvalues
+   * const productspecvalue = await prisma.productspecvalue.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Productspecvalues and only return the `id`
+   * const productspecvalueWithIdOnly = await prisma.productspecvalue.createManyAndReturn({
+   *   select: { id: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends productspecvalueCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, productspecvalueCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$productspecvaluePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a Productspecvalue.
    * @param {productspecvalueDeleteArgs} args - Arguments to delete one Productspecvalue.
    * @example
@@ -1064,6 +1119,36 @@ export interface productspecvalueDelegate<ExtArgs extends runtime.Types.Extensio
    * 
    */
   updateMany<T extends productspecvalueUpdateManyArgs>(args: Prisma.SelectSubset<T, productspecvalueUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Update zero or more Productspecvalues and returns the data updated in the database.
+   * @param {productspecvalueUpdateManyAndReturnArgs} args - Arguments to update many Productspecvalues.
+   * @example
+   * // Update many Productspecvalues
+   * const productspecvalue = await prisma.productspecvalue.updateManyAndReturn({
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Update zero or more Productspecvalues and only return the `id`
+   * const productspecvalueWithIdOnly = await prisma.productspecvalue.updateManyAndReturn({
+   *   select: { id: true },
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  updateManyAndReturn<T extends productspecvalueUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, productspecvalueUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$productspecvaluePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
    * Create or update one Productspecvalue.
@@ -1499,6 +1584,29 @@ export type productspecvalueCreateManyArgs<ExtArgs extends runtime.Types.Extensi
 }
 
 /**
+ * productspecvalue createManyAndReturn
+ */
+export type productspecvalueCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the productspecvalue
+   */
+  select?: Prisma.productspecvalueSelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the productspecvalue
+   */
+  omit?: Prisma.productspecvalueOmit<ExtArgs> | null
+  /**
+   * The data used to create many productspecvalues.
+   */
+  data: Prisma.productspecvalueCreateManyInput | Prisma.productspecvalueCreateManyInput[]
+  skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.productspecvalueIncludeCreateManyAndReturn<ExtArgs> | null
+}
+
+/**
  * productspecvalue update
  */
 export type productspecvalueUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1540,6 +1648,36 @@ export type productspecvalueUpdateManyArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many productspecvalues to update.
    */
   limit?: number
+}
+
+/**
+ * productspecvalue updateManyAndReturn
+ */
+export type productspecvalueUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the productspecvalue
+   */
+  select?: Prisma.productspecvalueSelectUpdateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the productspecvalue
+   */
+  omit?: Prisma.productspecvalueOmit<ExtArgs> | null
+  /**
+   * The data used to update productspecvalues.
+   */
+  data: Prisma.XOR<Prisma.productspecvalueUpdateManyMutationInput, Prisma.productspecvalueUncheckedUpdateManyInput>
+  /**
+   * Filter which productspecvalues to update
+   */
+  where?: Prisma.productspecvalueWhereInput
+  /**
+   * Limit how many productspecvalues to update.
+   */
+  limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.productspecvalueIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

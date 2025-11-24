@@ -274,7 +274,6 @@ export type softwarecategoryOrderByWithRelationInput = {
   software?: Prisma.softwareOrderByRelationAggregateInput
   softwarecategory?: Prisma.softwarecategoryOrderByWithRelationInput
   other_softwarecategory?: Prisma.softwarecategoryOrderByRelationAggregateInput
-  _relevance?: Prisma.softwarecategoryOrderByRelevanceInput
 }
 
 export type softwarecategoryWhereUniqueInput = Prisma.AtLeast<{
@@ -446,12 +445,6 @@ export type SoftwarecategoryListRelationFilter = {
 
 export type softwarecategoryOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type softwarecategoryOrderByRelevanceInput = {
-  fields: Prisma.softwarecategoryOrderByRelevanceFieldEnum | Prisma.softwarecategoryOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type softwarecategoryCountOrderByAggregateInput = {
@@ -896,7 +889,33 @@ export type softwarecategorySelect<ExtArgs extends runtime.Types.Extensions.Inte
   _count?: boolean | Prisma.SoftwarecategoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["softwarecategory"]>
 
+export type softwarecategorySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  name?: boolean
+  slug?: boolean
+  description?: boolean
+  image?: boolean
+  parentId?: boolean
+  sortOrder?: boolean
+  isActive?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  softwarecategory?: boolean | Prisma.softwarecategory$softwarecategoryArgs<ExtArgs>
+}, ExtArgs["result"]["softwarecategory"]>
 
+export type softwarecategorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  name?: boolean
+  slug?: boolean
+  description?: boolean
+  image?: boolean
+  parentId?: boolean
+  sortOrder?: boolean
+  isActive?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  softwarecategory?: boolean | Prisma.softwarecategory$softwarecategoryArgs<ExtArgs>
+}, ExtArgs["result"]["softwarecategory"]>
 
 export type softwarecategorySelectScalar = {
   id?: boolean
@@ -917,6 +936,12 @@ export type softwarecategoryInclude<ExtArgs extends runtime.Types.Extensions.Int
   softwarecategory?: boolean | Prisma.softwarecategory$softwarecategoryArgs<ExtArgs>
   other_softwarecategory?: boolean | Prisma.softwarecategory$other_softwarecategoryArgs<ExtArgs>
   _count?: boolean | Prisma.SoftwarecategoryCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type softwarecategoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  softwarecategory?: boolean | Prisma.softwarecategory$softwarecategoryArgs<ExtArgs>
+}
+export type softwarecategoryIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  softwarecategory?: boolean | Prisma.softwarecategory$softwarecategoryArgs<ExtArgs>
 }
 
 export type $softwarecategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1055,6 +1080,30 @@ export interface softwarecategoryDelegate<ExtArgs extends runtime.Types.Extensio
   createMany<T extends softwarecategoryCreateManyArgs>(args?: Prisma.SelectSubset<T, softwarecategoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
+   * Create many Softwarecategories and returns the data saved in the database.
+   * @param {softwarecategoryCreateManyAndReturnArgs} args - Arguments to create many Softwarecategories.
+   * @example
+   * // Create many Softwarecategories
+   * const softwarecategory = await prisma.softwarecategory.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Softwarecategories and only return the `id`
+   * const softwarecategoryWithIdOnly = await prisma.softwarecategory.createManyAndReturn({
+   *   select: { id: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends softwarecategoryCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, softwarecategoryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$softwarecategoryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a Softwarecategory.
    * @param {softwarecategoryDeleteArgs} args - Arguments to delete one Softwarecategory.
    * @example
@@ -1117,6 +1166,36 @@ export interface softwarecategoryDelegate<ExtArgs extends runtime.Types.Extensio
    * 
    */
   updateMany<T extends softwarecategoryUpdateManyArgs>(args: Prisma.SelectSubset<T, softwarecategoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Update zero or more Softwarecategories and returns the data updated in the database.
+   * @param {softwarecategoryUpdateManyAndReturnArgs} args - Arguments to update many Softwarecategories.
+   * @example
+   * // Update many Softwarecategories
+   * const softwarecategory = await prisma.softwarecategory.updateManyAndReturn({
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Update zero or more Softwarecategories and only return the `id`
+   * const softwarecategoryWithIdOnly = await prisma.softwarecategory.updateManyAndReturn({
+   *   select: { id: true },
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  updateManyAndReturn<T extends softwarecategoryUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, softwarecategoryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$softwarecategoryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
    * Create or update one Softwarecategory.
@@ -1552,6 +1631,29 @@ export type softwarecategoryCreateManyArgs<ExtArgs extends runtime.Types.Extensi
 }
 
 /**
+ * softwarecategory createManyAndReturn
+ */
+export type softwarecategoryCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the softwarecategory
+   */
+  select?: Prisma.softwarecategorySelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the softwarecategory
+   */
+  omit?: Prisma.softwarecategoryOmit<ExtArgs> | null
+  /**
+   * The data used to create many softwarecategories.
+   */
+  data: Prisma.softwarecategoryCreateManyInput | Prisma.softwarecategoryCreateManyInput[]
+  skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.softwarecategoryIncludeCreateManyAndReturn<ExtArgs> | null
+}
+
+/**
  * softwarecategory update
  */
 export type softwarecategoryUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1593,6 +1695,36 @@ export type softwarecategoryUpdateManyArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many softwarecategories to update.
    */
   limit?: number
+}
+
+/**
+ * softwarecategory updateManyAndReturn
+ */
+export type softwarecategoryUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the softwarecategory
+   */
+  select?: Prisma.softwarecategorySelectUpdateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the softwarecategory
+   */
+  omit?: Prisma.softwarecategoryOmit<ExtArgs> | null
+  /**
+   * The data used to update softwarecategories.
+   */
+  data: Prisma.XOR<Prisma.softwarecategoryUpdateManyMutationInput, Prisma.softwarecategoryUncheckedUpdateManyInput>
+  /**
+   * Filter which softwarecategories to update
+   */
+  where?: Prisma.softwarecategoryWhereInput
+  /**
+   * Limit how many softwarecategories to update.
+   */
+  limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.softwarecategoryIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

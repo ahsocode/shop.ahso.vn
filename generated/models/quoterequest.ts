@@ -422,7 +422,6 @@ export type quoterequestOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   product?: Prisma.productOrderByWithRelationInput
-  _relevance?: Prisma.quoterequestOrderByRelevanceInput
 }
 
 export type quoterequestWhereUniqueInput = Prisma.AtLeast<{
@@ -734,12 +733,6 @@ export type QuoterequestListRelationFilter = {
 
 export type quoterequestOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type quoterequestOrderByRelevanceInput = {
-  fields: Prisma.quoterequestOrderByRelevanceFieldEnum | Prisma.quoterequestOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type quoterequestCountOrderByAggregateInput = {
@@ -1145,7 +1138,65 @@ export type quoterequestSelect<ExtArgs extends runtime.Types.Extensions.Internal
   product?: boolean | Prisma.quoterequest$productArgs<ExtArgs>
 }, ExtArgs["result"]["quoterequest"]>
 
+export type quoterequestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  code?: boolean
+  fullName?: boolean
+  phone?: boolean
+  email?: boolean
+  company?: boolean
+  taxCode?: boolean
+  productId?: boolean
+  productName?: boolean
+  quantity?: boolean
+  message?: boolean
+  quotedPrice?: boolean
+  quotedTotal?: boolean
+  validUntil?: boolean
+  paymentTerms?: boolean
+  deliveryTerms?: boolean
+  status?: boolean
+  priority?: boolean
+  assignedTo?: boolean
+  respondedBy?: boolean
+  respondedAt?: boolean
+  customerNotes?: boolean
+  internalNotes?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  expiresAt?: boolean
+  product?: boolean | Prisma.quoterequest$productArgs<ExtArgs>
+}, ExtArgs["result"]["quoterequest"]>
 
+export type quoterequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  code?: boolean
+  fullName?: boolean
+  phone?: boolean
+  email?: boolean
+  company?: boolean
+  taxCode?: boolean
+  productId?: boolean
+  productName?: boolean
+  quantity?: boolean
+  message?: boolean
+  quotedPrice?: boolean
+  quotedTotal?: boolean
+  validUntil?: boolean
+  paymentTerms?: boolean
+  deliveryTerms?: boolean
+  status?: boolean
+  priority?: boolean
+  assignedTo?: boolean
+  respondedBy?: boolean
+  respondedAt?: boolean
+  customerNotes?: boolean
+  internalNotes?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  expiresAt?: boolean
+  product?: boolean | Prisma.quoterequest$productArgs<ExtArgs>
+}, ExtArgs["result"]["quoterequest"]>
 
 export type quoterequestSelectScalar = {
   id?: boolean
@@ -1178,6 +1229,12 @@ export type quoterequestSelectScalar = {
 
 export type quoterequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "fullName" | "phone" | "email" | "company" | "taxCode" | "productId" | "productName" | "quantity" | "message" | "quotedPrice" | "quotedTotal" | "validUntil" | "paymentTerms" | "deliveryTerms" | "status" | "priority" | "assignedTo" | "respondedBy" | "respondedAt" | "customerNotes" | "internalNotes" | "createdAt" | "updatedAt" | "expiresAt", ExtArgs["result"]["quoterequest"]>
 export type quoterequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  product?: boolean | Prisma.quoterequest$productArgs<ExtArgs>
+}
+export type quoterequestIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  product?: boolean | Prisma.quoterequest$productArgs<ExtArgs>
+}
+export type quoterequestIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   product?: boolean | Prisma.quoterequest$productArgs<ExtArgs>
 }
 
@@ -1331,6 +1388,30 @@ export interface quoterequestDelegate<ExtArgs extends runtime.Types.Extensions.I
   createMany<T extends quoterequestCreateManyArgs>(args?: Prisma.SelectSubset<T, quoterequestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
+   * Create many Quoterequests and returns the data saved in the database.
+   * @param {quoterequestCreateManyAndReturnArgs} args - Arguments to create many Quoterequests.
+   * @example
+   * // Create many Quoterequests
+   * const quoterequest = await prisma.quoterequest.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Quoterequests and only return the `id`
+   * const quoterequestWithIdOnly = await prisma.quoterequest.createManyAndReturn({
+   *   select: { id: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends quoterequestCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, quoterequestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$quoterequestPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a Quoterequest.
    * @param {quoterequestDeleteArgs} args - Arguments to delete one Quoterequest.
    * @example
@@ -1393,6 +1474,36 @@ export interface quoterequestDelegate<ExtArgs extends runtime.Types.Extensions.I
    * 
    */
   updateMany<T extends quoterequestUpdateManyArgs>(args: Prisma.SelectSubset<T, quoterequestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Update zero or more Quoterequests and returns the data updated in the database.
+   * @param {quoterequestUpdateManyAndReturnArgs} args - Arguments to update many Quoterequests.
+   * @example
+   * // Update many Quoterequests
+   * const quoterequest = await prisma.quoterequest.updateManyAndReturn({
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Update zero or more Quoterequests and only return the `id`
+   * const quoterequestWithIdOnly = await prisma.quoterequest.updateManyAndReturn({
+   *   select: { id: true },
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  updateManyAndReturn<T extends quoterequestUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, quoterequestUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$quoterequestPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
    * Create or update one Quoterequest.
@@ -1842,6 +1953,29 @@ export type quoterequestCreateManyArgs<ExtArgs extends runtime.Types.Extensions.
 }
 
 /**
+ * quoterequest createManyAndReturn
+ */
+export type quoterequestCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the quoterequest
+   */
+  select?: Prisma.quoterequestSelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the quoterequest
+   */
+  omit?: Prisma.quoterequestOmit<ExtArgs> | null
+  /**
+   * The data used to create many quoterequests.
+   */
+  data: Prisma.quoterequestCreateManyInput | Prisma.quoterequestCreateManyInput[]
+  skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.quoterequestIncludeCreateManyAndReturn<ExtArgs> | null
+}
+
+/**
  * quoterequest update
  */
 export type quoterequestUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1883,6 +2017,36 @@ export type quoterequestUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Limit how many quoterequests to update.
    */
   limit?: number
+}
+
+/**
+ * quoterequest updateManyAndReturn
+ */
+export type quoterequestUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the quoterequest
+   */
+  select?: Prisma.quoterequestSelectUpdateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the quoterequest
+   */
+  omit?: Prisma.quoterequestOmit<ExtArgs> | null
+  /**
+   * The data used to update quoterequests.
+   */
+  data: Prisma.XOR<Prisma.quoterequestUpdateManyMutationInput, Prisma.quoterequestUncheckedUpdateManyInput>
+  /**
+   * Filter which quoterequests to update
+   */
+  where?: Prisma.quoterequestWhereInput
+  /**
+   * Limit how many quoterequests to update.
+   */
+  limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.quoterequestIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

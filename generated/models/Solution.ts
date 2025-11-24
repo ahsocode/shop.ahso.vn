@@ -292,7 +292,6 @@ export type solutionOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   solutioncategory?: Prisma.solutioncategoryOrderByWithRelationInput
   solutionimage?: Prisma.solutionimageOrderByRelationAggregateInput
-  _relevance?: Prisma.solutionOrderByRelevanceInput
 }
 
 export type solutionWhereUniqueInput = Prisma.AtLeast<{
@@ -497,12 +496,6 @@ export type solutionUncheckedUpdateManyInput = {
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type solutionOrderByRelevanceInput = {
-  fields: Prisma.solutionOrderByRelevanceFieldEnum | Prisma.solutionOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type solutionCountOrderByAggregateInput = {
@@ -942,7 +935,45 @@ export type solutionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   _count?: boolean | Prisma.SolutionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["solution"]>
 
+export type solutionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  title?: boolean
+  slug?: boolean
+  summary?: boolean
+  coverImage?: boolean
+  bodyHtml?: boolean
+  industry?: boolean
+  usecase?: boolean
+  status?: boolean
+  publishedAt?: boolean
+  metaTitle?: boolean
+  metaDescription?: boolean
+  canonicalUrl?: boolean
+  categoryId?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  solutioncategory?: boolean | Prisma.solutioncategoryDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["solution"]>
 
+export type solutionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  title?: boolean
+  slug?: boolean
+  summary?: boolean
+  coverImage?: boolean
+  bodyHtml?: boolean
+  industry?: boolean
+  usecase?: boolean
+  status?: boolean
+  publishedAt?: boolean
+  metaTitle?: boolean
+  metaDescription?: boolean
+  canonicalUrl?: boolean
+  categoryId?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  solutioncategory?: boolean | Prisma.solutioncategoryDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["solution"]>
 
 export type solutionSelectScalar = {
   id?: boolean
@@ -968,6 +999,12 @@ export type solutionInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   solutioncategory?: boolean | Prisma.solutioncategoryDefaultArgs<ExtArgs>
   solutionimage?: boolean | Prisma.solution$solutionimageArgs<ExtArgs>
   _count?: boolean | Prisma.SolutionCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type solutionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  solutioncategory?: boolean | Prisma.solutioncategoryDefaultArgs<ExtArgs>
+}
+export type solutionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  solutioncategory?: boolean | Prisma.solutioncategoryDefaultArgs<ExtArgs>
 }
 
 export type $solutionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1111,6 +1148,30 @@ export interface solutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
   createMany<T extends solutionCreateManyArgs>(args?: Prisma.SelectSubset<T, solutionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
+   * Create many Solutions and returns the data saved in the database.
+   * @param {solutionCreateManyAndReturnArgs} args - Arguments to create many Solutions.
+   * @example
+   * // Create many Solutions
+   * const solution = await prisma.solution.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Solutions and only return the `id`
+   * const solutionWithIdOnly = await prisma.solution.createManyAndReturn({
+   *   select: { id: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends solutionCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, solutionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$solutionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a Solution.
    * @param {solutionDeleteArgs} args - Arguments to delete one Solution.
    * @example
@@ -1173,6 +1234,36 @@ export interface solutionDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * 
    */
   updateMany<T extends solutionUpdateManyArgs>(args: Prisma.SelectSubset<T, solutionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Update zero or more Solutions and returns the data updated in the database.
+   * @param {solutionUpdateManyAndReturnArgs} args - Arguments to update many Solutions.
+   * @example
+   * // Update many Solutions
+   * const solution = await prisma.solution.updateManyAndReturn({
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Update zero or more Solutions and only return the `id`
+   * const solutionWithIdOnly = await prisma.solution.updateManyAndReturn({
+   *   select: { id: true },
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  updateManyAndReturn<T extends solutionUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, solutionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$solutionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
    * Create or update one Solution.
@@ -1613,6 +1704,29 @@ export type solutionCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
+ * solution createManyAndReturn
+ */
+export type solutionCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the solution
+   */
+  select?: Prisma.solutionSelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the solution
+   */
+  omit?: Prisma.solutionOmit<ExtArgs> | null
+  /**
+   * The data used to create many solutions.
+   */
+  data: Prisma.solutionCreateManyInput | Prisma.solutionCreateManyInput[]
+  skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.solutionIncludeCreateManyAndReturn<ExtArgs> | null
+}
+
+/**
  * solution update
  */
 export type solutionUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1654,6 +1768,36 @@ export type solutionUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many solutions to update.
    */
   limit?: number
+}
+
+/**
+ * solution updateManyAndReturn
+ */
+export type solutionUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the solution
+   */
+  select?: Prisma.solutionSelectUpdateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the solution
+   */
+  omit?: Prisma.solutionOmit<ExtArgs> | null
+  /**
+   * The data used to update solutions.
+   */
+  data: Prisma.XOR<Prisma.solutionUpdateManyMutationInput, Prisma.solutionUncheckedUpdateManyInput>
+  /**
+   * Filter which solutions to update
+   */
+  where?: Prisma.solutionWhereInput
+  /**
+   * Limit how many solutions to update.
+   */
+  limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.solutionIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
