@@ -274,6 +274,7 @@ export function ImageCropDialog(props: ImageCropDialogProps) {
 
             {/* Image */}
             {imageSrc && !loadingImage && imageSize && (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={imageSrc}
                 alt="Cần chỉnh sửa"
@@ -430,16 +431,9 @@ async function cropImageToWebp(options: {
   ctx.fillStyle = "#FFFFFF";
   ctx.fillRect(0, 0, cropWidth, cropHeight);
   
-  // Tính toán vùng cần crop từ ảnh gốc
-  // translate âm = ảnh bị dịch sang trái/lên => phần bên phải/dưới của ảnh nằm trong crop area
-  const scaledWidth = imageWidth * zoom;
-  const scaledHeight = imageHeight * zoom;
-  
   // Vùng visible trong crop area (tọa độ trong không gian ảnh đã scale)
   const visibleLeft = -translate.x;
   const visibleTop = -translate.y;
-  const visibleRight = visibleLeft + cropWidth;
-  const visibleBottom = visibleTop + cropHeight;
   
   // Chuyển về tọa độ ảnh gốc
   const sourceX = visibleLeft / zoom;

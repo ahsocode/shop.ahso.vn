@@ -9,7 +9,7 @@ const UpdateSchema = z.object({
   slug: z.string().trim().optional(),
   coverImage: z.string().url().optional(),
   description: z.string().optional(),
-  categoryId: z.string().cuid().optional(), // cho phép chuyển category nếu muốn
+  categoryId: z.string().uuid().optional(), // cho phép chuyển category nếu muốn
 });
 
 export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
