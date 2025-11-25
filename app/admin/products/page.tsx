@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
+import { FileSpreadsheet } from "lucide-react";
 import { ImageCropDialog } from "@/components/image/image-crop-dialog";
 import { getJSON, postJSON, makeHeaders } from "../_lib/fetcher";
+import { slugify } from "@/lib/slug";
 
 type Row = {
   id: string;
@@ -66,6 +68,107 @@ type ImageRow = {
   url: string;
   alt: string;
   sortOrder: string; // nhập string, khi gửi convert sang number
+};
+
+type ProductDraft = {
+  tempId: string;
+  sku: string;
+  name: string;
+  slug?: string;
+  descriptionShort?: string;
+  description?: string;
+  primaryCategory?: string | null;
+  price?: number | null;
+  listPrice?: number | null;
+  costPrice?: number | null;
+  stockOnHand?: number | null;
+  brandSlug?: string | null;
+  typeSlug?: string | null;
+  supplierCode?: string | null;
+  coverImage?: string | null;
+  galleryImages?: string[];
+  specs?: Array<{ key: string; value: string; unit?: string }>;
+  currency?: string | null;
+  status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  issues: string[];
+  mode: "create" | "update";
+  missing: {
+    brand?: string;
+    type?: string;
+    supplier?: string;
+    categories?: string[];
+  };
+};
+
+const specsToText = (specs?: Array<{ key: string; value: string; unit?: string }>) =>
+  (specs ?? [])
+    .map((spec) => `${spec.key}: ${spec.value}`)
+    .join("\n");
+
+const textToSpecs = (value: string): Array<{ key: string; value: string; unit?: string }> => {
+  return value
+    .split(/(?:\r?\n|\|)/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const idx = line.indexOf(":");
+      if (idx === -1) return null;
+      const key = line.slice(0, idx).trim();
+      const val = line.slice(idx + 1).trim();
+      if (!key || !val) return null;
+      return { key, value: val };
+    })
+    .filter((item): item is { key: string; value: string } => Boolean(item));
+};
+
+type DraftUpdateOptions = {
+  clearMissing?: Array<keyof ProductDraft["missing"]>;
+  clearIssueKeywords?: string[];
+};
+
+const cleanupRules: Partial<Record<keyof ProductDraft, DraftUpdateOptions>> = {
+  sku: { clearIssueKeywords: ["sku"] },
+  name: { clearIssueKeywords: ["tên", "ten"] },
+  primaryCategory: { clearMissing: ["categories"] },
+  brandSlug: { clearMissing: ["brand"] },
+  typeSlug: { clearMissing: ["type"], clearIssueKeywords: ["loại", "loai"] },
+  supplierCode: { clearMissing: ["supplier"] },
+};
+
+const applyDraftPatch = (
+  row: ProductDraft,
+  patch: Partial<ProductDraft>,
+  options?: DraftUpdateOptions,
+): ProductDraft => {
+  let next: ProductDraft = { ...row, ...patch };
+  if (options?.clearMissing?.length) {
+    const missingCopy = { ...next.missing };
+    let changed = false;
+    for (const key of options.clearMissing) {
+      if (key === "categories") {
+        if (missingCopy.categories) {
+          delete missingCopy.categories;
+          changed = true;
+        }
+      } else if (missingCopy[key]) {
+        delete missingCopy[key];
+        changed = true;
+      }
+    }
+    if (changed) {
+      next = { ...next, missing: missingCopy };
+    }
+  }
+  if (options?.clearIssueKeywords?.length) {
+    const keywords = options.clearIssueKeywords.map((k) => k.toLowerCase());
+    const filtered = next.issues.filter(
+      (issue) => !keywords.some((keyword) => issue.toLowerCase().includes(keyword)),
+    );
+    if (filtered.length !== next.issues.length) {
+      next = { ...next, issues: filtered };
+    }
+  }
+  return next;
 };
 
 const formatDate = (iso?: string) =>
@@ -162,8 +265,24 @@ export default function ProductsPage() {
   } | null>(null);
   const [galleryTargetId, setGalleryTargetId] = useState<number | null>(null);
   const [galleryUploadingId, setGalleryUploadingId] = useState<number | null>(null);
+  const [drafts, setDrafts] = useState<ProductDraft[]>([]);
+  const [selectedDraftIds, setSelectedDraftIds] = useState<string[]>([]);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importSelection, setImportSelection] = useState<"all" | "selected">("all");
+  const [importProgress, setImportProgress] = useState<{
+    step: "commit" | "upload_images";
+    current: number;
+    total: number;
+  } | null>(null);
+  const bulkFileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const rowsToImport =
+    importSelection === "selected"
+      ? drafts.filter((draft) => selectedDraftIds.includes(draft.tempId))
+      : drafts;
 
   const triggerReload = () => setReloadToken((token) => token + 1);
 
@@ -205,6 +324,105 @@ export default function ProductsPage() {
       throw new Error(getErrorMessage(data, "Không thể tải ảnh"));
     }
     return (data?.data?.url as string) ?? "";
+  };
+
+  const handleBulkFile = async (file: File) => {
+    setPreviewLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/admin/products/bulk-import?mode=preview", {
+        method: "POST",
+        headers: makeHeaders(),
+        body: fd,
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        toast.error(json.error || "Không thể đọc file sản phẩm");
+        return;
+      }
+      const rows = (json.rows as ProductDraft[]) ?? [];
+      setDrafts(rows);
+      setSelectedDraftIds([]);
+      toast.success(`Đã phân tích ${rows.length} dòng sản phẩm`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Không thể xử lý file");
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const updateDraft = (
+    tempId: string,
+    patch: Partial<ProductDraft>,
+    options?: DraftUpdateOptions,
+  ) => {
+    setDrafts((prev) =>
+      prev.map((row) => (row.tempId === tempId ? applyDraftPatch(row, patch, options) : row)),
+    );
+  };
+
+  const handleApplyBatch = (field: "brandSlug" | "typeSlug" | "supplierCode", value?: string) => {
+    setDrafts((prev) =>
+      prev.map((row) =>
+        selectedDraftIds.includes(row.tempId)
+          ? applyDraftPatch(
+              row,
+              { [field]: value || undefined } as Partial<ProductDraft>,
+              cleanupRules[field],
+            )
+          : row,
+      ),
+    );
+  };
+
+  const handleRemoveDraft = (tempId: string) => {
+    setDrafts((prev) => prev.filter((row) => row.tempId !== tempId));
+    setSelectedDraftIds((prev) => prev.filter((id) => id !== tempId));
+  };
+
+  const handleRemoveSelected = () => {
+    if (!selectedDraftIds.length) return;
+    setDrafts((prev) => prev.filter((row) => !selectedDraftIds.includes(row.tempId)));
+    setSelectedDraftIds([]);
+  };
+
+  const handleCommitImport = async (selectedOnly?: boolean) => {
+    const selectedIdsSnapshot = [...selectedDraftIds];
+    const rowsToCommit =
+      selectedOnly && selectedIdsSnapshot.length
+        ? drafts.filter((draft) => selectedIdsSnapshot.includes(draft.tempId))
+        : drafts;
+    if (!rowsToCommit.length) {
+      toast.error("Không có sản phẩm để nhập");
+      return;
+    }
+    try {
+      setImportProgress({ step: "commit", current: 0, total: rowsToCommit.length });
+      const res = await fetch("/api/admin/products/bulk-import?mode=commit", {
+        method: "POST",
+        headers: { ...makeHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({ rows: rowsToCommit }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        toast.error(json.error || "Import thất bại");
+        setImportProgress(null);
+        return;
+      }
+      setImportProgress(null);
+      setImportOpen(false);
+      setImportSelection("all");
+      setDrafts((prev) =>
+        selectedOnly ? prev.filter((draft) => !selectedIdsSnapshot.includes(draft.tempId)) : [],
+      );
+      setSelectedDraftIds([]);
+      triggerReload();
+      toast.success("Nhập sản phẩm hoàn tất");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Không thể import sản phẩm");
+      setImportProgress(null);
+    }
   };
 
   // load options (types, brands, suppliers, spec definitions)
@@ -571,6 +789,411 @@ export default function ProductsPage() {
   // ===== JSX =====
   return (
     <div className="mx-auto max-w-7xl space-y-6">
+      {/* Upload products via file */}
+      <div className="rounded-2xl border bg-white p-4 space-y-3">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase text-fuchsia-600">
+              NHẬP SẢN PHẨM TỪ FILE
+            </p>
+            <p className="text-sm text-gray-600">
+              Hỗ trợ CSV/XLSX với các cột SKU, danh mục, thương hiệu, loại sản phẩm, nguồn hàng, giá và thông số kỹ thuật.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = "/api/admin/products/bulk-import/template";
+              }}
+              className="inline-flex items-center gap-2 rounded border px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+            >
+              <FileSpreadsheet className="h-4 w-4" />
+              Tải file mẫu
+            </button>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <label className="text-xs font-medium text-gray-700">Kéo CSV/XLSX vào hoặc bấm để chọn</label>
+            <div
+              className={`w-full max-w-xs rounded-lg border-2 border-dashed px-4 py-6 text-center text-xs transition ${
+                isDragOver
+                  ? "border-fuchsia-500 bg-fuchsia-50"
+                  : "border-gray-300 hover:border-fuchsia-400 hover:bg-gray-50"
+              }`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragOver(true);
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                setIsDragOver(false);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragOver(false);
+                const file = e.dataTransfer.files?.[0];
+                if (file) handleBulkFile(file);
+              }}
+              onClick={() => bulkFileInputRef.current?.click()}
+            >
+              <p className="font-medium text-gray-700 mb-1">Kéo file vào đây</p>
+              <p className="text-gray-500">hoặc bấm để chọn file từ máy</p>
+              <input
+                ref={bulkFileInputRef}
+                type="file"
+                accept=".csv,.xlsx"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleBulkFile(file);
+                  e.target.value = "";
+                }}
+              />
+            </div>
+            {previewLoading && <div className="text-xs text-gray-500">Đang phân tích file...</div>}
+          </div>
+        </div>
+      </div>
+
+      {drafts.length > 0 && (
+        <div className="rounded-2xl border bg-white p-4 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div className="font-semibold">Xem trước {drafts.length} sản phẩm</div>
+              <div className="text-xs text-gray-500">
+                Chỉnh sửa từng dòng hoặc áp dụng hàng loạt trước khi import.
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                Đã chọn {selectedDraftIds.length}/{drafts.length} sản phẩm.
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <select
+                className="rounded border px-2 py-1"
+                defaultValue=""
+                onChange={(e) => handleApplyBatch("brandSlug", e.target.value || undefined)}
+              >
+                <option value="">Gán thương hiệu</option>
+                {brands.map((brand) => (
+                  <option key={brand.id} value={slugify(brand.name)}>
+                    {brand.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="rounded border px-2 py-1"
+                defaultValue=""
+                onChange={(e) => handleApplyBatch("typeSlug", e.target.value || undefined)}
+              >
+                <option value="">Gán loại sản phẩm</option>
+                {types.map((type) => (
+                  <option key={type.id} value={slugify(type.name)}>
+                    {type.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="rounded border px-2 py-1"
+                defaultValue=""
+                onChange={(e) => handleApplyBatch("supplierCode", e.target.value || undefined)}
+              >
+                <option value="">Gán nguồn hàng</option>
+                {suppliers.map((supplier) => (
+                  <option key={supplier.id} value={supplier.name}>
+                    {supplier.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                disabled={!selectedDraftIds.length}
+                onClick={handleRemoveSelected}
+                className="rounded border border-red-500 px-3 py-2 font-semibold text-red-600 disabled:opacity-50"
+              >
+                Xóa đã chọn
+              </button>
+              <button
+                disabled={!selectedDraftIds.length}
+                onClick={() => {
+                  if (!selectedDraftIds.length) return;
+                  setImportSelection("selected");
+                  setImportOpen(true);
+                }}
+                className="rounded bg-blue-600 px-3 py-2 font-semibold text-white disabled:opacity-50"
+              >
+                Nhập đã chọn
+              </button>
+              <button
+                onClick={() => {
+                  setImportSelection("all");
+                  setImportOpen(true);
+                }}
+                className="rounded bg-green-600 px-3 py-2 font-semibold text-white"
+              >
+                Nhập tất cả
+              </button>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto border rounded">
+            <table className="min-w-full text-xs">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedDraftIds.length === drafts.length}
+                      onChange={(e) =>
+                        setSelectedDraftIds(e.target.checked ? drafts.map((d) => d.tempId) : [])
+                      }
+                    />
+                  </th>
+                  <th className="px-3 py-2 text-left">SKU</th>
+                  <th className="px-3 py-2 text-left">Tên</th>
+                  <th className="px-3 py-2 text-left">Danh mục</th>
+                  <th className="px-3 py-2 text-left">Thương hiệu</th>
+                  <th className="px-3 py-2 text-left">Loại</th>
+                  <th className="px-3 py-2 text-left">Nguồn hàng</th>
+                  <th className="px-3 py-2 text-left">Giá</th>
+                  <th className="px-3 py-2 text-left">Tồn kho</th>
+                  <th className="px-3 py-2 text-left">Thông số kỹ thuật</th>
+                  <th className="px-3 py-2 text-left">Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {drafts.map((draft) => {
+                  const checked = selectedDraftIds.includes(draft.tempId);
+                  const normalizeIssues = (keywords: string[]) =>
+                    (draft.issues || []).filter((issue) =>
+                      keywords.some((keyword) => issue.toLowerCase().includes(keyword)),
+                    );
+                  const skuIssues = normalizeIssues(["sku"]);
+                  const nameIssues = normalizeIssues(["tên", "ten"]);
+                  const typeIssues = normalizeIssues(["loại", "loai"]);
+                  const unmatchedIssues = (draft.issues || []).filter(
+                    (issue) =>
+                      !["sku", "tên", "ten", "loại", "loai"].some((keyword) =>
+                        issue.toLowerCase().includes(keyword),
+                      ),
+                  );
+                  return (
+                    <tr key={draft.tempId} className="border-t align-top">
+                      <td className="px-2 py-1">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) =>
+                            setSelectedDraftIds((prev) =>
+                              e.target.checked
+                                ? [...prev, draft.tempId]
+                                : prev.filter((id) => id !== draft.tempId),
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-3 py-2 font-mono">
+                        <input
+                          className="w-full rounded border px-2 py-1 font-mono"
+                          value={draft.sku}
+                          onChange={(e) =>
+                            updateDraft(draft.tempId, { sku: e.target.value }, cleanupRules.sku)
+                          }
+                        />
+                        <input
+                          className="mt-1 w-full rounded border px-2 py-1 text-[11px]"
+                          placeholder="Slug (tùy chọn)"
+                          value={draft.slug ?? ""}
+                          onChange={(e) => updateDraft(draft.tempId, { slug: e.target.value })}
+                        />
+                        {skuIssues.map((issue) => (
+                          <div key={issue} className="text-[10px] text-red-600">
+                            {issue}
+                          </div>
+                        ))}
+                      </td>
+                      <td className="px-3 py-2">
+                        <input
+                          className="w-full rounded border px-2 py-1 font-semibold text-gray-900"
+                          value={draft.name}
+                          onChange={(e) =>
+                            updateDraft(draft.tempId, { name: e.target.value }, cleanupRules.name)
+                          }
+                        />
+                        <textarea
+                          className="mt-1 w-full rounded border px-2 py-1 text-xs"
+                          rows={2}
+                          placeholder="Mô tả ngắn"
+                          value={draft.descriptionShort ?? ""}
+                          onChange={(e) => updateDraft(draft.tempId, { descriptionShort: e.target.value })}
+                        />
+                        <textarea
+                          className="mt-1 w-full rounded border px-2 py-1 text-xs"
+                          rows={3}
+                          placeholder="Mô tả chi tiết"
+                          value={draft.description ?? ""}
+                          onChange={(e) => updateDraft(draft.tempId, { description: e.target.value })}
+                        />
+                        <div className="text-[10px] text-gray-500 mt-1">
+                          {draft.mode === "create" ? "Tạo mới" : "Cập nhật"}
+                        </div>
+                        {nameIssues.map((issue) => (
+                          <div key={issue} className="text-[10px] text-red-600">
+                            {issue}
+                          </div>
+                        ))}
+                        {unmatchedIssues.map((issue) => (
+                          <div key={issue} className="text-[10px] text-red-600">
+                            {issue}
+                          </div>
+                        ))}
+                      </td>
+                      <td className="px-3 py-2">
+                        <input
+                          className="w-full rounded border px-2 py-1"
+                          value={draft.primaryCategory ?? ""}
+                          onChange={(e) =>
+                            updateDraft(
+                              draft.tempId,
+                              { primaryCategory: e.target.value },
+                              cleanupRules.primaryCategory,
+                            )
+                          }
+                        />
+                        {draft.missing.categories?.length ? (
+                          <div className="text-[10px] text-orange-600">
+                            Thiếu danh mục: {draft.missing.categories.join(", ")}
+                          </div>
+                        ) : null}
+                      </td>
+                      <td className="px-3 py-2">
+                        <input
+                          className="w-full rounded border px-2 py-1"
+                          value={draft.brandSlug ?? ""}
+                          onChange={(e) =>
+                            updateDraft(draft.tempId, { brandSlug: e.target.value }, cleanupRules.brandSlug)
+                          }
+                        />
+                        {draft.missing.brand && (
+                          <div className="text-[10px] text-orange-600">Thiếu brand: {draft.missing.brand}</div>
+                        )}
+                      </td>
+                      <td className="px-3 py-2">
+                        <input
+                          className="w-full rounded border px-2 py-1"
+                          value={draft.typeSlug ?? ""}
+                          onChange={(e) =>
+                            updateDraft(draft.tempId, { typeSlug: e.target.value }, cleanupRules.typeSlug)
+                          }
+                        />
+                        {typeIssues.concat(draft.missing.type ? [`Thiếu loại: ${draft.missing.type}`] : []).map(
+                          (issue) => (
+                            <div key={issue} className="text-[10px] text-red-600">
+                              {issue}
+                            </div>
+                          ),
+                        )}
+                      </td>
+                      <td className="px-3 py-2">
+                        <input
+                          className="w-full rounded border px-2 py-1"
+                          value={draft.supplierCode ?? ""}
+                          onChange={(e) =>
+                            updateDraft(
+                              draft.tempId,
+                              { supplierCode: e.target.value },
+                              cleanupRules.supplierCode,
+                            )
+                          }
+                        />
+                        {draft.missing.supplier && (
+                          <div className="text-[10px] text-orange-600">
+                            Thiếu nguồn hàng: {draft.missing.supplier}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-3 py-2 text-xs space-y-1">
+                        <label className="flex flex-col text-[11px]">
+                          <span>Giá bán</span>
+                          <input
+                            type="number"
+                            className="rounded border px-2 py-1"
+                            value={draft.price ?? ""}
+                            onChange={(e) =>
+                              updateDraft(draft.tempId, {
+                                price: e.target.value ? Number(e.target.value) : null,
+                              })
+                            }
+                          />
+                        </label>
+                        <label className="flex flex-col text-[11px]">
+                          <span>Niêm yết</span>
+                          <input
+                            type="number"
+                            className="rounded border px-2 py-1"
+                            value={draft.listPrice ?? ""}
+                            onChange={(e) =>
+                              updateDraft(draft.tempId, {
+                                listPrice: e.target.value ? Number(e.target.value) : null,
+                              })
+                            }
+                          />
+                        </label>
+                        <label className="flex flex-col text-[11px]">
+                          <span>Giá nhập</span>
+                          <input
+                            type="number"
+                            className="rounded border px-2 py-1"
+                            value={draft.costPrice ?? ""}
+                            onChange={(e) =>
+                              updateDraft(draft.tempId, {
+                                costPrice: e.target.value ? Number(e.target.value) : null,
+                              })
+                            }
+                          />
+                        </label>
+                        <label className="flex flex-col text-[11px]">
+                          <span>Tiền tệ</span>
+                          <input
+                            className="rounded border px-2 py-1"
+                            value={draft.currency ?? ""}
+                            onChange={(e) => updateDraft(draft.tempId, { currency: e.target.value })}
+                          />
+                        </label>
+                      </td>
+                      <td className="px-3 py-2 text-xs">
+                        <input
+                          type="number"
+                          className="w-full rounded border px-2 py-1"
+                          value={draft.stockOnHand ?? ""}
+                          onChange={(e) =>
+                            updateDraft(draft.tempId, {
+                              stockOnHand: e.target.value ? Number(e.target.value) : null,
+                            })
+                          }
+                        />
+                      </td>
+                      <td className="px-3 py-2 text-xs">
+                        <textarea
+                          className="w-full rounded border px-2 py-1"
+                          rows={5}
+                          placeholder="Mỗi dòng hoặc dùng | : Tên: Giá trị"
+                          value={specsToText(draft.specs)}
+                          onChange={(e) => updateDraft(draft.tempId, { specs: textToSpecs(e.target.value) })}
+                        />
+                      </td>
+                      <td className="px-3 py-2 text-xs">
+                        <button
+                          className="rounded border border-red-500 px-2 py-1 text-red-600"
+                          onClick={() => handleRemoveDraft(draft.tempId)}
+                        >
+                          Xóa
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -1499,6 +2122,56 @@ export default function ProductsPage() {
         onOpenChange={handleGalleryDialogOpenChange}
         onComplete={handleGalleryCropComplete}
       />
+
+      {importOpen && rowsToImport.length > 0 && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-md space-y-4 p-4">
+            <h2 className="text-lg font-semibold">Xác nhận nhập sản phẩm</h2>
+            <p className="text-sm text-gray-600">
+              {importSelection === "selected" ? "Chỉ nhập các dòng đã chọn." : "Nhập toàn bộ danh sách."} Sẽ nhập{" "}
+              {rowsToImport.length} sản phẩm ({rowsToImport.filter((d) => d.mode === "create").length} tạo mới,{" "}
+              {rowsToImport.filter((d) => d.mode === "update").length} cập nhật).
+            </p>
+            {importProgress && (
+              <div className="space-y-2 text-xs text-gray-500">
+                <div>
+                  {importProgress.step === "commit" ? "Đang ghi dữ liệu..." : "Đang upload ảnh..."}
+                </div>
+                <div className="h-2 w-full rounded-full bg-gray-200">
+                  <div
+                    className="h-2 rounded-full bg-green-600 transition-all"
+                    style={{
+                      width:
+                        importProgress.total > 0
+                          ? `${(importProgress.current / importProgress.total) * 100}%`
+                          : "0%",
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            <div className="flex justify-end gap-2 text-sm">
+              <button
+                onClick={() => {
+                  setImportOpen(false);
+                  setImportSelection("all");
+                }}
+                className="rounded border px-3 py-2"
+                disabled={!!importProgress}
+              >
+                Hủy
+              </button>
+              <button
+                onClick={() => handleCommitImport(importSelection === "selected")}
+                disabled={!!importProgress}
+                className="rounded bg-green-600 px-3 py-2 font-semibold text-white disabled:opacity-60"
+              >
+                Xác nhận nhập
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
