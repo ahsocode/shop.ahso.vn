@@ -90,6 +90,8 @@ export default function QuoteRequestsPage() {
 
   const triggerReload = () => setReloadToken((v) => v + 1);
 
+  const selectedId = selected?.id;
+
   useEffect(() => {
     let ignore = false;
     const fetchQuotes = async () => {
@@ -108,8 +110,8 @@ export default function QuoteRequestsPage() {
         if (ignore) return;
         setRows(json.data);
         setTotal(json.meta.total);
-        if (selected) {
-          const refreshed = json.data.find((r) => r.id === selected.id);
+        if (selectedId) {
+          const refreshed = json.data.find((r) => r.id === selectedId);
           if (refreshed) {
             setSelected(refreshed);
             setForm({
@@ -133,7 +135,7 @@ export default function QuoteRequestsPage() {
     return () => {
       ignore = true;
     };
-  }, [page, pageSize, filters, reloadToken, selected?.id]);
+  }, [page, pageSize, filters, reloadToken, selectedId]);
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total, pageSize]);
 

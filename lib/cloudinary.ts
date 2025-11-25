@@ -231,3 +231,79 @@ function sanitizeSegment(value: string | null | undefined, fallback: string) {
   const slug = slugify(value);
   return slug || fallback;
 }
+
+export type BrandLogoAsset = {
+  assetId: string;
+  publicId: string;
+  secureUrl: string;
+  width: number;
+  height: number;
+  bytes: number;
+  createdAt: string;
+};
+
+export async function listBrandLogosFromCloudinary(options?: {
+  nextCursor?: string | null;
+  maxResults?: number;
+}): Promise<{ items: BrandLogoAsset[]; nextCursor: string | null }> {
+  const config = getConfig();
+  const endpoint = `https://api.cloudinary.com/v1_1/${config.cloudName}/resources/search`;
+
+  const maxResults = Math.min(Math.max(options?.maxResults ?? 30, 1), 100);
+  const body: Record<string, unknown> = {
+    expression: 'folder:"brands/logos"',
+    max_results: maxResults,
+    sort_by: [{ created_at: "desc" }],
+  };
+  if (options?.nextCursor) {
+    body.next_cursor = options.nextCursor;
+  }
+
+  const auth = Buffer.from(`${config.apiKey}:${config.apiSecret}`).toString("base64");
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  const payload = (await res.json().catch(() => null)) as CloudinarySearchResponse | null;
+  if (!res.ok || !payload) {
+    const message =
+      payload?.error?.message ||
+      "Failed to fetch brand logos";
+    throw new Error(message);
+  }
+
+  const resources = payload.resources ?? [];
+  const items: BrandLogoAsset[] = resources.map((item) => ({
+    assetId: item.asset_id,
+    publicId: item.public_id,
+    secureUrl: item.secure_url,
+    width: item.width,
+    height: item.height,
+    bytes: item.bytes,
+    createdAt: item.created_at,
+  }));
+
+  return {
+    items,
+    nextCursor: payload.next_cursor ?? null,
+  };
+}
+
+type CloudinarySearchResponse = {
+  resources?: Array<{
+    asset_id: string;
+    public_id: string;
+    secure_url: string;
+    width: number;
+    height: number;
+    bytes: number;
+    created_at: string;
+  }>;
+  next_cursor?: string;
+  error?: { message?: string };
+};
