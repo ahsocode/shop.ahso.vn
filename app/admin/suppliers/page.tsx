@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { AlertTriangle } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getJSON, postJSON, patchJSON, del } from "../_lib/fetcher";
 
 type Supplier = {
@@ -52,6 +55,9 @@ export default function SuppliersAdminPage() {
   const [editForm, setEditForm] = useState(() => ({ ...emptyForm }));
   const [reloadToken, setReloadToken] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Supplier | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const triggerReload = () => setReloadToken((token) => token + 1);
 
@@ -122,15 +128,16 @@ export default function SuppliersAdminPage() {
 
   const handleCreate = async () => {
     if (!form.name.trim()) {
-      alert("Tên nhà cung cấp là bắt buộc");
+      toast.error("Tên nhà cung cấp là bắt buộc");
       return;
     }
     try {
       await postJSON("/api/admin/suppliers", buildPayload(form));
       setForm({ ...emptyForm });
+      toast.success("Đã tạo nhà cung cấp mới");
       triggerReload();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Tạo thất bại");
+      toast.error(err instanceof Error ? err.message : "Tạo thất bại");
     }
   };
 
@@ -152,25 +159,35 @@ export default function SuppliersAdminPage() {
   const handleUpdate = async () => {
     if (!editing) return;
     if (!editForm.name.trim()) {
-      alert("Tên nhà cung cấp là bắt buộc");
+      toast.error("Tên nhà cung cấp là bắt buộc");
       return;
     }
     try {
       await patchJSON(`/api/admin/suppliers/${editing.id}`, buildPayload(editForm, { allowNull: true }));
       setEditing(null);
+      toast.success("Đã cập nhật nhà cung cấp");
       triggerReload();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Cập nhật thất bại");
+      toast.error(err instanceof Error ? err.message : "Cập nhật thất bại");
     }
   };
 
-  const handleDelete = async (row: Supplier) => {
-    if (!confirm(`Xóa nhà cung cấp ${row.name}?`)) return;
+  const requestDelete = (row: Supplier) => {
+    setDeleteTarget(row);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await del(`/api/admin/suppliers/${row.id}`);
+      setPendingDeleteId(deleteTarget.id);
+      await del(`/api/admin/suppliers/${deleteTarget.id}`);
+      toast.success(`Đã xóa ${deleteTarget.name}`);
+      setDeleteTarget(null);
       triggerReload();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Xóa thất bại");
+      toast.error(err instanceof Error ? err.message : "Xóa thất bại");
+    } finally {
+      setPendingDeleteId(null);
     }
   };
 
@@ -182,15 +199,17 @@ export default function SuppliersAdminPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap gap-3 items-center">
-        <input
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          placeholder="Tìm nhà cung cấp..."
-          className="border rounded px-3 py-2 min-w-[240px]"
-        />
-        <button onClick={handleSearch} className="px-3 py-2 rounded bg-blue-600 text-white">
-          Tìm
-        </button>
+        <div className="flex gap-2">
+          <input
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder="Tìm nhà cung cấp..."
+            className="border rounded px-3 py-2 min-w-[240px]"
+          />
+          <button onClick={handleSearch} className="px-3 py-2 rounded bg-blue-600 text-white">
+            Tìm
+          </button>
+        </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
@@ -202,6 +221,12 @@ export default function SuppliersAdminPage() {
         </select>
         <button onClick={() => triggerReload()} className="px-3 py-2 rounded border">
           Refresh
+        </button>
+        <button
+          onClick={() => setShowCreateForm((prev) => !prev)}
+          className="inline-flex items-center rounded bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700"
+        >
+          {showCreateForm ? "Ẩn form tạo" : "Thêm nhà cung cấp"}
         </button>
         {loading && <span className="text-sm text-gray-500">Đang tải...</span>}
         {error && <span className="text-sm text-red-600">{error}</span>}
@@ -250,7 +275,7 @@ export default function SuppliersAdminPage() {
                     <button onClick={() => startEdit(row)} className="text-blue-600 hover:underline">
                       Sửa
                     </button>
-                    <button onClick={() => handleDelete(row)} className="text-red-600 hover:underline">
+                    <button onClick={() => requestDelete(row)} className="text-red-600 hover:underline">
                       Xóa
                     </button>
                   </td>
@@ -290,13 +315,15 @@ export default function SuppliersAdminPage() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        <div className="border rounded bg-white p-4 space-y-3">
-          <div className="font-semibold text-lg">Tạo nhà cung cấp</div>
-          <FormFields form={form} setForm={setForm} />
-          <button onClick={handleCreate} className="px-3 py-2 rounded bg-green-600 text-white">
-            Tạo mới
-          </button>
-        </div>
+        {showCreateForm && (
+          <div className="border rounded bg-white p-4 space-y-3">
+            <div className="font-semibold text-lg">Tạo nhà cung cấp</div>
+            <FormFields form={form} setForm={setForm} />
+            <button onClick={handleCreate} className="px-3 py-2 rounded bg-green-600 text-white">
+              Tạo mới
+            </button>
+          </div>
+        )}
 
         {editing && (
           <div className="border rounded bg-white p-4 space-y-3">
@@ -318,6 +345,41 @@ export default function SuppliersAdminPage() {
           </div>
         )}
       </div>
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && !pendingDeleteId && setDeleteTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+              </div>
+              <DialogTitle>Xóa nhà cung cấp</DialogTitle>
+            </div>
+            <DialogDescription>
+              {deleteTarget ? (
+                <>Bạn có chắc muốn xóa <strong>{deleteTarget.name}</strong>? Hành động này không thể hoàn tác.</>
+              ) : null}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <button
+              type="button"
+              className="px-4 py-2 rounded-md border"
+              onClick={() => setDeleteTarget(null)}
+              disabled={pendingDeleteId === deleteTarget?.id}
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              className="px-4 py-2 rounded-md bg-red-600 text-white disabled:opacity-60"
+              onClick={confirmDelete}
+              disabled={pendingDeleteId === deleteTarget?.id}
+            >
+              Xóa
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

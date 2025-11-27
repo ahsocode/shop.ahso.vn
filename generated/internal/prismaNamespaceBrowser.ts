@@ -56,6 +56,10 @@ export const ModelName = {
   orderitem: 'orderitem',
   payment: 'payment',
   supplier: 'supplier',
+  systemsetting: 'systemsetting',
+  herobanner: 'herobanner',
+  siteannouncement: 'siteannouncement',
+  policysection: 'policysection',
   product: 'product',
   productcategory: 'productcategory',
   productcategorylink: 'productcategorylink',
@@ -256,6 +260,65 @@ export const SupplierScalarFieldEnum = {
 } as const
 
 export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typeof SupplierScalarFieldEnum]
+
+
+export const SystemsettingScalarFieldEnum = {
+  key: 'key',
+  value: 'value',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SystemsettingScalarFieldEnum = (typeof SystemsettingScalarFieldEnum)[keyof typeof SystemsettingScalarFieldEnum]
+
+
+export const HerobannerScalarFieldEnum = {
+  id: 'id',
+  imageUrl: 'imageUrl',
+  title: 'title',
+  content: 'content',
+  ctaLabel: 'ctaLabel',
+  ctaHref: 'ctaHref',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HerobannerScalarFieldEnum = (typeof HerobannerScalarFieldEnum)[keyof typeof HerobannerScalarFieldEnum]
+
+
+export const SiteannouncementScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  imageUrl: 'imageUrl',
+  ctaLabel: 'ctaLabel',
+  ctaHref: 'ctaHref',
+  isActive: 'isActive',
+  showOnLogin: 'showOnLogin',
+  showOnVisit: 'showOnVisit',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteannouncementScalarFieldEnum = (typeof SiteannouncementScalarFieldEnum)[keyof typeof SiteannouncementScalarFieldEnum]
+
+
+export const PolicysectionScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  title: 'title',
+  description: 'description',
+  allowedText: 'allowedText',
+  deniedText: 'deniedText',
+  content: 'content',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type PolicysectionScalarFieldEnum = (typeof PolicysectionScalarFieldEnum)[keyof typeof PolicysectionScalarFieldEnum]
 
 
 export const ProductScalarFieldEnum = {

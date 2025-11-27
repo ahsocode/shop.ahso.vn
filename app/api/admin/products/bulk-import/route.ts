@@ -125,7 +125,7 @@ async function parseFileToRows(file: File) {
   let workbook: XLSX.WorkBook;
   try {
     workbook = XLSX.read(buffer, { type: "buffer" });
-  } catch (err) {
+  } catch {
     const text = buffer.toString("utf8");
     workbook = XLSX.read(text, { type: "string" });
   }
@@ -140,7 +140,7 @@ async function parseFileToRows(file: File) {
 }
 
 async function buildProductDrafts(rows: Record<string, unknown>[]): Promise<ProductDraft[]> {
-  const normalizedRows = rows.map((row, idx) => normalizeColumns(row, idx));
+  const normalizedRows = rows.map((row) => normalizeColumns(row));
   const skuList = normalizedRows
     .map((r) => r.sku)
     .filter((sku): sku is string => Boolean(sku));
@@ -300,7 +300,7 @@ const COLUMN_ALIASES: Record<string, string[]> = {
   currency: ["currency", "tien te"],
 };
 
-function normalizeColumns(row: Record<string, unknown>, idx: number): NormalizedRow {
+function normalizeColumns(row: Record<string, unknown>): NormalizedRow {
   const lowerCaseEntries = Object.entries(row).reduce<Record<string, string>>((acc, [key, value]) => {
     acc[key.trim().toLowerCase()] = String(value ?? "").trim();
     return acc;

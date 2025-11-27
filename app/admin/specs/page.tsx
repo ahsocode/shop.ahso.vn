@@ -14,6 +14,7 @@ export default function SpecsPage() {
   const [reloadToken, setReloadToken] = useState(0);
   const [editing, setEditing] = useState<Row | null>(null);
   const [editForm, setEditForm] = useState({ name: "", slug: "" });
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const triggerReload = () => setReloadToken((token) => token + 1);
 
@@ -50,9 +51,17 @@ export default function SpecsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
-        <input value={keyword} onChange={e=>setKeyword(e.target.value)} placeholder="Tìm thông số..." className="border rounded px-3 py-2"/>
-        <button onClick={handleSearch} className="px-3 py-2 rounded bg-blue-600 text-white">Tìm</button>
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex gap-2">
+          <input value={keyword} onChange={e=>setKeyword(e.target.value)} placeholder="Tìm thông số..." className="border rounded px-3 py-2"/>
+          <button onClick={handleSearch} className="px-3 py-2 rounded bg-blue-600 text-white">Tìm</button>
+        </div>
+        <button
+          onClick={() => setShowCreateForm((prev) => !prev)}
+          className="inline-flex items-center rounded bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700"
+        >
+          {showCreateForm ? "Ẩn form tạo" : "Thêm thông số"}
+        </button>
       </div>
 
       <div className="rounded border bg-white overflow-hidden">
@@ -79,6 +88,7 @@ export default function SpecsPage() {
         </table>
       </div>
 
+      {showCreateForm && (
       <div className="rounded border bg-white p-4 space-y-2">
         <div className="font-semibold">Tạo thông số</div>
         <div className="grid sm:grid-cols-2 gap-2">
@@ -90,6 +100,7 @@ export default function SpecsPage() {
           setForm({ name:"", slug:"" }); triggerReload();
         }} className="px-3 py-2 rounded bg-green-600 text-white">Tạo</button>
       </div>
+      )}
       {editing && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-md space-y-4 p-4">

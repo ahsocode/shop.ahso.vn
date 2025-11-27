@@ -108,7 +108,6 @@ type CheckoutResponse = {
 };
 
 /* ================== Consts & helpers ================== */
-const VAT_RATE = 0.1;
 const CHECKOUT_KEY = "checkout:guest";
 const SELECTED_KEY = "cart:selected:v1";
 
@@ -138,6 +137,7 @@ export default function CartReviewPage() {
   const router = useRouter();
 
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [taxRate, setTaxRate] = useState(0.1);
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<CartItem[]>([]);
@@ -256,6 +256,23 @@ export default function CartReviewPage() {
     })();
   }, []);
 
+  useEffect(() => {
+    let ignore = false;
+    fetch("/api/tax")
+      .then((res) => res.json())
+      .then((json) => {
+        if (!ignore && json?.data?.rate != null) {
+          setTaxRate(Number(json.data.rate));
+        }
+      })
+      .catch(() => {
+        /* ignore */
+      });
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   // Persist guest info
   useEffect(() => {
     try {
@@ -287,7 +304,7 @@ export default function CartReviewPage() {
   }, [appliedCode, subtotal]);
 
   const taxable = Math.max(0, subtotal - discount);
-  const vat = useMemo(() => taxable * VAT_RATE, [taxable]);
+  const vat = useMemo(() => taxable * taxRate, [taxable, taxRate]);
 
   const shippingFee = useMemo(() => {
     if (visibleItems.length === 0) return 0;
@@ -577,7 +594,9 @@ export default function CartReviewPage() {
                   <span className="font-medium">-{formatVND(discount)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">VAT (10%)</span>
+                  <span className="text-gray-600">
+                    VAT ({Math.round(taxRate * 100)}%)
+                  </span>
                   <span className="font-medium">{formatVND(vat)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
@@ -590,7 +609,9 @@ export default function CartReviewPage() {
                     {formatVND(grandTotal)}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500">* Đã bao gồm VAT</p>
+                <p className="text-xs text-gray-500">
+                  * Đã bao gồm VAT {Math.round(taxRate * 100)}%
+                </p>
               </div>
 
               <button

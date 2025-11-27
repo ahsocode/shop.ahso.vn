@@ -13,6 +13,8 @@ type CloudinaryConfig = {
   brandPreset?: string | null;
   categoryPreset?: string | null;
   productTypePreset?: string | null;
+  heroBannerPreset?: string | null;
+  popupBannerPreset?: string | null;
 };
 
 type UploadResult = {
@@ -42,6 +44,8 @@ function getConfig(): CloudinaryConfig {
   const brandPreset = process.env.CLOUDINARY_BRAND_PRESET;
   const categoryPreset = process.env.CLOUDINARY_CATEGORY_PRESET;
   const productTypePreset = process.env.CLOUDINARY_PRODUCT_TYPE_PRESET;
+  const heroBannerPreset = process.env.CLOUDINARY_HERO_BANNER_PRESET;
+  const popupBannerPreset = process.env.CLOUDINARY_POPUP_BANNER_PRESET;
 
   if (!cloudName || !apiKey || !apiSecret) {
     throw new Error("Missing Cloudinary credentials");
@@ -57,6 +61,8 @@ function getConfig(): CloudinaryConfig {
     brandPreset: brandPreset || null,
     categoryPreset: categoryPreset || null,
     productTypePreset: productTypePreset || null,
+    heroBannerPreset: heroBannerPreset || null,
+    popupBannerPreset: popupBannerPreset || null,
   };
 
   return cachedConfig;
@@ -121,6 +127,32 @@ export async function uploadBrandLogoToCloudinary(options: {
     folder: "brands/logos",
     publicId: options.brandId,
     uploadPreset: config.brandPreset,
+  });
+}
+
+export async function uploadHeroBannerImage(options: {
+  buffer: Buffer;
+  fileName?: string;
+}): Promise<UploadResult> {
+  const config = getConfig();
+  return uploadBuffer({
+    buffer: options.buffer,
+    folder: "hero_banner",
+    fileName: options.fileName,
+    uploadPreset: config.heroBannerPreset,
+  });
+}
+
+export async function uploadPopupBannerImage(options: {
+  buffer: Buffer;
+  fileName?: string;
+}): Promise<UploadResult> {
+  const config = getConfig();
+  return uploadBuffer({
+    buffer: options.buffer,
+    folder: "popup_banner",
+    fileName: options.fileName,
+    uploadPreset: config.popupBannerPreset,
   });
 }
 
@@ -232,7 +264,7 @@ function sanitizeSegment(value: string | null | undefined, fallback: string) {
   return slug || fallback;
 }
 
-export type BrandLogoAsset = {
+export type CloudinaryAsset = {
   assetId: string;
   publicId: string;
   secureUrl: string;
@@ -242,16 +274,23 @@ export type BrandLogoAsset = {
   createdAt: string;
 };
 
-export async function listBrandLogosFromCloudinary(options?: {
+export type BrandLogoAsset = CloudinaryAsset;
+
+type ListAssetsOptions = {
   nextCursor?: string | null;
   maxResults?: number;
-}): Promise<{ items: BrandLogoAsset[]; nextCursor: string | null }> {
+  folder: string;
+};
+
+async function listAssetsByFolder(
+  options: ListAssetsOptions,
+): Promise<{ items: CloudinaryAsset[]; nextCursor: string | null }> {
   const config = getConfig();
   const endpoint = `https://api.cloudinary.com/v1_1/${config.cloudName}/resources/search`;
 
   const maxResults = Math.min(Math.max(options?.maxResults ?? 30, 1), 100);
   const body: Record<string, unknown> = {
-    expression: 'folder:"brands/logos"',
+    expression: `folder:"${options.folder}"`,
     max_results: maxResults,
     sort_by: [{ created_at: "desc" }],
   };
@@ -271,14 +310,12 @@ export async function listBrandLogosFromCloudinary(options?: {
 
   const payload = (await res.json().catch(() => null)) as CloudinarySearchResponse | null;
   if (!res.ok || !payload) {
-    const message =
-      payload?.error?.message ||
-      "Failed to fetch brand logos";
+    const message = payload?.error?.message || "Failed to fetch Cloudinary resources";
     throw new Error(message);
   }
 
   const resources = payload.resources ?? [];
-  const items: BrandLogoAsset[] = resources.map((item) => ({
+  const items: CloudinaryAsset[] = resources.map((item) => ({
     assetId: item.asset_id,
     publicId: item.public_id,
     secureUrl: item.secure_url,
@@ -292,6 +329,39 @@ export async function listBrandLogosFromCloudinary(options?: {
     items,
     nextCursor: payload.next_cursor ?? null,
   };
+}
+
+export async function listBrandLogosFromCloudinary(options?: {
+  nextCursor?: string | null;
+  maxResults?: number;
+}) {
+  return listAssetsByFolder({
+    folder: "brands/logos",
+    nextCursor: options?.nextCursor ?? null,
+    maxResults: options?.maxResults,
+  });
+}
+
+export async function listHeroBannerAssets(options?: {
+  nextCursor?: string | null;
+  maxResults?: number;
+}) {
+  return listAssetsByFolder({
+    folder: "hero_banner",
+    nextCursor: options?.nextCursor ?? null,
+    maxResults: options?.maxResults,
+  });
+}
+
+export async function listPopupBannerAssets(options?: {
+  nextCursor?: string | null;
+  maxResults?: number;
+}) {
+  return listAssetsByFolder({
+    folder: "popup_banner",
+    nextCursor: options?.nextCursor ?? null,
+    maxResults: options?.maxResults,
+  });
 }
 
 type CloudinarySearchResponse = {

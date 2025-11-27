@@ -99,6 +99,19 @@ type AdminProductRow = productGetPayload<{ select: typeof productSelect }>;
 
 type AdminProductSpecValue = AdminProductRow["productspecvalue"][number];
 
+async function ensureUniqueProductSlug(baseSlug: string, excludeId: string) {
+  let candidate = baseSlug;
+  let suffix = 1;
+  for (;;) {
+    const dup = await prisma.product.findFirst({
+      where: { slug: candidate, NOT: { id: excludeId } },
+      select: { id: true },
+    });
+    if (!dup) return candidate;
+    candidate = `${baseSlug}-${suffix++}`;
+  }
+}
+
 /* ========= mapProduct: trả structure đúng với trang edit ========= */
 
 const mapProduct = (row: AdminProductRow | null) => {
@@ -220,21 +233,8 @@ export async function PATCH(
     }
     const data = parsed.data;
 
-    // Chuẩn hoá slug
-    if ("slug" in data && data.slug) data.slug = data.slug.trim();
-
     const updates: productUpdateInput = { ...data };
-
-    // --- Validate & xử lý slug ---
-    if (data.slug) {
-      const slugTaken = await prisma.product.findFirst({
-        where: { slug: data.slug, NOT: { id: productId } },
-        select: { id: true },
-      });
-      if (slugTaken) return jsonError("Slug already exists", 409);
-    } else if ("slug" in data && !data.slug) {
-      updates.slug = slugify(data.name ?? "");
-    }
+    const warnings: string[] = [];
 
     // --- Validate SKU ---
     if (data.sku) {
@@ -261,10 +261,12 @@ export async function PATCH(
       if (!brandRow) return jsonError("brandId not found", 400);
     }
 
-    // Product hiện tại để tính profit/publishAt
+    // Product hiện tại để tính slug/profit/publishAt
     const existing = await prisma.product.findUnique({
       where: { id: productId },
       select: {
+        slug: true,
+        name: true,
         price: true,
         costPrice: true,
         status: true,
@@ -272,6 +274,33 @@ export async function PATCH(
       },
     });
     if (!existing) return jsonError("Not found", 404);
+
+    const hasSlugField = Object.prototype.hasOwnProperty.call(data, "slug");
+    const explicitSlug =
+      hasSlugField && typeof data.slug === "string" ? data.slug.trim() : undefined;
+    let slugCandidate: string | undefined;
+    if (explicitSlug && explicitSlug !== existing.slug) {
+      slugCandidate = explicitSlug;
+    } else {
+      let baseName: string | undefined;
+      if (typeof data.name === "string") {
+        baseName = data.name;
+      } else if (hasSlugField && !explicitSlug) {
+        baseName = existing.name;
+      }
+      if (baseName) {
+        const auto = slugify(baseName);
+        if (auto && auto !== existing.slug) slugCandidate = auto;
+      }
+    }
+
+    if (slugCandidate) {
+      const uniqueSlug = await ensureUniqueProductSlug(slugCandidate, productId);
+      if (uniqueSlug !== slugCandidate) {
+        warnings.push(`Slug "${slugCandidate}" đã tồn tại, hệ thống đổi thành "${uniqueSlug}".`);
+      }
+      updates.slug = uniqueSlug;
+    }
 
     // --- Tính lại tiền lời nếu cần ---
     const hasPriceChange = "price" in data;
@@ -476,7 +505,7 @@ export async function PATCH(
 
     if (!updated) return jsonError("Not found", 404);
 
-    return jsonOk({ data: mapProduct(updated) });
+    return jsonOk({ data: mapProduct(updated), warnings });
   } catch (error) {
     const err = toHttpError(error);
     return jsonError(err.message || "Internal Error", err.status || 500);

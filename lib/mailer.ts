@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { EMAIL_CONFIG } from "./email-config";
 
 export function getTransporter() {
   return nodemailer.createTransport({
@@ -29,12 +30,12 @@ type SendMailOptions = {
 export async function sendMail({ to, subject, html, text, attachments }: SendMailOptions) {
   const transporter = getTransporter();
   const info = await transporter.sendMail({
-    from: process.env.FROM_EMAIL || process.env.SMTP_USER, // ← nếu không set FROM_EMAIL sẽ dùng SMTP_USER
+    from: EMAIL_CONFIG.FROM_EMAIL || process.env.SMTP_USER,
     to,
     subject,
     html,
     text,
     attachments,
   });
-  return info; // có messageId, response...
+  return info;
 }

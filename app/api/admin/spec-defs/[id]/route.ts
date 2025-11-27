@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonOk, jsonError, toHttpError } from "@/lib/http";
+import { slugify } from "@/lib/slug";
 import { z } from "zod";
 
 const UpdateSchema = z.object({
@@ -35,14 +36,35 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     const current = await prisma.productspecdefinition.findUnique({ where: { id } });
     if (!current) return jsonError("Not Found", 404);
 
-    if (parsed.data.slug && parsed.data.slug !== current.slug) {
-      const dup = await prisma.productspecdefinition.findUnique({ where: { slug: parsed.data.slug } });
+    const updates = parsed.data;
+    const hasSlugField = Object.prototype.hasOwnProperty.call(updates, "slug");
+    const explicitSlug = hasSlugField ? (updates.slug ?? "").trim() : undefined;
+    let slugCandidate: string | undefined;
+
+    if (explicitSlug && explicitSlug !== current.slug) {
+      slugCandidate = explicitSlug;
+    } else {
+      let baseName: string | undefined;
+      if (typeof updates.name === "string") {
+        baseName = updates.name;
+      } else if (hasSlugField && !explicitSlug) {
+        baseName = current.name;
+      }
+      if (baseName) {
+        const auto = slugify(baseName);
+        if (auto && auto !== current.slug) slugCandidate = auto;
+      }
+    }
+
+    if (slugCandidate && slugCandidate !== current.slug) {
+      const dup = await prisma.productspecdefinition.findUnique({ where: { slug: slugCandidate } });
       if (dup) return jsonError("Slug already exists", 409);
+      updates.slug = slugCandidate;
     }
 
     const updated = await prisma.productspecdefinition.update({
       where: { id },
-      data: parsed.data,
+      data: updates,
     });
 
     return jsonOk({ data: updated });

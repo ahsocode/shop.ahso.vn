@@ -13,6 +13,7 @@ type OrderPreview = {
   customerFullName: string;
   grandTotal: number;
   vat: number;
+  taxRate: number;
   shippingFee: number;
   discount: number;
   subtotal: number;
@@ -63,6 +64,7 @@ export default function CheckoutPage() {
   }
 
   const amount = Math.round(order.grandTotal);
+  const vatPercent = Math.round((order.taxRate ?? 0.1) * 100);
   const { bankId, accountNumber, accountName, transferNote } = order.bankInfo;
 
   // VietQR quick link: https://img.vietqr.io/image/<BANK_ID>-<ACCOUNT_NO>-<TEMPLATE>.png?amount=...&addInfo=...&accountName=...
@@ -72,7 +74,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50">
-      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-10">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -98,44 +100,7 @@ export default function CheckoutPage() {
           </button>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-[2fr,1.4fr]">
-          {/* QR side */}
-          <div className="rounded-2xl border bg-white p-4 sm:p-6 shadow-sm flex flex-col items-center">
-            <h2 className="mb-3 text-lg font-semibold text-gray-900">
-              Quét mã VietQR để thanh toán
-            </h2>
-            <p className="mb-4 text-sm text-gray-600 text-center">
-              Sử dụng ứng dụng ngân hàng / ví điện tử hỗ trợ VietQR để quét mã.
-              Nội dung chuyển khoản đã được điền sẵn là mã đơn hàng{" "}
-              <span className="font-semibold">{order.code}</span>.
-            </p>
-
-            <div className="rounded-2xl border bg-gray-50 p-4">
-              <Image
-                src={qrUrl}
-                alt="Mã QR thanh toán VietQR"
-                width={256}
-                height={256}
-                sizes="256px"
-                className="h-64 w-64 object-contain"
-                priority
-              />
-            </div>
-
-            <button
-              onClick={() => router.push("/thank-you")}
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-green-600 px-5 py-3 text-sm font-semibold text-white hover:bg-green-700"
-            >
-              <CheckCircle2 className="h-5 w-5" />
-              Tôi đã hoàn tất thanh toán
-            </button>
-
-            <p className="mt-3 text-xs text-gray-500 text-center">
-              Sau khi chuyển khoản, đơn hàng sẽ được đội ngũ AHSO kiểm tra và xác nhận
-              trong khoảng 1–2 giờ làm việc.
-            </p>
-          </div>
-
+        <div className="grid gap-6 lg:gap-8 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr] items-stretch">
           {/* Summary side */}
           <div className="rounded-2xl border bg-white p-4 sm:p-6 shadow-sm space-y-4">
             <h2 className="text-lg font-semibold text-gray-900">
@@ -188,7 +153,7 @@ export default function CheckoutPage() {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">VAT (10%)</span>
+                <span className="text-gray-600">VAT ({vatPercent}%)</span>
                 <span className="font-medium">{formatVND(order.vat)}</span>
               </div>
               <div className="flex justify-between">
@@ -208,6 +173,43 @@ export default function CheckoutPage() {
             <p className="text-xs text-gray-500">
               * Đơn hàng sẽ chỉ được xử lý sau khi AHSO xác nhận đã nhận đủ số tiền
               thanh toán tương ứng.
+            </p>
+          </div>
+
+          {/* QR side */}
+          <div className="rounded-2xl border bg-white p-4 sm:p-6 shadow-sm flex flex-col items-center">
+            <h2 className="mb-3 text-lg font-semibold text-gray-900">
+              Quét mã VietQR để thanh toán
+            </h2>
+            <p className="mb-4 text-sm text-gray-600 text-center">
+              Sử dụng ứng dụng ngân hàng / ví điện tử hỗ trợ VietQR để quét mã.
+              Nội dung chuyển khoản đã được điền sẵn là mã đơn hàng{" "}
+              <span className="font-semibold">{order.code}</span>.
+            </p>
+
+            <div className="rounded-2xl border bg-gray-50 p-4 w-full max-w-md">
+              <Image
+                src={qrUrl}
+                alt="Mã QR thanh toán VietQR"
+                width={320}
+                height={320}
+                sizes="(min-width: 1024px) 320px, 260px"
+                className="h-72 w-full max-w-sm mx-auto object-contain"
+                priority
+              />
+            </div>
+
+            <button
+              onClick={() => router.push("/thank-you")}
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-green-600 px-5 py-3 text-sm font-semibold text-white hover:bg-green-700"
+            >
+              <CheckCircle2 className="h-5 w-5" />
+              Tôi đã hoàn tất thanh toán
+            </button>
+
+            <p className="mt-3 text-xs text-gray-500 text-center">
+              Sau khi chuyển khoản, đơn hàng sẽ được đội ngũ AHSO kiểm tra và xác nhận
+              trong khoảng 1–2 giờ làm việc.
             </p>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonOk, jsonError, toHttpError } from "@/lib/http";
+import { slugify } from "@/lib/slug";
 import { z } from "zod";
 
 const BrandUpdate = z.object({
@@ -39,12 +40,24 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     const exists = await prisma.brand.findUnique({ where: { id } });
     if (!exists) return jsonError("Not Found", 404);
 
-    if (parsed.data.slug && parsed.data.slug !== exists.slug) {
-      const dup = await prisma.brand.findUnique({ where: { slug: parsed.data.slug } });
-      if (dup) return jsonError("Slug already exists", 409);
+    const updates = parsed.data;
+    const hasSlugField = Object.prototype.hasOwnProperty.call(updates, "slug");
+    const explicitSlug = hasSlugField ? (updates.slug ?? "").trim() : undefined;
+    let slugCandidate: string | undefined;
+    if (explicitSlug && explicitSlug !== exists.slug) {
+      slugCandidate = explicitSlug;
+    } else if (updates.name) {
+      const autoSlug = slugify(updates.name);
+      if (autoSlug && autoSlug !== exists.slug) slugCandidate = autoSlug;
     }
 
-    const updated = await prisma.brand.update({ where: { id }, data: parsed.data });
+    if (slugCandidate && slugCandidate !== exists.slug) {
+      const dup = await prisma.brand.findUnique({ where: { slug: slugCandidate } });
+      if (dup) return jsonError("Slug already exists", 409);
+      updates.slug = slugCandidate;
+    }
+
+    const updated = await prisma.brand.update({ where: { id }, data: updates });
     return jsonOk({ data: updated });
   } catch (error) {
     const err = toHttpError(error);

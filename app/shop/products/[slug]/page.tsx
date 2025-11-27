@@ -246,7 +246,13 @@ export default async function ProductDetailPage({
 
   const cover = p.coverImage || p.images[0]?.url || "/logo.png";
   const price = Number(p.price ?? 0);
+  const listPrice = Number(p.listPrice ?? 0);
   const inStock = (p.stockOnHand ?? 0) - (p.stockReserved ?? 0) > 0;
+  const requiresQuote = Boolean(p.requiresQuote);
+  const outOfStock = !inStock;
+  const showSavings = listPrice > price && price > 0;
+  const savings = showSavings ? listPrice - price : 0;
+  const savingsPercent = showSavings ? Math.round((savings / listPrice) * 100) : 0;
 
   // counters (đã có trong Product, không cần include riêng)
   const metrics = p as ProductWithMetrics;
@@ -280,12 +286,26 @@ export default async function ProductDetailPage({
         </div>
       </div>
 
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
+        {p.name}
+      </h1>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Gallery + description + reviews */}
         <div className="lg:col-span-2">
           {/* Gallery */}
-          <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-gray-100">
-            <Image src={cover} alt={p.name} fill className="object-cover" />
+          <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-white border">
+            <Image src={cover} alt={p.name} fill className="object-contain" />
+            {outOfStock && (
+              <>
+                <div className="absolute inset-0 bg-black/30" aria-hidden />
+                <div className="absolute top-4 left-4">
+                  <span className="inline-flex items-center rounded-full bg-gray-900/80 px-4 py-1.5 text-sm font-semibold text-white">
+                    Hết hàng
+                  </span>
+                </div>
+              </>
+            )}
           </div>
 
           {p.images.length > 0 && (
@@ -300,7 +320,7 @@ export default async function ProductDetailPage({
                     alt={img.alt ?? p.name}
                     width={400}
                     height={160}
-                    className="h-40 w-full object-cover"
+                    className="h-40 w-full object-contain bg-white"
                     loading="lazy"
                     unoptimized
                   />
@@ -379,7 +399,7 @@ export default async function ProductDetailPage({
                                 alt={im.alt ?? ""}
                                 width={300}
                                 height={200}
-                                className="h-28 w-full object-cover"
+                                className="h-28 w-full object-contain bg-white"
                                 loading="lazy"
                                 unoptimized
                               />
@@ -441,19 +461,61 @@ export default async function ProductDetailPage({
                 </dd>
               </div>
 
-              <div className="flex gap-2">
-                <dt className="text-gray-500 min-w-24">Giá</dt>
-                <dd className="flex-1 font-semibold">
-                  {price.toLocaleString()} {p.currency ?? ""}
+              <div className="flex flex-col gap-1 text-gray-700">
+                <dt className="text-gray-500 text-sm">Giá</dt>
+                <dd>
+                  {requiresQuote ? (
+                    <span className="text-base font-semibold text-amber-700">
+                      Liên hệ báo giá
+                    </span>
+                  ) : (
+                    <div className="space-y-1">
+                      {showSavings && (
+                        <div className="text-sm text-gray-400 line-through">
+                          {listPrice.toLocaleString()} {p.currency ?? ""}
+                        </div>
+                      )}
+                      <div className="text-2xl font-bold text-gray-900">
+                        {price.toLocaleString()} {p.currency ?? "VND"}
+                      </div>
+                      {showSavings && (
+                        <div className="text-xs text-rose-600">
+                          Tiết kiệm {savingsPercent}% (
+                          {savings.toLocaleString()} {p.currency ?? "VND"})
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </dd>
               </div>
             </dl>
 
             <div className="mt-4 flex gap-2">
-              <AddToCartClient sku={p.sku} name={p.name} image={cover} />
-              <Link href="/contact" className="rounded-md border px-4 py-2 text-sm">
-                Liên hệ
-              </Link>
+              {requiresQuote ? (
+                <Link
+                  href="/contact"
+                  className="inline-flex flex-1 items-center justify-center rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-amber-700"
+                >
+                  Liên hệ báo giá
+                </Link>
+              ) : (
+                <>
+                  <AddToCartClient
+                    sku={p.sku}
+                    name={p.name}
+                    image={cover}
+                    disabled={outOfStock}
+                    className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold shadow ${
+                      outOfStock
+                        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                        : "bg-blue-600 text-white hover:bg-blue-700"
+                    }`}
+                  />
+                  <Link href="/contact" className="rounded-md border px-4 py-2 text-sm">
+                    Liên hệ
+                  </Link>
+                </>
+              )}
             </div>
           </div>
 

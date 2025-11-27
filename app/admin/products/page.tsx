@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
-import { FileSpreadsheet } from "lucide-react";
+import { AlertTriangle, FileSpreadsheet } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ImageCropDialog } from "@/components/image/image-crop-dialog";
 import { getJSON, postJSON, makeHeaders } from "../_lib/fetcher";
 import { slugify } from "@/lib/slug";
@@ -37,6 +38,11 @@ type Row = {
   taxRate?: string | null;
   taxIncluded?: boolean | null;
 };
+
+type ConfirmAction =
+  | { type: "bulk-update" }
+  | { type: "bulk-delete" }
+  | { type: "row-delete"; row: Row };
 
 type ListResp<T> = {
   data: T[];
@@ -98,6 +104,13 @@ type ProductDraft = {
     supplier?: string;
     categories?: string[];
   };
+};
+
+type BulkImageState = {
+  file: File | null;
+  fileName: string;
+  preview: string;
+  uploading: boolean;
 };
 
 const specsToText = (specs?: Array<{ key: string; value: string; unit?: string }>) =>
@@ -171,11 +184,14 @@ const applyDraftPatch = (
   return next;
 };
 
-const formatDate = (iso?: string) =>
+const formatShortDate = (iso?: string) =>
   iso
     ? new Intl.DateTimeFormat("vi-VN", {
-        dateStyle: "medium",
-        timeStyle: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
       }).format(new Date(iso))
     : "—";
 
@@ -211,7 +227,7 @@ const DEFAULT_FORM = {
   coverImage: "",
   status: "DRAFT" as "DRAFT" | "PUBLISHED" | "ARCHIVED",
   description: "",
-  taxRate: "0.10",
+  taxRate: "10",
   taxIncluded: true,
   stockOnHand: "",
   reorderLevel: "",
@@ -221,13 +237,27 @@ const DEFAULT_FORM = {
 type FormState = typeof DEFAULT_FORM;
 
 export default function ProductsPage() {
-  const pageSize = 20;
+  const pageSize = 100;
   const [keyword, setKeyword] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<Row[]>([]);
   const [total, setTotal] = useState(0);
   const [reloadToken, setReloadToken] = useState(0);
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+  const [bulkSupplier, setBulkSupplier] = useState("");
+  const [bulkStatus, setBulkStatus] = useState("");
+  const [bulkQuote, setBulkQuote] = useState("");
+  const [bulkImage, setBulkImage] = useState<BulkImageState>({
+    file: null,
+    fileName: "",
+    preview: "",
+    uploading: false,
+  });
+  const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [rowDeletingId, setRowDeletingId] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
 
   const [types, setTypes] = useState<Option[]>([]);
   const [brands, setBrands] = useState<Option[]>([]);
@@ -248,6 +278,7 @@ export default function ProductsPage() {
   const [imageRows, setImageRows] = useState<ImageRow[]>([
     { id: 1, url: "", alt: "", sortOrder: "" },
   ]);
+  const selectAllRef = useRef<HTMLInputElement | null>(null);
   const coverFileInputRef = useRef<HTMLInputElement | null>(null);
   const galleryFileInputRef = useRef<HTMLInputElement | null>(null);
   const [coverCropOpen, setCoverCropOpen] = useState(false);
@@ -284,6 +315,7 @@ export default function ProductsPage() {
       ? drafts.filter((draft) => selectedDraftIds.includes(draft.tempId))
       : drafts;
 
+  const MAX_SELECTION = 50;
   const triggerReload = () => setReloadToken((token) => token + 1);
 
   const ensureUploadPrerequisites = () => {
@@ -385,6 +417,93 @@ export default function ProductsPage() {
     if (!selectedDraftIds.length) return;
     setDrafts((prev) => prev.filter((row) => !selectedDraftIds.includes(row.tempId)));
     setSelectedDraftIds([]);
+  };
+
+  const bulkImageInputRef = useRef<HTMLInputElement | null>(null);
+  const releaseBulkPreview = (url?: string) => {
+    if (url) URL.revokeObjectURL(url);
+  };
+
+  useEffect(() => {
+    return () => {
+      releaseBulkPreview(bulkImage.preview);
+    };
+  }, [bulkImage.preview]);
+
+  const handleBulkImageButtonClick = () => {
+    bulkImageInputRef.current?.click();
+  };
+
+  const handleBulkImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    releaseBulkPreview(bulkImage.preview);
+    if (!file) {
+      if (bulkImageInputRef.current) bulkImageInputRef.current.value = "";
+      setBulkImage({ file: null, fileName: "", preview: "", uploading: false });
+      return;
+    }
+    const preview = URL.createObjectURL(file);
+    setBulkImage({
+      file,
+      fileName: file.name,
+      preview,
+      uploading: false,
+    });
+  };
+
+  const clearBulkImage = () => {
+    releaseBulkPreview(bulkImage.preview);
+    if (bulkImageInputRef.current) bulkImageInputRef.current.value = "";
+    setBulkImage({ file: null, fileName: "", preview: "", uploading: false });
+  };
+
+  const handleBulkImageUpload = async () => {
+    if (!bulkImage.file) return;
+    if (!selectedProductIds.length) {
+      toast.error("Vui lòng chọn sản phẩm trước khi tải ảnh");
+      return;
+    }
+    const file = bulkImage.file;
+    const previewUrl = bulkImage.preview;
+    setBulkImage((prev) => ({ ...prev, uploading: true }));
+    let success = false;
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      selectedProductIds.forEach((id) => fd.append("productIds", id));
+
+      const res = await fetch("/api/admin/products/bulk-upload-image", {
+        method: "POST",
+        headers: makeHeaders(),
+        body: fd,
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(
+          getErrorMessage(data, "Không thể tải ảnh cho sản phẩm đã chọn"),
+        );
+      }
+      toast.success(`Đã thêm ảnh cho ${data?.uploaded ?? 0} sản phẩm`);
+      success = true;
+    } catch (error) {
+      setBulkImage((prev) => ({ ...prev, uploading: false }));
+      throw error instanceof Error
+        ? error
+        : new Error("Không thể tải ảnh cho sản phẩm đã chọn");
+    } finally {
+      if (success) {
+        releaseBulkPreview(previewUrl);
+        if (bulkImageInputRef.current) {
+          bulkImageInputRef.current.value = "";
+        }
+        setBulkImage({
+          file: null,
+          fileName: "",
+          preview: "",
+          uploading: false,
+        });
+      }
+    }
   };
 
   const handleCommitImport = async (selectedOnly?: boolean) => {
@@ -503,6 +622,267 @@ export default function ProductsPage() {
     };
   }, [page, pageSize, searchQuery, reloadToken]);
 
+  useEffect(() => {
+    setSelectedProductIds((prev) =>
+      prev.filter((id) => rows.some((row) => row.id === id)),
+    );
+  }, [rows]);
+
+  const currentPageIds = rows.map((row) => row.id);
+  const allCurrentSelected =
+    currentPageIds.length > 0 &&
+    currentPageIds.every((id) => selectedProductIds.includes(id));
+  const someCurrentSelected = currentPageIds.some((id) =>
+    selectedProductIds.includes(id),
+  );
+  const selectedCount = selectedProductIds.length;
+  const bulkFormFilled = Boolean(
+    bulkSupplier || bulkStatus || bulkQuote || bulkImage.file,
+  );
+  const bulkDisabled =
+    !selectedCount || !bulkFormFilled || bulkUpdating || bulkImage.uploading;
+  const statusMap: Record<
+    Row["status"],
+    { label: string; className: string }
+  > = {
+    DRAFT: {
+      label: "Nháp",
+      className: "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-100",
+    },
+    PUBLISHED: {
+      label: "Đang bán",
+      className: "bg-green-50 text-green-700 ring-1 ring-green-100",
+    },
+    ARCHIVED: {
+      label: "Lưu trữ",
+      className: "bg-gray-100 text-gray-700 ring-1 ring-gray-200",
+    },
+  };
+
+  useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate =
+        someCurrentSelected && !allCurrentSelected;
+    }
+  }, [someCurrentSelected, allCurrentSelected]);
+
+  const handleToggleRow = (id: string, checked: boolean) => {
+    setSelectedProductIds((prev) => {
+      if (checked) {
+        if (prev.includes(id)) return prev;
+        if (prev.length >= MAX_SELECTION) {
+          toast.error(`Chỉ chọn tối đa ${MAX_SELECTION} sản phẩm.`);
+          return prev;
+        }
+        return [...prev, id];
+      }
+      return prev.filter((pid) => pid !== id);
+    });
+  };
+
+  const handleToggleAllCurrent = (checked: boolean) => {
+    const pageIds = rows.map((row) => row.id);
+    setSelectedProductIds((prev) => {
+      if (checked) {
+        const set = new Set(prev);
+        let added = 0;
+        for (const id of pageIds) {
+          if (set.has(id)) continue;
+          if (set.size >= MAX_SELECTION) {
+            if (added === 0) {
+              toast.error(`Chỉ chọn tối đa ${MAX_SELECTION} sản phẩm.`);
+            } else {
+              toast.warning(`Đã chọn tối đa ${MAX_SELECTION} sản phẩm.`);
+            }
+            break;
+          }
+          set.add(id);
+          added++;
+        }
+        return Array.from(set);
+      }
+      return prev.filter((id) => !pageIds.includes(id));
+    });
+  };
+
+  const clearSelection = () => {
+    setSelectedProductIds([]);
+    clearBulkImage();
+  };
+
+  const requestBulkUpdate = () => {
+    if (!selectedCount) {
+      toast.error("Vui lòng chọn sản phẩm cần cập nhật");
+      return;
+    }
+    if (!bulkFormFilled) {
+      toast.error("Chọn ít nhất một trường cần cập nhật");
+      return;
+    }
+    setConfirmAction({ type: "bulk-update" });
+  };
+
+  const requestBulkDelete = () => {
+    if (!selectedCount) {
+      toast.error("Vui lòng chọn sản phẩm cần xóa");
+      return;
+    }
+    setConfirmAction({ type: "bulk-delete" });
+  };
+
+  const requestRowDelete = (row: Row) => {
+    setConfirmAction({ type: "row-delete", row });
+  };
+
+  const runBulkUpdate = async () => {
+    if (!selectedCount) {
+      toast.error("Vui lòng chọn sản phẩm cần cập nhật");
+      return false;
+    }
+    if (!bulkFormFilled) {
+      toast.error("Chọn ít nhất một trường cần cập nhật");
+      return false;
+    }
+
+    setBulkUpdating(true);
+    try {
+      const basePayload: Record<string, unknown> = {
+        productIds: selectedProductIds,
+      };
+      if (bulkSupplier) {
+        basePayload.supplierId =
+          bulkSupplier === "__clear__" ? null : bulkSupplier;
+      }
+      if (bulkStatus) basePayload.status = bulkStatus as Row["status"];
+      if (bulkQuote) basePayload.requiresQuote = bulkQuote === "quote";
+
+      if (bulkSupplier || bulkStatus || bulkQuote) {
+        const res = await postJSON<{ updated: number }>(
+          "/api/admin/products/bulk-update",
+          basePayload,
+        );
+        toast.success(`Đã cập nhật ${res.updated} sản phẩm`);
+        setBulkSupplier("");
+        setBulkStatus("");
+        setBulkQuote("");
+      }
+
+      if (bulkImage.file) {
+        await handleBulkImageUpload();
+      }
+
+      setSelectedProductIds([]);
+      clearBulkImage();
+      triggerReload();
+      return true;
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Không thể cập nhật sản phẩm",
+      );
+      return false;
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
+  const runBulkDelete = async () => {
+    if (!selectedCount) {
+      toast.error("Vui lòng chọn sản phẩm cần xóa");
+      return false;
+    }
+
+    setBulkDeleting(true);
+    try {
+      const res = await postJSON<{ deleted: number }>(
+        "/api/admin/products/bulk-delete",
+        { productIds: selectedProductIds },
+      );
+      toast.success(`Đã xóa ${res.deleted} sản phẩm`);
+      setSelectedProductIds([]);
+      clearBulkImage();
+      triggerReload();
+      return true;
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Không thể xóa sản phẩm",
+      );
+      return false;
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  const runRowDelete = async (row: Row) => {
+    setRowDeletingId(row.id);
+    try {
+      await postJSON("/api/admin/products/bulk-delete", {
+        productIds: [row.id],
+      });
+      toast.success("Đã xóa sản phẩm");
+      setSelectedProductIds((prev) => prev.filter((id) => id !== row.id));
+      triggerReload();
+      return true;
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Không thể xóa sản phẩm",
+      );
+      return false;
+    } finally {
+      setRowDeletingId((curr) => (curr === row.id ? null : curr));
+    }
+  };
+
+  const confirmLoading =
+    confirmAction?.type === "bulk-update"
+      ? bulkUpdating
+      : confirmAction?.type === "bulk-delete"
+      ? bulkDeleting
+      : confirmAction?.type === "row-delete"
+      ? rowDeletingId === confirmAction.row.id
+      : false;
+
+  const confirmTitle =
+    confirmAction?.type === "bulk-update"
+      ? "Cập nhật nhanh sản phẩm"
+      : confirmAction?.type === "bulk-delete"
+      ? "Xóa các sản phẩm được chọn"
+      : confirmAction?.type === "row-delete"
+      ? "Xóa sản phẩm"
+      : "";
+
+  const confirmDescription =
+    confirmAction?.type === "bulk-update"
+      ? `Thao tác này sẽ cập nhật ${selectedCount} sản phẩm đã chọn.`
+      : confirmAction?.type === "bulk-delete"
+      ? `Thao tác này sẽ xóa ${selectedCount} sản phẩm và không thể hoàn tác.`
+      : confirmAction?.type === "row-delete"
+      ? `Bạn có chắc muốn xóa "${confirmAction.row.name}"? Hành động này không thể hoàn tác.`
+      : "";
+
+  const confirmButtonLabel =
+    confirmAction?.type === "bulk-update"
+      ? "Cập nhật"
+      : confirmAction?.type === "bulk-delete"
+      ? "Xóa"
+      : confirmAction?.type === "row-delete"
+      ? "Xóa"
+      : "Đồng ý";
+
+  const handleConfirmAction = async () => {
+    if (!confirmAction) return;
+    let ok = false;
+    if (confirmAction.type === "bulk-update") {
+      ok = await runBulkUpdate();
+    } else if (confirmAction.type === "bulk-delete") {
+      ok = await runBulkDelete();
+    } else if (confirmAction.type === "row-delete") {
+      ok = await runRowDelete(confirmAction.row);
+    }
+    if (ok) setConfirmAction(null);
+  };
+
   const handleSearch = () => {
     const term = keyword.trim();
     setPage(1);
@@ -533,6 +913,13 @@ export default function ProductsPage() {
         if (!trimmed) return undefined;
         const num = Number(trimmed);
         return Number.isFinite(num) ? num : undefined;
+      };
+      const parsePercent = (value: string) => {
+        const trimmed = value.trim().replace(",", ".");
+        if (!trimmed) return undefined;
+        const num = Number(trimmed);
+        if (!Number.isFinite(num)) return undefined;
+        return num / 100;
       };
 
       // map specRows -> specs gửi xuống API
@@ -577,7 +964,7 @@ export default function ProductsPage() {
         currency: form.currency || "VND",
         requiresQuote: form.requiresQuote,
         quoteNote: form.quoteNote.trim() || undefined,
-        taxRate: parseNumber(form.taxRate),
+        taxRate: parsePercent(form.taxRate),
         taxIncluded: form.taxIncluded,
         stockOnHand: parseNumber(form.stockOnHand),
         reorderLevel: parseNumber(form.reorderLevel),
@@ -1245,35 +1632,171 @@ export default function ProductsPage() {
             <div className="text-xs text-gray-400">Đang tải dữ liệu...</div>
           )}
         </div>
+        <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="text-sm text-gray-700">
+              Đã chọn{" "}
+              <span className="font-semibold text-gray-900">
+                {selectedCount}/{MAX_SELECTION}
+              </span>{" "}
+              sản phẩm
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                className="rounded border border-gray-300 bg-white px-2 py-1 text-sm"
+                value={bulkSupplier}
+                onChange={(e) => setBulkSupplier(e.target.value)}
+              >
+                <option value="">Nguồn hàng: giữ nguyên</option>
+                <option value="__clear__">Bỏ nguồn hàng</option>
+                {suppliers.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="rounded border border-gray-300 bg-white px-2 py-1 text-sm"
+                value={bulkStatus}
+                onChange={(e) => setBulkStatus(e.target.value)}
+              >
+                <option value="">Trạng thái: giữ nguyên</option>
+                <option value="DRAFT">DRAFT</option>
+                <option value="PUBLISHED">PUBLISHED</option>
+                <option value="ARCHIVED">ARCHIVED</option>
+              </select>
+              <select
+                className="rounded border border-gray-300 bg-white px-2 py-1 text-sm"
+                value={bulkQuote}
+                onChange={(e) => setBulkQuote(e.target.value)}
+              >
+                <option value="">Báo giá: giữ nguyên</option>
+                <option value="direct">Bán trực tiếp</option>
+                <option value="quote">Cần báo giá</option>
+              </select>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleBulkImageButtonClick}
+                  className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={bulkImage.uploading || bulkUpdating}
+                >
+                  {bulkImage.fileName ? "Đổi ảnh" : "Tải ảnh lên"}
+                </button>
+                {bulkImage.fileName && (
+                  <div className="flex items-center gap-2">
+                    <div className="relative h-8 w-8 overflow-hidden rounded border border-gray-200 bg-white">
+                      <Image
+                        src={bulkImage.preview}
+                        alt="Bulk preview"
+                        fill
+                        sizes="32px"
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                    <span className="max-w-[120px] truncate text-xs text-gray-600">
+                      {bulkImage.fileName}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={clearBulkImage}
+                      className="text-xs text-red-600 hover:underline disabled:opacity-60"
+                      disabled={bulkImage.uploading}
+                    >
+                      Xóa
+                    </button>
+                  </div>
+                )}
+                <input
+                  ref={bulkImageInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleBulkImageChange}
+                />
+              </div>
+              <button
+                onClick={requestBulkUpdate}
+                disabled={bulkDisabled}
+                className={`rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors ${
+                  bulkDisabled
+                    ? "cursor-not-allowed opacity-60"
+                    : "hover:bg-blue-700"
+                }`}
+              >
+                Cập nhật nhanh
+              </button>
+              <button
+                onClick={requestBulkDelete}
+                disabled={!selectedCount || bulkDeleting}
+                className="rounded border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 shadow-sm transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Xóa đã chọn
+              </button>
+              <button
+                onClick={clearSelection}
+                disabled={!selectedCount}
+                className="rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Bỏ chọn
+              </button>
+            </div>
+          </div>
+        </div>
 
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
               <tr>
+                <th className="px-3 py-2 text-center">
+                  <input
+                    ref={selectAllRef}
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    checked={rows.length > 0 && allCurrentSelected}
+                    onChange={(e) => handleToggleAllCurrent(e.target.checked)}
+                  />
+                </th>
+                <th className="px-3 py-2 text-left">STT</th>
                 <th className="px-3 py-2 text-left">Ảnh</th>
                 <th className="px-3 py-2 text-left">Sản phẩm</th>
-                <th className="px-3 py-2 text-left">SKU / Loại</th>
+                <th className="px-3 py-2 text-left">Mã sản phẩm</th>
                 <th className="px-3 py-2 text-left">Nguồn hàng</th>
-                <th className="px-3 py-2 text-right">Giá bán</th>
-                <th className="px-3 py-2 text-right">Giá nhập</th>
+                <th className="px-3 py-2 text-left">Giá</th>
                 <th className="px-3 py-2 text-center">Tồn kho</th>
-                <th className="px-3 py-2 text-left">Báo giá</th>
+                <th className="px-3 py-2 text-center">Tình trạng bán</th>
                 <th className="px-3 py-2 text-center">Trạng thái</th>
-                <th className="px-3 py-2 text-left">Tạo lúc</th>
                 <th className="px-3 py-2 text-left">Cập nhật</th>
+                <th className="px-3 py-2 text-center">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {rows.map((r) => {
+              {rows.map((r, idx) => {
                 const cost = toNumberOrNull(r.costPrice);
                 const sale = toNumberOrNull(r.price) ?? 0;
                 const profit = cost != null ? sale - cost : null;
+                const isSelected = selectedProductIds.includes(r.id);
+                const rowNumber = (page - 1) * pageSize + idx + 1;
 
                 return (
                   <tr
                     key={r.id}
-                    className="transition-colors hover:bg-gray-50/70"
+                    className={`transition-colors hover:bg-gray-50/70 ${
+                      isSelected ? "bg-blue-50/70" : ""
+                    }`}
                   >
+                    <td className="px-3 py-2 align-top text-center">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        checked={isSelected}
+                        onChange={(e) => handleToggleRow(r.id, e.target.checked)}
+                      />
+                    </td>
+                    <td className="px-3 py-2 align-top text-xs text-gray-500">
+                      {rowNumber}
+                    </td>
                     <td className="px-3 py-2 align-top">
                       {r.coverImage ? (
                         <div className="relative h-14 w-14 overflow-hidden rounded-md border border-gray-200 bg-white">
@@ -1299,17 +1822,15 @@ export default function ProductsPage() {
                         {r.name}
                       </Link>
                       <div className="mt-1 text-xs text-gray-500">
-                        {r.brand?.name || "—"}
+                        Thương hiệu: {r.brand?.name || "—"}
+                      </div>
+                      <div className="mt-1 text-xs text-gray-400">
+                        Loại: {r.type?.name || "—"}
                       </div>
                     </td>
 
-                    <td className="px-3 py-2 align-top text-sm">
-                      <div className="font-mono text-xs text-gray-900">
-                        {r.sku}
-                      </div>
-                      <div className="mt-1 text-xs text-gray-500">
-                        {r.type?.name || "—"}
-                      </div>
+                    <td className="px-3 py-2 align-top text-sm font-mono text-gray-900">
+                      {r.sku}
                     </td>
 
                     <td className="px-3 py-2 align-top text-sm">
@@ -1318,54 +1839,42 @@ export default function ProductsPage() {
                       </div>
                       {r.supplierSku && (
                         <div className="mt-1 text-xs text-gray-500">
-                          SKU NCC: {r.supplierSku}
+                          Mã NCC: {r.supplierSku}
                         </div>
                       )}
                     </td>
 
-                    <td className="px-3 py-2 align-top text-right">
-                      {r.requiresQuote ? (
-                        <div className="text-xs text-amber-600">
-                          Báo giá riêng
-                        </div>
-                      ) : (
-                        <div className="font-medium text-gray-900">
+                    <td className="px-3 py-2 align-top text-sm text-gray-800">
+                      <div>
+                        Giá bán:{" "}
+                        <span className="font-medium text-gray-900">
                           {formatCurrency(r.price, r.currency || "VND")}
-                        </div>
-                      )}
-                      {r.listPrice && (
-                        <div className="mt-1 text-xs text-gray-500">
-                          Niêm yết:{" "}
-                          {formatCurrency(
-                            r.listPrice,
-                            r.currency || "VND",
-                          )}
-                        </div>
-                      )}
-                    </td>
-
-                    <td className="px-3 py-2 align-top text-right text-sm">
-                      {cost != null ? (
-                        <>
-                          <div>
-                            {formatCurrency(
-                              cost,
-                              r.currency || "VND",
-                            )}
-                          </div>
-                          {profit != null && (
-                            <div className="mt-1 text-xs text-gray-500">
-                              Lãi:{" "}
-                              {formatCurrency(
-                                profit,
-                                r.currency || "VND",
-                              )}
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <span className="text-gray-400">—</span>
-                      )}
+                        </span>
+                      </div>
+                      <div className="mt-1">
+                        Giá nhập:{" "}
+                        <span>
+                          {cost != null
+                            ? formatCurrency(cost, r.currency || "VND")
+                            : "—"}
+                        </span>
+                      </div>
+                      <div className="mt-1">
+                        Niêm yết:{" "}
+                        <span>
+                          {r.listPrice
+                            ? formatCurrency(r.listPrice, r.currency || "VND")
+                            : "—"}
+                        </span>
+                      </div>
+                      <div className="mt-1">
+                        Lãi:{" "}
+                        <span>
+                          {profit != null
+                            ? formatCurrency(profit, r.currency || "VND")
+                            : "—"}
+                        </span>
+                      </div>
                     </td>
 
                     <td className="px-3 py-2 align-top text-center text-sm">
@@ -1384,16 +1893,16 @@ export default function ProductsPage() {
                       )}
                     </td>
 
-                    <td className="px-3 py-2 align-top text-sm">
-                      {r.requiresQuote ? (
-                        <span className="inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700 ring-1 ring-amber-100">
-                          Cần báo giá
-                        </span>
-                      ) : (
-                        <span className="text-xs text-gray-500">
-                          Bán trực tiếp
-                        </span>
-                      )}
+                    <td className="px-3 py-2 align-top text-center text-xs">
+                      <span
+                        className={`inline-flex rounded-full px-2 py-0.5 font-medium ${
+                          r.requiresQuote
+                            ? "bg-amber-50 text-amber-700 ring-1 ring-amber-100"
+                            : "bg-green-50 text-green-700 ring-1 ring-green-100"
+                        }`}
+                      >
+                        {r.requiresQuote ? "Cần báo giá" : "Bán trực tiếp"}
+                      </span>
                       {r.quoteNote && (
                         <div className="mt-1 line-clamp-2 text-xs text-gray-500">
                           {r.quoteNote}
@@ -1403,24 +1912,25 @@ export default function ProductsPage() {
 
                     <td className="px-3 py-2 align-top text-center text-xs">
                       <span
-                        className={[
-                          "inline-flex rounded-full px-2 py-0.5 font-medium",
-                          r.status === "PUBLISHED"
-                            ? "bg-green-50 text-green-700 ring-1 ring-green-100"
-                            : r.status === "ARCHIVED"
-                            ? "bg-gray-100 text-gray-700 ring-1 ring-gray-200"
-                            : "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-100",
-                        ].join(" ")}
+                        className={`inline-flex rounded-full px-2 py-0.5 font-medium ${statusMap[r.status].className}`}
                       >
-                        {r.status}
+                        {statusMap[r.status].label}
                       </span>
                     </td>
 
                     <td className="px-3 py-2 align-top text-xs text-gray-500">
-                      {formatDate(r.createdAt)}
+                      {formatShortDate(r.updatedAt)}
                     </td>
-                    <td className="px-3 py-2 align-top text-xs text-gray-500">
-                      {formatDate(r.updatedAt)}
+
+                    <td className="px-3 py-2 align-top text-center text-xs">
+                      <button
+                        type="button"
+                        onClick={() => requestRowDelete(r)}
+                        className="rounded border border-red-200 bg-red-50 px-2 py-1 text-red-600 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        disabled={rowDeletingId === r.id}
+                      >
+                        {rowDeletingId === r.id ? "Đang xóa…" : "Xóa nhanh"}
+                      </button>
                     </td>
                   </tr>
                 );
@@ -1430,7 +1940,7 @@ export default function ProductsPage() {
                 <tr>
                   <td
                     className="px-3 py-6 text-center text-sm text-gray-500"
-                    colSpan={11}
+                    colSpan={12}
                   >
                     Không có dữ liệu
                   </td>
@@ -1440,7 +1950,7 @@ export default function ProductsPage() {
               {loadingList && !rows.length && (
                 <tr>
                   <td
-                    colSpan={11}
+                    colSpan={12}
                     className="px-3 py-6 text-center text-sm text-gray-400"
                   >
                     Đang tải dữ liệu...
@@ -1711,7 +2221,7 @@ export default function ProductsPage() {
             {/* Thuế + ảnh + status */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
-                Thuế VAT
+                Thuế VAT (%)
               </label>
               <input
                 type="number"
@@ -1721,7 +2231,7 @@ export default function ProductsPage() {
                 onChange={(e) =>
                   setForm({ ...form, taxRate: e.target.value })
                 }
-                placeholder="0.10 = 10%"
+                placeholder="Ví dụ: 10"
               />
               <label className="inline-flex items-center gap-2 text-sm text-gray-700">
                 <input
@@ -2106,6 +2616,43 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
+      <Dialog
+        open={!!confirmAction}
+        onOpenChange={(open) => {
+          if (!open && !confirmLoading) setConfirmAction(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+                <AlertTriangle className="h-6 w-6 text-amber-600" />
+              </div>
+              <DialogTitle>{confirmTitle}</DialogTitle>
+            </div>
+            <DialogDescription>{confirmDescription}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <button
+              type="button"
+              className="px-4 py-2 rounded-md border"
+              onClick={() => setConfirmAction(null)}
+              disabled={confirmLoading}
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              className="px-4 py-2 rounded-md bg-blue-600 text-white disabled:opacity-60"
+              onClick={handleConfirmAction}
+              disabled={confirmLoading}
+            >
+              {confirmLoading ? "Đang xử lý..." : confirmButtonLabel}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <ImageCropDialog
         open={coverCropOpen && Boolean(coverCropSource?.url)}
         imageSrc={coverCropSource?.url ?? null}
