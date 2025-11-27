@@ -38,6 +38,8 @@ type ProductCard = {
   brandSlug: string | null;
   category: string | null;
   price: number;
+  listPrice?: number | null;
+  requiresQuote?: boolean | null;
   currency: string | null;
   inStock: boolean;
   description?: string | null;
@@ -107,13 +109,23 @@ function StarRating({ value = 0, size = 14 }: { value?: number; size?: number })
   );
 }
 
-function AddToCartButton({ sku, name, image }: { sku: string; name: string; image: string }) {
+function AddToCartButton({
+  sku,
+  name,
+  image,
+  disabled = false,
+}: {
+  sku: string;
+  name: string;
+  image: string;
+  disabled?: boolean;
+}) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { refresh: refreshCart } = useCart();
 
   async function handleAdd() {
-    if (loading) return;
+    if (loading || disabled) return;
     setLoading(true);
     try {
       const res = await fetch("/api/cart/items", {
@@ -171,9 +183,13 @@ function AddToCartButton({ sku, name, image }: { sku: string; name: string; imag
   return (
     <button
       onClick={handleAdd}
-      disabled={loading}
-      className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl p-2.5 transition-all shadow-lg hover:shadow-xl active:scale-95"
-      title="Thêm vào giỏ"
+      disabled={loading || disabled}
+      className={`rounded-xl p-2.5 transition-all shadow-lg hover:shadow-xl active:scale-95 ${
+        disabled
+          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+          : "bg-blue-600 hover:bg-blue-700 text-white"
+      }`}
+      title={disabled ? "Hết hàng" : "Thêm vào giỏ"}
     >
       <ShoppingCart className="h-4 w-4" />
     </button>
@@ -185,20 +201,72 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
   const rating = Number(product.ratingAvg ?? 0);
   const ratingCount = Number(product.ratingCount ?? 0);
   const purchases = Number(product.purchaseCount ?? 0);
+  const currency = product.currency ?? "VND";
+  const price = Number(product.price ?? 0);
+  const listPrice =
+    typeof product.listPrice === "number" && Number.isFinite(product.listPrice)
+      ? Number(product.listPrice)
+      : null;
+  const requiresQuote = Boolean(product.requiresQuote);
+  const showSavings = !requiresQuote && listPrice !== null && listPrice > price && price > 0;
+  const savings = showSavings ? listPrice - price : 0;
+  const savingsPercent = showSavings && listPrice ? Math.round((savings / listPrice) * 100) : 0;
+  const outOfStock = !product.inStock;
+  const contactHref = `/contact?product=${encodeURIComponent(product.slug)}`;
+  const renderPriceBlock = (align: "left" | "right" = "right") => {
+    const alignText =
+      align === "left" ? "text-left items-start" : "text-right items-end";
+    if (requiresQuote) {
+      return (
+        <div
+          className={`text-base font-semibold text-amber-700 whitespace-nowrap ${
+            align === "left" ? "text-left" : "text-right"
+          }`}
+        >
+          Liên hệ báo giá
+        </div>
+      );
+    }
+    return (
+      <div className={`flex flex-col ${alignText}`}>
+        {showSavings && (
+          <span className="text-xs text-gray-400 line-through">
+            {listPrice?.toLocaleString()} {currency}
+          </span>
+        )}
+        <span className="text-2xl font-bold text-gray-900">
+          {price.toLocaleString()} {currency}
+        </span>
+        {showSavings && (
+          <span className="text-xs text-rose-600">
+            Tiết kiệm {savingsPercent}% ({savings.toLocaleString()} {currency})
+          </span>
+        )}
+      </div>
+    );
+  };
 
   if (viewMode === "list") {
+    const listStateClasses = outOfStock
+      ? "bg-gray-50 text-gray-500 opacity-95"
+      : "bg-white hover:border-blue-300 hover:shadow-xl";
     return (
-      <div className="group bg-white rounded-2xl border border-gray-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300 overflow-hidden">
+      <div
+        className={`group rounded-2xl border border-gray-200 transition-all duration-300 overflow-hidden ${listStateClasses}`}
+        aria-disabled={outOfStock}
+      >
         <div className="flex flex-col sm:flex-row">
           <Link
             href={`/shop/products/${product.slug}`}
-            className="relative w-full sm:w-48 aspect-square sm:aspect-auto bg-gray-50 overflow-hidden shrink-0"
+            className={`relative w-full sm:w-48 aspect-square sm:aspect-auto overflow-hidden shrink-0 border ${
+              outOfStock ? "bg-gray-100" : "bg-white"
+            }`}
           >
             <Image
               src={product.image || "/logo.png"}
               alt={product.name}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
             />
             {!product.inStock && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -224,12 +292,7 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
                 </div>
               </div>
 
-              <div className="text-right shrink-0">
-                <div className="text-2xl font-bold text-gray-900">
-                  {product.price.toLocaleString()}
-                </div>
-                <div className="text-xs text-gray-500">{product.currency ?? "VND"}</div>
-              </div>
+              <div className="text-right shrink-0">{renderPriceBlock()}</div>
             </div>
 
             {rating > 0 && (
@@ -269,7 +332,21 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
                 )}
               </div>
 
-              <AddToCartButton sku={product.sku} name={product.name} image={product.image} />
+              {requiresQuote ? (
+                <Link
+                  href={contactHref}
+                  className="inline-flex items-center rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-600 hover:bg-amber-50"
+                >
+                  Liên hệ báo giá
+                </Link>
+              ) : (
+                <AddToCartButton
+                  sku={product.sku}
+                  name={product.name}
+                  image={product.image}
+                  disabled={!product.inStock}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -277,17 +354,25 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
     );
   }
 
+  const gridStateClasses = outOfStock
+    ? "bg-gray-50 text-gray-500 opacity-95"
+    : "bg-white hover:shadow-xl hover:border-blue-300";
   return (
-    <div className="group rounded-2xl border border-gray-200 bg-white overflow-hidden flex flex-col hover:shadow-xl hover:border-blue-300 transition-all duration-300">
+    <div
+      className={`group rounded-2xl border border-gray-200 overflow-hidden flex flex-col transition-all duration-300 ${gridStateClasses}`}
+      aria-disabled={outOfStock}
+    >
       <Link
         href={`/shop/products/${product.slug}`}
-        className="relative block aspect-square bg-gray-50 overflow-hidden"
+        className={`relative block aspect-square overflow-hidden border-b ${
+          outOfStock ? "bg-gray-100" : "bg-white"
+        }`}
       >
         <Image
           src={product.image || "/logo.png"}
           alt={product.name}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
+          className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
         />
         {!product.inStock && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -332,13 +417,22 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
         )}
 
         <div className="mt-auto pt-3 flex items-center justify-between border-t border-gray-100">
-          <div className="flex flex-col">
-            <span className="text-lg font-bold text-gray-900">
-              {product.price.toLocaleString()}
-            </span>
-            <span className="text-xs text-gray-500">{product.currency ?? "VND"}</span>
-          </div>
-          <AddToCartButton sku={product.sku} name={product.name} image={product.image} />
+          <div className="flex flex-col gap-0.5">{renderPriceBlock("left")}</div>
+          {requiresQuote ? (
+            <Link
+              href={contactHref}
+              className="inline-flex items-center rounded-full border border-amber-500 px-3 py-1.5 text-xs font-semibold text-amber-600 hover:bg-amber-50"
+            >
+              Liên hệ báo giá
+            </Link>
+          ) : (
+            <AddToCartButton
+              sku={product.sku}
+              name={product.name}
+              image={product.image}
+              disabled={!product.inStock}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -666,7 +760,7 @@ export default function ProductsSearchClient() {
   const [inStock, setInStock] = useState(searchParams.get("inStock") === "true");
   const [sort, setSort] = useState(searchParams.get("sort") || "relevance");
   const [page, setPage] = useState(parseInt(searchParams.get("page") || "1"));
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [showFilters, setShowFilters] = useState(false);
   const pageSize = 12;
 
@@ -1150,7 +1244,7 @@ export default function ProductsSearchClient() {
             <div
               className={
                 viewMode === "grid"
-                  ? "grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  ? "grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                   : "space-y-4"
               }
             >

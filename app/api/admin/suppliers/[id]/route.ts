@@ -3,6 +3,7 @@ import type { Prisma } from "@/generated/client";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonOk, jsonError, toHttpError } from "@/lib/http";
+import { slugify } from "@/lib/slug";
 import {
   SupplierUpdateSchema,
   supplierSelect,
@@ -34,7 +35,11 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     const { id } = await ctx.params;
 
     const body = await req.json();
-    const parsed = SupplierUpdateSchema.safeParse(body);
+    const sanitized = { ...body };
+    for (const key of ["contactPerson", "email", "phone", "address", "paymentTerms", "notes"]) {
+      if (sanitized[key] === null) sanitized[key] = undefined;
+    }
+    const parsed = SupplierUpdateSchema.safeParse(sanitized);
     if (!parsed.success) return jsonError("Validation Error", 400, { issues: parsed.error.issues });
 
     const updates = parsed.data;
@@ -46,13 +51,29 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     const data: Prisma.supplierUpdateInput = {};
 
     if (updates.name) data.name = updates.name;
-    if (hasOwn(updates, "slug") && updates.slug) {
-      const finalSlug = updates.slug.trim();
-      if (finalSlug !== existing.slug) {
-        const dup = await prisma.supplier.findFirst({ where: { slug: finalSlug, id: { not: id } }, select: { id: true } });
-        if (dup) return jsonError("Slug đã tồn tại", 409);
+
+    const slugProvided = hasOwn(updates, "slug");
+    const explicitSlug = slugProvided ? (updates.slug ?? "").trim() : undefined;
+    let slugCandidate: string | undefined;
+    if (explicitSlug && explicitSlug !== existing.slug) {
+      slugCandidate = explicitSlug;
+    } else {
+      let baseName: string | undefined;
+      if (typeof updates.name === "string") {
+        baseName = updates.name;
+      } else if (slugProvided && !explicitSlug) {
+        baseName = existing.name ?? undefined;
       }
-      data.slug = finalSlug;
+      if (baseName) {
+        const auto = slugify(baseName);
+        if (auto && auto !== existing.slug) slugCandidate = auto;
+      }
+    }
+
+    if (slugCandidate && slugCandidate !== existing.slug) {
+      const dup = await prisma.supplier.findFirst({ where: { slug: slugCandidate, id: { not: id } }, select: { id: true } });
+      if (dup) return jsonError("Slug đã tồn tại", 409);
+      data.slug = slugCandidate;
     }
 
     if (hasOwn(updates, "code")) {

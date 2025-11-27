@@ -272,7 +272,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
         requiresQuote: detail.requiresQuote ?? false,
         quoteNote: detail.quoteNote ?? "",
         currency: detail.currency ?? "VND",
-        taxRate: detail.taxRate != null ? String(detail.taxRate) : "",
+        taxRate: toPercentString(detail.taxRate),
         taxIncluded: detail.taxIncluded ?? true,
       });
 
@@ -327,7 +327,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
   const handleUpdate = async (payload: Record<string, unknown>) => {
     setSaving(true);
     try {
-      const updated = await patchJSON<{ data: ProductDetail }>(
+      const updated = await patchJSON<{ data: ProductDetail; warnings?: string[] }>(
         `/api/admin/products/${productId}`,
         payload,
       );
@@ -360,7 +360,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
         requiresQuote: detail.requiresQuote ?? false,
         quoteNote: detail.quoteNote ?? "",
         currency: detail.currency ?? "VND",
-        taxRate: detail.taxRate != null ? String(detail.taxRate) : "",
+        taxRate: toPercentString(detail.taxRate),
         taxIncluded: detail.taxIncluded ?? true,
       });
       setInventoryAdv({
@@ -395,6 +395,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
       );
 
       toast.success("Cập nhật sản phẩm thành công");
+      updated.warnings?.forEach((w) => toast.warning(w));
       return detail;
     } catch (e) {
       const msg =
@@ -405,6 +406,74 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
       setSaving(false);
     }
   };
+
+  const buildSpecsPayload = () =>
+    specList
+      .filter((s) => s.name.trim())
+      .map((s, idx) => ({
+        name: s.name.trim(),
+        valueString: s.valueString.trim() || null,
+        valueNumber: null,
+        valueBoolean: null,
+        unitOverride: s.unitOverride.trim() || null,
+        note: s.note.trim() || null,
+        sortOrder: s.sortOrder ? Number(s.sortOrder) : idx,
+      }));
+
+  const buildImagesPayload = () =>
+    imageList
+      .filter((img) => img.url.trim())
+      .map((img, idx) => ({
+        url: img.url.trim(),
+        alt: img.alt.trim() || null,
+        sortOrder: img.sortOrder ? Number(img.sortOrder) : idx,
+      }));
+
+  const parseOptionalNumber = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+    const num = Number(trimmed);
+    return Number.isFinite(num) ? num : undefined;
+  };
+
+  const buildFullPayload = () => {
+    const payload: Record<string, unknown> = {
+      name: general.name,
+      slug: general.slug || undefined,
+      sku: general.sku,
+      description: general.description || null,
+      typeId: assoc.typeId,
+      brandId: assoc.brandId || null,
+      price: Number(pricing.price || 0),
+      listPrice: pricing.listPrice ? Number(pricing.listPrice) : null,
+      costPrice: pricing.costPrice ? Number(pricing.costPrice) : null,
+      stockOnHand: pricing.stockOnHand ? Number(pricing.stockOnHand) : 0,
+      status,
+      supplierId: sourceConfig.supplierId || null,
+      supplierSku: sourceConfig.supplierSku || null,
+      requiresQuote: sourceConfig.requiresQuote,
+      quoteNote: sourceConfig.quoteNote || null,
+      currency: sourceConfig.currency || "VND",
+      taxRate: parsePercentOrNull(sourceConfig.taxRate),
+      taxIncluded: sourceConfig.taxIncluded,
+      coverImage: media.coverImage || null,
+      specs: buildSpecsPayload(),
+      images: buildImagesPayload(),
+    };
+
+    const reorderLevelValue = parseOptionalNumber(inventoryAdv.reorderLevel);
+    if (typeof reorderLevelValue !== "undefined") {
+      payload.reorderLevel = reorderLevelValue;
+    }
+    const minOrderQtyValue = parseOptionalNumber(inventoryAdv.minOrderQty);
+    if (typeof minOrderQtyValue !== "undefined") {
+      payload.minOrderQty = minOrderQtyValue;
+    }
+
+    return payload;
+  };
+
+  const handleSaveAll = () => handleUpdate(buildFullPayload());
 
   const handleDelete = async () => {
     if (!confirm("Xóa sản phẩm này?")) return;
@@ -419,12 +488,20 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
     }
   };
 
-  const parseNumberOrNull = (v: string) => {
-    const t = v.trim();
-    if (!t) return null;
-    const num = Number(t);
-    return Number.isFinite(num) ? num : null;
-  };
+const toPercentString = (value?: number | null) => {
+  if (value === null || value === undefined) return "";
+  const percent = value * 100;
+  if (!Number.isFinite(percent)) return "";
+  return Number(percent.toFixed(4)).toString();
+};
+
+const parsePercentOrNull = (v: string) => {
+  const t = v.trim().replace(",", ".");
+  if (!t) return null;
+  const num = Number(t);
+  if (!Number.isFinite(num)) return null;
+  return num / 100;
+};
 
   // === helper: thêm thông số từ bảng spec-def có sẵn ===
   const handleAddSpecFromDef = () => {
@@ -463,19 +540,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
   };
 
   const handleSaveSpecs = () => {
-    const payloadSpecs = specList
-      .filter((s) => s.name.trim())
-      .map((s, idx) => ({
-        name: s.name.trim(),
-        valueString: s.valueString.trim() || null,
-        valueNumber: null,
-        valueBoolean: null,
-        unitOverride: s.unitOverride.trim() || null,
-        note: s.note.trim() || null,
-        sortOrder: s.sortOrder ? Number(s.sortOrder) : idx,
-      }));
-
-    return handleUpdate({ specs: payloadSpecs });
+    return handleUpdate({ specs: buildSpecsPayload() });
   };
 
   // gallery helpers
@@ -718,6 +783,14 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
           </span>
 
           <button
+            onClick={handleSaveAll}
+            disabled={saving}
+            className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Lưu toàn bộ
+          </button>
+
+          <button
             onClick={handleDelete}
             className="inline-flex items-center rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
           >
@@ -932,7 +1005,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
                     requiresQuote: sourceConfig.requiresQuote,
                     quoteNote: sourceConfig.quoteNote || null,
                     currency: sourceConfig.currency || "VND",
-                    taxRate: parseNumberOrNull(sourceConfig.taxRate),
+                    taxRate: parsePercentOrNull(sourceConfig.taxRate),
                     taxIncluded: sourceConfig.taxIncluded,
                   })
                 }
@@ -1002,7 +1075,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-medium text-gray-700">
-                  Thuế VAT
+                  Thuế VAT (%)
                 </label>
                 <input
                   type="number"
@@ -1015,7 +1088,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
                       taxRate: e.target.value,
                     })
                   }
-                  placeholder="0.10 = 10%"
+                  placeholder="Ví dụ: 10"
                 />
               </div>
             </div>
@@ -1531,15 +1604,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
                   type="button"
                   onClick={() =>
                     handleUpdate({
-                      images: imageList
-                        .filter((img) => img.url.trim())
-                        .map((img, idx) => ({
-                          url: img.url.trim(),
-                          alt: img.alt.trim() || null,
-                          sortOrder: img.sortOrder
-                            ? Number(img.sortOrder)
-                            : idx,
-                        })),
+                      images: buildImagesPayload(),
                     })
                   }
                   className="text-xs rounded-lg bg-blue-600 px-3 py-1.5 font-medium text-white shadow-sm hover:bg-blue-700 disabled:opacity-50"

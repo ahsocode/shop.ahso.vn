@@ -5,6 +5,12 @@ import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonError, jsonOk, toHttpError } from "@/lib/http";
 import type { orderUpdateInput } from "@/lib/prisma-types";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { sendMail } from "@/lib/mailer";
+import {
+  generateOrderPaidEmail,
+  generateOrderShippedEmail,
+  generateOrderCancelledEmail,
+} from "@/lib/email-templates";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +48,14 @@ export async function PATCH(
       return jsonError("Dữ liệu không hợp lệ", 400, { issues: parsed.error.issues });
     }
 
+    const existing = await prisma.order.findUnique({
+      where: { id },
+      select: { status: true },
+    });
+    if (!existing) {
+      return jsonError("Không tìm thấy đơn hàng", 404);
+    }
+
     const updates: orderUpdateInput = {};
     const { status, note, shippingMethod } = parsed.data;
 
@@ -59,8 +73,54 @@ export async function PATCH(
         note: true,
         shippingMethod: true,
         updatedAt: true,
+        customerFullName: true,
+        customerEmail: true,
       },
     });
+
+    // 📧 GỬI EMAIL KHI THAY ĐỔI TRẠNG THÁI
+    try {
+      const prevStatus = existing.status;
+      const newStatus = updated.status;
+
+      if (prevStatus !== newStatus && updated.customerEmail) {
+        if (newStatus === "paid") {
+          const email = generateOrderPaidEmail(updated.code, updated.customerFullName ?? "Quý khách");
+          await sendMail({
+            to: updated.customerEmail,
+            subject: email.subject,
+            text: email.text,
+            html: email.html,
+          });
+        } else if (newStatus === "shipped") {
+          const email = generateOrderShippedEmail(
+            updated.code,
+            updated.customerFullName ?? "Quý khách",
+            updated.shippingMethod || undefined,
+          );
+          await sendMail({
+            to: updated.customerEmail,
+            subject: email.subject,
+            text: email.text,
+            html: email.html,
+          });
+        } else if (newStatus === "cancelled") {
+          const email = generateOrderCancelledEmail(
+            updated.code,
+            updated.customerFullName ?? "Quý khách",
+            updated.note || undefined,
+          );
+          await sendMail({
+            to: updated.customerEmail,
+            subject: email.subject,
+            text: email.text,
+            html: email.html,
+          });
+        }
+      }
+    } catch (emailErr) {
+      console.error("Failed to send status change email:", emailErr);
+    }
 
     return jsonOk({ data: updated });
   } catch (err: unknown) {

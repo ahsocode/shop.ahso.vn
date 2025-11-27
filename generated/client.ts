@@ -84,6 +84,26 @@ export type payment = Prisma.paymentModel
  */
 export type supplier = Prisma.supplierModel
 /**
+ * Model systemsetting
+ * 
+ */
+export type systemsetting = Prisma.systemsettingModel
+/**
+ * Model herobanner
+ * 
+ */
+export type herobanner = Prisma.herobannerModel
+/**
+ * Model siteannouncement
+ * 
+ */
+export type siteannouncement = Prisma.siteannouncementModel
+/**
+ * Model policysection
+ * 
+ */
+export type policysection = Prisma.policysectionModel
+/**
  * Model product
  * 
  */

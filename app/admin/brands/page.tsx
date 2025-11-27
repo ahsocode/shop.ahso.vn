@@ -115,6 +115,7 @@ export default function BrandsPage() {
   const [logoGalleryCursor, setLogoGalleryCursor] = useState<string | null>(null);
   const [logoGalleryError, setLogoGalleryError] = useState<string | null>(null);
   const [logoUpdating, setLogoUpdating] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const triggerReload = () => setReloadToken((token) => token + 1);
 
@@ -471,19 +472,27 @@ export default function BrandsPage() {
 
   return (
     <div className="space-y-4">
-      {/* Tìm kiếm */}
-      <div className="flex gap-2">
-        <input
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          placeholder="Tìm thương hiệu..."
-          className="input input-bordered w-full max-w-xs border rounded px-3 py-2"
-        />
+      {/* Tìm kiếm + toggle */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex gap-2">
+          <input
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder="Tìm thương hiệu..."
+            className="input input-bordered w-full max-w-xs border rounded px-3 py-2"
+          />
+          <button
+            onClick={handleSearch}
+            className="px-3 py-2 rounded bg-blue-600 text-white"
+          >
+            Tìm
+          </button>
+        </div>
         <button
-          onClick={handleSearch}
-          className="px-3 py-2 rounded bg-blue-600 text-white"
+          onClick={() => setShowCreateForm((prev) => !prev)}
+          className="inline-flex items-center rounded bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700"
         >
-          Tìm
+          {showCreateForm ? "Ẩn form tạo" : "Thêm thương hiệu"}
         </button>
       </div>
 
@@ -905,6 +914,7 @@ export default function BrandsPage() {
       )}
 
       {/* Form tạo brand mới */}
+      {showCreateForm && (
       <div className="rounded-2xl border bg-white shadow-sm">
         <div className="border-b px-6 py-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
@@ -1073,7 +1083,7 @@ export default function BrandsPage() {
           </button>
         </div>
       </div>
-
+      )}
       {/* Modal edit brand */}
       {editing && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">

@@ -87,6 +87,7 @@ export default function ProductTypesPage() {
     fileName: string;
     revokeOnClose: boolean;
   } | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const triggerReload = () => setReloadToken((token) => token + 1);
 
@@ -370,12 +371,20 @@ export default function ProductTypesPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2 items-center">
-        <select value={categoryId} onChange={e=>handleCategoryChange(e.target.value)} className="border rounded px-3 py-2">
-          {categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
-        <input value={searchInput} onChange={e=>setSearchInput(e.target.value)} placeholder="Tìm loại SP..." className="border rounded px-3 py-2" />
-        <button onClick={handleSearch} className="px-3 py-2 rounded bg-blue-600 text-white">Tìm</button>
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex gap-2 items-center">
+          <select value={categoryId} onChange={e=>handleCategoryChange(e.target.value)} className="border rounded px-3 py-2">
+            {categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+          <input value={searchInput} onChange={e=>setSearchInput(e.target.value)} placeholder="Tìm loại SP..." className="border rounded px-3 py-2" />
+          <button onClick={handleSearch} className="px-3 py-2 rounded bg-blue-600 text-white">Tìm</button>
+        </div>
+        <button
+          onClick={() => setShowCreateForm((prev) => !prev)}
+          className="inline-flex items-center rounded bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-700"
+        >
+          {showCreateForm ? "Ẩn form tạo" : "Thêm loại sản phẩm"}
+        </button>
       </div>
 
       <div className="rounded-2xl border bg-white p-4 space-y-3">
@@ -879,6 +888,7 @@ export default function ProductTypesPage() {
         </div>
       )}
 
+      {showCreateForm && (
       <div className="rounded-2xl border bg-white shadow-sm">
         <div className="border-b px-6 py-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">
@@ -1039,6 +1049,7 @@ export default function ProductTypesPage() {
           </button>
         </div>
       </div>
+      )}
       {editing && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl space-y-4 p-6">

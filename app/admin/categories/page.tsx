@@ -81,6 +81,7 @@ export default function CategoriesPage() {
     fileName: string;
     revokeOnClose: boolean;
   } | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const triggerReload = () => setReloadToken((token) => token + 1);
 
@@ -329,15 +330,23 @@ export default function CategoriesPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
-        <input
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          placeholder="Tìm danh mục..."
-          className="border rounded px-3 py-2"
-        />
-        <button onClick={handleSearch} className="px-3 py-2 rounded bg-blue-600 text-white">
-          Tìm
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex gap-2">
+          <input
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder="Tìm danh mục..."
+            className="border rounded px-3 py-2"
+          />
+          <button onClick={handleSearch} className="px-3 py-2 rounded bg-blue-600 text-white">
+            Tìm
+          </button>
+        </div>
+        <button
+          onClick={() => setShowCreateForm((prev) => !prev)}
+          className="inline-flex items-center rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700"
+        >
+          {showCreateForm ? "Ẩn form tạo" : "Thêm danh mục"}
         </button>
       </div>
 
@@ -656,6 +665,7 @@ export default function CategoriesPage() {
         <div>Trang {page}</div>
         <button disabled={page*pageSize>=total} onClick={()=>setPage(p=>p+1)} className="px-3 py-1 rounded border">Next</button>
       </div>
+      {showCreateForm && (
       <div className="rounded-2xl border bg-white shadow-sm">
         <div className="border-b px-6 py-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
@@ -796,6 +806,7 @@ export default function CategoriesPage() {
           </button>
         </div>
       </div>
+      )}
 
       {importOpen && drafts.length > 0 && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
