@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { confirmToast } from "@/lib/confirm-toast";
 import { ImageCropDialog } from "@/components/image/image-crop-dialog";
 import { getJSON, patchJSON, del, makeHeaders } from "../../_lib/fetcher";
 
@@ -476,7 +477,8 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
   const handleSaveAll = () => handleUpdate(buildFullPayload());
 
   const handleDelete = async () => {
-    if (!confirm("Xóa sản phẩm này?")) return;
+    const confirmed = await confirmToast("Xóa sản phẩm này?");
+    if (!confirmed) return;
     try {
       await del(`/api/admin/products/${productId}`);
       toast.success("Đã xóa sản phẩm");

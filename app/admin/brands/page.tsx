@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Loader2, Upload, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { confirmToast } from "@/lib/confirm-toast";
 import { ImageCropDialog } from "@/components/image/image-crop-dialog";
 import { getJSON, postJSON, del, patchJSON, makeHeaders } from "../_lib/fetcher";
 
@@ -702,9 +703,12 @@ export default function BrandsPage() {
               <button
                 type="button"
                 disabled={!selectedDraftIds.length}
-                onClick={() => {
-                  if (!confirm("Loại bỏ các dòng đã chọn khỏi danh sách nhập?"))
-                    return;
+                onClick={async () => {
+                  if (!selectedDraftIds.length) return;
+                  const confirmed = await confirmToast(
+                    "Loại bỏ các dòng đã chọn khỏi danh sách nhập?",
+                  );
+                  if (!confirmed) return;
                   setDrafts((prev) =>
                     prev.filter((d) => !selectedDraftIds.includes(d.tempId)),
                   );

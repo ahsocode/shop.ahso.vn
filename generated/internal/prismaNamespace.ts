@@ -408,6 +408,7 @@ export const ModelName = {
   productspecdefinition: 'productspecdefinition',
   productspecvalue: 'productspecvalue',
   producttype: 'producttype',
+  featuredproduct: 'featuredproduct',
   review: 'review',
   reviewimage: 'reviewimage',
   software: 'software',
@@ -435,7 +436,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "address" | "brand" | "cart" | "cartitem" | "order" | "orderitem" | "payment" | "supplier" | "systemsetting" | "herobanner" | "siteannouncement" | "policysection" | "product" | "productcategory" | "productcategorylink" | "productimage" | "productspecdefinition" | "productspecvalue" | "producttype" | "review" | "reviewimage" | "software" | "softwarecategory" | "solution" | "solutioncategory" | "solutionimage" | "unitdefinition" | "user" | "contacttype" | "contact" | "quoterequest"
+    modelProps: "address" | "brand" | "cart" | "cartitem" | "order" | "orderitem" | "payment" | "supplier" | "systemsetting" | "herobanner" | "siteannouncement" | "policysection" | "product" | "productcategory" | "productcategorylink" | "productimage" | "productspecdefinition" | "productspecvalue" | "producttype" | "featuredproduct" | "review" | "reviewimage" | "software" | "softwarecategory" | "solution" | "solutioncategory" | "solutionimage" | "unitdefinition" | "user" | "contacttype" | "contact" | "quoterequest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1845,6 +1846,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    featuredproduct: {
+      payload: Prisma.$featuredproductPayload<ExtArgs>
+      fields: Prisma.featuredproductFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.featuredproductFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$featuredproductPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.featuredproductFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$featuredproductPayload>
+        }
+        findFirst: {
+          args: Prisma.featuredproductFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$featuredproductPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.featuredproductFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$featuredproductPayload>
+        }
+        findMany: {
+          args: Prisma.featuredproductFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$featuredproductPayload>[]
+        }
+        create: {
+          args: Prisma.featuredproductCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$featuredproductPayload>
+        }
+        createMany: {
+          args: Prisma.featuredproductCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.featuredproductCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$featuredproductPayload>[]
+        }
+        delete: {
+          args: Prisma.featuredproductDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$featuredproductPayload>
+        }
+        update: {
+          args: Prisma.featuredproductUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$featuredproductPayload>
+        }
+        deleteMany: {
+          args: Prisma.featuredproductDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.featuredproductUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.featuredproductUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$featuredproductPayload>[]
+        }
+        upsert: {
+          args: Prisma.featuredproductUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$featuredproductPayload>
+        }
+        aggregate: {
+          args: Prisma.FeaturedproductAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFeaturedproduct>
+        }
+        groupBy: {
+          args: Prisma.featuredproductGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FeaturedproductGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.featuredproductCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FeaturedproductCountAggregateOutputType> | number
+        }
+      }
+    }
     review: {
       payload: Prisma.$reviewPayload<ExtArgs>
       fields: Prisma.reviewFieldRefs
@@ -3125,6 +3200,22 @@ export const ProducttypeScalarFieldEnum = {
 export type ProducttypeScalarFieldEnum = (typeof ProducttypeScalarFieldEnum)[keyof typeof ProducttypeScalarFieldEnum]
 
 
+export const FeaturedproductScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  title: 'title',
+  description: 'description',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FeaturedproductScalarFieldEnum = (typeof FeaturedproductScalarFieldEnum)[keyof typeof FeaturedproductScalarFieldEnum]
+
+
 export const ReviewScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
@@ -3701,6 +3792,7 @@ export type GlobalOmitConfig = {
   productspecdefinition?: Prisma.productspecdefinitionOmit
   productspecvalue?: Prisma.productspecvalueOmit
   producttype?: Prisma.producttypeOmit
+  featuredproduct?: Prisma.featuredproductOmit
   review?: Prisma.reviewOmit
   reviewimage?: Prisma.reviewimageOmit
   software?: Prisma.softwareOmit
