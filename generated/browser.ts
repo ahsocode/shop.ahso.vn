@@ -112,6 +112,11 @@ export type productspecvalue = Prisma.productspecvalueModel
  */
 export type producttype = Prisma.producttypeModel
 /**
+ * Model featuredproduct
+ * 
+ */
+export type featuredproduct = Prisma.featuredproductModel
+/**
  * Model review
  * 
  */

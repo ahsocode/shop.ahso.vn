@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { confirmToast } from "@/lib/confirm-toast";
 import { getJSON, patchJSON, del } from "../_lib/fetcher";
 
 type ContactRow = {
@@ -155,20 +157,23 @@ export default function ContactRequestsPage() {
         response: form.response.trim(),
         internalNotes: form.internalNotes.trim(),
       });
+      toast.success("Đã cập nhật yêu cầu liên hệ");
       triggerReload();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Cập nhật thất bại");
+      toast.error(err instanceof Error ? err.message : "Cập nhật thất bại");
     }
   };
 
   const handleDelete = async (row: ContactRow) => {
-    if (!confirm(`Xóa yêu cầu liên hệ ${row.fullName}?`)) return;
+    const confirmed = await confirmToast(`Xóa yêu cầu liên hệ ${row.fullName}?`);
+    if (!confirmed) return;
     try {
       await del(`/api/admin/contacts/${row.id}`);
       if (selected?.id === row.id) setSelected(null);
       triggerReload();
+      toast.success("Đã xóa yêu cầu liên hệ");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Xóa thất bại");
+      toast.error(err instanceof Error ? err.message : "Xóa thất bại");
     }
   };
 

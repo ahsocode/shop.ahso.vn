@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { confirmToast } from "@/lib/confirm-toast";
 import { getJSON, patchJSON, del } from "../_lib/fetcher";
 
 type QuoteRow = {
@@ -177,20 +179,23 @@ export default function QuoteRequestsPage() {
     if (totalValue !== undefined) payload.quotedTotal = totalValue;
     try {
       await patchJSON(`/api/admin/quote-requests/${selected.id}`, payload);
+      toast.success("Đã cập nhật yêu cầu báo giá");
       triggerReload();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Cập nhật thất bại");
+      toast.error(err instanceof Error ? err.message : "Cập nhật thất bại");
     }
   };
 
   const handleDelete = async (row: QuoteRow) => {
-    if (!confirm(`Xóa yêu cầu báo giá ${row.code}?`)) return;
+    const confirmed = await confirmToast(`Xóa yêu cầu báo giá ${row.code}?`);
+    if (!confirmed) return;
     try {
       await del(`/api/admin/quote-requests/${row.id}`);
       if (selected?.id === row.id) setSelected(null);
       triggerReload();
+      toast.success("Đã xóa yêu cầu báo giá");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Xóa thất bại");
+      toast.error(err instanceof Error ? err.message : "Xóa thất bại");
     }
   };
 

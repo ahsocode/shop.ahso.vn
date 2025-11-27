@@ -101,7 +101,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
 
   useEffect(() => {
-    setExpandedSection(findSectionId(pathname));
+    const next = findSectionId(pathname);
+    const frame = requestAnimationFrame(() => {
+      setExpandedSection((prev) => (next === prev ? prev : next));
+    });
+    return () => cancelAnimationFrame(frame);
   }, [pathname]);
 
   const flat = navSections.flatMap((s) => s.items);

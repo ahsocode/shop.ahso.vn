@@ -344,7 +344,8 @@ model product {
   productcategorylink productcategorylink[]
   review              review[]
   quoterequest        quoterequest[]
-
+  featuredproduct featuredproduct?
+  
   @@index([saleCode], map: "Product_saleCode_idx")
   @@index([sku], map: "Product_sku_idx")
   @@index([supplierId], map: "Product_supplierId_idx")
@@ -461,7 +462,24 @@ model producttype {
   @@index([name], map: "ProductType_name_idx")
   @@index([productCount], map: "ProductType_productCount_idx")
 }
-
+model featuredproduct {
+  id          String   @id @default(cuid())
+  productId   String
+  title       String?  @db.Text
+  description String?  @db.Text
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  product     product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@unique([productId])
+  @@index([isActive, sortOrder], map: "FeaturedProduct_isActive_sortOrder_idx")
+  @@index([startDate, endDate], map: "FeaturedProduct_date_range_idx")
+}
 // ===== REVIEW =====
 model review {
   id          String        @id
