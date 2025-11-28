@@ -610,9 +610,13 @@ export default function BrandsPage() {
                       />
                     </div>
                   ) : (
-                    <div className="w-16 h-16 rounded border bg-gray-50 flex items-center justify-center text-xs text-gray-500">
-                      No logo
-                    </div>
+                    <button
+                      onClick={() => openEdit(r)}
+                      className="w-16 h-16 rounded border border-dashed border-blue-200 bg-blue-50/60 flex flex-col items-center justify-center text-[11px] text-blue-700 hover:bg-blue-50 transition"
+                    >
+                      <Upload className="w-4 h-4 mb-1" />
+                      Thêm logo
+                    </button>
                   )}
                 </td>
                 <td className="px-3 py-2 font-semibold">{r.name}</td>

@@ -492,6 +492,40 @@ export type Enumquote_statusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumquote_statusFilter<$PrismaModel>
 }
 
+export type Enumstock_transaction_typeFilter<$PrismaModel = never> = {
+  equals?: $Enums.stock_transaction_type | Prisma.Enumstock_transaction_typeFieldRefInput<$PrismaModel>
+  in?: $Enums.stock_transaction_type[] | Prisma.ListEnumstock_transaction_typeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.stock_transaction_type[] | Prisma.ListEnumstock_transaction_typeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumstock_transaction_typeFilter<$PrismaModel> | $Enums.stock_transaction_type
+}
+
+export type Enumstock_transaction_typeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.stock_transaction_type | Prisma.Enumstock_transaction_typeFieldRefInput<$PrismaModel>
+  in?: $Enums.stock_transaction_type[] | Prisma.ListEnumstock_transaction_typeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.stock_transaction_type[] | Prisma.ListEnumstock_transaction_typeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumstock_transaction_typeWithAggregatesFilter<$PrismaModel> | $Enums.stock_transaction_type
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumstock_transaction_typeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumstock_transaction_typeFilter<$PrismaModel>
+}
+
+export type Enumfinancial_transaction_typeFilter<$PrismaModel = never> = {
+  equals?: $Enums.financial_transaction_type | Prisma.Enumfinancial_transaction_typeFieldRefInput<$PrismaModel>
+  in?: $Enums.financial_transaction_type[] | Prisma.ListEnumfinancial_transaction_typeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.financial_transaction_type[] | Prisma.ListEnumfinancial_transaction_typeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumfinancial_transaction_typeFilter<$PrismaModel> | $Enums.financial_transaction_type
+}
+
+export type Enumfinancial_transaction_typeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.financial_transaction_type | Prisma.Enumfinancial_transaction_typeFieldRefInput<$PrismaModel>
+  in?: $Enums.financial_transaction_type[] | Prisma.ListEnumfinancial_transaction_typeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.financial_transaction_type[] | Prisma.ListEnumfinancial_transaction_typeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumfinancial_transaction_typeWithAggregatesFilter<$PrismaModel> | $Enums.financial_transaction_type
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumfinancial_transaction_typeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumfinancial_transaction_typeFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -960,6 +994,40 @@ export type NestedEnumquote_statusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumquote_statusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumquote_statusFilter<$PrismaModel>
+}
+
+export type NestedEnumstock_transaction_typeFilter<$PrismaModel = never> = {
+  equals?: $Enums.stock_transaction_type | Prisma.Enumstock_transaction_typeFieldRefInput<$PrismaModel>
+  in?: $Enums.stock_transaction_type[] | Prisma.ListEnumstock_transaction_typeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.stock_transaction_type[] | Prisma.ListEnumstock_transaction_typeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumstock_transaction_typeFilter<$PrismaModel> | $Enums.stock_transaction_type
+}
+
+export type NestedEnumstock_transaction_typeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.stock_transaction_type | Prisma.Enumstock_transaction_typeFieldRefInput<$PrismaModel>
+  in?: $Enums.stock_transaction_type[] | Prisma.ListEnumstock_transaction_typeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.stock_transaction_type[] | Prisma.ListEnumstock_transaction_typeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumstock_transaction_typeWithAggregatesFilter<$PrismaModel> | $Enums.stock_transaction_type
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumstock_transaction_typeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumstock_transaction_typeFilter<$PrismaModel>
+}
+
+export type NestedEnumfinancial_transaction_typeFilter<$PrismaModel = never> = {
+  equals?: $Enums.financial_transaction_type | Prisma.Enumfinancial_transaction_typeFieldRefInput<$PrismaModel>
+  in?: $Enums.financial_transaction_type[] | Prisma.ListEnumfinancial_transaction_typeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.financial_transaction_type[] | Prisma.ListEnumfinancial_transaction_typeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumfinancial_transaction_typeFilter<$PrismaModel> | $Enums.financial_transaction_type
+}
+
+export type NestedEnumfinancial_transaction_typeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.financial_transaction_type | Prisma.Enumfinancial_transaction_typeFieldRefInput<$PrismaModel>
+  in?: $Enums.financial_transaction_type[] | Prisma.ListEnumfinancial_transaction_typeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.financial_transaction_type[] | Prisma.ListEnumfinancial_transaction_typeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumfinancial_transaction_typeWithAggregatesFilter<$PrismaModel> | $Enums.financial_transaction_type
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumfinancial_transaction_typeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumfinancial_transaction_typeFilter<$PrismaModel>
 }
 
 

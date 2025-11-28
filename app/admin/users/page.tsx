@@ -136,14 +136,27 @@ export default function UsersAdminPage() {
   return (
     <AdminRoute>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-xl font-semibold">Người dùng</h1>
-          <button onClick={() => setShowCreate(true)} className="rounded-md bg-blue-600 text-white px-3 py-2 text-sm font-semibold hover:bg-blue-700">Thêm mới</button>
+          <div className="flex flex-wrap gap-2">
+            <span className="text-sm text-gray-600 self-center sm:hidden">Tổng: {total}</span>
+            <button
+              onClick={() => setShowCreate(true)}
+              className="rounded-md bg-blue-600 text-white px-3 py-2 text-sm font-semibold hover:bg-blue-700 w-full sm:w-auto"
+            >
+              Thêm mới
+            </button>
+          </div>
         </div>
 
-        <div className="flex gap-2">
-          <input value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} placeholder="Tìm theo tên/email/điện thoại" className="w-full max-w-md rounded-md border px-3 py-2" />
-          <span className="text-sm text-gray-600 self-center">Tổng: {total}</span>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <input
+            value={q}
+            onChange={(e) => { setQ(e.target.value); setPage(1); }}
+            placeholder="Tìm theo tên/email/điện thoại"
+            className="w-full sm:max-w-md rounded-md border px-3 py-2"
+          />
+          <span className="text-sm text-gray-600 self-center hidden sm:inline">Tổng: {total}</span>
         </div>
 
         {!blockable && (
@@ -152,8 +165,8 @@ export default function UsersAdminPage() {
           </div>
         )}
 
-        <div className="rounded-lg border overflow-auto">
-          <table className="min-w-full text-sm">
+        <div className="rounded-lg border overflow-x-auto bg-white shadow-sm">
+          <table className="min-w-full text-sm whitespace-nowrap">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-3 py-2 text-left">Username</th>
@@ -202,16 +215,16 @@ export default function UsersAdminPage() {
         </div>
 
         {pages > 1 && (
-          <div className="flex gap-2 justify-center">
-            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1 rounded border disabled:opacity-50">Trước</button>
+          <div className="flex gap-2 justify-center items-center flex-wrap">
+            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-1 rounded border disabled:opacity-50 w-full sm:w-auto">Trước</button>
             <span className="text-sm self-center">{page}/{pages}</span>
-            <button onClick={() => setPage((p) => Math.min(pages, p + 1))} disabled={page === pages} className="px-3 py-1 rounded border disabled:opacity-50">Sau</button>
+            <button onClick={() => setPage((p) => Math.min(pages, p + 1))} disabled={page === pages} className="px-3 py-1 rounded border disabled:opacity-50 w-full sm:w-auto">Sau</button>
           </div>
         )}
 
         {showCreate && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
-            <form onSubmit={createUser} className="w-full max-w-md rounded-xl bg-white p-4 shadow">
+            <form onSubmit={createUser} className="w-full max-w-md rounded-xl bg-white p-4 shadow max-h-[90vh] overflow-y-auto">
               <h2 className="font-semibold mb-3">Thêm người dùng</h2>
               <div className="grid gap-2">
                 <input required value={form.username} onChange={(e)=>setForm({...form, username:e.target.value})} placeholder="Username" className="rounded-md border px-3 py-2" />

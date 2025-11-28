@@ -49,7 +49,6 @@ export type CartItem = {
 };
 
 const STORAGE_SELECTED = "cart:selected:v1";
-const VAT_RATE = 0.1;
 
 /* ================= Helpers ================= */
 const formatVND = (n: number) =>
@@ -91,6 +90,7 @@ export default function CartPage() {
     isLastQty: boolean;
   }>({ open: false, itemId: null, itemName: "", isLastQty: false });
   const [clearCartDialog, setClearCartDialog] = useState(false);
+  const [taxRate, setTaxRate] = useState(0);
 
   useEffect(() => {
     try {
@@ -150,7 +150,7 @@ export default function CartPage() {
     () => selectedItems.reduce((s, it) => s + it.price * it.qty, 0),
     [selectedItems]
   );
-  const vat = useMemo(() => subtotal * VAT_RATE, [subtotal]);
+  const vat = useMemo(() => subtotal * taxRate, [subtotal, taxRate]);
   const grandTotal = useMemo(() => subtotal + vat, [subtotal, vat]);
 
   // ---- selection helpers ----
@@ -160,6 +160,24 @@ export default function CartPage() {
     setSelected(Object.fromEntries(items.map((i) => [i.id, true])));
   const clearAll = () =>
     setSelected(Object.fromEntries(items.map((i) => [i.id, false])));
+
+  // Fetch VAT rate từ server (admin cấu hình)
+  useEffect(() => {
+    let ignore = false;
+    fetch("/api/system/tax-rate", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((json) => {
+        if (!ignore && typeof json?.taxRate === "number") {
+          setTaxRate(Number(json.taxRate));
+        }
+      })
+      .catch(() => {
+        /* ignore */
+      });
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   // ---- actions (API) ----
   const changeQty = async (id: string, newQty: number, showToast = true) => {
@@ -501,7 +519,9 @@ export default function CartPage() {
                   </div>
 
                   <div className="flex items-center justify-between text-base">
-                    <span className="text-gray-600">VAT (10%)</span>
+                    <span className="text-gray-600">
+                      VAT ({Math.round(taxRate * 100)}%)
+                    </span>
                     <span className="text-lg font-semibold text-gray-900">
                       {formatVND(vat)}
                     </span>
@@ -519,7 +539,7 @@ export default function CartPage() {
                       </span>
                     </div>
                     <p className="mt-2 text-xs text-gray-600 text-center">
-                      * Đã bao gồm VAT 10%
+                      * Đã bao gồm VAT {Math.round(taxRate * 100)}%
                     </p>
                   </div>
                 </div>

@@ -11,6 +11,7 @@ import type {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useCart } from "@/lib/hooks/useCart";
 import {
   ShoppingCart,
   ArrowLeft,
@@ -112,15 +113,9 @@ const CHECKOUT_KEY = "checkout:guest";
 const SELECTED_KEY = "cart:selected:v1";
 
 
-const PROMOS: Record<
-  string,
-  | { kind: "percent"; value: number }
-  | { kind: "fixed"; value: number }
-  | { kind: "shipping_free" }
-> = {
+const PROMOS: Record<string, { kind: "percent"; value: number } | { kind: "fixed"; value: number }> = {
   GIAM10: { kind: "percent", value: 10 },
   GIAM50K: { kind: "fixed", value: 50000 },
-  FREESHIP: { kind: "shipping_free" },
 };
 
 const formatVND = (n: number) =>
@@ -135,9 +130,11 @@ const formatVND = (n: number) =>
 /* =================================================================== */
 export default function CartReviewPage() {
   const router = useRouter();
+  const { refresh: refreshCart } = useCart();
+  const [placing, setPlacing] = useState(false);
 
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [taxRate, setTaxRate] = useState(0.1);
+  const [taxRate, setTaxRate] = useState(0);
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<CartItem[]>([]);
@@ -258,11 +255,11 @@ export default function CartReviewPage() {
 
   useEffect(() => {
     let ignore = false;
-    fetch("/api/tax")
+    fetch("/api/system/tax-rate", { cache: "no-store" })
       .then((res) => res.json())
       .then((json) => {
-        if (!ignore && json?.data?.rate != null) {
-          setTaxRate(Number(json.data.rate));
+        if (!ignore && typeof json?.taxRate === "number") {
+          setTaxRate(Number(json.taxRate));
         }
       })
       .catch(() => {
@@ -306,15 +303,9 @@ export default function CartReviewPage() {
   const taxable = Math.max(0, subtotal - discount);
   const vat = useMemo(() => taxable * taxRate, [taxable, taxRate]);
 
-  const shippingFee = useMemo(() => {
-    if (visibleItems.length === 0) return 0;
-    const free = appliedCode && PROMOS[appliedCode]?.kind === "shipping_free";
-    return free ? 0 : 30000;
-  }, [appliedCode, visibleItems.length]);
-
   const grandTotal = useMemo(
-    () => taxable + vat + shippingFee,
-    [taxable, vat, shippingFee],
+    () => taxable + vat,
+    [taxable, vat],
   );
 
   /* ======= handlers ======= */
@@ -372,6 +363,7 @@ export default function CartReviewPage() {
 
   const handlePlaceOrder = async () => {
     if (!validate()) return;
+    setPlacing(true);
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -391,11 +383,18 @@ export default function CartReviewPage() {
       if (!res.ok || !data?.ok) {
         throw new Error(data?.error || "Đặt hàng thất bại");
       }
+      setSelectedItemIds([]);
+      try {
+        localStorage.removeItem(SELECTED_KEY);
+      } catch {}
+      await refreshCart();
       sessionStorage.setItem("orderPreview", JSON.stringify(data.orderPreview));
       router.push("/checkout");
     } catch (error) {
       const message = error instanceof Error ? error.message : null;
       toast.error(message ?? "Không thể đặt hàng. Vui lòng thử lại.");
+    } finally {
+      setPlacing(false);
     }
   };
 
@@ -407,6 +406,14 @@ export default function CartReviewPage() {
   /* ================== UI ================== */
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50">
+      {placing && (
+        <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[1px] flex items-center justify-center">
+          <div className="rounded-xl bg-white p-4 shadow-lg flex items-center gap-3">
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+            <span className="text-sm font-medium text-gray-800">Đang tạo mã thanh toán...</span>
+          </div>
+        </div>
+      )}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
@@ -601,7 +608,7 @@ export default function CartReviewPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Vận chuyển</span>
-                  <span className="font-medium">{formatVND(shippingFee)}</span>
+                  <span className="font-medium text-gray-500">Tự thanh toán</span>
                 </div>
                 <div className="flex justify-between border-t pt-3 text-base">
                   <span className="font-semibold text-gray-900">Tổng cộng</span>
@@ -616,12 +623,16 @@ export default function CartReviewPage() {
 
               <button
                 onClick={handlePlaceOrder}
-                disabled={!agree || visibleItems.length === 0}
+                disabled={!agree || visibleItems.length === 0 || placing}
                 className="group relative overflow-hidden mt-4 w-full rounded-xl bg-linear-to-r from-blue-600 to-blue-700 px-6 py-4 font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
-                  <CheckCircle2 className="h-5 w-5" />
-                  Đặt hàng ngay
+                  {placing ? (
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/70 border-t-transparent" />
+                  ) : (
+                    <CheckCircle2 className="h-5 w-5" />
+                  )}
+                  {placing ? "Đang tạo đơn..." : "Đặt hàng ngay"}
                 </span>
                 <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-blue-700 to-blue-800 opacity-0 transition-opacity group-hover:opacity-100" />
               </button>

@@ -420,7 +420,10 @@ export const ModelName = {
   user: 'user',
   contacttype: 'contacttype',
   contact: 'contact',
-  quoterequest: 'quoterequest'
+  quoterequest: 'quoterequest',
+  stocktransaction: 'stocktransaction',
+  financialtransaction: 'financialtransaction',
+  dailysummary: 'dailysummary'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -436,7 +439,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "address" | "brand" | "cart" | "cartitem" | "order" | "orderitem" | "payment" | "supplier" | "systemsetting" | "herobanner" | "siteannouncement" | "policysection" | "product" | "productcategory" | "productcategorylink" | "productimage" | "productspecdefinition" | "productspecvalue" | "producttype" | "featuredproduct" | "review" | "reviewimage" | "software" | "softwarecategory" | "solution" | "solutioncategory" | "solutionimage" | "unitdefinition" | "user" | "contacttype" | "contact" | "quoterequest"
+    modelProps: "address" | "brand" | "cart" | "cartitem" | "order" | "orderitem" | "payment" | "supplier" | "systemsetting" | "herobanner" | "siteannouncement" | "policysection" | "product" | "productcategory" | "productcategorylink" | "productimage" | "productspecdefinition" | "productspecvalue" | "producttype" | "featuredproduct" | "review" | "reviewimage" | "software" | "softwarecategory" | "solution" | "solutioncategory" | "solutionimage" | "unitdefinition" | "user" | "contacttype" | "contact" | "quoterequest" | "stocktransaction" | "financialtransaction" | "dailysummary"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2808,6 +2811,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    stocktransaction: {
+      payload: Prisma.$stocktransactionPayload<ExtArgs>
+      fields: Prisma.stocktransactionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.stocktransactionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$stocktransactionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.stocktransactionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$stocktransactionPayload>
+        }
+        findFirst: {
+          args: Prisma.stocktransactionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$stocktransactionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.stocktransactionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$stocktransactionPayload>
+        }
+        findMany: {
+          args: Prisma.stocktransactionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$stocktransactionPayload>[]
+        }
+        create: {
+          args: Prisma.stocktransactionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$stocktransactionPayload>
+        }
+        createMany: {
+          args: Prisma.stocktransactionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.stocktransactionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$stocktransactionPayload>[]
+        }
+        delete: {
+          args: Prisma.stocktransactionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$stocktransactionPayload>
+        }
+        update: {
+          args: Prisma.stocktransactionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$stocktransactionPayload>
+        }
+        deleteMany: {
+          args: Prisma.stocktransactionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.stocktransactionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.stocktransactionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$stocktransactionPayload>[]
+        }
+        upsert: {
+          args: Prisma.stocktransactionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$stocktransactionPayload>
+        }
+        aggregate: {
+          args: Prisma.StocktransactionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStocktransaction>
+        }
+        groupBy: {
+          args: Prisma.stocktransactionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StocktransactionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.stocktransactionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StocktransactionCountAggregateOutputType> | number
+        }
+      }
+    }
+    financialtransaction: {
+      payload: Prisma.$financialtransactionPayload<ExtArgs>
+      fields: Prisma.financialtransactionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.financialtransactionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$financialtransactionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.financialtransactionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$financialtransactionPayload>
+        }
+        findFirst: {
+          args: Prisma.financialtransactionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$financialtransactionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.financialtransactionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$financialtransactionPayload>
+        }
+        findMany: {
+          args: Prisma.financialtransactionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$financialtransactionPayload>[]
+        }
+        create: {
+          args: Prisma.financialtransactionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$financialtransactionPayload>
+        }
+        createMany: {
+          args: Prisma.financialtransactionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.financialtransactionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$financialtransactionPayload>[]
+        }
+        delete: {
+          args: Prisma.financialtransactionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$financialtransactionPayload>
+        }
+        update: {
+          args: Prisma.financialtransactionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$financialtransactionPayload>
+        }
+        deleteMany: {
+          args: Prisma.financialtransactionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.financialtransactionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.financialtransactionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$financialtransactionPayload>[]
+        }
+        upsert: {
+          args: Prisma.financialtransactionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$financialtransactionPayload>
+        }
+        aggregate: {
+          args: Prisma.FinancialtransactionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinancialtransaction>
+        }
+        groupBy: {
+          args: Prisma.financialtransactionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinancialtransactionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.financialtransactionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinancialtransactionCountAggregateOutputType> | number
+        }
+      }
+    }
+    dailysummary: {
+      payload: Prisma.$dailysummaryPayload<ExtArgs>
+      fields: Prisma.dailysummaryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.dailysummaryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dailysummaryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.dailysummaryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dailysummaryPayload>
+        }
+        findFirst: {
+          args: Prisma.dailysummaryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dailysummaryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.dailysummaryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dailysummaryPayload>
+        }
+        findMany: {
+          args: Prisma.dailysummaryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dailysummaryPayload>[]
+        }
+        create: {
+          args: Prisma.dailysummaryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dailysummaryPayload>
+        }
+        createMany: {
+          args: Prisma.dailysummaryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.dailysummaryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dailysummaryPayload>[]
+        }
+        delete: {
+          args: Prisma.dailysummaryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dailysummaryPayload>
+        }
+        update: {
+          args: Prisma.dailysummaryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dailysummaryPayload>
+        }
+        deleteMany: {
+          args: Prisma.dailysummaryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.dailysummaryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.dailysummaryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dailysummaryPayload>[]
+        }
+        upsert: {
+          args: Prisma.dailysummaryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$dailysummaryPayload>
+        }
+        aggregate: {
+          args: Prisma.DailysummaryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDailysummary>
+        }
+        groupBy: {
+          args: Prisma.dailysummaryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DailysummaryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.dailysummaryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DailysummaryCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -2922,6 +3147,8 @@ export const OrderScalarFieldEnum = {
   shippingMethod: 'shippingMethod',
   shippingFee: 'shippingFee',
   note: 'note',
+  cancelReason: 'cancelReason',
+  cancelRequestReason: 'cancelRequestReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   addressId: 'addressId',
@@ -3440,6 +3667,67 @@ export const QuoterequestScalarFieldEnum = {
 export type QuoterequestScalarFieldEnum = (typeof QuoterequestScalarFieldEnum)[keyof typeof QuoterequestScalarFieldEnum]
 
 
+export const StocktransactionScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  type: 'type',
+  quantity: 'quantity',
+  quantityBefore: 'quantityBefore',
+  quantityAfter: 'quantityAfter',
+  orderId: 'orderId',
+  orderCode: 'orderCode',
+  userId: 'userId',
+  reason: 'reason',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  createdBy: 'createdBy'
+} as const
+
+export type StocktransactionScalarFieldEnum = (typeof StocktransactionScalarFieldEnum)[keyof typeof StocktransactionScalarFieldEnum]
+
+
+export const FinancialtransactionScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  type: 'type',
+  category: 'category',
+  amount: 'amount',
+  costAmount: 'costAmount',
+  profitAmount: 'profitAmount',
+  orderId: 'orderId',
+  orderCode: 'orderCode',
+  paymentId: 'paymentId',
+  userId: 'userId',
+  description: 'description',
+  notes: 'notes',
+  status: 'status',
+  createdAt: 'createdAt',
+  createdBy: 'createdBy'
+} as const
+
+export type FinancialtransactionScalarFieldEnum = (typeof FinancialtransactionScalarFieldEnum)[keyof typeof FinancialtransactionScalarFieldEnum]
+
+
+export const DailysummaryScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  totalRevenue: 'totalRevenue',
+  totalCost: 'totalCost',
+  totalProfit: 'totalProfit',
+  orderCount: 'orderCount',
+  orderCompleted: 'orderCompleted',
+  orderCancelled: 'orderCancelled',
+  productsSold: 'productsSold',
+  uniqueProducts: 'uniqueProducts',
+  newCustomers: 'newCustomers',
+  returningCustomers: 'returningCustomers',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DailysummaryScalarFieldEnum = (typeof DailysummaryScalarFieldEnum)[keyof typeof DailysummaryScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -3686,6 +3974,34 @@ export type Enumquote_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 export type ListEnumquote_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'quote_status[]'>
     
 
+
+/**
+ * Reference to a field of type 'stock_transaction_type'
+ */
+export type Enumstock_transaction_typeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'stock_transaction_type'>
+    
+
+
+/**
+ * Reference to a field of type 'stock_transaction_type[]'
+ */
+export type ListEnumstock_transaction_typeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'stock_transaction_type[]'>
+    
+
+
+/**
+ * Reference to a field of type 'financial_transaction_type'
+ */
+export type Enumfinancial_transaction_typeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'financial_transaction_type'>
+    
+
+
+/**
+ * Reference to a field of type 'financial_transaction_type[]'
+ */
+export type ListEnumfinancial_transaction_typeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'financial_transaction_type[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -3805,6 +4121,9 @@ export type GlobalOmitConfig = {
   contacttype?: Prisma.contacttypeOmit
   contact?: Prisma.contactOmit
   quoterequest?: Prisma.quoterequestOmit
+  stocktransaction?: Prisma.stocktransactionOmit
+  financialtransaction?: Prisma.financialtransactionOmit
+  dailysummary?: Prisma.dailysummaryOmit
 }
 
 /* Types for Logging */

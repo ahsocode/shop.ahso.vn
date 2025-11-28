@@ -16,11 +16,13 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore, getUser, setUser } from "@/lib/auth-store";
+import { useCart } from "@/lib/hooks/useCart";
 
 export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const user = useAuthStore();
+  const { itemCount } = useCart();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -191,9 +193,20 @@ export function Navbar() {
 
           {/* Right */}
           <div className="flex items-center gap-3">
-            <Link href="/cart">
-              <Button id="site-cart-icon" variant="ghost" size="icon" aria-label="Giỏ hàng">
+            <Link href="/cart" className="relative">
+              <Button
+                id="site-cart-icon"
+                variant="ghost"
+                size="icon"
+                aria-label="Giỏ hàng"
+                className="relative"
+              >
                 <ShoppingCart className="h-5 w-5" />
+                {itemCount > 0 && (
+                  <span className="absolute -right-1 -top-1 min-w-[18px] rounded-full bg-blue-600 px-1.5 py-0.5 text-center text-[11px] font-semibold leading-none text-white shadow-sm">
+                    {itemCount}
+                  </span>
+                )}
               </Button>
             </Link>
 

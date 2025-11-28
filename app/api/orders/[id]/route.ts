@@ -18,7 +18,7 @@ export async function GET(
 ) {
   const { id } = await context.params;
 
-  // bắt buộc đăng nhập, guest sẽ bị chặn trong verifyRequestUser (tuỳ implement của bạn)
+  // bắt buộc đăng nhập
   const user = await verifyRequestUser(req);
 
   const r: OrderWithRelations | null = await prisma.order.findUnique({
@@ -37,7 +37,6 @@ export async function GET(
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   }
 
-  // Chuẩn hoá dữ liệu đưa vào mapper
   const dto = toOrderDetailDTO({
     order: {
       id: r.id,
@@ -54,15 +53,19 @@ export async function GET(
       discountTotal: Number(r.discountTotal),
       taxTotal: Number(r.taxTotal),
       grandTotal: Number(r.grandTotal),
+
+      // ✅ thêm 2 field mới
+      cancelRequestReason: r.cancelRequestReason ?? null,
+      cancelReason: r.cancelReason ?? null,
     },
-    items: r.orderitem.map((it: (typeof r.orderitem)[number]) => ({
+    items: r.orderitem.map((it) => ({
       sku: it.sku,
       name: it.name,
       quantity: it.quantity,
       price: Number(it.unitPrice),
       image: it.image ?? null,
     })),
-    // ✅ LẤY TỪ CÁC CỘT shippingLine1, shippingCity, shippingState,...
+    // ✅ map đúng shape AddressEntityMinimal
     address: r.shippingLine1
       ? {
           line1: r.shippingLine1,

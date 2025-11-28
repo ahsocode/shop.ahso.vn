@@ -22,7 +22,8 @@ type CartCtx = {
   remove: (id: string) => Promise<void>;
   refresh: () => Promise<void>;
   mergeGuestCart: () => Promise<void>; // ⭐ Mới: gộp guest cart khi login
-  itemCount: number;
+  itemCount: number; // số sản phẩm (distinct items)
+  totalQuantity: number; // tổng số lượng
 };
 
 const CartContext = createContext<CartCtx | null>(null);
@@ -221,7 +222,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [readCart]);
 
-  const itemCount = useMemo(() => items.reduce((sum, it) => sum + it.qty, 0), [items]);
+  const itemCount = useMemo(() => items.length, [items]);
+  const totalQuantity = useMemo(() => items.reduce((sum, it) => sum + it.qty, 0), [items]);
 
   const value = useMemo<CartCtx>(
     () => ({
@@ -233,8 +235,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       refresh,
       mergeGuestCart,
       itemCount,
+      totalQuantity,
     }),
-    [items, loading, add, setQty, remove, refresh, mergeGuestCart, itemCount]
+    [items, loading, add, setQty, remove, refresh, mergeGuestCart, itemCount, totalQuantity]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

@@ -406,3 +406,135 @@ AHSO Industrial
     html,
   };
 }
+
+// 6️⃣ Email: User yêu cầu hủy đơn hàng
+export function generateOrderCancelRequestedEmail(
+  orderCode: string,
+  customerName: string,
+  reason: string,
+) {
+  const text = `
+Xin chào ${customerName},
+
+Chúng tôi đã nhận được yêu cầu hủy đơn của bạn:
+
+Mã đơn hàng: ${orderCode}
+Lý do yêu cầu hủy: ${reason}
+
+Yêu cầu đang được đội ngũ kiểm tra và xử lý.
+Chúng tôi sẽ gửi email thông báo khi yêu cầu được duyệt hoặc bị từ chối.
+
+Trân trọng,
+AHSO Industrial
+`.trim();
+
+  const html = `
+<h2>📩 Yêu cầu hủy đơn của bạn đang được xem xét</h2>
+<p><strong>Khách hàng:</strong> ${customerName}</p>
+<p><strong>Mã đơn hàng:</strong> ${orderCode}</p>
+<p><strong>Lý do yêu cầu hủy:</strong> ${reason}</p>
+<p>Chúng tôi sẽ xử lý và phản hồi trong thời gian sớm nhất.</p>
+`;
+
+  return {
+    subject: `Yêu cầu hủy đơn ${orderCode} đang được xem xét`,
+    text,
+    html,
+  };
+}
+
+// 7️⃣ Email: Admin nhận thông báo có yêu cầu hủy
+export function generateOrderCancelAdminNotifyEmail(
+  orderCode: string,
+  customerName: string,
+  reason: string,
+) {
+  const text = `
+⚠️ YÊU CẦU HỦY ĐƠN HÀNG
+
+Mã đơn hàng: ${orderCode}
+Khách hàng: ${customerName}
+Lý do yêu cầu hủy: ${reason}
+
+Vui lòng kiểm tra và xử lý.
+`;
+
+  const html = `
+<h2>⚠️ Có yêu cầu hủy đơn hàng</h2>
+<p><strong>Mã đơn hàng:</strong> ${orderCode}</p>
+<p><strong>Khách hàng:</strong> ${customerName}</p>
+<p><strong>Lý do yêu cầu hủy:</strong> ${reason}</p>
+<p>Bạn cần kiểm tra và phản hồi sớm.</p>
+`;
+
+  return {
+    subject: `⚠️ Yêu cầu hủy đơn hàng ${orderCode}`,
+    text,
+    html,
+  };
+}
+// 8️⃣ Email: Yêu cầu hủy đơn đã được chấp nhận
+export function generateOrderCancelApprovedEmail(
+  orderCode: string,
+  customerName: string,
+) {
+  const text = `
+Xin chào ${customerName},
+
+Yêu cầu hủy đơn hàng ${orderCode} của bạn đã được CHẤP NHẬN. ✅
+
+Nếu bạn đã thanh toán, vui lòng liên hệ AHSO Industrial để được hỗ trợ hoàn tiền
+trong thời gian sớm nhất.
+
+Nếu đây không phải là yêu cầu của bạn hoặc bạn có thắc mắc khác, hãy liên hệ lại
+với chúng tôi để được kiểm tra và xử lý.
+
+Trân trọng,
+AHSO Industrial
+  `.trim();
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #111827; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: #fff; padding: 24px; text-align: center; border-radius: 12px 12px 0 0; }
+    .content { background: #ffffff; padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; }
+    .box { background: #fffbeb; border-left: 4px solid #f97316; padding: 16px; border-radius: 8px; margin: 16px 0; }
+    .footer { text-align: center; padding: 16px; font-size: 13px; color: #6b7280; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>✅ Yêu cầu hủy đơn đã được chấp nhận</h1>
+    </div>
+    <div class="content">
+      <p>Xin chào <strong>${customerName}</strong>,</p>
+
+      <div class="box">
+        <p>Yêu cầu hủy đơn hàng <strong>${orderCode}</strong> của bạn đã được <strong>chấp nhận</strong>.</p>
+        <p>Nếu bạn đã thanh toán, vui lòng liên hệ với AHSO Industrial để được hướng dẫn hoàn tiền trong thời gian sớm nhất.</p>
+      </div>
+
+      <p>Nếu đây không phải là yêu cầu của bạn hoặc bạn có bất kỳ thắc mắc nào, vui lòng liên hệ lại để được kiểm tra và hỗ trợ.</p>
+
+      <p style="margin-top: 24px;">Trân trọng,<br/><strong>AHSO Industrial</strong></p>
+    </div>
+    <div class="footer">
+      Email này được gửi tự động, vui lòng không phản hồi trực tiếp.
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  return {
+    subject: `Yêu cầu hủy đơn ${orderCode} đã được chấp nhận`,
+    text,
+    html,
+  };
+}

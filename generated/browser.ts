@@ -176,3 +176,18 @@ export type contact = Prisma.contactModel
  * 
  */
 export type quoterequest = Prisma.quoterequestModel
+/**
+ * Model stocktransaction
+ * 
+ */
+export type stocktransaction = Prisma.stocktransactionModel
+/**
+ * Model financialtransaction
+ * 
+ */
+export type financialtransaction = Prisma.financialtransactionModel
+/**
+ * Model dailysummary
+ * 
+ */
+export type dailysummary = Prisma.dailysummaryModel
