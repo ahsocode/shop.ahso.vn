@@ -1,4 +1,4 @@
-// app/api/staff/orders/[id]/route.ts
+// app/api/staff/orders/[id]/route.ts (UPDATED)
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
@@ -11,22 +11,26 @@ import {
   generateOrderPaidEmail,
   generateOrderShippedEmail,
   generateOrderCancelledEmail,
-  generateOrderCancelApprovedEmail, // 🔹 sẽ thêm ở email-templates
+  generateOrderCancelApprovedEmail,
 } from "@/lib/email-templates";
 import type { order_status } from "@/generated/enums";
+import {
+  decreaseStockOnShipped,
+  restoreStockOnCancelled,
+  increasePurchaseCountOnDelivered,
+} from "@/lib/stock-finance-service";
 
 export const dynamic = "force-dynamic";
 
 type OrderStatus = order_status;
 
-// 🔹 Bảng transition cho trạng thái
 const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   pending: ["paid", "processing", "shipped", "delivered", "cancelled"],
   paid: ["processing", "shipped", "delivered", "cancelled"],
   processing: ["shipped", "delivered", "cancelled"],
   shipped: ["delivered", "cancelled"],
   delivered: [],
-  cancel_requested: ["cancelled"], // chỉ được chuyển sang cancelled
+  cancel_requested: ["cancelled"],
   cancelled: [],
 };
 
@@ -35,22 +39,9 @@ const UpdateOrderSchema = z
     status: z
       .enum(["pending", "paid", "processing", "shipped", "delivered", "cancel_requested", "cancelled"])
       .optional(),
-    note: z
-      .string()
-      .trim()
-      .max(1000, "Ghi chú tối đa 1000 ký tự")
-      .optional(),
-    shippingMethod: z
-      .string()
-      .trim()
-      .max(120, "Phương thức giao hàng tối đa 120 ký tự")
-      .optional(),
-    // 🔹 lý do hủy do staff nhập
-    cancelReason: z
-      .string()
-      .trim()
-      .max(1000, "Lý do hủy tối đa 1000 ký tự")
-      .optional(),
+    note: z.string().trim().max(1000).optional(),
+    shippingMethod: z.string().trim().max(120).optional(),
+    cancelReason: z.string().trim().max(1000).optional(),
   })
   .refine(
     (val) =>
@@ -58,15 +49,12 @@ const UpdateOrderSchema = z
       val.note !== undefined ||
       val.shippingMethod !== undefined ||
       val.cancelReason !== undefined,
-    {
-      message: "Không có thay đổi nào được gửi lên",
-      path: ["status"],
-    },
+    { message: "Không có thay đổi nào được gửi lên", path: ["status"] }
   );
 
 export async function PATCH(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const me = await verifyBearerAuth(req);
@@ -88,6 +76,7 @@ export async function PATCH(
         customerEmail: true,
       },
     });
+
     if (!existing) {
       return jsonError("Không tìm thấy đơn hàng", 404);
     }
@@ -96,7 +85,7 @@ export async function PATCH(
     const { status, note, shippingMethod, cancelReason } = parsed.data;
     const prevStatus = existing.status as OrderStatus;
 
-    // 🔹 validate chuyển trạng thái
+    // Validate transition
     if (status && status !== prevStatus) {
       const allowedNext = ALLOWED_TRANSITIONS[prevStatus] ?? [];
       if (!allowedNext.includes(status as OrderStatus)) {
@@ -104,7 +93,7 @@ export async function PATCH(
       }
     }
 
-    // 🔹 nếu hủy trực tiếp (không qua cancel_requested) thì bắt buộc có cancelReason
+    // Validate cancelReason
     if (status === "cancelled" && prevStatus !== "cancel_requested") {
       if (!cancelReason || !cancelReason.trim()) {
         return jsonError("Vui lòng nhập lý do hủy đơn", 400);
@@ -133,11 +122,35 @@ export async function PATCH(
       },
     });
 
-    // 📧 GỬI EMAIL KHI THAY ĐỔI TRẠNG THÁI
-    try {
-      const prev = prevStatus;
-      const next = updated.status as OrderStatus;
+    const prev = prevStatus;
+    const next = updated.status as OrderStatus;
 
+    // ⭐ XỬ LÝ TỒN KHO & TÀI CHÍNH
+    try {
+      // 1. Khi chuyển sang SHIPPED → Giảm tồn kho
+      if (prev !== "shipped" && next === "shipped") {
+        await decreaseStockOnShipped(id, me.sub);
+        console.log(`✅ Stock decreased for order ${updated.code}`);
+      }
+
+      // 2. Khi chuyển sang DELIVERED → Tăng purchase count & ghi nhận doanh thu
+      if (prev !== "delivered" && next === "delivered") {
+        await increasePurchaseCountOnDelivered(id);
+        console.log(`✅ Purchase count increased for order ${updated.code}`);
+      }
+
+      // 3. Khi HỦY đơn sau khi đã SHIPPED → Hoàn kho
+      if (next === "cancelled" && (prev === "shipped" || prev === "processing")) {
+        await restoreStockOnCancelled(id, me.sub);
+        console.log(`✅ Stock restored for cancelled order ${updated.code}`);
+      }
+    } catch (stockError) {
+      console.error("❌ Stock/Finance operation failed:", stockError);
+      // Không throw để vẫn cập nhật status, nhưng log lỗi
+    }
+
+    // 📧 GỬI EMAIL
+    try {
       if (prev !== next && updated.customerEmail) {
         const customerName = updated.customerFullName ?? "Quý khách";
 
@@ -153,7 +166,7 @@ export async function PATCH(
           const email = generateOrderShippedEmail(
             updated.code,
             customerName,
-            updated.shippingMethod || undefined,
+            updated.shippingMethod || undefined
           );
           await sendMail({
             to: updated.customerEmail,
@@ -162,7 +175,6 @@ export async function PATCH(
             html: email.html,
           });
         } else if (next === "cancelled") {
-          // 🔹 nếu trước đó là cancel_requested → chấp nhận yêu cầu hủy
           if (prev === "cancel_requested") {
             const email = generateOrderCancelApprovedEmail(updated.code, customerName);
             await sendMail({
@@ -172,11 +184,10 @@ export async function PATCH(
               html: email.html,
             });
           } else {
-            // 🔹 hủy trực tiếp bởi staff (không qua request)
             const email = generateOrderCancelledEmail(
               updated.code,
               customerName,
-              updated.cancelReason || undefined,
+              updated.cancelReason || undefined
             );
             await sendMail({
               to: updated.customerEmail,

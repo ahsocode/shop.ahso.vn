@@ -437,9 +437,13 @@ export default function CategoriesPage() {
                       <Image src={r.coverImage} alt={r.name} fill className="object-cover" />
                     </div>
                   ) : (
-                    <div className="w-16 h-16 border rounded bg-gray-50 flex items-center justify-center text-xs text-gray-500">
-                      No image
-                    </div>
+                    <button
+                      onClick={() => openEdit(r)}
+                      className="w-16 h-16 border border-dashed border-emerald-200 rounded bg-emerald-50/70 flex flex-col items-center justify-center text-[11px] text-emerald-700 hover:bg-emerald-50 transition"
+                    >
+                      <Upload className="w-4 h-4 mb-1" />
+                      Thêm ảnh
+                    </button>
                   )}
                 </td>
                 <td className="px-3 py-2 font-semibold">{r.name}</td>

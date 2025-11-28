@@ -109,3 +109,26 @@ export const quote_status = {
 } as const
 
 export type quote_status = (typeof quote_status)[keyof typeof quote_status]
+
+
+export const stock_transaction_type = {
+  ORDER_SHIPPED: 'ORDER_SHIPPED',
+  ORDER_DELIVERED: 'ORDER_DELIVERED',
+  ORDER_CANCELLED: 'ORDER_CANCELLED',
+  MANUAL_ADJUSTMENT: 'MANUAL_ADJUSTMENT',
+  RESTOCK: 'RESTOCK',
+  DAMAGED: 'DAMAGED',
+  RETURNED: 'RETURNED'
+} as const
+
+export type stock_transaction_type = (typeof stock_transaction_type)[keyof typeof stock_transaction_type]
+
+
+export const financial_transaction_type = {
+  INCOME: 'INCOME',
+  EXPENSE: 'EXPENSE',
+  REFUND: 'REFUND',
+  ADJUSTMENT: 'ADJUSTMENT'
+} as const
+
+export type financial_transaction_type = (typeof financial_transaction_type)[keyof typeof financial_transaction_type]

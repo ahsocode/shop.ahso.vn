@@ -641,9 +641,13 @@ export default function ProductTypesPage() {
                       <Image src={r.coverImage} alt={r.name} fill className="object-cover" />
                     </div>
                   ) : (
-                    <div className="w-16 h-16 rounded border bg-gray-50 flex items-center justify-center text-xs text-gray-500">
-                      No image
-                    </div>
+                    <button
+                      onClick={()=>openEdit(r)}
+                      className="w-16 h-16 rounded border border-dashed border-indigo-200 bg-indigo-50/70 flex flex-col items-center justify-center text-[11px] text-indigo-700 hover:bg-indigo-50 transition"
+                    >
+                      <Upload className="w-4 h-4 mb-1" />
+                      Thêm ảnh
+                    </button>
                   )}
                 </td>
                 <td className="px-3 py-2 font-semibold">{r.name}</td>

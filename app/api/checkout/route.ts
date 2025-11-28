@@ -16,7 +16,6 @@ const CART_COOKIE = "cart_id";
 const PROMOS = {
   GIAM10: { kind: "percent", value: 10 },
   GIAM50K: { kind: "fixed", value: 50_000 },
-  FREESHIP: { kind: "shipping_free" },
 } as const;
 
 function calcDiscount(code: string | null | undefined, subtotal: number): number {
@@ -146,10 +145,10 @@ export async function POST(req: NextRequest) {
     const taxRate = await getDefaultTaxRate();
     const vat = taxable * taxRate;
 
-    const freeShip = coupon?.toUpperCase() === "FREESHIP";
-    const shippingFee = freeShip ? 0 : 30_000;
+    // Người dùng tự thanh toán phí vận chuyển ngoài hệ thống
+    const shippingFee = 0;
 
-    const grandTotal = taxable + vat + shippingFee;
+    const grandTotal = taxable + vat;
 
     // ====== Shipping / Billing ======
     const shippingCountry = (guest.country || "VN").toUpperCase();
@@ -226,6 +225,7 @@ export async function POST(req: NextRequest) {
         data: selectedItems.map((it: (typeof selectedItems)[number]) => ({
           id: randomUUID(),
           orderId: created.id,
+          productId: it.productId ?? undefined,
           sku: it.productSku,
           name: it.productName,
           slug: it.productSlug,

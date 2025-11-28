@@ -79,7 +79,10 @@ export const ModelName = {
   user: 'user',
   contacttype: 'contacttype',
   contact: 'contact',
-  quoterequest: 'quoterequest'
+  quoterequest: 'quoterequest',
+  stocktransaction: 'stocktransaction',
+  financialtransaction: 'financialtransaction',
+  dailysummary: 'dailysummary'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -691,6 +694,67 @@ export const QuoterequestScalarFieldEnum = {
 } as const
 
 export type QuoterequestScalarFieldEnum = (typeof QuoterequestScalarFieldEnum)[keyof typeof QuoterequestScalarFieldEnum]
+
+
+export const StocktransactionScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  type: 'type',
+  quantity: 'quantity',
+  quantityBefore: 'quantityBefore',
+  quantityAfter: 'quantityAfter',
+  orderId: 'orderId',
+  orderCode: 'orderCode',
+  userId: 'userId',
+  reason: 'reason',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  createdBy: 'createdBy'
+} as const
+
+export type StocktransactionScalarFieldEnum = (typeof StocktransactionScalarFieldEnum)[keyof typeof StocktransactionScalarFieldEnum]
+
+
+export const FinancialtransactionScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  type: 'type',
+  category: 'category',
+  amount: 'amount',
+  costAmount: 'costAmount',
+  profitAmount: 'profitAmount',
+  orderId: 'orderId',
+  orderCode: 'orderCode',
+  paymentId: 'paymentId',
+  userId: 'userId',
+  description: 'description',
+  notes: 'notes',
+  status: 'status',
+  createdAt: 'createdAt',
+  createdBy: 'createdBy'
+} as const
+
+export type FinancialtransactionScalarFieldEnum = (typeof FinancialtransactionScalarFieldEnum)[keyof typeof FinancialtransactionScalarFieldEnum]
+
+
+export const DailysummaryScalarFieldEnum = {
+  id: 'id',
+  date: 'date',
+  totalRevenue: 'totalRevenue',
+  totalCost: 'totalCost',
+  totalProfit: 'totalProfit',
+  orderCount: 'orderCount',
+  orderCompleted: 'orderCompleted',
+  orderCancelled: 'orderCancelled',
+  productsSold: 'productsSold',
+  uniqueProducts: 'uniqueProducts',
+  newCustomers: 'newCustomers',
+  returningCustomers: 'returningCustomers',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DailysummaryScalarFieldEnum = (typeof DailysummaryScalarFieldEnum)[keyof typeof DailysummaryScalarFieldEnum]
 
 
 export const SortOrder = {

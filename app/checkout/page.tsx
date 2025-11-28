@@ -64,7 +64,7 @@ export default function CheckoutPage() {
   }
 
   const amount = Math.round(order.grandTotal);
-  const vatPercent = Math.round((order.taxRate ?? 0.1) * 100);
+  const vatPercent = Math.round((order.taxRate ?? 0) * 100);
   const { bankId, accountNumber, accountName, transferNote } = order.bankInfo;
 
   // VietQR quick link: https://img.vietqr.io/image/<BANK_ID>-<ACCOUNT_NO>-<TEMPLATE>.png?amount=...&addInfo=...&accountName=...
@@ -158,9 +158,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Phí vận chuyển</span>
-                <span className="font-medium">
-                  {formatVND(order.shippingFee)}
-                </span>
+                <span className="font-medium text-gray-500">Tự thanh toán</span>
               </div>
               <div className="flex justify-between border-t pt-2 text-base">
                 <span className="font-semibold text-gray-900">Tổng thanh toán</span>
