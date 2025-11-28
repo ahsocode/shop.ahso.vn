@@ -24,6 +24,7 @@ export const order_status = {
   processing: 'processing',
   shipped: 'shipped',
   delivered: 'delivered',
+  cancel_requested: 'cancel_requested',
   cancelled: 'cancelled'
 } as const
 

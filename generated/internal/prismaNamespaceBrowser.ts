@@ -173,6 +173,8 @@ export const OrderScalarFieldEnum = {
   shippingMethod: 'shippingMethod',
   shippingFee: 'shippingFee',
   note: 'note',
+  cancelReason: 'cancelReason',
+  cancelRequestReason: 'cancelRequestReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   addressId: 'addressId',

@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import {
   Package, Settings, Users, Shield, PanelsTopLeft, Code2, Home,
-  ChevronRight, LogOut, User as UserIcon, Layers, Tag, Grid3x3, Building2, Inbox, FileText, ChevronDown
+  ChevronRight, LogOut, User, Layers, Tag, Grid3x3, 
+  Building2, Inbox, FileText, ChevronDown, Menu, X
 } from "lucide-react";
 
 const navSections = [
@@ -94,11 +95,35 @@ function isSectionActive(section: typeof navSections[0], pathname?: string | nul
 }
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(() =>
     findSectionId(typeof window !== "undefined" ? window.location.pathname : "/admin"),
   );
   const pathname = usePathname();
+
+  // Auto-collapse sidebar on mobile
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setSidebarOpen(true);
+        setMobileMenuOpen(false);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Close mobile menu on route change without triggering sync setState in effect
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const frame = requestAnimationFrame(() => setMobileMenuOpen(false));
+    return () => cancelAnimationFrame(frame);
+  }, [mobileMenuOpen, pathname]);
 
   useEffect(() => {
     const next = findSectionId(pathname);
@@ -117,10 +142,20 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex min-w-0">
+      {/* Mobile Overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
         className={`fixed left-0 top-0 h-full bg-linear-to-b from-blue-600 to-blue-800 text-white transition-all duration-300 z-50 flex flex-col ${
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0 ${
           sidebarOpen ? "w-64" : "w-20"
         }`}
       >
@@ -134,10 +169,17 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               </Link>
               <button 
                 onClick={() => setSidebarOpen(false)} 
-                className="p-1.5 hover:bg-blue-700 rounded-md transition-colors"
+                className="p-1.5 hover:bg-blue-700 rounded-md transition-colors hidden lg:block"
                 aria-label="Thu gọn sidebar"
               >
                 <ChevronRight className="w-5 h-5" />
+              </button>
+              <button 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="p-1.5 hover:bg-blue-700 rounded-md transition-colors lg:hidden"
+                aria-label="Đóng menu"
+              >
+                <X className="w-5 h-5" />
               </button>
             </>
           ) : (
@@ -151,8 +193,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           )}
         </div>
 
-        {/* Nav - Không có scroll */}
-        <nav className="flex-1 py-4 px-2">
+        {/* Nav */}
+        <nav className="flex-1 py-4 px-2 overflow-y-auto">
           {navSections.map((section) => {
             const SectionIcon = section.icon;
             const isExpanded = expandedSection === section.id;
@@ -160,7 +202,6 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             
             return (
               <div key={section.id} className="mb-1">
-                {/* Section Header - Clickable */}
                 <button
                   onClick={() => sidebarOpen && toggleSection(section.id)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
@@ -187,7 +228,6 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                   )}
                 </button>
 
-                {/* Section Items - Dropdown */}
                 {sidebarOpen && isExpanded && (
                   <ul className="mt-1 space-y-1 pl-3">
                     {section.items.map((item) => {
@@ -243,19 +283,37 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? "ml-64" : "ml-20"}`}>
-        <header className="h-16 bg-white border-b border-gray-200 px-6 flex items-center justify-between sticky top-0 z-40">
-          <h1 className="text-xl font-bold text-gray-800">{currentTitle}</h1>
-          <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-lg">
-            <UserIcon className="w-5 h-5 text-gray-600" />
-            <div className="text-sm">
-              <div className="font-semibold text-gray-800">Admin User</div>
+      <main
+        className={`flex-1 min-w-0 flex flex-col transition-all duration-300 ${
+          sidebarOpen ? "lg:ml-64" : "lg:ml-20"
+        }`}
+      >
+        <header className="h-16 bg-white border-b border-gray-200 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-40">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-2 hover:bg-gray-100 rounded-lg lg:hidden"
+              aria-label="Mở menu"
+            >
+              <Menu className="w-5 h-5 text-gray-600" />
+            </button>
+            <h1 className="text-lg lg:text-xl font-bold text-gray-800 truncate">
+              {currentTitle}
+            </h1>
+          </div>
+          
+          <div className="flex items-center gap-2 lg:gap-3 px-2 lg:px-4 py-2 bg-gray-50 rounded-lg">
+            <User className="w-4 h-4 lg:w-5 lg:h-5 text-gray-600 shrink-0" />
+            <div className="text-sm hidden sm:block">
+              <div className="font-semibold text-gray-800 text-xs lg:text-sm">Admin User</div>
               <div className="text-xs text-gray-500">admin@ahso.vn</div>
             </div>
           </div>
         </header>
 
-        <div className="p-6">{children}</div>
+        <div className="p-4 sm:p-5 lg:p-6 w-full max-w-7xl mx-auto min-w-0">
+          {children}
+        </div>
       </main>
     </div>
   );

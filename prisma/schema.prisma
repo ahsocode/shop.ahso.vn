@@ -92,7 +92,10 @@ model order {
   status             order_status @default(pending)
   shippingMethod     String?
   shippingFee        Decimal      @default(0.00) @db.Decimal(12, 2)
-  note               String?      @db.Text
+
+  note                String?      @db.Text      
+  cancelReason        String?      @db.Text     
+  cancelRequestReason String?      @db.Text      
   createdAt          DateTime     @default(now())
   updatedAt          DateTime
   addressId          String?
@@ -793,8 +796,10 @@ enum order_status {
   processing
   shipped
   delivered
-  cancelled
+  cancel_requested   
+  cancelled          
 }
+
 
 enum product_status {
   DRAFT

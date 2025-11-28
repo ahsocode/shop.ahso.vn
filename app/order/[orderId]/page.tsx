@@ -1,6 +1,7 @@
 // app/order/[orderId]/page.tsx
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import CancelRequestSection from "./cancel-request.client";
 
 import {
   Package,
@@ -12,20 +13,13 @@ import {
   Calendar,
   Receipt,
 } from "lucide-react";
-import type { OrderDetailDTO } from "@/dto/order.dto";
+import type { OrderDetailDTO, OrderStatus } from "@/dto/order.dto"; // 👈 dùng OrderStatus từ DTO
 import { cookies } from "next/headers";
+
 function formatVND(n: number | undefined | null) {
   const num = typeof n === "number" ? n : Number(n || 0);
   return num.toLocaleString("vi-VN") + " ₫";
 }
-
-type OrderStatus =
-  | "pending"
-  | "paid"
-  | "processing"
-  | "shipped"
-  | "delivered"
-  | "cancelled";
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
   pending: "Chờ thanh toán",
@@ -33,6 +27,7 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
   processing: "Đang xử lý",
   shipped: "Đã gửi hàng",
   delivered: "Đã giao",
+  cancel_requested: "Đang yêu cầu hủy", // 👈 thêm
   cancelled: "Đã hủy",
 };
 
@@ -67,7 +62,7 @@ export default async function OrderDetailPage(props: {
   const res = await fetch(new URL(`/api/orders/${orderId}`, baseUrl).toString(), {
     cache: "no-store",
     headers: {
-      "Authorization": `Bearer ${authToken}`,
+      Authorization: `Bearer ${authToken}`,
     },
   });
 
@@ -137,6 +132,8 @@ export default async function OrderDetailPage(props: {
               ? "bg-green-50 text-green-700 ring-green-200"
               : status === "cancelled"
               ? "bg-rose-50 text-rose-700 ring-rose-200"
+              : status === "cancel_requested"
+              ? "bg-orange-50 text-orange-700 ring-orange-200"
               : "bg-blue-50 text-blue-700 ring-blue-200",
           ].join(" ")}
         >
@@ -308,7 +305,7 @@ export default async function OrderDetailPage(props: {
           </div>
         </div>
 
-        {/* Right: Khách + địa chỉ + tracking */}
+        {/* Right: Khách + địa chỉ + tracking + nút yêu cầu hủy */}
         <div className="space-y-6">
           <div className="rounded-2xl border border-gray-200 bg-white p-4">
             <div className="mb-3 flex items-center gap-2 font-medium">
@@ -354,14 +351,20 @@ export default async function OrderDetailPage(props: {
                 Mã: <span className="font-medium">{data.code}</span>
               </div>
               <Link
-                  href={`/order/${data.id}/print`}
-                  className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium hover:bg-gray-50"
-                >
-                  In hóa đơn
-                </Link>
-
+                href={`/order/${data.id}/print`}
+                className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium hover:bg-gray-50"
+              >
+                In hóa đơn
+              </Link>
             </div>
           </div>
+
+          {/* 👇 Nút yêu cầu hủy đơn + trạng thái yêu cầu hủy */}
+          <CancelRequestSection
+            orderId={data.id}
+            status={data.status}
+            cancelRequestReason={data.cancelRequestReason ?? null}
+          />
         </div>
       </div>
     </div>
