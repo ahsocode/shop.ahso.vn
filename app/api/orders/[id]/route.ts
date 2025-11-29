@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { verifyRequestUser } from "@/lib/auth";
 import { toOrderDetailDTO } from "@/dto/order.mapper";
 import type { orderGetPayload } from "@/lib/prisma-types";
+import type { OrderDetailDTO } from "@/dto/order.dto";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +58,9 @@ export async function GET(
       // ✅ thêm 2 field mới
       cancelRequestReason: r.cancelRequestReason ?? null,
       cancelReason: r.cancelReason ?? null,
+      cancelRejectReason: r.cancelRejectReason ?? null,
+      cancelRejectAt: r.cancelRejectAt ?? null,
+      prevStatusBeforeCancel: r.prevStatusBeforeCancel ?? null,
     },
     items: r.orderitem.map((it) => ({
       sku: it.sku,
@@ -82,6 +86,41 @@ export async function GET(
         }
       : null,
   });
+
+  // Nếu là staff/admin thì trả thêm lịch sử trạng thái kèm tên người thao tác
+  if (isStaff) {
+    const history = await prisma.orderstatushistory.findMany({
+      where: { orderId: id },
+      orderBy: { createdAt: "asc" },
+    });
+
+    const userIds = Array.from(
+      new Set(history.map((h) => h.createdBy).filter((v): v is string => Boolean(v))),
+    );
+
+    const users = userIds.length
+      ? await prisma.user.findMany({
+          where: { id: { in: userIds } },
+          select: { id: true, fullName: true, role: true },
+        })
+      : [];
+
+    const userMap = new Map(users.map((u) => [u.id, u]));
+
+    (dto as OrderDetailDTO).history = history.map((h) => {
+      const userInfo = h.createdBy ? userMap.get(h.createdBy) : undefined;
+      return {
+        id: h.id,
+        fromStatus: (h.fromStatus as OrderDetailDTO["status"] | null) ?? null,
+        toStatus: h.toStatus as OrderDetailDTO["status"],
+        reason: h.reason ?? null,
+        createdAt: h.createdAt.toISOString(),
+        createdBy: h.createdBy ?? null,
+        createdByName: userInfo?.fullName ?? null,
+        createdByRole: userInfo?.role ?? null,
+      };
+    });
+  }
 
   return NextResponse.json(dto);
 }

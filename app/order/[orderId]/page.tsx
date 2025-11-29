@@ -364,6 +364,8 @@ export default async function OrderDetailPage(props: {
             orderId={data.id}
             status={data.status}
             cancelRequestReason={data.cancelRequestReason ?? null}
+            cancelRejectReason={data.cancelRejectReason ?? null}
+            cancelRejectAt={data.cancelRejectAt ?? null}
           />
         </div>
       </div>

@@ -16,6 +16,9 @@ type OrderEntityMinimal = {
 
   cancelRequestReason?: string | null;
   cancelReason?: string | null;
+  cancelRejectReason?: string | null;
+  cancelRejectAt?: Date | null;
+  prevStatusBeforeCancel?: string | null;
 
   subtotal?: number | null;
   discountTotal?: number | null;
@@ -122,6 +125,9 @@ export function toOrderDetailDTO(params: {
 
     cancelRequestReason: order.cancelRequestReason ?? null,
     cancelReason: order.cancelReason ?? null,
+    cancelRejectReason: order.cancelRejectReason ?? null,
+    cancelRejectAt: order.cancelRejectAt ? order.cancelRejectAt.toISOString() : null,
+    prevStatusBeforeCancel: (order.prevStatusBeforeCancel as OrderDetailDTO["status"] | null | undefined) ?? null,
 
     pricing: {
       subtotal,

@@ -538,3 +538,67 @@ AHSO Industrial
     html,
   };
 }
+
+// 9️⃣ Email: Yêu cầu hủy bị từ chối
+export function generateOrderCancelRejectedEmail(
+  orderCode: string,
+  customerName: string,
+  reason?: string | null,
+) {
+  const text = `
+Xin chào ${customerName},
+
+Yêu cầu hủy đơn hàng ${orderCode} của bạn đã bị TỪ CHỐI. ❗
+
+${reason ? `Lý do từ chối: ${reason}` : ""}
+
+Đơn hàng sẽ tiếp tục được xử lý theo trạng thái trước đó. Nếu cần hỗ trợ thêm, vui lòng liên hệ AHSO Industrial.
+
+Trân trọng,
+AHSO Industrial
+  `.trim();
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #111827; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: #fff; padding: 24px; text-align: center; border-radius: 12px 12px 0 0; }
+    .content { background: #ffffff; padding: 24px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px; }
+    .box { background: #fef2f2; border-left: 4px solid #ef4444; padding: 16px; border-radius: 8px; margin: 16px 0; }
+    .footer { text-align: center; padding: 16px; font-size: 13px; color: #6b7280; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>❗ Yêu cầu hủy đơn bị từ chối</h1>
+    </div>
+    <div class="content">
+      <p>Xin chào <strong>${customerName}</strong>,</p>
+
+      <div class="box">
+        <p>Yêu cầu hủy đơn hàng <strong>${orderCode}</strong> của bạn đã bị <strong>từ chối</strong>.</p>
+        ${reason ? `<p><strong>Lý do từ chối:</strong> ${reason}</p>` : ""}
+        <p>Đơn hàng sẽ tiếp tục được xử lý theo trạng thái trước đó. Nếu bạn cần hỗ trợ thêm, vui lòng liên hệ với chúng tôi.</p>
+      </div>
+
+      <p style="margin-top: 24px;">Trân trọng,<br/><strong>AHSO Industrial</strong></p>
+    </div>
+    <div class="footer">
+      Email này được gửi tự động, vui lòng không phản hồi trực tiếp.
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  return {
+    subject: EMAIL_CONFIG.TEMPLATES.ORDER_CANCEL_REJECTED.subject(orderCode),
+    text,
+    html,
+  };
+}

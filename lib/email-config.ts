@@ -28,6 +28,9 @@ export const EMAIL_CONFIG = {
     ORDER_CANCELLED: {
       subject: (orderCode: string) => `❌ Đơn hàng ${orderCode} đã bị hủy`,
     },
+    ORDER_CANCEL_REJECTED: {
+      subject: (orderCode: string) => `❗ Yêu cầu hủy đơn ${orderCode} đã bị từ chối`,
+    },
     PROMOTION: {
       subject: "🎉 Chương trình khuyến mãi đặc biệt từ AHSO",
     },

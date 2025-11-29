@@ -69,6 +69,11 @@ export type cartitem = Prisma.cartitemModel
  */
 export type order = Prisma.orderModel
 /**
+ * Model orderstatushistory
+ * 
+ */
+export type orderstatushistory = Prisma.orderstatushistoryModel
+/**
  * Model orderitem
  * 
  */

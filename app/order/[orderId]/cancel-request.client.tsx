@@ -9,6 +9,8 @@ type Props = {
   orderId: string;
   status: OrderStatus;
   cancelRequestReason: string | null;
+  cancelRejectReason?: string | null;
+  cancelRejectAt?: string | null;
 };
 
 // Các trạng thái KHÁCH ĐƯỢC quyền yêu cầu hủy
@@ -28,9 +30,12 @@ export default function CancelRequestSection({
   orderId,
   status,
   cancelRequestReason,
+  cancelRejectReason,
+  cancelRejectAt,
 }: Props) {
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const wasRejected = Boolean(cancelRejectAt);
 
   // Nếu đã có yêu cầu hủy trước đó → hiển thị info, không cho gửi thêm
   if (status === "cancel_requested") {
@@ -57,6 +62,30 @@ export default function CancelRequestSection({
   // Nếu đơn đã hủy / đã giao / đang ship → không cho yêu cầu hủy
   if (!canRequestCancel(status)) {
     return null;
+  }
+
+  if (wasRejected) {
+    return (
+      <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 space-y-2 text-sm text-gray-700">
+        <div className="flex items-center gap-2 font-medium text-gray-800">
+          <AlertTriangle className="h-4 w-4" />
+          Yêu cầu hủy đơn của bạn đã bị từ chối
+        </div>
+        {cancelRejectReason ? (
+          <p className="text-xs text-gray-600">Lý do: {cancelRejectReason}</p>
+        ) : null}
+        <p className="text-xs text-gray-500">
+          Bạn hiện không thể gửi thêm yêu cầu hủy cho đơn này.
+        </p>
+        <button
+          type="button"
+          disabled
+          className="inline-flex items-center gap-2 rounded-xl bg-gray-300 px-4 py-2 text-xs font-semibold text-white opacity-70 cursor-not-allowed"
+        >
+          Gửi yêu cầu hủy đơn
+        </button>
+      </div>
+    );
   }
 
   async function handleSubmit(e: React.FormEvent) {

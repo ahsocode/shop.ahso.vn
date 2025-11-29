@@ -394,6 +394,7 @@ export const ModelName = {
   cart: 'cart',
   cartitem: 'cartitem',
   order: 'order',
+  orderstatushistory: 'orderstatushistory',
   orderitem: 'orderitem',
   payment: 'payment',
   supplier: 'supplier',
@@ -439,7 +440,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "address" | "brand" | "cart" | "cartitem" | "order" | "orderitem" | "payment" | "supplier" | "systemsetting" | "herobanner" | "siteannouncement" | "policysection" | "product" | "productcategory" | "productcategorylink" | "productimage" | "productspecdefinition" | "productspecvalue" | "producttype" | "featuredproduct" | "review" | "reviewimage" | "software" | "softwarecategory" | "solution" | "solutioncategory" | "solutionimage" | "unitdefinition" | "user" | "contacttype" | "contact" | "quoterequest" | "stocktransaction" | "financialtransaction" | "dailysummary"
+    modelProps: "address" | "brand" | "cart" | "cartitem" | "order" | "orderstatushistory" | "orderitem" | "payment" | "supplier" | "systemsetting" | "herobanner" | "siteannouncement" | "policysection" | "product" | "productcategory" | "productcategorylink" | "productimage" | "productspecdefinition" | "productspecvalue" | "producttype" | "featuredproduct" | "review" | "reviewimage" | "software" | "softwarecategory" | "solution" | "solutioncategory" | "solutionimage" | "unitdefinition" | "user" | "contacttype" | "contact" | "quoterequest" | "stocktransaction" | "financialtransaction" | "dailysummary"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -810,6 +811,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.orderCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.OrderCountAggregateOutputType> | number
+        }
+      }
+    }
+    orderstatushistory: {
+      payload: Prisma.$orderstatushistoryPayload<ExtArgs>
+      fields: Prisma.orderstatushistoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.orderstatushistoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$orderstatushistoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.orderstatushistoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$orderstatushistoryPayload>
+        }
+        findFirst: {
+          args: Prisma.orderstatushistoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$orderstatushistoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.orderstatushistoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$orderstatushistoryPayload>
+        }
+        findMany: {
+          args: Prisma.orderstatushistoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$orderstatushistoryPayload>[]
+        }
+        create: {
+          args: Prisma.orderstatushistoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$orderstatushistoryPayload>
+        }
+        createMany: {
+          args: Prisma.orderstatushistoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.orderstatushistoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$orderstatushistoryPayload>[]
+        }
+        delete: {
+          args: Prisma.orderstatushistoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$orderstatushistoryPayload>
+        }
+        update: {
+          args: Prisma.orderstatushistoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$orderstatushistoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.orderstatushistoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.orderstatushistoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.orderstatushistoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$orderstatushistoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.orderstatushistoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$orderstatushistoryPayload>
+        }
+        aggregate: {
+          args: Prisma.OrderstatushistoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOrderstatushistory>
+        }
+        groupBy: {
+          args: Prisma.orderstatushistoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OrderstatushistoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.orderstatushistoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OrderstatushistoryCountAggregateOutputType> | number
         }
       }
     }
@@ -3144,11 +3219,14 @@ export const OrderScalarFieldEnum = {
   id: 'id',
   code: 'code',
   status: 'status',
+  prevStatusBeforeCancel: 'prevStatusBeforeCancel',
   shippingMethod: 'shippingMethod',
   shippingFee: 'shippingFee',
   note: 'note',
   cancelReason: 'cancelReason',
   cancelRequestReason: 'cancelRequestReason',
+  cancelRejectReason: 'cancelRejectReason',
+  cancelRejectAt: 'cancelRejectAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   addressId: 'addressId',
@@ -3177,6 +3255,19 @@ export const OrderScalarFieldEnum = {
 } as const
 
 export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+export const OrderstatushistoryScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  reason: 'reason',
+  createdAt: 'createdAt',
+  createdBy: 'createdBy'
+} as const
+
+export type OrderstatushistoryScalarFieldEnum = (typeof OrderstatushistoryScalarFieldEnum)[keyof typeof OrderstatushistoryScalarFieldEnum]
 
 
 export const OrderitemScalarFieldEnum = {
@@ -4094,6 +4185,7 @@ export type GlobalOmitConfig = {
   cart?: Prisma.cartOmit
   cartitem?: Prisma.cartitemOmit
   order?: Prisma.orderOmit
+  orderstatushistory?: Prisma.orderstatushistoryOmit
   orderitem?: Prisma.orderitemOmit
   payment?: Prisma.paymentOmit
   supplier?: Prisma.supplierOmit

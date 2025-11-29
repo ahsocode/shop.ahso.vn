@@ -106,6 +106,7 @@ export default async function StaffOrderDetailPage(props: { params: Promise<{ or
   const items = order.items || [];
   const customer = order.customer || { name: "" };
   const shippingAddress = order.shippingAddress;
+  const history = order.history || [];
 
   const statusIndex =
     status === "cancelled" || status === "cancel_requested"
@@ -369,6 +370,45 @@ export default async function StaffOrderDetailPage(props: { params: Promise<{ or
               <p className="text-sm text-slate-500">Chưa có địa chỉ.</p>
             )}
           </div>
+
+          {history.length > 0 && (
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <FileText className="w-4 h-4" />
+                Lịch sử trạng thái
+              </div>
+              <div className="space-y-3 text-sm">
+                {history.map((h) => (
+                  <div
+                    key={h.id}
+                    className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
+                  >
+                    <div className="flex items-center justify-between text-xs text-slate-500">
+                      <span>{new Date(h.createdAt).toLocaleString("vi-VN")}</span>
+                      <span className="font-semibold text-slate-700">
+                        {STATUS_LABEL[h.toStatus]}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-600 mt-1">
+                      {h.fromStatus
+                        ? `Chuyển từ ${STATUS_LABEL[h.fromStatus]} → ${STATUS_LABEL[h.toStatus]}`
+                        : `Đặt trạng thái ${STATUS_LABEL[h.toStatus]}`}
+                    </div>
+                    {h.reason && (
+                      <p className="text-xs text-slate-700 mt-1 whitespace-pre-line">
+                        Lý do: {h.reason}
+                      </p>
+                    )}
+                    {h.createdBy && (
+                      <p className="text-xs text-slate-500 mt-1">
+                        Bởi: {h.createdByName || h.createdBy} {h.createdByRole ? `(${h.createdByRole})` : ""}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
             <p className="text-sm font-semibold text-slate-900">Thao tác nhanh</p>

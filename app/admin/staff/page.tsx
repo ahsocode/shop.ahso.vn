@@ -68,7 +68,15 @@ export default function StaffAdminPage() {
       toast.success("Đã tạo tài khoản nhân viên");
     } else {
       const j = await r.json().catch(() => ({}));
-      toast.error(j.error || "Tạo nhân viên thất bại");
+      const detailMsg =
+        (j?.details &&
+          typeof j.details === "object" &&
+          j.details.fieldErrors &&
+          Object.values(j.details.fieldErrors)
+            .flat()
+            .find((m) => typeof m === "string")) ||
+        j.message;
+      toast.error(detailMsg || j.error || "Tạo nhân viên thất bại");
     }
   }
 
