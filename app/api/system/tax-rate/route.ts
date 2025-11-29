@@ -4,7 +4,7 @@ import { getDefaultTaxRate } from "@/lib/system-settings";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const taxRate = await getDefaultTaxRate();
     return jsonOk({ taxRate });

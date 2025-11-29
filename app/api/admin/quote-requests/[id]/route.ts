@@ -34,7 +34,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     const { id } = await ctx.params;
 
     const body = await req.json();
-    const parsed = QuoteRequestUpdateSchema.safeParse(body);
+    const parsed = QuoteRequestUpdateSchema.omit({ status: true }).safeParse(body);
     if (!parsed.success) return jsonError("Validation Error", 400, { issues: parsed.error.issues });
 
     const updates = parsed.data;
@@ -71,7 +71,6 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     if (hasOwn(updates, "validUntil")) data.validUntil = updates.validUntil ?? null;
     if (hasOwn(updates, "paymentTerms")) data.paymentTerms = updates.paymentTerms ?? null;
     if (hasOwn(updates, "deliveryTerms")) data.deliveryTerms = updates.deliveryTerms ?? null;
-    if (hasOwn(updates, "status") && updates.status) data.status = updates.status;
     if (hasOwn(updates, "priority") && updates.priority) data.priority = updates.priority;
     if (hasOwn(updates, "assignedTo")) data.assignedTo = updates.assignedTo ?? null;
     if (hasOwn(updates, "respondedBy")) data.respondedBy = updates.respondedBy ?? null;
@@ -79,6 +78,17 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     if (hasOwn(updates, "customerNotes")) data.customerNotes = updates.customerNotes ?? null;
     if (hasOwn(updates, "internalNotes")) data.internalNotes = updates.internalNotes ?? null;
     if (hasOwn(updates, "expiresAt")) data.expiresAt = updates.expiresAt ?? null;
+
+    const assigning =
+      hasOwn(updates, "assignedTo") && Boolean(updates.assignedTo?.trim()) && !existing.assignedTo;
+    const unassigning =
+      hasOwn(updates, "assignedTo") && !Boolean(updates.assignedTo?.trim()) && Boolean(existing.assignedTo);
+
+    if (assigning && existing.status === "pending") {
+      data.status = "quoted";
+    } else if (unassigning) {
+      data.status = "pending";
+    }
 
     const updated = await prisma.quoterequest.update({
       where: { id },

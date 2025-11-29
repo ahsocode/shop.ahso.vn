@@ -32,6 +32,12 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     requireRole(me, ["ADMIN", "STAFF"]);
     const { id } = await ctx.params;
 
+    const existing = await prisma.contact.findUnique({
+      where: { id },
+      select: { id: true, status: true, assignedTo: true },
+    });
+    if (!existing) return jsonError("Not Found", 404);
+
     const body = await req.json();
     const parsed = ContactUpdateSchema.safeParse(body);
     if (!parsed.success) return jsonError("Validation Error", 400, { issues: parsed.error.issues });
@@ -47,6 +53,20 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     if (hasOwn(updates, "respondedAt")) data.respondedAt = updates.respondedAt ?? null;
     if (hasOwn(updates, "respondedBy")) data.respondedBy = updates.respondedBy?.trim() || null;
     if (hasOwn(updates, "internalNotes")) data.internalNotes = updates.internalNotes?.trim() || null;
+
+    // Auto move from new -> in_progress when assigning for the first time (if status not explicitly set)
+    const assigning =
+      hasOwn(updates, "assignedTo") && Boolean(updates.assignedTo?.trim()) && !existing.assignedTo;
+    const removing =
+      hasOwn(updates, "assignedTo") && !Boolean(updates.assignedTo?.trim()) && Boolean(existing.assignedTo);
+
+    if (!updates.status) {
+      if (assigning && existing.status === "new") {
+        data.status = "in_progress";
+      } else if (removing) {
+        data.status = "new";
+      }
+    }
 
     const updated = await prisma.contact.update({
       where: { id },

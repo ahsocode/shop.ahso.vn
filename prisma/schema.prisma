@@ -693,8 +693,7 @@ model contacttype {
   @@index([sortOrder], map: "ContactType_sortOrder_idx")
   @@index([isActive], map: "ContactType_isActive_idx")
 }
-
-// ===== CONTACT (Yêu cầu liên hệ) =====
+// ===== CONTACT (Yêu cầu liên hệ) - UPDATED VERSION =====
 model contact {
   id   String @id @default(cuid())
   code String @unique // CT-20250115-0001
@@ -720,8 +719,8 @@ model contact {
   // Assignment
   assignedTo String? // userId of staff
 
-  // Response
-  response    String?   @db.Text
+  // Response - ADDED FIELD
+  response    String?   @db.Text  // ← Nội dung phản hồi từ staff
   respondedAt DateTime?
   respondedBy String? // userId
 
@@ -731,13 +730,14 @@ model contact {
   referrer  String? @db.Text
 
   // Notes
-  internalNotes String? @db.Text
+  internalNotes String? @db.Text // Ghi chú nội bộ
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   contacttype contacttype? @relation(fields: [typeId], references: [id], map: "Contact_typeId_fkey")
 
+  // Indexes - OPTIMIZED
   @@index([code], map: "Contact_code_idx")
   @@index([status], map: "Contact_status_idx")
   @@index([priority], map: "Contact_priority_idx")
@@ -746,6 +746,9 @@ model contact {
   @@index([email], map: "Contact_email_idx")
   @@index([phone], map: "Contact_phone_idx")
   @@index([assignedTo], map: "Contact_assignedTo_idx")
+  @@index([respondedBy], map: "Contact_respondedBy_idx")        // ← NEW
+  @@index([updatedAt], map: "Contact_updatedAt_idx")            // ← NEW
+  @@index([phone, status], map: "Contact_phone_status_idx")     // ← NEW (for rate limiting)
 }
 
 // ===== QUOTE REQUEST (Yêu cầu báo giá) =====

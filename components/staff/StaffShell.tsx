@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import { Package, Menu, X, LogOut, Home, ChevronLeft, ChevronRight } from "lucide-react";
+import { Package, Menu, X, LogOut, Home, ChevronLeft, ChevronRight, MessageSquare, FileText } from "lucide-react";
 import { useAuthStore, setUser } from "@/lib/auth-store";
 
 type NavItem = {
@@ -20,6 +20,18 @@ const navItems: NavItem[] = [
     label: "Quản lý đơn hàng",
     description: "Theo dõi và xử lý yêu cầu khách",
     icon: Package,
+  },
+  {
+    href: "/staff/contacts",
+    label: "Yêu cầu liên hệ",
+    description: "Xử lý liên hệ từ khách hàng",
+    icon: MessageSquare,
+  },
+  {
+    href: "/staff/quote-requests",
+    label: "Yêu cầu báo giá",
+    description: "Nhận và xử lý báo giá sản phẩm",
+    icon: FileText,
   },
 ];
 

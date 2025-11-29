@@ -1,8 +1,11 @@
 // app/api/orders/route.ts
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { toOrderListItemDTO } from "@/dto/order.mapper";
 import type { orderGetPayload } from "@/lib/prisma-types";
+import { verifyRequestUser } from "@/lib/auth";
+import type { order_status } from "@/generated/enums";
 
 export const dynamic = "force-dynamic";
 
@@ -10,8 +13,42 @@ type OrderWithItems = orderGetPayload<{
   include: { orderitem: true };
 }>;
 
-export async function GET() {
+const ORDER_STATUSES: order_status[] = [
+  "pending",
+  "paid",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancel_requested",
+  "cancelled",
+];
+
+export async function GET(req: NextRequest) {
+  const user = await verifyRequestUser(req);
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const q = (searchParams.get("q") || "").trim();
+  const statusParam = (searchParams.get("status") || "").trim();
+  const status = ORDER_STATUSES.includes(statusParam as order_status)
+    ? (statusParam as order_status)
+    : null;
+
   const rows: OrderWithItems[] = await prisma.order.findMany({
+    where: {
+      userId: user.sub,
+      ...(q && {
+        OR: [
+          { code: { contains: q } },
+          { customerFullName: { contains: q } },
+          { customerEmail: { contains: q } },
+          { customerPhone: { contains: q } },
+        ],
+      }),
+      ...(status && { status }),
+    },
     include: { orderitem: true },
     orderBy: { createdAt: "desc" },
     take: 50,

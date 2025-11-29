@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Loader2, RefreshCw, Clock } from "lucide-react";
 import type { OrderStatus } from "@/dto/order.dto";
@@ -44,11 +44,6 @@ export default function AdminOrdersPage() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const pageSize = 20;
-
-  const totalPages = useMemo(
-    () => Math.max(1, Math.ceil(orders.length === 0 ? page : page)), // fallback; simple pager
-    [orders.length, page],
-  );
 
   useEffect(() => {
     let ignore = false;

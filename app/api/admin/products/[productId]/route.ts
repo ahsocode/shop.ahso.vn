@@ -131,16 +131,15 @@ const mapProduct = (row: AdminProductRow | null) => {
     supplier,
     images: productimage,
     specs: productspecvalue.map((v: AdminProductSpecValue) => ({
-        id: v.id,
-        name: v.productspecdefinition.name,
-        valueString: v.valueString,
-        valueNumber: v.valueNumber,
-        valueBoolean: v.valueBoolean,
-        unitOverride: v.unitOverride,
-        note: v.note,
-        sortOrder: v.sortOrder,
-      }),
-    ),
+      id: v.id,
+      name: v.productspecdefinition.name,
+      valueString: v.valueString,
+      valueNumber: v.valueNumber,
+      valueBoolean: v.valueBoolean,
+      unitOverride: v.unitOverride,
+      note: v.note,
+      sortOrder: v.sortOrder,
+    })),
   };
 };
 
@@ -152,20 +151,29 @@ function normalizePayload(body: unknown) {
       ? { ...(body as Record<string, unknown>) }
       : {};
 
+  const nullToUndefined = (value: unknown) =>
+    value === null || value === undefined ? undefined : value;
+
   if (typeof source.price === "string") {
     source.price = Number(source.price);
   }
   if (typeof source.listPrice === "string") {
     source.listPrice = source.listPrice ? Number(source.listPrice) : undefined;
+  } else {
+    source.listPrice = nullToUndefined(source.listPrice);
   }
   if (typeof source.stockOnHand === "string") {
     source.stockOnHand = Number(source.stockOnHand);
   }
   if (typeof source.costPrice === "string") {
     source.costPrice = source.costPrice ? Number(source.costPrice) : undefined;
+  } else {
+    source.costPrice = nullToUndefined(source.costPrice);
   }
   if (typeof source.taxRate === "string") {
     source.taxRate = source.taxRate ? Number(source.taxRate) : undefined;
+  } else {
+    source.taxRate = nullToUndefined(source.taxRate);
   }
 
   return source;
@@ -227,13 +235,26 @@ export async function PATCH(
 
     const parsed = ProductUpdateSchema.safeParse(body);
     if (!parsed.success) {
-      return jsonError("Validation Error", 400, {
+      const firstIssue = parsed.error.issues?.[0];
+      const message = firstIssue?.message ?? "Validation Error";
+      return jsonError(message, 400, {
         issues: parsed.error.issues,
       });
     }
     const data = parsed.data;
 
-    const updates: productUpdateInput = { ...data };
+    // tách riêng stockOnHand để xử lý null cho đúng type Prisma
+    const { stockOnHand, ...restData } = data;
+
+    const updates: productUpdateInput = {
+      ...restData,
+      stockOnHand:
+        stockOnHand == null
+          ? undefined        // null/undefined => không update field này
+          : (stockOnHand as number),
+      taxRate: data.taxRate ?? undefined,
+    };
+
     const warnings: string[] = [];
 
     // --- Validate SKU ---
@@ -297,7 +318,9 @@ export async function PATCH(
     if (slugCandidate) {
       const uniqueSlug = await ensureUniqueProductSlug(slugCandidate, productId);
       if (uniqueSlug !== slugCandidate) {
-        warnings.push(`Slug "${slugCandidate}" đã tồn tại, hệ thống đổi thành "${uniqueSlug}".`);
+        warnings.push(
+          `Slug "${slugCandidate}" đã tồn tại, hệ thống đổi thành "${uniqueSlug}".`,
+        );
       }
       updates.slug = uniqueSlug;
     }
@@ -311,7 +334,9 @@ export async function PATCH(
         typeof data.price === "number" ? data.price : existing.price;
       const nextCost =
         "costPrice" in data
-          ? (data.costPrice as number | null | undefined) ?? null
+          ? data.costPrice === null
+            ? null
+            : (data.costPrice as number | undefined)
           : existing.costPrice;
 
       let profitAmount: number | null = null;
