@@ -39,6 +39,8 @@ export async function POST(
       select: {
         id: true,
         status: true,
+        prevStatusBeforeCancel: true,
+        cancelRejectAt: true,
         userId: true,
         code: true,
         customerFullName: true,
@@ -58,12 +60,33 @@ export async function POST(
       return jsonError("Không thể yêu cầu hủy đơn ở trạng thái hiện tại", 400);
     }
 
-    await prisma.order.update({
-      where: { id },
-      data: {
-        status: "cancel_requested",
-        cancelRequestReason: reason,
-      },
+    if (order.cancelRejectAt) {
+      return jsonError("Yêu cầu hủy đơn trước đó đã bị từ chối, không thể gửi lại", 400);
+    }
+
+    const prevStatus = order.status;
+
+    await prisma.$transaction(async (tx) => {
+      await tx.order.update({
+        where: { id },
+        data: {
+          status: "cancel_requested",
+          cancelRequestReason: reason,
+          prevStatusBeforeCancel: prevStatus,
+          cancelRejectAt: null,
+          cancelRejectReason: null,
+        },
+      });
+
+      await tx.orderstatushistory.create({
+        data: {
+          orderId: id,
+          fromStatus: prevStatus,
+          toStatus: "cancel_requested",
+          reason,
+          createdBy: me.sub,
+        },
+      });
     });
 
     try {

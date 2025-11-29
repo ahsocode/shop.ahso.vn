@@ -27,6 +27,14 @@ const navSections = [
     ],
   },
   {
+    id: "orders",
+    title: "Đơn hàng",
+    icon: Package,
+    items: [
+      { href: "/admin/orders", label: "Đơn hàng", icon: Package },
+    ],
+  },
+  {
     id: "products",
     title: "Sản phẩm",
     icon: Package,
@@ -95,19 +103,27 @@ function isSectionActive(section: typeof navSections[0], pathname?: string | nul
 }
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // thay mobileMenuOpen: lưu path tại lúc mở menu
+  const [mobileMenuPath, setMobileMenuPath] = useState<string | null>(null);
+
+  // section expand
   const [expandedSection, setExpandedSection] = useState<string | null>(() =>
     findSectionId(typeof window !== "undefined" ? window.location.pathname : "/admin"),
   );
-  const pathname = usePathname();
 
-  // Auto-collapse sidebar on mobile
+  // menu đang mở khi path hiện tại trùng với path lúc bấm mở
+  const isMobileMenuOpen = mobileMenuPath !== null && mobileMenuPath === pathname;
+
+  // Auto-toggle sidebar theo width
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
         setSidebarOpen(true);
-        setMobileMenuOpen(false);
+        setMobileMenuPath(null); // đóng menu mobile khi lên desktop
       } else {
         setSidebarOpen(false);
       }
@@ -118,13 +134,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Close mobile menu on route change without triggering sync setState in effect
-  useEffect(() => {
-    if (!mobileMenuOpen) return;
-    const frame = requestAnimationFrame(() => setMobileMenuOpen(false));
-    return () => cancelAnimationFrame(frame);
-  }, [mobileMenuOpen, pathname]);
+  // Không cần effect để đóng menu khi đổi route nữa.
+  // Điều kiện isMobileMenuOpen đã phụ thuộc pathname nên tự false.
 
+  // Sync expanded section theo pathname
   useEffect(() => {
     const next = findSectionId(pathname);
     const frame = requestAnimationFrame(() => {
@@ -138,23 +151,23 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     flat.find((i) => isActive(i.href, pathname))?.label || "Dashboard";
 
   const toggleSection = (sectionId: string) => {
-    setExpandedSection(prev => prev === sectionId ? null : sectionId);
+    setExpandedSection((prev) => (prev === sectionId ? null : sectionId));
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex min-w-0">
       {/* Mobile Overlay */}
-      {mobileMenuOpen && (
-        <div 
+      {isMobileMenuOpen && (
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setMobileMenuOpen(false)}
+          onClick={() => setMobileMenuPath(null)}
         />
       )}
 
       {/* Sidebar */}
       <aside
         className={`fixed left-0 top-0 h-full bg-linear-to-b from-blue-600 to-blue-800 text-white transition-all duration-300 z-50 flex flex-col ${
-          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 ${
           sidebarOpen ? "w-64" : "w-20"
         }`}
@@ -175,7 +188,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 <ChevronRight className="w-5 h-5" />
               </button>
               <button 
-                onClick={() => setMobileMenuOpen(false)} 
+                onClick={() => setMobileMenuPath(null)} 
                 className="p-1.5 hover:bg-blue-700 rounded-md transition-colors lg:hidden"
                 aria-label="Đóng menu"
               >
@@ -291,7 +304,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         <header className="h-16 bg-white border-b border-gray-200 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-40">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setMobileMenuOpen(true)}
+              onClick={() => setMobileMenuPath(pathname ?? "/admin")}
               className="p-2 hover:bg-gray-100 rounded-lg lg:hidden"
               aria-label="Mở menu"
             >

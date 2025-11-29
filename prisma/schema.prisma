@@ -90,46 +90,65 @@ model order {
   id                 String       @id
   code               String       @unique(map: "Order_code_key")
   status             order_status @default(pending)
+  prevStatusBeforeCancel order_status?
   shippingMethod     String?
   shippingFee        Decimal      @default(0.00) @db.Decimal(12, 2)
 
-  note                String?      @db.Text      
-  cancelReason        String?      @db.Text     
-  cancelRequestReason String?      @db.Text      
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime
-  addressId          String?
-  userId             String?
-  billingCity        String?
-  billingCountry     String       @default("VN") @db.Char(2)
-  billingLine1       String?
-  billingLine2       String?
-  billingPostalCode  String?
-  billingState       String?
-  currency           String       @default("VND")
-  customerEmail      String
-  customerFullName   String
-  customerPhone      String
-  customerTaxCode    String?      @db.VarChar(13)
-  discountTotal      Decimal      @default(0.00) @db.Decimal(12, 2)
-  grandTotal         Decimal      @db.Decimal(12, 2)
-  shippingCity       String
-  shippingCountry    String       @default("VN") @db.Char(2)
-  shippingLine1      String
-  shippingLine2      String?
-  shippingPostalCode String?
-  shippingState      String?
-  subtotal           Decimal      @db.Decimal(12, 2)
-  taxTotal           Decimal      @default(0.00) @db.Decimal(12, 2)
-  address            address?     @relation(fields: [addressId], references: [id], map: "Order_addressId_fkey")
-  user               user?        @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
-  orderitem          orderitem[]
-  payment            payment?
+  note                 String?      @db.Text
+  cancelReason         String?      @db.Text
+  cancelRequestReason  String?      @db.Text
+  cancelRejectReason   String?      @db.Text
+  cancelRejectAt       DateTime?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime
+  addressId            String?
+  userId               String?
+  billingCity          String?
+  billingCountry       String       @default("VN") @db.Char(2)
+  billingLine1         String?
+  billingLine2         String?
+  billingPostalCode    String?
+  billingState         String?
+  currency             String       @default("VND")
+  customerEmail        String
+  customerFullName     String
+  customerPhone        String
+  customerTaxCode      String?      @db.VarChar(13)
+  discountTotal        Decimal      @default(0.00) @db.Decimal(12, 2)
+  grandTotal           Decimal      @db.Decimal(12, 2)
+  shippingCity         String
+  shippingCountry      String       @default("VN") @db.Char(2)
+  shippingLine1        String
+  shippingLine2        String?
+  shippingPostalCode   String?
+  shippingState        String?
+  subtotal             Decimal      @db.Decimal(12, 2)
+  taxTotal             Decimal      @default(0.00) @db.Decimal(12, 2)
+  address              address?     @relation(fields: [addressId], references: [id], map: "Order_addressId_fkey")
+  user                 user?        @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
+  orderitem            orderitem[]
+  payment              payment?
   stocktransaction      stocktransaction[]
   financialtransaction  financialtransaction[]
+  orderstatushistory    orderstatushistory[]
   @@index([addressId], map: "Order_addressId_idx")
   @@index([status, createdAt], map: "Order_status_createdAt_idx")
   @@index([userId], map: "Order_userId_idx")
+}
+
+model orderstatushistory {
+  id         String       @id @default(cuid())
+  orderId    String
+  fromStatus order_status?
+  toStatus   order_status
+  reason     String?      @db.Text
+  createdAt  DateTime     @default(now())
+  createdBy  String?
+
+  order order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId], map: "OrderStatusHistory_orderId_idx")
+  @@index([createdAt], map: "OrderStatusHistory_createdAt_idx")
 }
 
 // ===== ORDER ITEM =====
@@ -674,8 +693,7 @@ model contacttype {
   @@index([sortOrder], map: "ContactType_sortOrder_idx")
   @@index([isActive], map: "ContactType_isActive_idx")
 }
-
-// ===== CONTACT (Yêu cầu liên hệ) =====
+// ===== CONTACT (Yêu cầu liên hệ) - UPDATED VERSION =====
 model contact {
   id   String @id @default(cuid())
   code String @unique // CT-20250115-0001
@@ -701,8 +719,8 @@ model contact {
   // Assignment
   assignedTo String? // userId of staff
 
-  // Response
-  response    String?   @db.Text
+  // Response - ADDED FIELD
+  response    String?   @db.Text  // ← Nội dung phản hồi từ staff
   respondedAt DateTime?
   respondedBy String? // userId
 
@@ -712,13 +730,14 @@ model contact {
   referrer  String? @db.Text
 
   // Notes
-  internalNotes String? @db.Text
+  internalNotes String? @db.Text // Ghi chú nội bộ
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   contacttype contacttype? @relation(fields: [typeId], references: [id], map: "Contact_typeId_fkey")
 
+  // Indexes - OPTIMIZED
   @@index([code], map: "Contact_code_idx")
   @@index([status], map: "Contact_status_idx")
   @@index([priority], map: "Contact_priority_idx")
@@ -727,6 +746,9 @@ model contact {
   @@index([email], map: "Contact_email_idx")
   @@index([phone], map: "Contact_phone_idx")
   @@index([assignedTo], map: "Contact_assignedTo_idx")
+  @@index([respondedBy], map: "Contact_respondedBy_idx")        // ← NEW
+  @@index([updatedAt], map: "Contact_updatedAt_idx")            // ← NEW
+  @@index([phone, status], map: "Contact_phone_status_idx")     // ← NEW (for rate limiting)
 }
 
 // ===== QUOTE REQUEST (Yêu cầu báo giá) =====

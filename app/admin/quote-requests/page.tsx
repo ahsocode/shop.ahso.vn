@@ -36,6 +36,13 @@ type ListResp = {
   meta: { total: number; page: number; pageSize: number };
 };
 
+type StaffOption = {
+  id: string;
+  fullName: string | null;
+  email: string | null;
+  role: string;
+};
+
 const STATUS_OPTIONS = [
   { value: "", label: "Tất cả" },
   { value: "pending", label: "Chờ xử lý" },
@@ -82,13 +89,14 @@ export default function QuoteRequestsPage() {
   const [reloadToken, setReloadToken] = useState(0);
   const [selected, setSelected] = useState<QuoteRow | null>(null);
   const [form, setForm] = useState({
-    status: "",
     priority: "",
     assignedTo: "",
     quotedPrice: "",
     quotedTotal: "",
     internalNotes: "",
   });
+  const [staffOptions, setStaffOptions] = useState<StaffOption[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const triggerReload = () => setReloadToken((v) => v + 1);
 
@@ -117,7 +125,6 @@ export default function QuoteRequestsPage() {
           if (refreshed) {
             setSelected(refreshed);
             setForm({
-              status: refreshed.status,
               priority: refreshed.priority,
               assignedTo: refreshed.assignedTo || "",
               quotedPrice: refreshed.quotedPrice ? String(refreshed.quotedPrice) : "",
@@ -139,6 +146,22 @@ export default function QuoteRequestsPage() {
     };
   }, [page, pageSize, filters, reloadToken, selectedId]);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const resp = await getJSON<{ data: StaffOption[] }>("/api/admin/staff-list");
+        if (cancelled) return;
+        setStaffOptions(resp.data);
+      } catch (err) {
+        if (!cancelled) toast.error("Không thể tải danh sách staff");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total, pageSize]);
 
   const applySearch = () => {
@@ -146,10 +169,18 @@ export default function QuoteRequestsPage() {
     setFilters((prev) => ({ ...prev, q: keyword.trim() }));
   };
 
+  const toggleSelectRow = (id: string) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]));
+  };
+
+  const toggleSelectAll = (checked: boolean, rows: QuoteRow[]) => {
+    if (checked) setSelectedIds(rows.map((r) => r.id));
+    else setSelectedIds([]);
+  };
+
   const handleSelect = (row: QuoteRow) => {
     setSelected(row);
     setForm({
-      status: row.status,
       priority: row.priority,
       assignedTo: row.assignedTo || "",
       quotedPrice: row.quotedPrice ? String(row.quotedPrice) : "",
@@ -168,7 +199,6 @@ export default function QuoteRequestsPage() {
   const handleUpdate = async () => {
     if (!selected) return;
     const payload: Record<string, unknown> = {
-      status: form.status,
       priority: form.priority,
       assignedTo: form.assignedTo.trim(),
       internalNotes: form.internalNotes.trim(),
@@ -194,6 +224,48 @@ export default function QuoteRequestsPage() {
       if (selected?.id === row.id) setSelected(null);
       triggerReload();
       toast.success("Đã xóa yêu cầu báo giá");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Xóa thất bại");
+    }
+  };
+
+  const handleBulkAssign = async (staffId: string) => {
+    if (!staffId) {
+      toast.error("Vui lòng chọn staff để gán");
+      return;
+    }
+    if (!selectedIds.length) {
+      toast.error("Chọn ít nhất 1 yêu cầu");
+      return;
+    }
+    try {
+      await Promise.all(
+        selectedIds.map((id) =>
+          patchJSON(`/api/admin/quote-requests/${id}`, {
+            assignedTo: staffId,
+          }),
+        ),
+      );
+      toast.success("Đã gán staff cho các yêu cầu đã chọn");
+      setSelectedIds([]);
+      triggerReload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Gán thất bại");
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!selectedIds.length) {
+      toast.error("Chọn ít nhất 1 yêu cầu để xóa");
+      return;
+    }
+    const confirmed = await confirmToast(`Xóa ${selectedIds.length} yêu cầu đã chọn?`);
+    if (!confirmed) return;
+    try {
+      await Promise.all(selectedIds.map((id) => del(`/api/admin/quote-requests/${id}`)));
+      toast.success("Đã xóa các yêu cầu đã chọn");
+      setSelectedIds([]);
+      triggerReload();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Xóa thất bại");
     }
@@ -251,11 +323,46 @@ export default function QuoteRequestsPage() {
       <div className="rounded border bg-white overflow-hidden">
         <div className="px-4 py-3 border-b flex items-center justify-between">
           <div className="font-semibold">Yêu cầu báo giá ({total})</div>
+          <div className="flex items-center gap-3 text-sm">
+            <select
+              className="border rounded px-3 py-2"
+              value={form.assignedTo}
+              onChange={(e) => setForm((prev) => ({ ...prev, assignedTo: e.target.value }))}
+            >
+              <option value="">Chọn staff để gán nhanh</option>
+              {staffOptions.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.fullName || s.email || s.id} ({s.role.toLowerCase()})
+                </option>
+              ))}
+            </select>
+            <button
+              className="px-3 py-2 rounded bg-blue-600 text-white disabled:opacity-50"
+              onClick={() => handleBulkAssign(form.assignedTo)}
+              disabled={!selectedIds.length}
+            >
+              Gán cho {selectedIds.length || ""} yêu cầu
+            </button>
+            <button
+              className="px-3 py-2 rounded border border-red-300 text-red-600 disabled:opacity-50"
+              onClick={handleBulkDelete}
+              disabled={!selectedIds.length}
+            >
+              Xóa {selectedIds.length || ""} yêu cầu
+            </button>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50 text-left">
               <tr>
+                <th className="px-3 py-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.length === rows.length && rows.length > 0}
+                    onChange={(e) => toggleSelectAll(e.target.checked, rows)}
+                  />
+                </th>
                 <th className="px-3 py-2">Mã</th>
                 <th className="px-3 py-2">Khách hàng</th>
                 <th className="px-3 py-2">Sản phẩm</th>
@@ -269,6 +376,13 @@ export default function QuoteRequestsPage() {
             <tbody>
               {rows.map((row) => (
                 <tr key={row.id} className="border-t">
+                  <td className="px-3 py-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(row.id)}
+                      onChange={() => toggleSelectRow(row.id)}
+                    />
+                  </td>
                   <td className="px-3 py-2 font-semibold">{row.code}</td>
                   <td className="px-3 py-2">
                     <div className="font-medium">{row.fullName}</div>
@@ -348,6 +462,13 @@ export default function QuoteRequestsPage() {
               <div className="text-lg font-semibold">{selected.fullName}</div>
               <div className="text-sm text-gray-500">Mã: {selected.code}</div>
             </div>
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                STATUS_COLORS[selected.status] || "bg-gray-100 text-gray-700"
+              }`}
+            >
+              {selected.status}
+            </span>
             <button onClick={() => setSelected(null)} className="text-sm text-gray-500 hover:underline">
               Đóng
             </button>
@@ -380,20 +501,6 @@ export default function QuoteRequestsPage() {
           )}
           <div className="grid md:grid-cols-2 gap-4">
             <label className="text-sm font-medium text-gray-700">
-              Trạng thái
-              <select
-                className="mt-1 w-full border rounded px-3 py-2"
-                value={form.status}
-                onChange={(e) => setForm((prev) => ({ ...prev, status: e.target.value }))}
-              >
-                {STATUS_OPTIONS.filter((opt) => opt.value).map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="text-sm font-medium text-gray-700">
               Ưu tiên
               <select
                 className="mt-1 w-full border rounded px-3 py-2"
@@ -411,11 +518,21 @@ export default function QuoteRequestsPage() {
           <div className="grid md:grid-cols-3 gap-4">
             <label className="text-sm font-medium text-gray-700">
               Gán cho
-              <input
+              <select
                 className="mt-1 w-full border rounded px-3 py-2"
                 value={form.assignedTo}
                 onChange={(e) => setForm((prev) => ({ ...prev, assignedTo: e.target.value }))}
-              />
+              >
+                <option value="">Chưa gán</option>
+                {staffOptions.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.fullName || s.email || s.id} ({s.role.toLowerCase()})
+                  </option>
+                ))}
+                {!staffOptions.find((s) => s.id === form.assignedTo) && form.assignedTo && (
+                  <option value={form.assignedTo}>{`Người dùng: ${form.assignedTo}`}</option>
+                )}
+              </select>
             </label>
             <label className="text-sm font-medium text-gray-700">
               Giá báo (VND)

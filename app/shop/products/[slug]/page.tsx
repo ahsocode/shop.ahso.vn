@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Home, ArrowLeft, ShoppingCart, Star, StarHalf } from "lucide-react";
 import AddToCartClient from "./AddToCartClient";
+import QuoteRequestButton from "../QuoteRequestButton";
 import { buildMetadata } from "@/lib/metadata";
 import type { productInclude as ProductInclude, productGetPayload } from "@/lib/prisma-types";
 import type { Decimal } from "@prisma/client/runtime/library";
@@ -492,12 +493,13 @@ export default async function ProductDetailPage({
 
             <div className="mt-4 flex gap-2">
               {requiresQuote ? (
-                <Link
-                  href="/contact"
+                <QuoteRequestButton
+                  productId={p.id}
+                  productName={p.name}
+                  productSku={p.sku}
+                  productSlug={p.slug}
                   className="inline-flex flex-1 items-center justify-center rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-amber-700"
-                >
-                  Liên hệ báo giá
-                </Link>
+                />
               ) : (
                 <>
                   <AddToCartClient

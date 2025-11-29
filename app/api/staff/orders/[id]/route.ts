@@ -12,6 +12,7 @@ import {
   generateOrderShippedEmail,
   generateOrderCancelledEmail,
   generateOrderCancelApprovedEmail,
+  generateOrderCancelRejectedEmail,
 } from "@/lib/email-templates";
 import type { order_status } from "@/generated/enums";
 import {
@@ -42,13 +43,16 @@ const UpdateOrderSchema = z
     note: z.string().trim().max(1000).optional(),
     shippingMethod: z.string().trim().max(120).optional(),
     cancelReason: z.string().trim().max(1000).optional(),
+    rejectCancel: z.boolean().optional(),
+    rejectCancelReason: z.string().trim().max(1000).optional(),
   })
   .refine(
     (val) =>
       val.status !== undefined ||
       val.note !== undefined ||
       val.shippingMethod !== undefined ||
-      val.cancelReason !== undefined,
+      val.cancelReason !== undefined ||
+      val.rejectCancel,
     { message: "Không có thay đổi nào được gửi lên", path: ["status"] }
   );
 
@@ -72,6 +76,9 @@ export async function PATCH(
       select: {
         status: true,
         cancelRequestReason: true,
+        prevStatusBeforeCancel: true,
+        cancelRejectReason: true,
+        cancelRejectAt: true,
         customerFullName: true,
         customerEmail: true,
       },
@@ -82,14 +89,26 @@ export async function PATCH(
     }
 
     const updates: orderUpdateInput = {};
-    const { status, note, shippingMethod, cancelReason } = parsed.data;
+    const { status, note, shippingMethod, cancelReason, rejectCancel, rejectCancelReason } = parsed.data;
     const prevStatus = existing.status as OrderStatus;
+
+    const isRejectingCancel = !!rejectCancel;
 
     // Validate transition
     if (status && status !== prevStatus) {
       const allowedNext = ALLOWED_TRANSITIONS[prevStatus] ?? [];
       if (!allowedNext.includes(status as OrderStatus)) {
         return jsonError("Không thể chuyển trạng thái đơn hàng theo cách này", 400);
+      }
+    }
+
+    // Validate reject cancel action
+    if (isRejectingCancel) {
+      if (prevStatus !== "cancel_requested") {
+        return jsonError("Chỉ có thể từ chối khi đơn đang ở trạng thái yêu cầu hủy", 400);
+      }
+      if (!rejectCancelReason || !rejectCancelReason.trim()) {
+        return jsonError("Vui lòng nhập lý do từ chối yêu cầu hủy", 400);
       }
     }
 
@@ -105,21 +124,62 @@ export async function PATCH(
     if (shippingMethod !== undefined) updates.shippingMethod = shippingMethod || null;
     if (cancelReason !== undefined) updates.cancelReason = cancelReason || null;
 
-    const updated = await prisma.order.update({
-      where: { id },
-      data: updates,
-      select: {
-        id: true,
-        code: true,
-        status: true,
-        note: true,
-        cancelReason: true,
-        cancelRequestReason: true,
-        shippingMethod: true,
-        updatedAt: true,
-        customerFullName: true,
-        customerEmail: true,
-      },
+    const updated = await prisma.$transaction(async (tx) => {
+      let nextStatus: OrderStatus | undefined = status as OrderStatus | undefined;
+      const historyReason = isRejectingCancel
+        ? (rejectCancelReason || existing.cancelRequestReason || undefined)
+        : (cancelReason || existing.cancelRequestReason || undefined);
+
+      if (isRejectingCancel) {
+        nextStatus = (existing.prevStatusBeforeCancel as OrderStatus | null) ?? "pending";
+        updates.status = nextStatus;
+        updates.cancelRequestReason = null;
+        updates.prevStatusBeforeCancel = null;
+        updates.cancelRejectReason = rejectCancelReason || null;
+        updates.cancelRejectAt = new Date();
+        updates.cancelReason = null;
+      } else if (status === "cancelled" && prevStatus === "cancel_requested") {
+        updates.prevStatusBeforeCancel = null;
+        updates.cancelRejectAt = null;
+        updates.cancelRejectReason = null;
+      } else if (status && status !== prevStatus) {
+        updates.cancelRejectAt = null;
+        updates.cancelRejectReason = null;
+      }
+
+      const result = await tx.order.update({
+        where: { id },
+        data: updates,
+        select: {
+          id: true,
+          code: true,
+          status: true,
+          note: true,
+          cancelReason: true,
+          cancelRequestReason: true,
+          cancelRejectReason: true,
+          cancelRejectAt: true,
+          shippingMethod: true,
+          updatedAt: true,
+          customerFullName: true,
+          customerEmail: true,
+          prevStatusBeforeCancel: true,
+        },
+      });
+
+      if (nextStatus && nextStatus !== prevStatus) {
+        await tx.orderstatushistory.create({
+          data: {
+            orderId: id,
+            fromStatus: prevStatus,
+            toStatus: nextStatus,
+            reason: historyReason || null,
+            createdBy: me.sub,
+          },
+        });
+      }
+
+      return result;
     });
 
     const prev = prevStatus;
@@ -196,6 +256,19 @@ export async function PATCH(
               html: email.html,
             });
           }
+        } else if (prev === "cancel_requested" && next !== "cancel_requested") {
+          // Rejected cancel -> roll back
+          const email = generateOrderCancelRejectedEmail(
+            updated.code,
+            customerName,
+            updated.cancelRejectReason || undefined
+          );
+          await sendMail({
+            to: updated.customerEmail,
+            subject: email.subject,
+            text: email.text,
+            html: email.html,
+          });
         }
       }
     } catch (emailErr) {

@@ -3,6 +3,16 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { OrderStatus } from "@/dto/order.dto";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 type Props = {
   orderId: string;
@@ -12,6 +22,8 @@ type Props = {
 type UpdateBody = {
   status: OrderStatus;
   cancelReason?: string;
+  rejectCancel?: boolean;
+  rejectCancelReason?: string;
 };
 
 // ====== TOAST CONFIRM ĐẾM NGƯỢC 5S ======
@@ -101,7 +113,7 @@ function getNextLabel(status: OrderStatus): string | null {
     case "shipped":
       return "📦 Giao hàng thành công";
     case "cancel_requested":
-      return "❗ Duyệt yêu cầu hủy đơn";
+      return "❗ Chấp nhận yêu cầu hủy đơn";
     default:
       return null;
   }
@@ -134,10 +146,15 @@ function canCancel(status: OrderStatus): boolean {
 
 export default function OrderActions({ orderId, status }: Props) {
   const [loading, setLoading] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [rejectReason, setRejectReason] = useState("");
 
   const nextLabel = getNextLabel(status);
   const nextStatus = getNextStatus(status);
   const showCancel = canCancel(status);
+  const isCancelRequested = status === "cancel_requested";
 
   async function callUpdate(body: UpdateBody) {
     setLoading(true);
@@ -184,20 +201,12 @@ export default function OrderActions({ orderId, status }: Props) {
 
   async function handleCancel() {
     if (!showCancel) return;
+    setCancelModalOpen(true);
+  }
 
-    const ok = await confirmWithCountdown("Bạn có chắc chắn muốn hủy đơn hàng này?");
-    if (!ok) return;
-
-    const reason = window.prompt("Vui lòng nhập lý do hủy đơn hàng:");
-    if (!reason || reason.trim().length < 3) {
-      toast.error("Lý do hủy cần ít nhất 3 ký tự");
-      return;
-    }
-
-    await callUpdate({
-      status: "cancelled",
-      cancelReason: reason.trim(),
-    });
+  async function handleRejectCancel() {
+    if (!isCancelRequested) return;
+    setRejectModalOpen(true);
   }
 
   if (!nextStatus && !showCancel) {
@@ -227,6 +236,110 @@ export default function OrderActions({ orderId, status }: Props) {
           ❌ Hủy đơn
         </button>
       )}
+      {isCancelRequested && (
+        <button
+          type="button"
+          disabled={loading}
+          onClick={handleRejectCancel}
+          className="inline-flex items-center justify-center rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-600 disabled:opacity-60"
+        >
+          🚫 Từ chối yêu cầu hủy
+        </button>
+      )}
+
+      <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hủy đơn hàng</DialogTitle>
+            <DialogDescription>
+              Nhập lý do hủy đơn (tối thiểu 3 ký tự). Khách sẽ nhận email thông báo nếu cần.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+            rows={3}
+            placeholder="Lý do hủy đơn"
+          />
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCancelModalOpen(false);
+                setCancelReason("");
+              }}
+            >
+              Đóng
+            </Button>
+            <Button
+              disabled={loading || cancelReason.trim().length < 3}
+              onClick={async () => {
+                if (cancelReason.trim().length < 3) {
+                  toast.error("Lý do hủy cần ít nhất 3 ký tự");
+                  return;
+                }
+                await callUpdate({
+                  status: "cancelled",
+                  cancelReason: cancelReason.trim(),
+                });
+                setCancelModalOpen(false);
+                setCancelReason("");
+              }}
+            >
+              Xác nhận hủy
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={rejectModalOpen} onOpenChange={setRejectModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Từ chối yêu cầu hủy</DialogTitle>
+            <DialogDescription>
+              Nhập lý do từ chối (tối thiểu 5 ký tự). Đơn sẽ trở về trạng thái trước khi khách yêu cầu hủy.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+            rows={3}
+            placeholder="Lý do từ chối yêu cầu hủy"
+          />
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setRejectModalOpen(false);
+                setRejectReason("");
+              }}
+            >
+              Đóng
+            </Button>
+            <Button
+                disabled={loading || rejectReason.trim().length < 5}
+                onClick={async () => {
+                  if (rejectReason.trim().length < 5) {
+                    toast.error("Lý do cần tối thiểu 5 ký tự");
+                    return;
+                  }
+
+                  await callUpdate({
+                    status,
+                    rejectCancel: true,
+                    rejectCancelReason: rejectReason.trim(),
+                  });
+
+                  setRejectModalOpen(false);
+                  setRejectReason("");
+                }}
+              >
+                Xác nhận từ chối
+              </Button>
+
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

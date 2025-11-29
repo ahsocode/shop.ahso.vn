@@ -26,10 +26,12 @@ import {
   Award,
   Grid as GridIcon,
 } from "lucide-react";
+import QuoteRequestButton from "./QuoteRequestButton";
 
 // Types
 type BrandObj = { name: string; slug: string; logoUrl?: string; id?: string };
 type ProductCard = {
+  id?: string;
   slug: string;
   name: string;
   sku: string;
@@ -333,12 +335,13 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
               </div>
 
               {requiresQuote ? (
-                <Link
-                  href={contactHref}
+                <QuoteRequestButton
+                  productId={product.id}
+                  productName={product.name}
+                  productSku={product.sku}
+                  productSlug={product.slug}
                   className="inline-flex items-center rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-600 hover:bg-amber-50"
-                >
-                  Liên hệ báo giá
-                </Link>
+                />
               ) : (
                 <AddToCartButton
                   sku={product.sku}
@@ -419,12 +422,13 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
         <div className="mt-auto pt-3 flex items-center justify-between border-t border-gray-100">
           <div className="flex flex-col gap-0.5">{renderPriceBlock("left")}</div>
           {requiresQuote ? (
-            <Link
-              href={contactHref}
+            <QuoteRequestButton
+              productId={product.id}
+              productName={product.name}
+              productSku={product.sku}
+              productSlug={product.slug}
               className="inline-flex items-center rounded-full border border-amber-500 px-3 py-1.5 text-xs font-semibold text-amber-600 hover:bg-amber-50"
-            >
-              Liên hệ báo giá
-            </Link>
+            />
           ) : (
             <AddToCartButton
               sku={product.sku}

@@ -298,7 +298,7 @@ export async function POST(req: NextRequest) {
           currency: "VND", // cố định VND
           requiresQuote: requiresQuote ?? false,
           quoteNote: quoteNote ?? null,
-          taxRate, // bắt buộc từ schema
+          taxRate: taxRate ?? undefined, // schema accepts undefined, not null
           taxIncluded: true, // auto, không lấy từ body
           minOrderQty: minOrderQty ?? null,
           stepQty: stepQty ?? null,

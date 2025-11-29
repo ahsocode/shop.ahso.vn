@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 type FormData = {
-  name: string;
+  fullName: string;
   email: string;
   phone: string;
   company: string;
@@ -31,7 +31,7 @@ type FormData = {
 
 export default function ContactPage() {
   const [formData, setFormData] = useState<FormData>({
-    name: "",
+    fullName: "",
     email: "",
     phone: "",
     company: "",
@@ -41,6 +41,11 @@ export default function ContactPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [feedback, setFeedback] = useState<{ open: boolean; title: string; message: string }>({
+    open: false,
+    title: "",
+    message: "",
+  });
 
   useEffect(() => {
     // ---- Observer cho section lớn (.reveal) ----
@@ -93,27 +98,93 @@ export default function ContactPage() {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setIsSuccess(false);
 
-    setTimeout(() => {
+    const message =
+      formData.message.trim().length >= 10
+        ? formData.message.trim()
+        : "Khách hàng không để lại nội dung. Vui lòng liên hệ để trao đổi thêm.";
+
+    const payload = {
+      fullName: formData.fullName.trim(),
+      phone: formData.phone.trim(),
+      email: formData.email.trim() || undefined,
+      company: formData.company.trim() || undefined,
+      subject: formData.subject.trim() || undefined,
+      message,
+    };
+
+    if (!payload.fullName) {
+      setFeedback({
+        open: true,
+        title: "Thiếu họ tên",
+        message: "Vui lòng nhập họ và tên.",
+      });
       setIsSubmitting(false);
-      setIsSuccess(true);
-      console.log("Form submitted:", formData);
+      return;
+    }
 
-      setTimeout(() => {
-        setIsSuccess(false);
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          company: "",
-          subject: "",
-          message: "",
-        });
-      }, 3000);
-    }, 1500);
+    if (!payload.phone || payload.phone.replace(/[^0-9]/g, "").length < 9) {
+      setFeedback({
+        open: true,
+        title: "Số điện thoại chưa hợp lệ",
+        message: "Vui lòng nhập số điện thoại tối thiểu 9 chữ số để chúng tôi liên hệ.",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/contacts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errorData = (await res.json().catch(() => null)) as
+          | { message?: string; error?: string; issues?: Array<{ message?: string; path?: string[] }> }
+          | null;
+        const validationMessage =
+          errorData?.issues && errorData.issues.length
+            ? errorData.issues[0]?.message || "Thông tin chưa hợp lệ."
+            : null;
+        throw new Error(
+          validationMessage ||
+            errorData?.message ||
+            errorData?.error ||
+            `Gửi liên hệ thất bại (${res.status})`,
+        );
+      }
+
+      setIsSuccess(true);
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        company: "",
+        subject: "",
+        message: "",
+      });
+      setFeedback({
+        open: true,
+        title: "Đã gửi thành công",
+        message: "Cảm ơn bạn đã liên hệ. Chúng tôi sẽ phản hồi trong thời gian sớm nhất.",
+      });
+      setTimeout(() => setIsSuccess(false), 2500);
+    } catch (err) {
+      console.error("Send contact failed:", err);
+      setFeedback({
+        open: true,
+        title: "Gửi liên hệ thất bại",
+        message: err instanceof Error ? err.message : "Vui lòng thử lại sau.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -157,6 +228,38 @@ export default function ContactPage() {
     { icon: Youtube, name: "YouTube", link: "#", color: "hover:bg-red-600" },
     { icon: Globe, name: "Website", link: "#", color: "hover:bg-purple-600" },
   ] as const;
+
+  const FeedbackModal = ({ open, title, message, onClose }: { open: boolean; title: string; message: string; onClose: () => void }) => {
+    if (!open) return null;
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+        <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-3 animate-in fade-in zoom-in">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+              <p className="text-sm text-gray-600 mt-1">{message}</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Đóng"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
+            >
+              Đã hiểu
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // ==== Google Maps config ====
   const mapsAddress = "Công ty TNHH AHSO 39/15 Cao Bá Quát, Khu Phố Đông Tân, Dĩ An, TP.HCM";
@@ -250,8 +353,8 @@ export default function ContactPage() {
                     </div>
                     <input
                       type="text"
-                      name="name"
-                      value={formData.name}
+                      name="fullName"
+                      value={formData.fullName}
                       onChange={handleChange}
                       required
                       className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 outline-none"
@@ -264,7 +367,7 @@ export default function ContactPage() {
                 {/* Email */}
                 <div className="group" data-reveal style={withRevealDelay("60ms")}>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Email <span className="text-red-500">*</span>
+                    Email
                   </label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2">
@@ -275,7 +378,6 @@ export default function ContactPage() {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      required
                       className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 outline-none"
                       placeholder="email@example.com"
                       autoComplete="email"
@@ -356,7 +458,6 @@ export default function ContactPage() {
                       name="message"
                       value={formData.message}
                       onChange={handleChange}
-                      required
                       rows={5}
                       className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 outline-none resize-none"
                       placeholder="Mô tả chi tiết yêu cầu của bạn..."
@@ -569,6 +670,12 @@ export default function ContactPage() {
           animation-delay: var(--d, 0ms);
         }
       `}</style>
+      <FeedbackModal
+        open={feedback.open}
+        title={feedback.title}
+        message={feedback.message}
+        onClose={() => setFeedback((prev) => ({ ...prev, open: false }))}
+      />
     </div>
   );
 }
