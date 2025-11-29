@@ -10,9 +10,11 @@ import { quote_status, contact_priority } from "@/generated/enums";
 //  
 const UpdateSchema = z.object({
   status: z.nativeEnum(quote_status).optional(),
-  response: z.string().trim().max(10000).optional(),
+  customerNotes: z.string().trim().max(10000).optional(),
   internalNotes: z.string().trim().max(10000).optional(),
 });
+
+const isUUID = (value: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 
 //
 // ====== SELECT ======
@@ -23,20 +25,39 @@ const quoteSelect = {
   fullName: true,
   phone: true,
   email: true,
+  company: true,
+  taxCode: true,
   productName: true,
   quantity: true,
   message: true,
+  quotedPrice: true,
+  quotedTotal: true,
+  validUntil: true,
+  paymentTerms: true,
+  deliveryTerms: true,
   status: true,
   priority: true,
   assignedTo: true,
 
-  response: true,
   respondedAt: true,
   respondedBy: true,
 
+  customerNotes: true,
   internalNotes: true,
   createdAt: true,
   updatedAt: true,
+  expiresAt: true,
+  productId: true,
+  product: {
+    select: {
+      id: true,
+      name: true,
+      sku: true,
+      slug: true,
+      price: true,
+      currency: true,
+    },
+  },
 } as const;
 
 //
@@ -50,9 +71,15 @@ export async function GET(
     const me = await verifyBearerAuth(req);
     requireRole(me, ["STAFF", "ADMIN"]);
     const { id } = await ctx.params;
+    const where = {
+      OR: [
+        ...(isUUID(id) ? [{ id }] : []),
+        { code: id },
+      ],
+    };
 
-    const quote = await prisma.quoterequest.findUnique({
-      where: { id },
+    const quote = await prisma.quoterequest.findFirst({
+      where,
       select: quoteSelect,
     });
 
@@ -62,6 +89,7 @@ export async function GET(
 
     return jsonOk({ data: quote });
   } catch (error) {
+    console.error("STAFF quote GET error:", error);
     const err = toHttpError(error);
     return jsonError(err.message || "Internal Error", err.status || 500);
   }
@@ -78,7 +106,6 @@ export async function PATCH(
     const me = await verifyBearerAuth(req);
     requireRole(me, ["STAFF", "ADMIN"]);
     const { id } = await ctx.params;
-
     const raw = await req.json();
     const parsed = UpdateSchema.safeParse(raw);
 
@@ -93,6 +120,22 @@ export async function PATCH(
       return jsonError("Không có dữ liệu cần cập nhật", 400);
     }
 
+    const where = {
+      OR: [
+        ...(isUUID(id) ? [{ id }] : []),
+        { code: id },
+      ],
+    };
+
+    const existing = await prisma.quoterequest.findFirst({
+      where,
+      select: { id: true },
+    });
+
+    if (!existing) {
+      return jsonError("Không tìm thấy yêu cầu báo giá", 404);
+    }
+
     const data: Record<string, unknown> = {
       updatedAt: new Date(),
     };
@@ -100,10 +143,10 @@ export async function PATCH(
     // status
     if (updates.status) data.status = updates.status;
 
-    // response (kèm respondedAt/by)
-    if (updates.response !== undefined) {
-      const trimmed = updates.response.trim();
-      data.response = trimmed || null;
+    // customerNotes (phản hồi cho khách)
+    if (updates.customerNotes !== undefined) {
+      const trimmed = updates.customerNotes.trim();
+      data.customerNotes = trimmed || null;
       data.respondedAt = trimmed ? new Date() : null;
       data.respondedBy = trimmed ? me.sub : null;
     }
@@ -114,13 +157,14 @@ export async function PATCH(
     }
 
     const updated = await prisma.quoterequest.update({
-      where: { id },
+      where: { id: existing.id },
       data,
       select: quoteSelect,
     });
 
     return jsonOk({ data: updated });
   } catch (error) {
+    console.error("STAFF quote PATCH error:", error);
     const err = toHttpError(error);
     return jsonError(err.message || "Internal Error", err.status || 500);
   }
