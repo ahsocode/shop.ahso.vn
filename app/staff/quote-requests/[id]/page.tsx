@@ -33,7 +33,7 @@ type QuoteDetail = {
   status: QuoteStatus;
   priority: QuotePriority;
   assignedTo: string | null;
-  response: string | null;
+  customerNotes: string | null;
   respondedAt: string | null;
   respondedBy: string | null;
   internalNotes: string | null;
@@ -83,7 +83,7 @@ export default function StaffQuoteDetailPage({
   const [saving, setSaving] = useState(false);
 
   const [status, setStatus] = useState<QuoteStatus>("pending");
-  const [response, setResponse] = useState("");
+  const [customerNotes, setCustomerNotes] = useState("");
   const [internalNotes, setInternalNotes] = useState("");
 
   const fetchQuote = useCallback(async () => {
@@ -113,7 +113,9 @@ export default function StaffQuoteDetailPage({
 
       if (!res.ok) {
         const errorData = (await res.json().catch(() => null)) as { message?: string } | null;
-        throw new Error(errorData?.message || "Failed to fetch");
+        toast.error(errorData?.message || "Không thể tải yêu cầu báo giá");
+        setQuote(null);
+        return;
       }
 
       const result = await res.json();
@@ -121,7 +123,7 @@ export default function StaffQuoteDetailPage({
 
       setQuote(data);
       setStatus(data.status);
-      setResponse(data.response || "");
+      setCustomerNotes(data.customerNotes || "");
       setInternalNotes(data.internalNotes || "");
     } catch (error) {
       console.error("Fetch quote error:", error);
@@ -149,7 +151,7 @@ export default function StaffQuoteDetailPage({
         },
         body: JSON.stringify({
           status,
-          response: response.trim() || undefined,
+          customerNotes: customerNotes.trim() || undefined,
           internalNotes: internalNotes.trim() || undefined,
         }),
       });
@@ -383,8 +385,8 @@ export default function StaffQuoteDetailPage({
                   Nội dung báo giá / phản hồi cho khách
                 </label>
                 <textarea
-                  value={response}
-                  onChange={(e) => setResponse(e.target.value)}
+                  value={customerNotes}
+                  onChange={(e) => setCustomerNotes(e.target.value)}
                   rows={6}
                   placeholder="Nhập nội dung báo giá, điều kiện, ghi chú gửi cho khách..."
                   className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-50 outline-none resize-none"
@@ -451,9 +453,9 @@ export default function StaffQuoteDetailPage({
                   minute: "2-digit",
                 })}
               </div>
-              {quote.response && (
+              {quote.customerNotes && (
                 <div className="bg-white rounded-lg p-4 text-slate-700 whitespace-pre-wrap">
-                  {quote.response}
+                  {quote.customerNotes}
                 </div>
               )}
             </div>
