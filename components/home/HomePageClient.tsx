@@ -21,6 +21,7 @@ import {
   ChevronRight,
   Sparkles,
 } from "lucide-react";
+import QuoteRequestButton from "@/app/shop/products/QuoteRequestButton";
 
 type HeroSlide = {
   image: string;
@@ -145,10 +146,11 @@ function normalizeProductData(
 function ProductCard({ product, index }: { product: HomeProduct; index: number }) {
   const price = product.price ?? 0;
   const listPrice = product.listPrice ?? null;
-  const hasDiscount = listPrice !== null && listPrice > price;
+  const isQuoteOnly = Boolean(product.requiresQuote);
+  const hasDiscount = !isQuoteOnly && listPrice !== null && listPrice > price;
   const discount = hasDiscount ? Math.round(((listPrice - price) / listPrice) * 100) : 0;
   const priceLabel =
-    product.requiresQuote || product.price === null
+    isQuoteOnly || product.price === null
       ? "Liên hệ báo giá"
       : `${price.toLocaleString("vi-VN")}₫`;
 
@@ -195,22 +197,39 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
           )}
         </div>
 
-        <div className="flex items-end justify-between">
-          <div>
-            <div className="text-xl font-bold text-blue-600">{priceLabel}</div>
-            {hasDiscount && (
-              <div className="text-sm text-gray-400 line-through">
-                {listPrice?.toLocaleString("vi-VN")}₫
-              </div>
-            )}
+        {isQuoteOnly ? (
+          <div className="mt-auto flex items-center justify-between">
+            <QuoteRequestButton
+              productId={product.id}
+              productName={product.name}
+              productSlug={product.slug ?? undefined}
+              className="inline-flex items-center rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-amber-700"
+            />
+            <Link
+              href={product.slug ? `/shop/products/${product.slug}` : "/shop/products"}
+              className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center hover:bg-blue-200 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+            >
+              <ArrowRight className="w-5 h-5" />
+            </Link>
           </div>
-          <Link
-            href={product.slug ? `/shop/products/${product.slug}` : "/shop/products"}
-            className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
-          >
-            <ArrowRight className="w-5 h-5" />
-          </Link>
-        </div>
+        ) : (
+          <div className="flex items-end justify-between">
+            <div>
+              <div className="text-xl font-bold text-blue-600">{priceLabel}</div>
+              {hasDiscount && (
+                <div className="text-sm text-gray-400 line-through">
+                  {listPrice?.toLocaleString("vi-VN")}₫
+                </div>
+              )}
+            </div>
+            <Link
+              href={product.slug ? `/shop/products/${product.slug}` : "/shop/products"}
+              className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl hover:scale-110"
+            >
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
