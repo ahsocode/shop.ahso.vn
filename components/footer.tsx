@@ -48,6 +48,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/policy" className="text-sm hover:text-blue-500 transition-colors">
+                  Chính sách
+                </Link>
+              </li>
+              <li>
                 <Link href="/contact" className="text-sm hover:text-blue-500 transition-colors">
                   Liên hệ
                 </Link>

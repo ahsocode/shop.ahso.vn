@@ -191,11 +191,22 @@ export async function GET(request: NextRequest) {
       ...(brandSlug && { brand: { is: { slug: brandSlug } } }),
       ...(typeSlug && { producttype: { is: { slug: typeSlug } } }),
       ...(categorySlug && {
-        productcategorylink: {
-          some: {
-            productcategory: { slug: categorySlug },
+        OR: [
+          {
+            productcategorylink: {
+              some: {
+                productcategory: { slug: categorySlug },
+              },
+            },
           },
-        },
+          {
+            producttype: {
+              is: {
+                productcategory: { slug: categorySlug },
+              },
+            },
+          },
+        ],
       }),
       ...((minPrice || maxPrice) && {
         price: {

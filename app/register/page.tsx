@@ -1,22 +1,21 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Lock, Mail, User, Phone, MapPin, Building, AlertCircle, Eye, EyeOff, CheckCircle } from "lucide-react"
-import Image from "next/image"
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { toast } from "sonner";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { AlertCircle, Eye, EyeOff, Lock, Mail, Phone, User } from "lucide-react";
 
 export default function RegisterPage() {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [step, setStep] = useState(1) // 1: Account Info, 2: Address Info
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -24,111 +23,76 @@ export default function RegisterPage() {
     confirmPassword: "",
     fullName: "",
     phone: "",
-    taxCode: "",
-    shippingAddress: {
-      line1: "",
-      line2: "",
-      city: "",
-      state: "",
-      postalCode: "",
-      country: "VN",
-    },
-    sameAsBilling: true,
-  })
+    acceptTerms: false,
+  });
+
+  const passwordStrength = useMemo(() => {
+    const pwd = formData.password;
+    let score = 0;
+    if (pwd.length >= 8) score += 1;
+    if (pwd.length >= 12) score += 1;
+    if (/[A-Z]/.test(pwd)) score += 1;
+    if (/[0-9]/.test(pwd)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+    const percent = Math.min((score / 5) * 100, 100);
+    const label = score >= 4 ? "Mạnh" : score === 3 ? "Khá" : score === 2 ? "Trung bình" : "Yếu";
+    const color =
+      score >= 4 ? "bg-green-500" : score === 3 ? "bg-lime-400" : score === 2 ? "bg-yellow-400" : "bg-red-500";
+    return { percent, label, color };
+  }, [formData.password]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target
-    
-    if (name.startsWith("shipping.")) {
-      const field = name.split(".")[1]
-      setFormData({
-        ...formData,
-        shippingAddress: {
-          ...formData.shippingAddress,
-          [field]: value,
-        },
-      })
-    } else if (type === "checkbox") {
-      setFormData({
-        ...formData,
-        [name]: checked,
-      })
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      })
-    }
-    if (error) setError("")
-  }
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    if (error) setError("");
+  };
 
-  const validateStep1 = () => {
+  const validate = () => {
     if (!formData.username || formData.username.length < 3) {
-      setError("Tên đăng nhập phải có ít nhất 3 ký tự")
-      return false
+      setError("Tên đăng nhập phải có ít nhất 3 ký tự");
+      return false;
     }
     if (!/^[a-z0-9_.-]+$/.test(formData.username)) {
-      setError("Tên đăng nhập chỉ được chứa chữ thường, số và các ký tự _ . -")
-      return false
+      setError("Tên đăng nhập chỉ được chứa chữ thường, số và các ký tự _ . -");
+      return false;
     }
     if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError("Email không hợp lệ")
-      return false
+      setError("Email không hợp lệ");
+      return false;
     }
     if (!formData.password || formData.password.length < 8) {
-      setError("Mật khẩu phải có ít nhất 8 ký tự")
-      return false
+      setError("Mật khẩu phải có ít nhất 8 ký tự");
+      return false;
     }
     if (!/[a-z]/.test(formData.password) || !/[A-Z]/.test(formData.password) || !/\d/.test(formData.password)) {
-      setError("Mật khẩu cần có chữ hoa, chữ thường và số")
-      return false
+      setError("Mật khẩu cần có chữ hoa, chữ thường và số");
+      return false;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError("Mật khẩu xác nhận không khớp")
-      return false
+      setError("Mật khẩu xác nhận không khớp");
+      return false;
     }
     if (!formData.fullName) {
-      setError("Vui lòng nhập họ và tên")
-      return false
+      setError("Vui lòng nhập họ và tên");
+      return false;
     }
     if (!formData.phone || formData.phone.length < 9) {
-      setError("Số điện thoại không hợp lệ")
-      return false
+      setError("Số điện thoại không hợp lệ");
+      return false;
     }
-    return true
-  }
-
-  const validateStep2 = () => {
-    if (!formData.shippingAddress.line1) {
-      setError("Vui lòng nhập địa chỉ")
-      return false
+    if (!formData.acceptTerms) {
+      setError("Vui lòng đồng ý với điều khoản sử dụng");
+      return false;
     }
-    if (!formData.shippingAddress.city) {
-      setError("Vui lòng nhập thành phố")
-      return false
-    }
-    return true
-  }
-
-  const handleNext = () => {
-    setError("")
-    if (step === 1 && validateStep1()) {
-      setStep(2)
-      toast.info("Vui lòng nhập địa chỉ nhận hàng.")
-    }
-  }
-
-  const handleBack = () => {
-    setError("")
-    setStep(1)
-  }
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validateStep2()) { toast.error("Vui lòng kiểm tra lại địa chỉ."); return }
+    e.preventDefault();
+    if (!validate()) return;
 
-    setIsLoading(true)
-    setError("")
+    setIsLoading(true);
+    setError("");
 
     try {
       const payload = {
@@ -137,10 +101,17 @@ export default function RegisterPage() {
         password: formData.password,
         fullName: formData.fullName,
         phone: formData.phone,
-        taxCode: formData.taxCode || undefined,
-        shippingAddress: formData.shippingAddress,
-        billingAddress: formData.sameAsBilling ? undefined : formData.shippingAddress,
-      }
+        taxCode: undefined,
+        shippingAddress: {
+          line1: "Cập nhật sau",
+          line2: "",
+          city: "Hồ Chí Minh",
+          state: "",
+          postalCode: "",
+          country: "VN",
+        },
+        billingAddress: undefined,
+      };
 
       const response = await fetch("/api/auth/register", {
         method: "POST",
@@ -148,55 +119,51 @@ export default function RegisterPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
         if (data.error === "CONFLICT") {
-          setError("Email, tên đăng nhập hoặc số điện thoại đã được sử dụng")
-          toast.error("Email/tên đăng nhập/số điện thoại đã tồn tại.")
+          const conflictMsg = "Email đã được sử dụng cho tài khoản khác. Vui lòng đăng nhập tại đây.";
+          setError(conflictMsg);
+          toast.error(conflictMsg, {
+            action: {
+              label: "Đăng nhập",
+              onClick: () => router.push("/login"),
+            },
+          });
         } else if (data.error === "VALIDATION_ERROR") {
-          setError("Vui lòng kiểm tra lại thông tin đăng ký")
-          toast.error("Thông tin đăng ký chưa hợp lệ.")
+          setError("Vui lòng kiểm tra lại thông tin đăng ký");
+          toast.error("Thông tin đăng ký chưa hợp lệ.");
         } else {
-          setError(data.message || "Đã có lỗi xảy ra. Vui lòng thử lại!")
-          toast.error(data.message || "Đã có lỗi xảy ra.")
+          setError(data.message || "Đã có lỗi xảy ra. Vui lòng thử lại!");
+          toast.error(data.message || "Đã có lỗi xảy ra.");
         }
-        return
+        return;
       }
 
-      // Lưu token vào localStorage
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("user", JSON.stringify(data.user))
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-      toast.success("Đăng ký thành công! Chào mừng bạn đến AHSO.")
-      // Chuyển hướng về trang chủ hoặc trang profile
-      router.push("/profile")
-      router.refresh()
+      toast.success("Đăng ký thành công! Chào mừng bạn đến AHSO.");
+      router.push("/profile");
+      router.refresh();
     } catch (err) {
-      console.error("Register error:", err)
-      setError("Không thể kết nối đến máy chủ. Vui lòng thử lại!")
-      toast.error("Không thể kết nối đến máy chủ.")
+      console.error("Register error:", err);
+      setError("Không thể kết nối đến máy chủ. Vui lòng thử lại!");
+      toast.error("Không thể kết nối đến máy chủ.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
-        {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold text-gray-900">
-            <Image
-              src="/logo.png"
-              alt="AHSO Logo"
-              width={48}
-              height={48}
-              className="h-12 w-12 object-contain"
-              priority
-            />
+            <Image src="/logo.png" alt="AHSO Logo" width={48} height={48} className="h-12 w-12 object-contain" priority />
             <span>AHSO</span>
           </Link>
         </div>
@@ -204,352 +171,192 @@ export default function RegisterPage() {
         <Card className="shadow-xl border-t-4 border-t-blue-600">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">Đăng ký tài khoản</CardTitle>
-            <CardDescription className="text-center">
-              Tạo tài khoản mới để bắt đầu mua sắm
-            </CardDescription>
+            <CardDescription className="text-center">Tạo tài khoản mới để bắt đầu mua sắm</CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Progress Steps */}
-            <div className="flex items-center justify-center mb-8">
-              <div className="flex items-center gap-2">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                  step >= 1 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
-                }`}>
-                  {step > 1 ? <CheckCircle className="h-5 w-5" /> : "1"}
-                </div>
-                <span className="text-sm font-medium">Thông tin tài khoản</span>
-              </div>
-              <div className={`w-12 h-0.5 mx-2 ${step >= 2 ? "bg-blue-600" : "bg-gray-200"}`} />
-              <div className="flex items-center gap-2">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                  step >= 2 ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-600"
-                }`}>
-                  2
-                </div>
-                <span className="text-sm font-medium">Địa chỉ</span>
-              </div>
-            </div>
-
-            {/* Error Message */}
             {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-start gap-2">
-                <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
-                <p className="text-sm text-red-600">{error}</p>
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-center gap-2 text-red-700">
+                <AlertCircle className="h-5 w-5 shrink-0" />
+                <span className="text-sm">{error}</span>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {step === 1 && (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        Tên đăng nhập <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <Input
-                          name="username"
-                          value={formData.username}
-                          onChange={handleChange}
-                          placeholder="username123"
-                          className="pl-10"
-                          required
-                          autoComplete="username"
-                        />
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">Chỉ chữ thường, số và _ . -</p>
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        Email <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <Input
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          placeholder="email@example.com"
-                          className="pl-10"
-                          required
-                          autoComplete="email"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        Mật khẩu <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <Input
-                          name="password"
-                          type={showPassword ? "text" : "password"}
-                          value={formData.password}
-                          onChange={handleChange}
-                          placeholder="••••••••"
-                          className="pl-10 pr-10"
-                          required
-                          autoComplete="new-password"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        >
-                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                        </button>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">Tối thiểu 8 ký tự, có chữ hoa, thường và số</p>
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        Xác nhận mật khẩu <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <Input
-                          name="confirmPassword"
-                          type={showConfirmPassword ? "text" : "password"}
-                          value={formData.confirmPassword}
-                          onChange={handleChange}
-                          placeholder="••••••••"
-                          className="pl-10 pr-10"
-                          required
-                          autoComplete="new-password"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        >
-                          {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">
-                      Họ và tên <span className="text-red-500">*</span>
-                    </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Họ và tên <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <Input
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
                       placeholder="Nguyễn Văn A"
+                      className="pl-10"
                       required
-                      autoComplete="name"
+                      disabled={isLoading}
                     />
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        Số điện thoại <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <Input
-                          name="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          placeholder="0901234567"
-                          className="pl-10"
-                          required
-                          autoComplete="tel"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        Mã số thuế
-                      </label>
-                      <div className="relative">
-                        <Building className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <Input
-                          name="taxCode"
-                          value={formData.taxCode}
-                          onChange={handleChange}
-                          placeholder="0123456789"
-                          className="pl-10"
-                        />
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">Không bắt buộc</p>
-                    </div>
-                  </div>
-
-                  <Button type="button" onClick={handleNext} className="w-full h-11">
-                    Tiếp tục
-                  </Button>
-                </>
-              )}
-
-              {step === 2 && (
-                <>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">
-                      Địa chỉ <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                      <Input
-                        name="shipping.line1"
-                        value={formData.shippingAddress.line1}
-                        onChange={handleChange}
-                        placeholder="123 Đường ABC"
-                        className="pl-10"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">
-                      Địa chỉ 2
-                    </label>
-                    <Input
-                      name="shipping.line2"
-                      value={formData.shippingAddress.line2}
-                      onChange={handleChange}
-                      placeholder="Căn hộ, tòa nhà (không bắt buộc)"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        Thành phố <span className="text-red-500">*</span>
-                      </label>
-                      <Input
-                        name="shipping.city"
-                        value={formData.shippingAddress.city}
-                        onChange={handleChange}
-                        placeholder="Biên Hòa"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        Tỉnh/Thành phố
-                      </label>
-                      <Input
-                        name="shipping.state"
-                        value={formData.shippingAddress.state}
-                        onChange={handleChange}
-                        placeholder="Đồng Nai"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        Mã bưu điện
-                      </label>
-                      <Input
-                        name="shipping.postalCode"
-                        value={formData.shippingAddress.postalCode}
-                        onChange={handleChange}
-                        placeholder="700000"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        Quốc gia <span className="text-red-500">*</span>
-                      </label>
-                      <Input
-                        name="shipping.country"
-                        value={formData.shippingAddress.country}
-                        onChange={handleChange}
-                        placeholder="VN"
-                        maxLength={2}
-                        required
-                      />
-                      <p className="text-xs text-gray-500 mt-1">Mã quốc gia 2 ký tự (VD: VN)</p>
-                    </div>
-                  </div>
-
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="sameAsBilling"
-                      checked={formData.sameAsBilling}
-                      onChange={handleChange}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm text-gray-700">Sử dụng làm địa chỉ thanh toán</span>
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Tên đăng nhập <span className="text-red-500">*</span>
                   </label>
-
-                  <div className="flex gap-4">
-                    <Button type="button" onClick={handleBack} variant="outline" className="flex-1 h-11">
-                      Quay lại
-                    </Button>
-                    <Button type="submit" className="flex-1 h-11" disabled={isLoading}>
-                      {isLoading ? (
-                        <span className="flex items-center gap-2">
-                          <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Đang xử lý...
-                        </span>
-                      ) : (
-                        "Đăng ký"
-                      )}
-                    </Button>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      name="username"
+                      value={formData.username}
+                      onChange={handleChange}
+                      placeholder="nhap-ten-dang-nhap"
+                      className="pl-10"
+                      required
+                      disabled={isLoading}
+                    />
                   </div>
-                </>
-              )}
-            </form>
+                </div>
+              </div>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Đã có tài khoản?{" "}
-                <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                  Đăng nhập ngay
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="you@example.com"
+                      className="pl-10"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Số điện thoại <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="0123456789"
+                      className="pl-10"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Mật khẩu <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="••••••••"
+                      className="pl-10 pr-10"
+                      required
+                      autoComplete="new-password"
+                      disabled={isLoading}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
+                  <div className="mt-2 space-y-1">
+                    <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${passwordStrength.color} transition-all`}
+                        style={{ width: `${passwordStrength.percent}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      Độ mạnh: <span className="font-semibold">{passwordStrength.label}</span> • Ít nhất 8 ký tự, gồm chữ hoa,
+                      thường và số
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Xác nhận mật khẩu <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Input
+                      name="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      placeholder="••••••••"
+                      className="pl-10 pr-10"
+                      required
+                      autoComplete="new-password"
+                      disabled={isLoading}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Nhập lại mật khẩu để xác nhận</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  id="acceptTerms"
+                  type="checkbox"
+                  name="acceptTerms"
+                  checked={formData.acceptTerms}
+                  onChange={handleChange}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  disabled={isLoading}
+                />
+                <label htmlFor="acceptTerms" className="text-sm text-gray-700">
+                  Tôi đồng ý với{" "}
+                  <Link href="/policy" className="text-blue-600 hover:text-blue-700 underline">
+                    Điều khoản & Chính sách bảo mật
+                  </Link>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-between gap-4 pt-2">
+                <Link href="/login" className="text-sm text-blue-600 hover:text-blue-700">
+                  Đã có tài khoản? Đăng nhập
                 </Link>
-              </p>
-            </div>
-
-            <div className="mt-6 relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Hoặc</span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <Link href="/">
-                <Button variant="outline" className="w-full">
-                  Quay lại trang chủ
+                <Button type="submit" className="min-w-[160px]" disabled={isLoading}>
+                  {isLoading ? "Đang đăng ký..." : "Đăng ký"}
                 </Button>
-              </Link>
-            </div>
+              </div>
+            </form>
           </CardContent>
         </Card>
-
-        <p className="text-center text-xs text-gray-500 mt-6">
-          Bằng việc đăng ký, bạn đồng ý với{" "}
-          <Link href="#" className="text-blue-600 hover:text-blue-700">
-            Điều khoản sử dụng
-          </Link>{" "}
-          và{" "}
-          <Link href="#" className="text-blue-600 hover:text-blue-700">
-            Chính sách bảo mật
-          </Link>
-        </p>
       </div>
     </div>
-  )
+  );
 }

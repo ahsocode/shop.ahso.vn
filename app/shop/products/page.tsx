@@ -1,6 +1,7 @@
 // app/shop/products/page.tsx
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import ProductsSearchClient from "./products-search-client";
 
 // SEO Metadata
@@ -149,6 +150,30 @@ export default function ProductsPage() {
       />
 
       {/* Main Content */}
+      <div className="bg-white/60 backdrop-blur">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
+          <div className="flex items-center gap-2 text-sm font-semibold text-blue-700">
+            <Link
+              href="/shop/products"
+              className="px-4 py-2 rounded-full bg-blue-600 text-white shadow border border-blue-600"
+            >
+              Sản phẩm &amp; Linh kiện
+            </Link>
+            <Link
+              href="/shop/categories"
+              className="px-4 py-2 rounded-full bg-white text-blue-700 border border-blue-200 hover:border-blue-400 hover:text-blue-800"
+            >
+              Toàn bộ danh mục
+            </Link>
+            <Link
+              href="/shop/brands"
+              className="px-4 py-2 rounded-full bg-white text-blue-700 border border-blue-200 hover:border-blue-400 hover:text-blue-800"
+            >
+              Thương hiệu cộng tác
+            </Link>
+          </div>
+        </div>
+      </div>
       <Suspense fallback={<ProductsLoadingSkeleton />}>
         <ProductsSearchClient />
       </Suspense>

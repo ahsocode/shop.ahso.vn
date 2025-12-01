@@ -36,6 +36,7 @@ function LoginClient() {
   const { refresh: refreshCart } = useCart(); // ⭐ Hook cart để refresh sau login
 
   const [isLoading, setIsLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginMethod, setLoginMethod] = useState<"username" | "email">("username");
@@ -148,6 +149,14 @@ function LoginClient() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    if (googleLoading) return;
+    setGoogleLoading(true);
+    const redirectTo = searchParams.get("redirect") || "/";
+    const redirectParam = encodeURIComponent(redirectTo);
+    window.location.href = `/api/auth/google?redirect=${redirectParam}`;
   };
 
   if (redirecting) {
@@ -341,7 +350,34 @@ function LoginClient() {
               </div>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-6 space-y-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full flex items-center justify-center gap-3 border-gray-300 hover:border-gray-400 bg-white"
+                onClick={handleGoogleLogin}
+                disabled={googleLoading}
+              >
+                <span className="flex h-5 w-5 items-center justify-center">
+                  <svg
+                    role="img"
+                    aria-label="Google"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 48 48"
+                    className="h-5 w-5"
+                  >
+                    <path fill="#EA4335" d="M24 9.5c3.15 0 5.3 1.37 6.52 2.51l4.76-4.64C31.44 4.28 27.96 3 24 3 14.82 3 7.25 8.88 4.36 16.44l5.98 4.64C11.94 14.53 17.41 9.5 24 9.5z" />
+                    <path fill="#4285F4" d="M46.5 24.5c0-1.66-.15-2.86-.47-4.09H24v7.71h12.9c-.26 1.9-1.66 4.76-4.76 6.68l7.34 5.68c4.38-4.04 7.02-9.97 7.02-16.98z" />
+                    <path fill="#FBBC05" d="M10.34 28.92c-.46-1.38-.72-2.86-.72-4.42s.26-3.04.72-4.42l-5.98-4.64C2.74 17.78 2 20.81 2 24s.74 6.22 2.36 8.58l5.98-4.66z" />
+                    <path fill="#34A853" d="M24 46c6.48 0 11.92-2.13 15.89-5.83l-7.34-5.68c-1.97 1.32-4.6 2.24-8.55 2.24-6.59 0-12.06-5.03-13.42-11.66l-5.98 4.64C7.25 39.12 14.82 46 24 46z" />
+                    <path fill="none" d="M2 2h44v44H2z" />
+                  </svg>
+                </span>
+                <span className="text-sm font-medium text-gray-700">
+                  {googleLoading ? "Đang mở Google..." : "Tiếp tục với Google"}
+                </span>
+              </Button>
+
               <Link href="/">
                 <Button variant="outline" className="w-full">
                   Quay lại trang chủ
