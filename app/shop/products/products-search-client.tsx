@@ -213,7 +213,8 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
   const showSavings = !requiresQuote && listPrice !== null && listPrice > price && price > 0;
   const savings = showSavings ? listPrice - price : 0;
   const savingsPercent = showSavings && listPrice ? Math.round((savings / listPrice) * 100) : 0;
-  const outOfStock = !product.inStock;
+  const outOfStock = !requiresQuote && !product.inStock;
+  const showStockState = !requiresQuote;
   const contactHref = `/contact?product=${encodeURIComponent(product.slug)}`;
   const renderPriceBlock = (align: "left" | "right" = "right") => {
     const alignText =
@@ -270,7 +271,7 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
               fill
               className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
             />
-            {!product.inStock && (
+            {showStockState && !product.inStock && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                 <span className="bg-white text-gray-900 px-3 py-1.5 rounded-full text-xs font-semibold">
                   Hết hàng
@@ -321,17 +322,18 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
                     <span>{purchases.toLocaleString()} đã bán</span>
                   </div>
                 )}
-                {product.inStock ? (
-                  <div className="flex items-center gap-1.5 text-green-600">
-                    <Package className="h-4 w-4" />
-                    <span>Còn hàng</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1.5 text-red-600">
-                    <Package className="h-4 w-4" />
-                    <span>Hết hàng</span>
-                  </div>
-                )}
+                {showStockState &&
+                  (product.inStock ? (
+                    <div className="flex items-center gap-1.5 text-green-600">
+                      <Package className="h-4 w-4" />
+                      <span>Còn hàng</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 text-red-600">
+                      <Package className="h-4 w-4" />
+                      <span>Hết hàng</span>
+                    </div>
+                  ))}
               </div>
 
               {requiresQuote ? (
@@ -377,7 +379,7 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
           fill
           className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
         />
-        {!product.inStock && (
+        {showStockState && !product.inStock && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <span className="bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-semibold">
               Hết hàng

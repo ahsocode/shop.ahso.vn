@@ -248,10 +248,12 @@ export default async function ProductDetailPage({
   const cover = p.coverImage || p.images[0]?.url || "/logo.png";
   const price = Number(p.price ?? 0);
   const listPrice = Number(p.listPrice ?? 0);
-  const inStock = (p.stockOnHand ?? 0) - (p.stockReserved ?? 0) > 0;
   const requiresQuote = Boolean(p.requiresQuote);
-  const outOfStock = !inStock;
-  const showSavings = listPrice > price && price > 0;
+  const inStock = requiresQuote
+    ? false
+    : (p.stockOnHand ?? 0) - (p.stockReserved ?? 0) > 0;
+  const outOfStock = requiresQuote ? false : !inStock;
+  const showSavings = !requiresQuote && listPrice > price && price > 0;
   const savings = showSavings ? listPrice - price : 0;
   const savingsPercent = showSavings ? Math.round((savings / listPrice) * 100) : 0;
 
@@ -437,12 +439,14 @@ export default async function ProductDetailPage({
                 <dt className="text-gray-500 min-w-24">Thương hiệu</dt>
                 <dd className="flex-1 truncate">{p.brand?.name ?? "—"}</dd>
               </div>
-              <div className="flex gap-2">
-                <dt className="text-gray-500 min-w-24">Tình trạng</dt>
-                <dd className={`flex-1 ${inStock ? "text-emerald-600" : "text-rose-600"}`}>
-                  {inStock ? "Còn hàng" : "Hết hàng"}
-                </dd>
-              </div>
+              {!requiresQuote && (
+                <div className="flex gap-2">
+                  <dt className="text-gray-500 min-w-24">Tình trạng</dt>
+                  <dd className={`flex-1 ${inStock ? "text-emerald-600" : "text-rose-600"}`}>
+                    {inStock ? "Còn hàng" : "Hết hàng"}
+                  </dd>
+                </div>
+              )}
 
               {/* rating summary ngắn trong sidebar */}
               <div className="flex gap-2">

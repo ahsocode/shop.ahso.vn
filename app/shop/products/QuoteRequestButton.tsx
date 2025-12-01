@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 
 type QuoteRequestButtonProps = {
@@ -27,7 +28,10 @@ export default function QuoteRequestButton({
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
-  const disabled = useMemo(() => submitting || !fullName.trim() || phone.replace(/\\D/g, "").length < 8, [fullName, phone, submitting]);
+  const disabled = useMemo(
+    () => submitting || !fullName.trim() || phone.replace(/\D/g, "").length < 8,
+    [fullName, phone, submitting],
+  );
 
   const reset = () => {
     setFullName("");
@@ -72,99 +76,112 @@ export default function QuoteRequestButton({
     }
   };
 
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onClick={() => setOpen(false)}
+      />
+      <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6 space-y-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-gray-900">Yêu cầu báo giá</h3>
+            <p className="text-sm text-gray-600">
+              Sản phẩm: <span className="font-semibold text-gray-900">{productName}</span>
+              {productSku ? ` (SKU: ${productSku})` : ""}
+            </p>
+          </div>
+          <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600">
+            ✕
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          <label className="block text-sm font-medium text-gray-700">
+            Họ và tên <span className="text-red-500">*</span>
+            <input
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="mt-1 w-full rounded-lg border px-3 py-2 focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
+              placeholder="Nguyễn Văn A"
+              autoComplete="name"
+            />
+          </label>
+          <label className="block text-sm font-medium text-gray-700">
+            Số điện thoại <span className="text-red-500">*</span>
+            <input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="mt-1 w-full rounded-lg border px-3 py-2 focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
+              placeholder="0123456789"
+              autoComplete="tel"
+              inputMode="tel"
+            />
+          </label>
+          <label className="block text-sm font-medium text-gray-700">
+            Email
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full rounded-lg border px-3 py-2 focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
+              placeholder="email@example.com"
+              autoComplete="email"
+              type="email"
+            />
+          </label>
+          <label className="block text-sm font-medium text-gray-700">
+            Ghi chú
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="mt-1 w-full rounded-lg border px-3 py-2 focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
+              rows={3}
+              placeholder="Mô tả thêm nhu cầu của bạn..."
+            />
+          </label>
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="rounded-lg border px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
+            disabled={submitting}
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={disabled}
+            className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60"
+          >
+            {submitting ? "Đang gửi..." : "Gửi yêu cầu"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderModal =
+    open && typeof document !== "undefined"
+      ? createPortal(modalContent, document.body)
+      : null;
+
   return (
     <>
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={className || "inline-flex items-center rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-600 hover:bg-amber-50"}
+        className={
+          className ||
+          "inline-flex items-center rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-600 hover:bg-amber-50"
+        }
       >
         {children}
       </button>
 
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
-          <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6 space-y-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">Yêu cầu báo giá</h3>
-                <p className="text-sm text-gray-600">
-                  Sản phẩm: <span className="font-semibold text-gray-900">{productName}</span>
-                  {productSku ? ` (SKU: ${productSku})` : ""}
-                </p>
-              </div>
-              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600">
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">
-                Họ và tên <span className="text-red-500">*</span>
-                <input
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="mt-1 w-full rounded-lg border px-3 py-2 focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
-                  placeholder="Nguyễn Văn A"
-                  autoComplete="name"
-                />
-              </label>
-              <label className="block text-sm font-medium text-gray-700">
-                Số điện thoại <span className="text-red-500">*</span>
-                <input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="mt-1 w-full rounded-lg border px-3 py-2 focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
-                  placeholder="0123456789"
-                  autoComplete="tel"
-                  inputMode="tel"
-                />
-              </label>
-              <label className="block text-sm font-medium text-gray-700">
-                Email
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 w-full rounded-lg border px-3 py-2 focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
-                  placeholder="email@example.com"
-                  autoComplete="email"
-                  type="email"
-                />
-              </label>
-              <label className="block text-sm font-medium text-gray-700">
-                Ghi chú
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="mt-1 w-full rounded-lg border px-3 py-2 focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
-                  rows={3}
-                  placeholder="Mô tả thêm nhu cầu của bạn..."
-                />
-              </label>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="rounded-lg border px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
-                disabled={submitting}
-              >
-                Hủy
-              </button>
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={disabled}
-                className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60"
-              >
-                {submitting ? "Đang gửi..." : "Gửi yêu cầu"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {renderModal}
     </>
   );
 }
