@@ -3,11 +3,14 @@ import { NextResponse } from "next/server"
 import { z } from "zod"
 import { prisma } from "@/lib/prisma"
 import { SignJWT } from "jose"
-import { Resend } from "resend"
 import { sendMail } from "@/lib/mailer"
 
-const resendApiKey = process.env.RESEND_API_KEY
-const resend = resendApiKey ? new Resend(resendApiKey) : null
+function getBaseUrl(req: Request) {
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL
+  if (envUrl) return envUrl.replace(/\/$/, "")
+  const url = new URL(req.url)
+  return `${url.protocol}//${url.host}`
+}
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Email không hợp lệ"),
@@ -50,7 +53,8 @@ export async function POST(req: Request) {
 
     if (user) {
       const resetToken = await generateResetToken(user.id)
-      const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${resetToken}`
+      const baseUrl = getBaseUrl(req)
+      const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`
 
       const emailPayload = {
         to: user.email,
@@ -76,20 +80,12 @@ export async function POST(req: Request) {
         `,
       }
 
-      if (resend) {
-        await resend.emails.send({
-          from: "AHSO Shop <no-reply@shop.ahso.vn>",
-          ...emailPayload,
-        })
-        console.log("Email reset đã gửi qua Resend đến:", user.email)
-      } else {
-        await sendMail({
-          to: emailPayload.to,
-          subject: emailPayload.subject,
-          html: emailPayload.html,
-        })
-        console.log("Email reset đã gửi qua SMTP đến:", user.email)
-      }
+      await sendMail({
+        to: emailPayload.to,
+        subject: emailPayload.subject,
+        html: emailPayload.html,
+      })
+      console.log("Email reset đã gửi qua SMTP đến:", user.email)
     }
 
     return NextResponse.json({

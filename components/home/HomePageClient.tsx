@@ -402,7 +402,7 @@ export default function HomePageClient() {
     {
       icon: Clock,
       title: "Giao hàng nhanh",
-      description: "Vận chuyển toàn quốc",
+      description: "Vận chuyển toàn quốc", 
       color: "from-orange-500 to-orange-600",
     },
     {
@@ -671,30 +671,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-16 md:py-20 bg-white animate-on-scroll">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature, idx) => (
-              <div
-                key={feature.title}
-                className="rounded-3xl bg-linear-to-br from-gray-50 to-white p-6 border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-                style={{ transitionDelay: `${idx * 80}ms` }}
-              >
-                <div
-                  className={`w-14 h-14 rounded-2xl bg-linear-to-br ${feature.color} text-white flex items-center justify-center mb-4 shadow-lg`}
-                >
-                  <feature.icon className="w-7 h-7" />
-                </div>
-                <h3 className="font-bold text-gray-900 mb-2 text-lg">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-gray-600">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      
 
       {/* Best Sellers */}
       <section className="py-16 md:py-20 bg-linear-to-b from-white to-gray-50 animate-on-scroll">
@@ -768,6 +745,30 @@ export default function HomePageClient() {
           )}
         </div>
       </section>
+      {/* Features Grid */}
+      <section className="py-16 md:py-20 bg-white animate-on-scroll">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((feature, idx) => (
+              <div
+                key={feature.title}
+                className="rounded-3xl bg-linear-to-br from-gray-50 to-white p-6 border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                style={{ transitionDelay: `${idx * 80}ms` }}
+              >
+                <div
+                  className={`w-14 h-14 rounded-2xl bg-linear-to-br ${feature.color} text-white flex items-center justify-center mb-4 shadow-lg`}
+                >
+                  <feature.icon className="w-7 h-7" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2 text-lg">
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-gray-600">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
       <section className="py-20 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 text-white animate-on-scroll">
@@ -789,7 +790,7 @@ export default function HomePageClient() {
               href="tel:+84123456789"
               className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-xl font-bold border-2 border-white/30 hover:bg-white/20 hover:scale-105 transition-all duration-300"
             >
-              Gọi: 0123 456 789
+              Gọi: 0901 951 351
             </Link>
           </div>
         </div>

@@ -617,12 +617,31 @@ const parsePercentOrNull = (v: string) => {
     galleryFileInputRef.current?.click();
   };
 
-  const handleGalleryFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleGalleryFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
     if (galleryFileInputRef.current) {
       galleryFileInputRef.current.value = "";
     }
+
+    // Nhiều ảnh: upload trực tiếp tuần tự, không crop
+    if (files.length > 1) {
+      setGalleryUploading(true);
+      try {
+        for (const file of files) {
+          await uploadGalleryImage(file);
+        }
+        toast.success(`Đã tải ${files.length} ảnh`);
+      } catch (error) {
+        toast.error(extractErrorMessage(error));
+      } finally {
+        setGalleryUploading(false);
+      }
+      return;
+    }
+
+    // 1 ảnh: giữ flow crop
+    const file = files[0];
     const url = URL.createObjectURL(file);
     setGalleryCropSource((prev) => {
       if (prev?.revokeOnClose && prev.url) {
@@ -1619,6 +1638,7 @@ const parsePercentOrNull = (v: string) => {
                 ref={galleryFileInputRef}
                 type="file"
                 accept="image/*"
+                multiple
                 className="hidden"
                 onChange={handleGalleryFileChange}
               />

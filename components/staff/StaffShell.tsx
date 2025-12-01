@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Package, Menu, X, LogOut, Home, ChevronLeft, ChevronRight, MessageSquare, FileText } from "lucide-react";
 import { useAuthStore, setUser } from "@/lib/auth-store";
+import { toast } from "sonner";
 
 type NavItem = {
   href: string;
@@ -59,6 +60,7 @@ export default function StaffShell({ children }: { children: React.ReactNode }) 
     } finally {
       localStorage.removeItem("token");
       setUser(null);
+      toast.success("Đã đăng xuất");
       router.push("/login");
     }
   };

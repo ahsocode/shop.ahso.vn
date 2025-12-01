@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuthStore, getUser, setUser } from "@/lib/auth-store";
 import { useCart } from "@/lib/hooks/useCart";
+import { toast } from "sonner";
 
 export function Navbar() {
   const router = useRouter();
@@ -133,6 +134,7 @@ export function Navbar() {
     setUser(null);
     setIsUserMenuOpen(false);
     setIsMenuOpen(false);
+    toast.success("Đã đăng xuất");
     router.push("/");
   };
 

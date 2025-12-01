@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
+import { toast } from "sonner"
 import { useAuthStore, setUser, getIsHydrated } from "@/lib/auth-store"
 
 export function useAuth(requireAuth = false) {
@@ -10,6 +11,23 @@ export function useAuth(requireAuth = false) {
   const user = useAuthStore()
   const [loading, setLoading] = useState(true)
   const [verified, setVerified] = useState(false)
+  const toastShown = useRef(false)
+
+  const showLoginToastIfNeeded = () => {
+    if (toastShown.current || typeof window === "undefined") return
+    const url = new URL(window.location.href)
+    const loginStatus = url.searchParams.get("login")
+    if (loginStatus === "google_success") {
+      toast.success("Đăng nhập Google thành công")
+    } else if (loginStatus === "google_failed") {
+      toast.error("Đăng nhập Google thất bại")
+    } else {
+      return
+    }
+    url.searchParams.delete("login")
+    window.history.replaceState(null, "", url.toString())
+    toastShown.current = true
+  }
 
   useEffect(() => {
     let mounted = true
@@ -73,6 +91,7 @@ export function useAuth(requireAuth = false) {
           })
           setLoading(false)
           setVerified(true)
+          showLoginToastIfNeeded()
         }
       } catch (err) {
         console.error("❌ Token verification failed:", err)
@@ -88,6 +107,7 @@ export function useAuth(requireAuth = false) {
             console.log("❌ Auth required, redirecting to login")
             router.push(`/login?redirect=${encodeURIComponent(pathname)}`)
           }
+          showLoginToastIfNeeded()
         }
       }
     }
@@ -96,10 +116,16 @@ export function useAuth(requireAuth = false) {
     return () => { mounted = false }
   }, [requireAuth, router, pathname]) // ✅ Bỏ dependency vào user để tránh loop
 
-  const logout = () => {
+  const logout = async () => {
     console.log("🚪 Logging out...")
     setUser(null)
     localStorage.removeItem("token")
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" })
+    } catch (error) {
+      console.error("Logout API error:", error)
+    }
+    toast.success("Đã đăng xuất")
     router.push("/login")
   }
 

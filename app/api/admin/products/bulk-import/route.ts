@@ -27,6 +27,7 @@ type ProductDraft = {
   specs: SpecDraft[];
   status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   currency?: string;
+  supplierId?: string | null;
   issues: string[];
   mode: "create" | "update";
   existingProductId?: string;
@@ -72,12 +73,20 @@ async function handlePreview(req: NextRequest) {
       return NextResponse.json({ error: "Missing file" }, { status: 400 });
     }
 
+    const defaultBrandSlug = (form.get("defaultBrand") as string | null) || undefined;
+    const defaultTypeSlug = (form.get("defaultType") as string | null) || undefined;
+    const defaultSupplierId = (form.get("defaultSupplierId") as string | null) || undefined;
+
     const rows = await parseFileToRows(file);
     if (!rows.length) {
       return NextResponse.json({ rows: [] }, { status: 200 });
     }
 
-    const drafts = await buildProductDrafts(rows);
+    const drafts = await buildProductDrafts(rows, {
+      defaultBrandSlug,
+      defaultTypeSlug,
+      defaultSupplierId,
+    });
     return NextResponse.json({ rows: drafts }, { status: 200 });
   } catch (error) {
     console.error("product bulk preview error", error);
@@ -118,44 +127,102 @@ async function handleCommit(req: NextRequest) {
   }
 }
 
+// Ngoài ra, kiểm tra thêm trong parseFileToRows:
 async function parseFileToRows(file: File) {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
   let workbook: XLSX.WorkBook;
   try {
-    workbook = XLSX.read(buffer, { type: "buffer" });
+    workbook = XLSX.read(buffer, { 
+      type: "buffer",
+      cellText: false,     // Giữ nguyên line breaks
+      cellDates: false,
+      raw: false           // Parse giá trị thành text
+    });
   } catch {
     const text = buffer.toString("utf8");
-    workbook = XLSX.read(text, { type: "string" });
+    workbook = XLSX.read(text, { 
+      type: "string",
+      cellText: false,
+      raw: false 
+    });
   }
 
   const sheetName = workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
   const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
     defval: "",
-    raw: false,
+    raw: false,          // Convert tất cả về string
+    blankrows: false     // Bỏ qua dòng trống
   });
   return json;
 }
+type DraftDefaults = {
+  defaultBrandSlug?: string;
+  defaultTypeSlug?: string;
+  defaultSupplierId?: string;
+};
 
-async function buildProductDrafts(rows: Record<string, unknown>[]): Promise<ProductDraft[]> {
-  const normalizedRows = rows.map((row) => normalizeColumns(row));
+async function buildProductDrafts(
+  rows: Record<string, unknown>[],
+  defaults: DraftDefaults = {},
+): Promise<ProductDraft[]> {
+  // DEBUG: Log raw data trước khi normalize
+  console.log("=== RAW CSV DATA ===");
+  console.log("Total rows:", rows.length);
+  console.log("First row keys:", Object.keys(rows[0] || {}));
+  console.log("First row data:", rows[0]);
+  
+  const normalizedRows: NormalizedRow[] = rows
+    .map((row) => normalizeColumns(row))
+    // Bỏ brand/loại/danh mục từ file, sẽ dùng default chọn trước
+    .map((row) => ({
+      ...row,
+      primaryCategory: null as string | null,
+      typeSlug: null as string | null,
+      brandSlug: null as string | null,
+    }));
+  
+  // DEBUG: Log dữ liệu đã normalize
+  console.log("\n=== NORMALIZED DATA ===");
+  normalizedRows.forEach((row, i) => {
+    console.log(`Row ${i}:`, {
+      brandSlug: row.brandSlug,
+      typeSlug: row.typeSlug,
+      primaryCategory: row.primaryCategory,
+    });
+  });
+
   const skuList = normalizedRows
     .map((r) => r.sku)
-    .filter((sku): sku is string => Boolean(sku));
+    .filter(Boolean) as string[];
 
   const brandSlugs = new Set(
-    normalizedRows.map((r) => r.brandSlug).filter((slug): slug is string => Boolean(slug)),
+    normalizedRows.map((r) => r.brandSlug ?? "").filter(Boolean),
   );
   const typeSlugs = new Set(
-    normalizedRows.map((r) => r.typeSlug).filter((slug): slug is string => Boolean(slug)),
+    normalizedRows.map((r) => r.typeSlug ?? "").filter(Boolean),
   );
   const categorySlugs = new Set(
-    normalizedRows.map((r) => r.primaryCategory).filter((slug): slug is string => Boolean(slug)),
+    normalizedRows.map((r) => r.primaryCategory ?? "").filter(Boolean),
   );
 
-  const [products, brands, types, categories] = await Promise.all([
+  // DEBUG: Log những gì đang tìm kiếm
+  console.log("=== SEARCHING FOR ===");
+  console.log("Brands:", Array.from(brandSlugs));
+  console.log("Types:", Array.from(typeSlugs));
+  console.log("Categories:", Array.from(categorySlugs));
+
+  // Bổ sung giá trị mặc định để lấy reference map
+  if (defaults.defaultBrandSlug) {
+    brandSlugs.add(defaults.defaultBrandSlug);
+  }
+  if (defaults.defaultTypeSlug) {
+    typeSlugs.add(defaults.defaultTypeSlug);
+  }
+
+  const [products, brands, types] = await Promise.all([
     skuList.length
       ? prisma.product.findMany({
           where: { sku: { in: skuList } },
@@ -171,21 +238,41 @@ async function buildProductDrafts(rows: Record<string, unknown>[]): Promise<Prod
     typeSlugs.size
       ? prisma.producttype.findMany({
           where: { slug: { in: Array.from(typeSlugs) } },
-          select: { id: true, slug: true, name: true },
-        })
-      : Promise.resolve([]),
-    categorySlugs.size
-      ? prisma.productcategory.findMany({
-          where: { slug: { in: Array.from(categorySlugs) } },
-          select: { id: true, slug: true, name: true },
+          select: { id: true, slug: true, name: true, categoryId: true },
         })
       : Promise.resolve([]),
   ]);
 
+  // DEBUG: Log kết quả tìm được
+  console.log("=== FOUND IN DB ===");
+  console.log("Brands found:", brands.map(b => ({ slug: b.slug, name: b.name })));
+  console.log("Types found:", types.map(t => ({ slug: t.slug, name: t.name })));
+
+  const typeCategoryIds = types
+    .map((t) => t.categoryId ?? "")
+    .filter(Boolean);
+  const categories =
+    categorySlugs.size || typeCategoryIds.length
+      ? await prisma.productcategory.findMany({
+          where: {
+            OR: [
+              ...(categorySlugs.size ? [{ slug: { in: Array.from(categorySlugs) } }] : []),
+              ...(typeCategoryIds.length ? [{ id: { in: typeCategoryIds } }] : []),
+            ],
+          },
+          select: { id: true, slug: true, name: true },
+        })
+      : [];
+
+  console.log("Categories found:", categories.map(c => ({ slug: c.slug, name: c.name })));
+
   const productMap = new Map(products.map((p) => [p.sku, p]));
   const brandMap = new Map(brands.map((b) => [b.slug, b]));
+  const brandByName = new Map(brands.map((b) => [slugify(b.name), b]));
   const typeMap = new Map(types.map((t) => [t.slug, t]));
+  const typeByName = new Map(types.map((t) => [slugify(t.name), t]));
   const categoryMap = new Map(categories.map((c) => [c.slug, c]));
+  const categoryByName = new Map(categories.map((c) => [slugify(c.name), c]));
 
   const seenSku = new Map<string, number>();
 
@@ -206,36 +293,102 @@ async function buildProductDrafts(rows: Record<string, unknown>[]): Promise<Prod
     if (!row.name) {
       issues.push("Thiếu tên sản phẩm");
     }
-    if (!row.typeSlug) {
+    if (!defaults.defaultTypeSlug && !row.typeSlug) {
       issues.push("Thiếu loại sản phẩm");
     }
 
-    if (row.brandSlug && !brandMap.has(row.brandSlug)) {
-      missing.brand = row.brandSlug;
+    // === MATCH BRAND (ưu tiên default, slug, tên, fuzzy) ===
+    let resolvedBrandSlug = row.brandSlug || defaults.defaultBrandSlug || null;
+    if (resolvedBrandSlug) {
+      const normalized = slugify(resolvedBrandSlug);
+      const bySlug = brandMap.get(resolvedBrandSlug);
+      const byName = brandByName.get(normalized);
+      const loose = Array.from(brandMap.values()).find((b) => {
+        const brandNameSlug = slugify(b.name);
+        return (
+          brandNameSlug === normalized ||
+          b.slug === normalized ||
+          normalized.includes(b.slug) ||
+          b.slug.includes(normalized) ||
+          normalized.includes(brandNameSlug) ||
+          brandNameSlug.includes(normalized)
+        );
+      });
+
+      if (bySlug) resolvedBrandSlug = bySlug.slug;
+      else if (byName) resolvedBrandSlug = byName.slug;
+      else if (loose) resolvedBrandSlug = loose.slug;
+      else missing.brand = resolvedBrandSlug;
     }
-    if (row.typeSlug && !typeMap.has(row.typeSlug)) {
-      missing.type = row.typeSlug;
+
+    // === MATCH TYPE (ưu tiên default) + auto danh mục từ type ===
+    let resolvedTypeSlug = row.typeSlug || defaults.defaultTypeSlug || null;
+    let resolvedCategorySlug = row.primaryCategory;
+
+    if (resolvedTypeSlug) {
+      const normalized = slugify(resolvedTypeSlug);
+      const bySlug = typeMap.get(resolvedTypeSlug);
+      const byName = typeByName.get(normalized);
+      const loose = Array.from(typeMap.values()).find((t) => {
+        const typeNameSlug = slugify(t.name);
+        return (
+          typeNameSlug === normalized ||
+          t.slug === normalized ||
+          normalized.includes(t.slug) ||
+          t.slug.includes(normalized) ||
+          normalized.includes(typeNameSlug) ||
+          typeNameSlug.includes(normalized)
+        );
+      });
+
+      const resolvedType = bySlug || byName || loose;
+      if (resolvedType) {
+        resolvedTypeSlug = resolvedType.slug;
+        if (!resolvedCategorySlug && resolvedType.categoryId) {
+          const cat = Array.from(categoryMap.values()).find((c) => c.id === resolvedType.categoryId);
+          if (cat) resolvedCategorySlug = cat.slug;
+        }
+      } else {
+        missing.type = resolvedTypeSlug;
+      }
     }
-    const missingCategories = [row.primaryCategory || undefined]
-      .filter((slug): slug is string => Boolean(slug))
-      .filter((slug) => !categoryMap.has(slug));
-    if (missingCategories.length) {
-      missing.categories = Array.from(new Set(missingCategories));
+
+    if (resolvedCategorySlug) {
+      const input = resolvedCategorySlug;
+      const normalized = slugify(input);
+      const bySlug = categoryMap.get(input);
+      const byName = categoryByName.get(normalized);
+      const loose = Array.from(categoryMap.values()).find((c) => {
+        const catNameSlug = slugify(c.name);
+        return (
+          catNameSlug === normalized ||
+          c.slug === normalized ||
+          normalized.includes(c.slug) ||
+          c.slug.includes(normalized) ||
+          normalized.includes(catNameSlug) ||
+          catNameSlug.includes(normalized)
+        );
+      });
+
+      if (bySlug) resolvedCategorySlug = bySlug.slug;
+      else if (byName) resolvedCategorySlug = byName.slug;
+      else if (loose) resolvedCategorySlug = loose.slug;
+      else missing.categories = [resolvedCategorySlug];
     }
 
     const existing = row.sku ? productMap.get(row.sku) : null;
     const mode: "create" | "update" = existing ? "update" : "create";
 
-    return {
+    const draft = {
       tempId: randomUUID(),
       sku: row.sku ?? "",
       slug: row.slug ?? slugify(row.name || row.sku || `san-pham-${index + 1}`),
       name: row.name ?? "",
       descriptionShort: row.descriptionShort ?? "",
       description: row.description ?? "",
-      primaryCategory: row.primaryCategory,
-      typeSlug: row.typeSlug,
-      brandSlug: row.brandSlug,
+      primaryCategory: resolvedCategorySlug,
+      typeSlug: resolvedTypeSlug,
+      brandSlug: resolvedBrandSlug,
       stockOnHand: row.stockOnHand,
       costPrice: row.costPrice,
       price: row.price,
@@ -245,11 +398,15 @@ async function buildProductDrafts(rows: Record<string, unknown>[]): Promise<Prod
       specs: row.specs,
       status: row.status,
       currency: row.currency,
+      supplierId: defaults.defaultSupplierId ?? null,
       issues,
       mode,
       existingProductId: existing?.id,
       missing,
     };
+    
+    console.log("\n=== FINAL DRAFT ===", draft);
+    return draft;
   });
 }
 
@@ -271,15 +428,42 @@ type NormalizedRow = {
   specs: SpecDraft[];
   status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   currency?: string;
+  supplierId?: string | null;
 };
 
 const COLUMN_ALIASES: Record<string, string[]> = {
   sku: ["sku", "ma san pham", "mã sản phẩm", "ma_sp"],
   slug: ["slug"],
   name: ["ten san pham", "tên sản phẩm", "name", "product name"],
-  primaryCategory: ["danh muc san pham", "danh mục sản phẩm", "category", "danhmuc"],
-  typeSlug: ["phan loai", "phân loại", "loai san pham", "product type", "type slug"],
-  brandSlug: ["thuong hieu", "thương hiệu", "brand", "brand slug"],
+  primaryCategory: [
+    "danh muc san pham",
+    "danh mục sản phẩm",
+    "danh mục sản phẩm (tên hoặc slug)",
+    "danh muc san pham (ten hoac slug)",
+    "category",
+    "danhmuc",
+    "danh mục",
+  ],
+  typeSlug: [
+    "phan loai",
+    "phân loại",
+    "loai san pham",
+    "loại sản phẩm",
+    "product type",
+    "type slug",
+    "loại",
+    "loại sản phẩm (tên hoặc slug)",
+    "loai san pham (ten hoac slug)",
+  ],
+  brandSlug: [
+    "thuong hieu",
+    "thương hiệu",
+    "brand",
+    "brand slug",
+    "thương hiêu",
+    "thương hiệu (tên hoặc slug)",
+    "thuong hieu (ten hoac slug)",
+  ],
   descriptionShort: ["mo ta ngan", "mô tả ngắn", "summary"],
   description: ["mo ta", "mô tả", "description", "chi tiet"],
   stockOnHand: ["ton kho", "tồn kho", "stock"],
@@ -299,21 +483,36 @@ const COLUMN_ALIASES: Record<string, string[]> = {
   status: ["status", "trang thai"],
   currency: ["currency", "tien te"],
 };
-
 function normalizeColumns(row: Record<string, unknown>): NormalizedRow {
+  // DEBUG: Log tất cả column names
+  const originalKeys = Object.keys(row);
+  console.log("\n=== COLUMN MATCHING DEBUG ===");
+  console.log("Original keys from CSV:", originalKeys);
+  
   const lowerCaseEntries = Object.entries(row).reduce<Record<string, string>>((acc, [key, value]) => {
-    acc[key.trim().toLowerCase()] = String(value ?? "").trim();
+    const cleanKey = key.trim().toLowerCase();
+    const cleanValue = String(value ?? "").trim();
+    acc[cleanKey] = cleanValue;
+    console.log(`"${key}" → "${cleanKey}" = "${cleanValue}"`);
     return acc;
   }, {});
 
+  console.log("\nLowercase keys:", Object.keys(lowerCaseEntries));
+
   const getValue = (key: keyof typeof COLUMN_ALIASES): string => {
     const aliases = COLUMN_ALIASES[key] ?? [];
+    console.log(`\nLooking for "${key}" with aliases:`, aliases);
+    
     for (const alias of aliases) {
       const normalized = alias.toLowerCase();
+      console.log(`  Checking alias: "${normalized}"`);
       if (normalized in lowerCaseEntries) {
-        return lowerCaseEntries[normalized];
+        const value = lowerCaseEntries[normalized];
+        console.log(`  ✅ FOUND! Value: "${value}"`);
+        return value;
       }
     }
+    console.log(`  ❌ NOT FOUND`);
     return "";
   };
 
@@ -325,6 +524,14 @@ function normalizeColumns(row: Record<string, unknown>): NormalizedRow {
   const primaryCategory = slugifyText(getValue("primaryCategory"));
   const typeSlug = slugifyText(getValue("typeSlug"));
   const brandSlug = slugifyText(getValue("brandSlug"));
+  
+  console.log("\n=== RESOLVED VALUES ===");
+  console.log("SKU:", sku);
+  console.log("Name:", name);
+  console.log("Brand (raw):", getValue("brandSlug"), "→ (slugified):", brandSlug);
+  console.log("Type (raw):", getValue("typeSlug"), "→ (slugified):", typeSlug);
+  console.log("Category (raw):", getValue("primaryCategory"), "→ (slugified):", primaryCategory);
+
   const stockOnHand = parseNumber(getValue("stockOnHand"));
   const costPrice = parseNumber(getValue("costPrice"));
   const price = parseNumber(getValue("price"));
@@ -388,8 +595,12 @@ function parseSpecs(row: Record<string, string>): SpecDraft[] {
   }
   if (!fieldValue) return [];
 
+  // Cải thiện: Tách theo nhiều loại separator
+  // - \r\n, \n (line breaks trong Excel)
+  // - | (separator thủ công)
+  // - ; (backup separator)
   const lines = fieldValue
-    .split(/(?:\r?\n|\|)/)
+    .split(/[\r\n]+|\|+|;+/)  // Tách theo line break HOẶC | HOẶC ;
     .map((line) => line.trim())
     .filter(Boolean);
 
@@ -397,19 +608,25 @@ function parseSpecs(row: Record<string, string>): SpecDraft[] {
   for (const line of lines) {
     const separatorIndex = line.indexOf(":");
     if (separatorIndex === -1) continue;
+    
     const key = line.slice(0, separatorIndex).trim();
     const value = line.slice(separatorIndex + 1).trim();
+    
     if (!key || !value) continue;
     specs.push({ key, value });
   }
+  
   return specs;
 }
 
 type ReferenceMaps = {
   products: Map<string, { id: string; slug: string }>;
   brands: Map<string, { id: string; slug: string }>;
-  types: Map<string, { id: string; slug: string; name: string }>;
+  types: Map<string, { id: string; slug: string; name: string; categoryId: string | null }>;
   categories: Map<string, { id: string; slug: string; name: string }>;
+  categoriesByName: Map<string, { id: string; slug: string; name: string }>;
+  brandsByName: Map<string, { id: string; slug: string; name: string }>;
+  typesByName: Map<string, { id: string; slug: string; name: string; categoryId: string | null }>;
 };
 
 async function loadReferenceMaps(rows: CommitRowInput[]): Promise<ReferenceMaps> {
@@ -440,7 +657,7 @@ async function loadReferenceMaps(rows: CommitRowInput[]): Promise<ReferenceMaps>
     typeSet.size
       ? prisma.producttype.findMany({
           where: { slug: { in: Array.from(typeSet) } },
-          select: { id: true, slug: true, name: true },
+          select: { id: true, slug: true, name: true, categoryId: true },
         })
       : Promise.resolve([]),
     categorySet.size
@@ -456,6 +673,15 @@ async function loadReferenceMaps(rows: CommitRowInput[]): Promise<ReferenceMaps>
     brands: new Map(brands.map((b) => [b.slug, b])),
     types: new Map(types.map((t) => [t.slug, t])),
     categories: new Map(categories.map((c) => [c.slug, c])),
+    categoriesByName: new Map(
+      categories.map((c) => [slugify(c.name), c]),
+    ),
+    brandsByName: new Map(
+      brands.map((b) => [slugify(b.name), b]),
+    ),
+    typesByName: new Map(
+      types.map((t) => [slugify(t.name), t]),
+    ),
   };
 }
 
@@ -535,15 +761,24 @@ async function upsertProductRow(
   }
 
 
-  const categoryIds: string[] = [];
-  if (row.primaryCategory) {
-    const cat = refs.categories.get(row.primaryCategory);
-    if (cat) {
-      categoryIds.push(cat.id);
+    const categoryIds: string[] = [];
+    if (row.primaryCategory) {
+      const cat = refs.categories.get(row.primaryCategory);
+      if (cat) {
+        categoryIds.push(cat.id);
+      } else {
+        errors.push(`Không tìm thấy danh mục: ${row.primaryCategory}`);
+      }
+    } else if (type?.categoryId) {
+      const cat = Array.from(refs.categories.values()).find((c) => c.id === type.categoryId);
+      if (cat) {
+        categoryIds.push(cat.id);
+      } else {
+        errors.push("Loại sản phẩm không gắn với danh mục hợp lệ");
+      }
     } else {
-      errors.push(`Không tìm thấy danh mục: ${row.primaryCategory}`);
+      errors.push("Thiếu danh mục");
     }
-  }
 
   if (errors.length) {
     return {
@@ -580,6 +815,7 @@ async function upsertProductRow(
     stockOnHand: numberOrUndefined(row.stockOnHand) ?? undefined,
     typeId: type!.id,
     brandId: brand?.id ?? null,
+    supplierId: row.supplierId ?? null,
     coverImage: stringOrNull(row.coverImage),
     currency: row.currency || undefined,
     status: row.status ?? undefined,
@@ -595,6 +831,7 @@ async function upsertProductRow(
     stockOnHand: numberOrUndefined(row.stockOnHand) ?? undefined,
     typeId: type!.id,
     brandId: brand?.id ?? undefined,
+    supplierId: row.supplierId ?? undefined,
     coverImage: stringOrNull(row.coverImage) ?? undefined,
     currency: row.currency || undefined,
     status: row.status ?? undefined,
