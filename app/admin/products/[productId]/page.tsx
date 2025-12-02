@@ -313,9 +313,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
           })),
       );
     } catch (e) {
-      const msg =
-        e instanceof Error ? e.message : "Không tải được dữ liệu sản phẩm";
-      toast.error(msg);
+      toast.error(extractErrorMessage(e));
     } finally {
       setLoading(false);
     }
@@ -399,9 +397,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
       updated.warnings?.forEach((w) => toast.warning(w));
       return detail;
     } catch (e) {
-      const msg =
-        e instanceof Error ? e.message : "Cập nhật sản phẩm thất bại";
-      toast.error(msg);
+      toast.error(extractErrorMessage(e));
       throw e;
     } finally {
       setSaving(false);
@@ -437,6 +433,11 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
     return Number.isFinite(num) ? num : undefined;
   };
 
+  const normalizeCoverImage = () => {
+    const trimmed = media.coverImage.trim();
+    return trimmed ? trimmed : null;
+  };
+
   const buildFullPayload = () => {
     const payload: Record<string, unknown> = {
       name: general.name,
@@ -457,7 +458,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
       currency: sourceConfig.currency || "VND",
       taxRate: parsePercentOrNull(sourceConfig.taxRate),
       taxIncluded: sourceConfig.taxIncluded,
-      coverImage: media.coverImage || null,
+      coverImage: normalizeCoverImage(),
       specs: buildSpecsPayload(),
       images: buildImagesPayload(),
     };
@@ -484,9 +485,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
       toast.success("Đã xóa sản phẩm");
       router.push("/admin/products");
     } catch (e) {
-      const msg =
-        e instanceof Error ? e.message : "Xóa sản phẩm thất bại";
-      toast.error(msg);
+      toast.error(extractErrorMessage(e));
     }
   };
 
@@ -1528,7 +1527,7 @@ const parsePercentOrNull = (v: string) => {
               <button
                 onClick={() =>
                   handleUpdate({
-                    coverImage: media.coverImage || null,
+                    coverImage: normalizeCoverImage(),
                   })
                 }
                 className="text-xs rounded-lg bg-blue-600 px-3 py-1.5 font-medium text-white shadow-sm hover:bg-blue-700 disabled:opacity-50"
@@ -1798,14 +1797,45 @@ function getErrorMessage(payload: unknown, fallback: string) {
 }
 
 function extractErrorMessage(error: unknown) {
+  const fallback = "Đã có lỗi xảy ra";
   if (error instanceof Error) {
+    const raw = error.message;
     try {
-      const parsed = JSON.parse(error.message);
-      if (parsed && typeof parsed.error === "string") return parsed.error;
+      const parsed = JSON.parse(raw) as {
+        error?: unknown;
+        issues?: Array<{
+          path?: Array<string | number>;
+          message?: string;
+          code?: string;
+          expected?: string;
+          received?: string;
+        }>;
+      };
+
+      if (parsed.issues?.length) {
+        const first = parsed.issues[0];
+        const path = Array.isArray(first.path) ? first.path.join(".") : "";
+        if (Array.isArray(first.path) && first.path[0] === "coverImage") {
+          return "Ảnh đại diện đang để trống hoặc không đúng định dạng URL. Vui lòng nhập URL hợp lệ hoặc chọn ảnh mới.";
+        }
+        if (first.message) {
+          return path ? `${path}: ${first.message}` : first.message;
+        }
+      }
+
+      if (typeof parsed.error === "string" && parsed.error.trim()) {
+        if (parsed.error.includes("expected string, received null")) {
+          return "Ảnh đại diện đang để trống hoặc không hợp lệ. Vui lòng bổ sung trước khi lưu.";
+        }
+        return parsed.error;
+      }
     } catch {
-      // ignore
+      // ignore parse errors
     }
-    return error.message || "Đã có lỗi xảy ra";
+
+    return raw || fallback;
   }
-  return "Đã có lỗi xảy ra";
+
+  if (typeof error === "string" && error.trim()) return error;
+  return fallback;
 }

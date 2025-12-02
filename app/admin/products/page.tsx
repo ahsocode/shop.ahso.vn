@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { AlertTriangle, FileSpreadsheet } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ImageCropDialog } from "@/components/image/image-crop-dialog";
-import { getJSON, postJSON, makeHeaders } from "../_lib/fetcher";
+import { getJSON, postJSON, makeHeaders, patchJSON } from "../_lib/fetcher";
 import { slugify } from "@/lib/slug";
 
 type Row = {
@@ -75,6 +75,10 @@ type ImageRow = {
   alt: string;
   sortOrder: string; // nhập string, khi gửi convert sang number
 };
+
+type ImportIntent =
+  | { mode: "pick" }
+  | { mode: "drop"; file: File };
 
 type ProductDraft = {
   tempId: string;
@@ -250,6 +254,7 @@ export default function ProductsPage() {
   const [bulkSupplier, setBulkSupplier] = useState("");
   const [bulkStatus, setBulkStatus] = useState("");
   const [bulkQuote, setBulkQuote] = useState("");
+  const [bulkType, setBulkType] = useState("");
   const [bulkImage, setBulkImage] = useState<BulkImageState>({
     file: null,
     fileName: "",
@@ -309,11 +314,17 @@ export default function ProductsPage() {
     current: number;
     total: number;
   } | null>(null);
+  const [importIntent, setImportIntent] = useState<ImportIntent | null>(null);
+  const [importConfirmOpen, setImportConfirmOpen] = useState(false);
   const [defaultBrand, setDefaultBrand] = useState("");
   const [defaultType, setDefaultType] = useState("");
   const [defaultSupplier, setDefaultSupplier] = useState("");
   const bulkFileInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [rowUpdatingTypeId, setRowUpdatingTypeId] = useState<string | null>(null);
+  const [filterBrand, setFilterBrand] = useState("");
+  const [filterType, setFilterType] = useState("");
+  const [sortKey, setSortKey] = useState("updatedAt_desc");
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const rowsToImport =
@@ -445,6 +456,39 @@ export default function ProductsPage() {
 
   const handleBulkImageButtonClick = () => {
     bulkImageInputRef.current?.click();
+  };
+
+  const requestImportConfirm = (intent: ImportIntent) => {
+    setImportIntent(intent);
+    setImportConfirmOpen(true);
+  };
+
+  const handleConfirmImport = () => {
+    if (!importIntent) return;
+    if (!defaultBrand || !defaultType) {
+      toast.error("Vui lòng chọn thương hiệu và loại mặc định trước khi tải file.");
+      setImportConfirmOpen(false);
+      setImportIntent(null);
+      return;
+    }
+
+    if (importIntent.mode === "pick") {
+      setImportConfirmOpen(false);
+      setTimeout(() => bulkFileInputRef.current?.click(), 0);
+      return;
+    }
+
+    if (importIntent.mode === "drop") {
+      const file = importIntent.file;
+      setImportConfirmOpen(false);
+      setImportIntent(null);
+      handleBulkFile(file);
+    }
+  };
+
+  const handleCancelImportConfirm = () => {
+    setImportConfirmOpen(false);
+    setImportIntent(null);
   };
 
   const handleBulkImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -640,6 +684,14 @@ export default function ProductsPage() {
           q: searchQuery,
           page: String(page),
           pageSize: String(pageSize),
+          ...(filterBrand ? { brandId: filterBrand } : {}),
+          ...(filterType ? { typeId: filterType } : {}),
+          ...(sortKey
+            ? (() => {
+                const [key, dir] = sortKey.split("_");
+                return { sortBy: key, sortOrder: dir };
+              })()
+            : {}),
         });
         const json = await getJSON<ListResp<Row>>(
           `/api/admin/products?${params.toString()}`,
@@ -656,7 +708,7 @@ export default function ProductsPage() {
     return () => {
       ignore = true;
     };
-  }, [page, pageSize, searchQuery, reloadToken]);
+  }, [page, pageSize, searchQuery, reloadToken, filterBrand, filterType, sortKey]);
 
   useEffect(() => {
     setSelectedProductIds((prev) =>
@@ -673,7 +725,7 @@ export default function ProductsPage() {
   );
   const selectedCount = selectedProductIds.length;
   const bulkFormFilled = Boolean(
-    bulkSupplier || bulkStatus || bulkQuote || bulkImage.file,
+    bulkSupplier || bulkStatus || bulkQuote || bulkType || bulkImage.file,
   );
   const bulkDisabled =
     !selectedCount || !bulkFormFilled || bulkUpdating || bulkImage.uploading;
@@ -701,6 +753,16 @@ export default function ProductsPage() {
         someCurrentSelected && !allCurrentSelected;
     }
   }, [someCurrentSelected, allCurrentSelected]);
+
+  const defaultBrandName = defaultBrand
+    ? brands.find((b) => (b.slug ?? slugify(b.name)) === defaultBrand)?.name ?? defaultBrand
+    : "Chưa chọn";
+  const defaultTypeName = defaultType
+    ? types.find((t) => (t.slug ?? slugify(t.name)) === defaultType)?.name ?? defaultType
+    : "Chưa chọn";
+  const defaultSupplierName = defaultSupplier
+    ? suppliers.find((s) => s.id === defaultSupplier)?.name ?? defaultSupplier
+    : "Chưa chọn";
 
   const handleToggleRow = (id: string, checked: boolean) => {
     setSelectedProductIds((prev) => {
@@ -782,26 +844,28 @@ export default function ProductsPage() {
 
     setBulkUpdating(true);
     try {
-      const basePayload: Record<string, unknown> = {
-        productIds: selectedProductIds,
-      };
-      if (bulkSupplier) {
-        basePayload.supplierId =
-          bulkSupplier === "__clear__" ? null : bulkSupplier;
-      }
-      if (bulkStatus) basePayload.status = bulkStatus as Row["status"];
-      if (bulkQuote) basePayload.requiresQuote = bulkQuote === "quote";
+    const basePayload: Record<string, unknown> = {
+      productIds: selectedProductIds,
+    };
+    if (bulkSupplier) {
+      basePayload.supplierId =
+        bulkSupplier === "__clear__" ? null : bulkSupplier;
+    }
+    if (bulkStatus) basePayload.status = bulkStatus as Row["status"];
+    if (bulkQuote) basePayload.requiresQuote = bulkQuote === "quote";
+    if (bulkType) basePayload.typeId = bulkType;
 
-      if (bulkSupplier || bulkStatus || bulkQuote) {
-        const res = await postJSON<{ updated: number }>(
-          "/api/admin/products/bulk-update",
-          basePayload,
-        );
-        toast.success(`Đã cập nhật ${res.updated} sản phẩm`);
-        setBulkSupplier("");
-        setBulkStatus("");
-        setBulkQuote("");
-      }
+    if (bulkSupplier || bulkStatus || bulkQuote || bulkType) {
+      const res = await postJSON<{ updated: number }>(
+        "/api/admin/products/bulk-update",
+        basePayload,
+      );
+      toast.success(`Đã cập nhật ${res.updated} sản phẩm`);
+      setBulkSupplier("");
+      setBulkStatus("");
+      setBulkQuote("");
+      setBulkType("");
+    }
 
       if (bulkImage.file) {
         await handleBulkImageUpload();
@@ -1340,9 +1404,9 @@ export default function ProductsPage() {
                 e.preventDefault();
                 setIsDragOver(false);
                 const file = e.dataTransfer.files?.[0];
-                if (file) handleBulkFile(file);
+                if (file) requestImportConfirm({ mode: "drop", file });
               }}
-              onClick={() => bulkFileInputRef.current?.click()}
+              onClick={() => requestImportConfirm({ mode: "pick" })}
             >
               <p className="font-semibold text-gray-800 mb-1">Kéo file vào đây</p>
               <p className="text-gray-500">hoặc bấm để chọn file từ máy</p>
@@ -1838,6 +1902,57 @@ export default function ProductsPage() {
               Tìm
             </button>
           </div>
+          <div className="flex flex-col w-full gap-2 sm:flex-row sm:items-center sm:justify-end">
+            <select
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={filterBrand}
+              onChange={(e) => {
+                setFilterBrand(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">Thương hiệu: tất cả</option>
+              {brands.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+            <select
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={filterType}
+              onChange={(e) => {
+                setFilterType(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">Loại: tất cả</option>
+              {types.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+            <select
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              value={sortKey}
+              onChange={(e) => {
+                setSortKey(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="updatedAt_desc">Sắp xếp: cập nhật mới → cũ</option>
+              <option value="updatedAt_asc">Sắp xếp: cập nhật cũ → mới</option>
+              <option value="name_asc">Tên A → Z</option>
+              <option value="name_desc">Tên Z → A</option>
+              <option value="sku_asc">SKU A → Z</option>
+              <option value="sku_desc">SKU Z → A</option>
+              <option value="brand_asc">Thương hiệu A → Z</option>
+              <option value="brand_desc">Thương hiệu Z → A</option>
+              <option value="type_asc">Loại A → Z</option>
+              <option value="type_desc">Loại Z → A</option>
+            </select>
+          </div>
           <button
             onClick={() => setShowCreate((v) => !v)}
             className="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
@@ -1901,6 +2016,18 @@ export default function ProductsPage() {
                 <option value="">Báo giá: giữ nguyên</option>
                 <option value="direct">Bán trực tiếp</option>
                 <option value="quote">Cần báo giá</option>
+              </select>
+              <select
+                className="rounded border border-gray-300 bg-white px-2 py-1 text-sm"
+                value={bulkType}
+                onChange={(e) => setBulkType(e.target.value)}
+              >
+                <option value="">Loại sản phẩm: giữ nguyên</option>
+                {types.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
               </select>
               <div className="flex flex-wrap items-center gap-2">
                 <button
@@ -1986,14 +2113,15 @@ export default function ProductsPage() {
                     onChange={(e) => handleToggleAllCurrent(e.target.checked)}
                   />
                 </th>
-                <th className="px-3 py-2 text-left">STT</th>
-                <th className="px-3 py-2 text-left">Ảnh</th>
-                <th className="px-3 py-2 text-left">Sản phẩm</th>
-                <th className="px-3 py-2 text-left">Mã sản phẩm</th>
-                <th className="px-3 py-2 text-left">Nguồn hàng</th>
-                <th className="px-3 py-2 text-left">Giá</th>
-                <th className="px-3 py-2 text-center">Tồn kho</th>
-                <th className="px-3 py-2 text-center">Tình trạng bán</th>
+            <th className="px-3 py-2 text-left">STT</th>
+            <th className="px-3 py-2 text-left">Ảnh</th>
+            <th className="px-3 py-2 text-left">Sản phẩm</th>
+            <th className="px-3 py-2 text-left">Loại</th>
+            <th className="px-3 py-2 text-left">Mã sản phẩm</th>
+            <th className="px-3 py-2 text-left">Nguồn hàng</th>
+            <th className="px-3 py-2 text-left">Giá</th>
+            <th className="px-3 py-2 text-center">Tồn kho</th>
+            <th className="px-3 py-2 text-center">Tình trạng bán</th>
                 <th className="px-3 py-2 text-center">Trạng thái</th>
                 <th className="px-3 py-2 text-left">Cập nhật</th>
                 <th className="px-3 py-2 text-center">Thao tác</th>
@@ -2052,9 +2180,45 @@ export default function ProductsPage() {
                       <div className="mt-1 text-xs text-gray-500">
                         Thương hiệu: {r.brand?.name || "—"}
                       </div>
-                      <div className="mt-1 text-xs text-gray-400">
-                        Loại: {r.type?.name || "—"}
-                      </div>
+                    </td>
+
+                    <td className="px-3 py-2 align-top text-xs text-gray-900">
+                      <select
+                        className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        value={r.type?.id ?? ""}
+                        onChange={(e) => {
+                          const nextTypeId = e.target.value;
+                          if (!nextTypeId) {
+                            toast.error("Loại sản phẩm là bắt buộc.");
+                            return;
+                          }
+                          setRowUpdatingTypeId(r.id);
+                          patchJSON(`/api/admin/products/${r.id}`, { typeId: nextTypeId })
+                            .then(() => {
+                              const typeName =
+                                types.find((t) => t.id === nextTypeId)?.name || r.type?.name || "—";
+                              setRows((prev) =>
+                                prev.map((row) =>
+                                  row.id === r.id ? { ...row, type: { id: nextTypeId, name: typeName } } : row,
+                                ),
+                              );
+                              toast.success("Đã cập nhật loại sản phẩm");
+                            })
+                            .catch((error) => toast.error(extractErrorMessage(error)))
+                            .finally(() => setRowUpdatingTypeId((curr) => (curr === r.id ? null : curr)));
+                        }}
+                        disabled={rowUpdatingTypeId === r.id}
+                      >
+                        <option value="">Chọn loại</option>
+                        {types.map((t) => (
+                          <option key={t.id} value={t.id}>
+                            {t.name}
+                          </option>
+                        ))}
+                      </select>
+                      {rowUpdatingTypeId === r.id && (
+                        <div className="mt-1 text-[11px] text-gray-500">Đang lưu...</div>
+                      )}
                     </td>
 
                     <td className="px-3 py-2 align-top text-sm font-mono text-gray-900">
@@ -2168,7 +2332,7 @@ export default function ProductsPage() {
                 <tr>
                   <td
                     className="px-3 py-6 text-center text-sm text-gray-500"
-                    colSpan={12}
+                    colSpan={13}
                   >
                     Không có dữ liệu
                   </td>
@@ -2178,7 +2342,7 @@ export default function ProductsPage() {
               {loadingList && !rows.length && (
                 <tr>
                   <td
-                    colSpan={12}
+                    colSpan={13}
                     className="px-3 py-6 text-center text-sm text-gray-400"
                   >
                     Đang tải dữ liệu...
@@ -2845,6 +3009,56 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
+      <Dialog
+        open={importConfirmOpen}
+        onOpenChange={(open) => {
+          if (!open) handleCancelImportConfirm();
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Xác nhận thông tin mặc định</DialogTitle>
+            <DialogDescription>
+              Hệ thống sẽ dùng các giá trị mặc định này cho toàn bộ sản phẩm trong file.
+              Vui lòng kiểm tra trước khi chọn / tải file.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 text-sm text-gray-700">
+            <div className="rounded-lg border border-gray-100 bg-gray-50 p-3">
+              <div>Thương hiệu: <span className="font-semibold">{defaultBrandName}</span></div>
+              <div>Loại sản phẩm: <span className="font-semibold">{defaultTypeName}</span></div>
+              <div>Nguồn hàng: <span className="font-semibold">{defaultSupplierName}</span></div>
+            </div>
+            {importIntent?.mode === "drop" && (
+              <div className="text-xs text-gray-500">
+                File sẽ xử lý: <span className="font-semibold text-gray-700">{importIntent.file.name}</span>
+              </div>
+            )}
+            {(!defaultBrand || !defaultType) && (
+              <div className="text-xs text-red-600">
+                Bạn cần chọn thương hiệu và loại mặc định trước khi nhập file.
+              </div>
+            )}
+          </div>
+          <DialogFooter className="gap-2">
+            <button
+              type="button"
+              className="rounded-md border px-4 py-2"
+              onClick={handleCancelImportConfirm}
+            >
+              Huỷ
+            </button>
+            <button
+              type="button"
+              className="rounded-md bg-blue-600 px-4 py-2 text-white disabled:opacity-60"
+              onClick={handleConfirmImport}
+              disabled={!defaultBrand || !defaultType}
+            >
+              Tôi đã chọn đúng
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog
         open={!!confirmAction}
         onOpenChange={(open) => {

@@ -52,7 +52,9 @@ export const ProductCreateSchema = z.object({
   reorderQty: z.number().int().nonnegative().optional().nullable(),
   status: PublishStatusEnum,
 });
-export const ProductUpdateSchema = ProductCreateSchema.partial();
+export const ProductUpdateSchema = ProductCreateSchema.partial().extend({
+  coverImage: z.string().url().nullable().optional(),
+});
 
 export const SpecDefCreateSchema = z.object({
   name: z.string().min(1),
