@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { parsePaging, jsonOk, jsonError, toHttpError } from "@/lib/http";
 import { slugify } from "@/lib/slug";
@@ -46,6 +47,9 @@ export async function GET(req: NextRequest) {
     const q = searchParams.get("q") || "";
     const brandId = searchParams.get("brandId") || undefined;
     const typeId = searchParams.get("typeId") || undefined;
+    const sortByParam = searchParams.get("sortBy") || "updatedAt";
+    const sortOrderParam: Prisma.SortOrder =
+      searchParams.get("sortOrder") === "asc" ? "asc" : "desc";
     const status = searchParams.get("status") as z.infer<
       typeof PublishStatusEnum
     > | null;
@@ -57,6 +61,8 @@ export async function GET(req: NextRequest) {
           { name: { contains: q } },
           { sku: { contains: q } },
           { saleCode: { contains: q } },
+          { brand: { name: { contains: q } } },
+          { producttype: { name: { contains: q } } },
         ],
       }),
       ...(brandId && { brandId }),
@@ -64,11 +70,29 @@ export async function GET(req: NextRequest) {
       ...(status && { status }),
     };
 
+    let orderBy: Prisma.productOrderByWithRelationInput;
+    switch (sortByParam) {
+      case "name":
+        orderBy = { name: sortOrderParam };
+        break;
+      case "sku":
+        orderBy = { sku: sortOrderParam };
+        break;
+      case "brand":
+        orderBy = { brand: { name: sortOrderParam } };
+        break;
+      case "type":
+        orderBy = { producttype: { name: sortOrderParam } };
+        break;
+      default:
+        orderBy = { updatedAt: sortOrderParam };
+    }
+
     const [total, rows] = await Promise.all([
       prisma.product.count({ where }),
       prisma.product.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy,
         skip,
         take,
         select: {
