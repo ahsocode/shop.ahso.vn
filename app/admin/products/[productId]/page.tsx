@@ -576,33 +576,17 @@ const parsePercentOrNull = (v: string) => {
     if (galleryFileInputRef.current) {
       galleryFileInputRef.current.value = "";
     }
-
-    // Nhiều ảnh: upload trực tiếp tuần tự, không crop
-    if (files.length > 1) {
-      setGalleryUploading(true);
-      try {
-        for (const file of files) {
-          await uploadGalleryImage(file);
-        }
-        toast.success(`Đã tải ${files.length} ảnh`);
-      } catch (error) {
-        toast.error(extractErrorMessage(error));
-      } finally {
-        setGalleryUploading(false);
+    setGalleryUploading(true);
+    try {
+      for (const file of files) {
+        await uploadGalleryImage(file);
       }
-      return;
+      toast.success(`Đã tải ${files.length} ảnh`);
+    } catch (error) {
+      toast.error(extractErrorMessage(error));
+    } finally {
+      setGalleryUploading(false);
     }
-
-    // 1 ảnh: giữ flow crop
-    const file = files[0];
-    const url = URL.createObjectURL(file);
-    setGalleryCropSource((prev) => {
-      if (prev?.revokeOnClose && prev.url) {
-        URL.revokeObjectURL(prev.url);
-      }
-      return { url, fileName: file.name, revokeOnClose: true };
-    });
-    setGalleryCropOpen(true);
   };
 
   const uploadGalleryImage = async (file: File) => {
