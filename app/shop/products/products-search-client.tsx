@@ -280,21 +280,18 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
           </Link>
 
           <div className="p-5 flex-1 flex flex-col">
-            <div className="flex items-start justify-between gap-4 mb-3">
-              <div className="flex-1 min-w-0">
-                <Link
-                  href={`/shop/products/${product.slug}`}
-                  className="font-semibold text-lg text-gray-900 hover:text-blue-600 transition-colors line-clamp-2 mb-1"
-                >
-                  {product.name}
-                </Link>
-                <div className="text-sm text-gray-500 mb-2">SKU: {product.sku}</div>
-                <div className="inline-block px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
-                  {brandLabel}
-                </div>
+            <div className="flex flex-col gap-2 mb-3">
+              <Link
+                href={`/shop/products/${product.slug}`}
+                className="font-semibold text-lg text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
+              >
+                {product.name}
+              </Link>
+              <div className="text-sm text-gray-500">SKU: {product.sku}</div>
+              <div className="inline-block px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium w-fit">
+                {brandLabel}
               </div>
-
-              <div className="text-right shrink-0">{renderPriceBlock()}</div>
+              <div>{renderPriceBlock("left")}</div>
             </div>
 
             {rating > 0 && (
@@ -765,7 +762,7 @@ export default function ProductsSearchClient() {
   const [inStock, setInStock] = useState(searchParams.get("inStock") === "true");
   const [sort, setSort] = useState(searchParams.get("sort") || "relevance");
   const [page, setPage] = useState(parseInt(searchParams.get("page") || "1"));
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
   const pageSize = 12;
 
@@ -818,48 +815,92 @@ export default function ProductsSearchClient() {
 
   // Fetch brands and categories
   useEffect(() => {
-    Promise.all([
-      fetch("/api/brands").then((r) => r.json()),
-      fetch("/api/categories").then((r) => r.json()),
-    ])
-      .then(([brandsData, categoriesData]) => {
-        if (brandsData?.success && brandsData?.data) {
-          setBrands(brandsData.data);
-        }
-        if (categoriesData?.success && categoriesData?.data) {
-          setCategories(categoriesData.data);
-        }
-      })
-      .catch((err) => {
-        console.error("Error fetching filters:", err);
-      });
-  }, []);
-
-  // Fetch product types, optionally filtered by category
-  useEffect(() => {
     const controller = new AbortController();
+    let ignore = false;
     const params = new URLSearchParams();
+    if (brand) params.set("brand", brand);
     if (category) params.set("category", category);
+    if (productType) params.set("type", productType);
     const query = params.toString();
 
-    fetch(`/api/product-types${query ? `?${query}` : ""}`, { signal: controller.signal })
+    const loadFallback = async () => {
+      try {
+        const [brandsRes, categoriesRes, typesRes] = await Promise.all([
+          fetch("/api/brands", { signal: controller.signal }).then((r) => r.json()).catch(() => null),
+          fetch("/api/categories", { signal: controller.signal }).then((r) => r.json()).catch(() => null),
+          fetch(`/api/product-types${category ? `?category=${category}` : ""}`, { signal: controller.signal })
+            .then((r) => r.json())
+            .catch(() => null),
+        ]);
+        if (ignore) return;
+        if (brandsRes?.success && Array.isArray(brandsRes.data)) setBrands(brandsRes.data);
+        if (categoriesRes?.success && Array.isArray(categoriesRes.data)) setCategories(categoriesRes.data);
+        if (typesRes?.success && Array.isArray(typesRes.data)) setProductTypes(typesRes.data);
+      } catch (error) {
+        const err = error as Error;
+        if (err?.name === "AbortError") return;
+        console.error("Fallback filter load error:", err);
+      }
+    };
+
+    fetch(`/api/products/filter-options${query ? `?${query}` : ""}`, {
+      signal: controller.signal,
+    })
       .then((r) => r.json())
       .then((json) => {
-        if (json?.success && Array.isArray(json.data)) {
-          setProductTypes(json.data);
+        if (ignore) return;
+        if (json?.success && json.data) {
+          const nextBrands: BrandOpt[] = json.data.brands ?? [];
+          const nextCategories: CategoryOpt[] = json.data.categories ?? [];
+          const nextTypes: ProductTypeOpt[] = json.data.productTypes ?? [];
+
+          // Nếu tất cả rỗng, fallback để tránh UI trống
+          if (!nextBrands.length && !nextCategories.length && !nextTypes.length) {
+            return loadFallback();
+          }
+
+          setBrands(nextBrands);
+          setCategories(nextCategories);
+          setProductTypes(nextTypes);
+
+          let nextCategory = category;
+          let nextType = productType;
+          let changed = false;
+
+          if (nextCategory && !nextCategories.some((c) => c.slug === nextCategory)) {
+            nextCategory = "";
+            nextType = "";
+            changed = true;
+          }
+          if (nextType && !nextTypes.some((t) => t.slug === nextType)) {
+            nextType = "";
+            changed = true;
+          }
+
+          if (changed) {
+            setCategory(nextCategory);
+            setProductType(nextType);
+            setPage(1);
+            syncFiltersToUrl(
+              { category: nextCategory, productType: nextType, page: 1 },
+              { method: "replace" },
+            );
+          }
         } else {
-          console.warn("Unexpected product type response", json);
-          setProductTypes([]);
+          loadFallback();
         }
       })
       .catch((err) => {
         if (err?.name === "AbortError") return;
-        console.error("Error fetching product types:", err);
-        setProductTypes([]);
+        console.error("Error fetching filters:", err);
+        loadFallback();
       });
 
-    return () => controller.abort();
-  }, [category]);
+    return () => {
+      ignore = true;
+      controller.abort();
+    };
+  }, [brand, category, productType, syncFiltersToUrl]);
 
   // Fetch products
   useEffect(() => {
@@ -970,19 +1011,19 @@ export default function ProductsSearchClient() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Thương hiệu
                   </label>
-                  <select
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-50 outline-none text-sm"
-                    value={brand}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setBrand(value);
-                      setPage(1);
-                      syncFiltersToUrl({ brand: value, page: 1 });
-                    }}
-                  >
-                    <option value="">Tất cả</option>
-                    {brands.map((b) => (
-                      <option key={b.slug} value={b.slug}>
+                <select
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-50 outline-none text-sm"
+                  value={brand}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setBrand(value);
+                    setPage(1);
+                    syncFiltersToUrl({ brand: value, page: 1 });
+                  }}
+                >
+                  <option value="">Tất cả</option>
+                  {brands.map((b) => (
+                    <option key={b.slug} value={b.slug}>
                         {b.name} {b.productCount ? `(${b.productCount})` : ""}
                       </option>
                     ))}
@@ -994,20 +1035,20 @@ export default function ProductsSearchClient() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Danh mục
                   </label>
-                  <select
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-50 outline-none text-sm"
-                    value={category}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setCategory(value);
-                      setProductType("");
-                      setPage(1);
-                      syncFiltersToUrl({ category: value, productType: "", page: 1 });
-                    }}
-                  >
-                    <option value="">Tất cả</option>
-                    {categories.map((c) => (
-                      <option key={c.slug} value={c.slug}>
+                <select
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-50 outline-none text-sm"
+                  value={category}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setCategory(value);
+                    setProductType("");
+                    setPage(1);
+                    syncFiltersToUrl({ category: value, productType: "", page: 1 });
+                  }}
+                >
+                  <option value="">Tất cả</option>
+                  {categories.map((c) => (
+                    <option key={c.slug} value={c.slug}>
                         {c.name} {c.productCount ? `(${c.productCount})` : ""}
                       </option>
                     ))}

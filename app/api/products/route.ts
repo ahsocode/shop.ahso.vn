@@ -183,9 +183,9 @@ export async function GET(request: NextRequest) {
       ...(!isAll && status && { status }),
       ...(search && {
         OR: [
-          { name: { contains: search } },
-          { description: { contains: search } },
-          { sku: { contains: search } },
+          { name: { contains: search, mode: "insensitive" } },
+          { description: { contains: search, mode: "insensitive" } },
+          { sku: { contains: search, mode: "insensitive" } },
         ],
       }),
       ...(brandSlug && { brand: { is: { slug: brandSlug } } }),

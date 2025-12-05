@@ -262,6 +262,8 @@ export default function ProductsPage() {
     preview: "",
     uploading: false,
   });
+  const [bulkLibrarySelection, setBulkLibrarySelection] = useState<string[]>([]);
+  const [bulkLibraryApplying, setBulkLibraryApplying] = useState(false);
   const [bulkUpdating, setBulkUpdating] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [rowDeletingId, setRowDeletingId] = useState<string | null>(null);
@@ -305,6 +307,8 @@ export default function ProductsPage() {
   >([]);
   const [libraryNextCursor, setLibraryNextCursor] = useState<string | null>(null);
   const [libraryError, setLibraryError] = useState<string | null>(null);
+  const [libraryMode, setLibraryMode] = useState<"single" | "bulk">("single");
+  const [libraryTypeId, setLibraryTypeId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<ProductDraft[]>([]);
   const [selectedDraftIds, setSelectedDraftIds] = useState<string[]>([]);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -399,15 +403,25 @@ export default function ProductsPage() {
     galleryFileInputRef.current?.click();
   };
 
-  const fetchLibrary = async (cursor?: string) => {
-    if (!form.typeId) {
+  const fetchLibrary = async (
+    cursor?: string,
+    options?: { mode?: "single" | "bulk"; typeId?: string | null },
+  ) => {
+    const targetTypeId = options?.typeId ?? form.typeId ?? null;
+    const mode = options?.mode ?? "single";
+    if (!targetTypeId) {
       toast.error("Vui lòng chọn loại sản phẩm trước khi mở thư viện");
       return;
+    }
+    setLibraryMode(mode);
+    setLibraryTypeId(targetTypeId);
+    if (mode === "bulk" && !cursor) {
+      setBulkLibrarySelection([]);
     }
     setLibraryLoading(true);
     setLibraryError(null);
     try {
-      const params = new URLSearchParams({ typeId: form.typeId });
+      const params = new URLSearchParams({ typeId: targetTypeId });
       if (cursor) params.set("nextCursor", cursor);
       const res = await fetch(`/api/admin/products/gallery?${params.toString()}`, {
         method: "GET",
@@ -813,11 +827,69 @@ export default function ProductsPage() {
     selectedProductIds.includes(id),
   );
   const selectedCount = selectedProductIds.length;
+  const toggleBulkLibrarySelection = (url: string) => {
+    setBulkLibrarySelection((prev) =>
+      prev.includes(url) ? prev.filter((item) => item !== url) : [...prev, url],
+    );
+  };
+  const openBulkLibraryPicker = () => {
+    if (!selectedCount) {
+      toast.error("Vui lòng chọn sản phẩm trước khi gán ảnh có sẵn");
+      return;
+    }
+    const typeIdForLibrary = bulkType || filterType || null;
+    if (!typeIdForLibrary) {
+      toast.error("chức năng chỉ khả dụng khi đã sorting theo loại sản phẩm để tránh gây sai sót trong quá trình cập nhât");
+      return;
+    }
+    fetchLibrary(undefined, { mode: "bulk", typeId: typeIdForLibrary });
+  };
+  const applyBulkLibrarySelection = async () => {
+    if (!selectedCount) {
+      toast.error("Vui lòng chọn sản phẩm trước khi gán ảnh");
+      return false;
+    }
+    if (!bulkLibrarySelection.length) {
+      toast.error("Vui lòng chọn ít nhất một ảnh trong thư viện");
+      return false;
+    }
+    setBulkLibraryApplying(true);
+    try {
+      const payload = {
+        productIds: selectedProductIds,
+        images: bulkLibrarySelection.map((url) => ({ url })),
+      };
+      await postJSON("/api/admin/products/bulk-link-images", payload);
+      toast.success(`Đã gán ${bulkLibrarySelection.length} ảnh cho sản phẩm đã chọn`);
+      setLibraryOpen(false);
+      setBulkLibrarySelection([]);
+      triggerReload();
+      return true;
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Không thể gán ảnh từ thư viện",
+      );
+      return false;
+    } finally {
+      setBulkLibraryApplying(false);
+    }
+  };
   const bulkFormFilled = Boolean(
-    bulkSupplier || bulkStatus || bulkQuote || bulkType || bulkImage.file,
+    bulkSupplier ||
+      bulkStatus ||
+      bulkQuote ||
+      bulkType ||
+      bulkImage.file ||
+      bulkLibrarySelection.length,
   );
   const bulkDisabled =
-    !selectedCount || !bulkFormFilled || bulkUpdating || bulkImage.uploading;
+    !selectedCount ||
+    !bulkFormFilled ||
+    bulkUpdating ||
+    bulkImage.uploading ||
+    bulkLibraryApplying;
   const statusMap: Record<
     Row["status"],
     { label: string; className: string }
@@ -958,6 +1030,11 @@ export default function ProductsPage() {
 
       if (bulkImage.file) {
         await handleBulkImageUpload();
+      }
+
+      if (bulkLibrarySelection.length) {
+        const applied = await applyBulkLibrarySelection();
+        if (!applied) throw new Error("Không thể gán ảnh từ thư viện");
       }
 
       setSelectedProductIds([]);
@@ -1248,53 +1325,38 @@ export default function ProductsPage() {
     }
     if (!ensureUploadPrerequisites()) return;
 
-    // Nếu chọn nhiều ảnh: upload tuần tự, tự thêm dòng ảnh
-    if (files.length > 1) {
-      setGalleryUploadingId(-1);
-      try {
-        let nextId = imageRows.length ? imageRows[imageRows.length - 1].id + 1 : 1;
-        const sequenceBase = imageRows.length ? imageRows.length + 1 : 1;
-        const targetId = galleryTargetId ?? imageRows[0]?.id ?? null;
-        let rows = [...imageRows];
+    setGalleryUploadingId(files.length === 1 && galleryTargetId ? galleryTargetId : -1);
+    try {
+      let nextId = imageRows.length ? imageRows[imageRows.length - 1].id + 1 : 1;
+      const sequenceBase = imageRows.length ? imageRows.length + 1 : 1;
+      const targetId = galleryTargetId ?? imageRows[0]?.id ?? null;
+      let rows = [...imageRows];
 
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const sequence = sequenceBase + i;
-          const url = await uploadTempImage(file, "gallery", sequence);
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const sequence = sequenceBase + i;
+        const url = await uploadTempImage(file, "gallery", sequence);
 
-          if (i === 0 && targetId !== null) {
-            rows = rows.map((r) => (r.id === targetId ? { ...r, url, sortOrder: String(sequence) } : r));
-          } else {
-            rows = [
-              ...rows,
-              { id: nextId++, url, alt: "", sortOrder: String(sequence) },
-            ];
-          }
+        if (i === 0 && targetId !== null) {
+          rows = rows.map((r) => (r.id === targetId ? { ...r, url, sortOrder: String(sequence) } : r));
+        } else {
+          rows = [
+            ...rows,
+            { id: nextId++, url, alt: "", sortOrder: String(sequence) },
+          ];
         }
-        setImageRows(rows);
-        if (coverImageId === null && rows.length) {
-          setCoverImageId(rows[0].id);
-        }
-        toast.success(`Đã tải ${files.length} ảnh`);
-      } catch (error) {
-        toast.error(extractErrorMessage(error));
-      } finally {
-        setGalleryUploadingId(null);
-        setGalleryTargetId(null);
       }
-      return;
+      setImageRows(rows);
+      if (coverImageId === null && rows.length) {
+        setCoverImageId(rows[0].id);
+      }
+      toast.success(`Đã tải ${files.length} ảnh`);
+    } catch (error) {
+      toast.error(extractErrorMessage(error));
+    } finally {
+      setGalleryUploadingId(null);
+      setGalleryTargetId(null);
     }
-
-    // Một ảnh: dùng flow crop cũ
-    const file = files[0];
-    const url = URL.createObjectURL(file);
-    setGalleryCropSource((prev) => {
-      if (prev?.revokeOnClose && prev.url) {
-        URL.revokeObjectURL(prev.url);
-      }
-      return { url, fileName: file.name, revokeOnClose: true };
-    });
-    setGalleryCropOpen(true);
   };
 
   const handleGalleryCropComplete = async (result: {
@@ -2131,6 +2193,19 @@ export default function ProductsPage() {
                 >
                   {bulkImage.fileName ? "Đổi ảnh" : "Tải ảnh lên"}
                 </button>
+                <button
+                  type="button"
+                  onClick={openBulkLibraryPicker}
+                  className="rounded border border-blue-200 bg-blue-50 px-2 py-1 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={bulkLibraryApplying || bulkUpdating}
+                >
+                  Chọn ảnh sẵn có
+                </button>
+                {bulkLibrarySelection.length > 0 && (
+                  <span className="text-xs text-gray-600">
+                    Đang chọn {bulkLibrarySelection.length} ảnh từ thư viện
+                  </span>
+                )}
                 {bulkImage.fileName && (
                   <div className="flex items-center gap-2">
                     <div className="relative h-8 w-8 overflow-hidden rounded border border-gray-200 bg-white">
@@ -2846,7 +2921,7 @@ export default function ProductsPage() {
             <div className="flex flex-wrap items-center gap-2 text-xs">
               <button
                 type="button"
-                onClick={() => fetchLibrary()}
+                onClick={() => fetchLibrary(undefined, { mode: "single" })}
                 className="rounded border border-gray-300 bg-white px-3 py-1.5 font-medium text-gray-700 shadow-sm hover:bg-gray-50"
               >
                 Chọn từ thư viện (theo loại sản phẩm)
@@ -3108,7 +3183,15 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
-      <Dialog open={libraryOpen} onOpenChange={(open) => setLibraryOpen(open)}>
+      <Dialog
+        open={libraryOpen}
+        onOpenChange={(open) => {
+          setLibraryOpen(open);
+          if (!open && libraryMode === "bulk") {
+            setBulkLibrarySelection([]);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>Thư viện ảnh theo loại sản phẩm</DialogTitle>
@@ -3126,8 +3209,16 @@ export default function ProductsPage() {
               <button
                 key={asset.publicId}
                 type="button"
-                onClick={() => addImageFromLibrary(asset)}
-                className="group overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:border-blue-400 hover:shadow-md"
+                onClick={() =>
+                  libraryMode === "bulk"
+                    ? toggleBulkLibrarySelection(asset.secureUrl)
+                    : addImageFromLibrary(asset)
+                }
+                className={`group overflow-hidden rounded-lg border bg-white shadow-sm transition hover:border-blue-400 hover:shadow-md ${
+                  libraryMode === "bulk" && bulkLibrarySelection.includes(asset.secureUrl)
+                    ? "border-blue-500 ring-2 ring-blue-100"
+                    : "border-gray-200"
+                }`}
               >
                 <div className="relative aspect-square w-full bg-gray-100">
                   <Image
@@ -3137,6 +3228,11 @@ export default function ProductsPage() {
                     sizes="200px"
                     className="object-cover transition duration-200 group-hover:scale-[1.02]"
                   />
+                  {libraryMode === "bulk" && bulkLibrarySelection.includes(asset.secureUrl) && (
+                    <div className="absolute right-2 top-2 rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-semibold text-white shadow">
+                      Chọn
+                    </div>
+                  )}
                 </div>
                 <div className="p-2 text-left">
                   <div className="text-[11px] font-semibold text-gray-800 truncate">
@@ -3156,13 +3252,33 @@ export default function ProductsPage() {
           )}
           <DialogFooter className="flex items-center justify-between gap-2">
             <div className="text-xs text-gray-500">
-              Thư mục: {form.typeId ? "gallery theo loại sản phẩm" : "—"}
+              Thư mục: {libraryTypeId ? "gallery theo loại sản phẩm" : "—"}
             </div>
             <div className="flex gap-2">
+              {libraryMode === "bulk" && (
+                <>
+                  <div className="self-center text-xs text-gray-600">
+                    Đã chọn {bulkLibrarySelection.length} ảnh
+                  </div>
+                  <button
+                    type="button"
+                    onClick={applyBulkLibrarySelection}
+                    className="rounded border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-60"
+                    disabled={bulkLibraryApplying}
+                  >
+                    {bulkLibraryApplying ? "Đang gán..." : "Gán cho sản phẩm đã chọn"}
+                  </button>
+                </>
+              )}
               {libraryNextCursor ? (
                 <button
                   type="button"
-                  onClick={() => fetchLibrary(libraryNextCursor ?? undefined)}
+                  onClick={() =>
+                    fetchLibrary(libraryNextCursor ?? undefined, {
+                      mode: libraryMode,
+                      typeId: libraryTypeId,
+                    })
+                  }
                   className="rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-60"
                   disabled={libraryLoading}
                 >
