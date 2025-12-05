@@ -103,6 +103,7 @@ type ProductDraft = {
   status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   issues: string[];
   mode: "create" | "update";
+  changeStatus?: "create" | "update" | "duplicate";
   missing: {
     brand?: string;
     type?: string;
@@ -243,7 +244,7 @@ const DEFAULT_FORM = {
 type FormState = typeof DEFAULT_FORM;
 
 export default function ProductsPage() {
-  const pageSize = 100;
+  const pageSize = 50;
   const [keyword, setKeyword] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -287,15 +288,7 @@ export default function ProductsPage() {
     { id: 1, url: "", alt: "", sortOrder: "" },
   ]);
   const selectAllRef = useRef<HTMLInputElement | null>(null);
-  const coverFileInputRef = useRef<HTMLInputElement | null>(null);
   const galleryFileInputRef = useRef<HTMLInputElement | null>(null);
-  const [coverCropOpen, setCoverCropOpen] = useState(false);
-  const [coverCropSource, setCoverCropSource] = useState<{
-    url: string;
-    fileName: string;
-    revokeOnClose: boolean;
-  } | null>(null);
-  const [coverUploading, setCoverUploading] = useState(false);
   const [galleryCropOpen, setGalleryCropOpen] = useState(false);
   const [galleryCropSource, setGalleryCropSource] = useState<{
     url: string;
@@ -304,6 +297,14 @@ export default function ProductsPage() {
   } | null>(null);
   const [galleryTargetId, setGalleryTargetId] = useState<number | null>(null);
   const [galleryUploadingId, setGalleryUploadingId] = useState<number | null>(null);
+  const [coverImageId, setCoverImageId] = useState<number | null>(null);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [libraryLoading, setLibraryLoading] = useState(false);
+  const [libraryItems, setLibraryItems] = useState<
+    { publicId: string; secureUrl: string; width: number; height: number; bytes: number; createdAt: string }[]
+  >([]);
+  const [libraryNextCursor, setLibraryNextCursor] = useState<string | null>(null);
+  const [libraryError, setLibraryError] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<ProductDraft[]>([]);
   const [selectedDraftIds, setSelectedDraftIds] = useState<string[]>([]);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -327,10 +328,27 @@ export default function ProductsPage() {
   const [sortKey, setSortKey] = useState("updatedAt_desc");
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const importableDrafts = drafts.filter(
+    (draft) => (draft.changeStatus ?? draft.mode) !== "duplicate",
+  );
   const rowsToImport =
     importSelection === "selected"
-      ? drafts.filter((draft) => selectedDraftIds.includes(draft.tempId))
-      : drafts;
+      ? drafts.filter(
+          (draft) =>
+            (draft.changeStatus ?? draft.mode) !== "duplicate" &&
+            selectedDraftIds.includes(draft.tempId),
+        )
+      : importableDrafts;
+
+  useEffect(() => {
+    setSelectedDraftIds((prev) =>
+      prev.filter((id) =>
+        drafts.some(
+          (d) => d.tempId === id && (d.changeStatus ?? d.mode) !== "duplicate",
+        ),
+      ),
+    );
+  }, [drafts]);
 
   const MAX_SELECTION = 50;
   const triggerReload = () => setReloadToken((token) => token + 1);
@@ -375,7 +393,75 @@ export default function ProductsPage() {
     return (data?.data?.url as string) ?? "";
   };
 
+  const openGalleryPicker = () => {
+    if (!ensureUploadPrerequisites()) return;
+    setGalleryTargetId(imageRows[0]?.id ?? null);
+    galleryFileInputRef.current?.click();
+  };
+
+  const fetchLibrary = async (cursor?: string) => {
+    if (!form.typeId) {
+      toast.error("Vui lòng chọn loại sản phẩm trước khi mở thư viện");
+      return;
+    }
+    setLibraryLoading(true);
+    setLibraryError(null);
+    try {
+      const params = new URLSearchParams({ typeId: form.typeId });
+      if (cursor) params.set("nextCursor", cursor);
+      const res = await fetch(`/api/admin/products/gallery?${params.toString()}`, {
+        method: "GET",
+        headers: makeHeaders(),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(getErrorMessage(data, "Không thể tải thư viện ảnh"));
+      }
+      const items = (data?.items ??
+        []) as { publicId: string; secureUrl: string; width: number; height: number; bytes: number; createdAt: string }[];
+      setLibraryItems((prev) => (cursor ? [...prev, ...items] : items));
+      setLibraryNextCursor((data?.nextCursor as string | null) ?? null);
+      setLibraryOpen(true);
+    } catch (error) {
+      const message = extractErrorMessage(error);
+      setLibraryError(message);
+      toast.error(message);
+    } finally {
+      setLibraryLoading(false);
+    }
+  };
+
+  const addImageFromLibrary = (asset: {
+    publicId: string;
+    secureUrl: string;
+    width: number;
+    height: number;
+    bytes: number;
+    createdAt: string;
+  }) => {
+    let createdId: number | null = null;
+    setImageRows((prev) => {
+      if (prev.some((row) => row.url === asset.secureUrl)) return prev;
+      const nextId = prev.length ? prev[prev.length - 1].id + 1 : 1;
+      const nextSort = prev.length ? prev.length + 1 : 1;
+      createdId = nextId;
+      return [
+        ...prev,
+        { id: nextId, url: asset.secureUrl, alt: "", sortOrder: String(nextSort) },
+      ];
+    });
+    if (coverImageId === null && createdId !== null) {
+      setCoverImageId(createdId);
+    }
+    setLibraryOpen(false);
+    toast.success("Đã thêm ảnh từ thư viện");
+  };
+
   const handleBulkFile = async (file: File) => {
+    // Đảm bảo đóng modal xác nhận nếu vẫn đang mở
+    setImportConfirmOpen(false);
+    setImportIntent(null);
+
     if (!defaultBrand || !defaultType) {
       toast.error("Vui lòng chọn thương hiệu và loại mặc định trước khi tải file.");
       return;
@@ -565,10 +651,13 @@ export default function ProductsPage() {
 
   const handleCommitImport = async (selectedOnly?: boolean) => {
     const selectedIdsSnapshot = [...selectedDraftIds];
+    const importable = drafts.filter(
+      (draft) => (draft.changeStatus ?? draft.mode) !== "duplicate",
+    );
     const rowsToCommit =
       selectedOnly && selectedIdsSnapshot.length
-        ? drafts.filter((draft) => selectedIdsSnapshot.includes(draft.tempId))
-        : drafts;
+        ? importable.filter((draft) => selectedIdsSnapshot.includes(draft.tempId))
+        : importable;
     const hasError = rowsToCommit.some((row) => (row.issues?.length || 0) > 0);
     if (hasError) {
       toast.error("Có dòng lỗi, vui lòng sửa trước khi import");
@@ -1000,6 +1089,7 @@ export default function ProductsPage() {
     });
     setSpecRows([{ id: 1, name: "", value: "", unit: "", note: "" }]);
     setImageRows([{ id: 1, url: "", alt: "", sortOrder: "" }]);
+    setCoverImageId(null);
   };
 
   const handleCreate = async () => {
@@ -1050,6 +1140,11 @@ export default function ProductsPage() {
           };
         });
 
+      const coverFromRows =
+        imageRows.find((img) => img.id === coverImageId && img.url.trim())?.url ||
+        imageRows.find((img) => img.url.trim())?.url ||
+        undefined;
+
       await postJSON("/api/admin/products", {
         name: form.name.trim(),
         sku: form.sku.trim(),
@@ -1069,7 +1164,7 @@ export default function ProductsPage() {
         stockOnHand: parseNumber(form.stockOnHand),
         reorderLevel: parseNumber(form.reorderLevel),
         minOrderQty: parseNumber(form.minOrderQty),
-        coverImage: form.coverImage || undefined,
+        coverImage: coverFromRows,
         status: form.status as Row["status"],
         description: form.description || undefined,
         images: imagesPayload,
@@ -1139,51 +1234,6 @@ export default function ProductsPage() {
     );
   };
 
-  const handleCoverUploadClick = () => {
-    if (!ensureUploadPrerequisites()) return;
-    coverFileInputRef.current?.click();
-  };
-
-  const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (coverFileInputRef.current) {
-      coverFileInputRef.current.value = "";
-    }
-    const url = URL.createObjectURL(file);
-    setCoverCropSource((prev) => {
-      if (prev?.revokeOnClose && prev.url) {
-        URL.revokeObjectURL(prev.url);
-      }
-      return { url, fileName: file.name, revokeOnClose: true };
-    });
-    setCoverCropOpen(true);
-  };
-
-  const handleCoverCropComplete = async (result: {
-    file: File;
-    previewUrl: string;
-  }) => {
-    setCoverCropOpen(false);
-    setCoverUploading(true);
-    try {
-      const url = await uploadTempImage(result.file, "cover", 0);
-      setForm((prev) => ({ ...prev, coverImage: url }));
-      toast.success("Đã tải ảnh đại diện");
-    } catch (error) {
-      toast.error(extractErrorMessage(error));
-    } finally {
-      URL.revokeObjectURL(result.previewUrl);
-      setCoverCropSource((prev) => {
-        if (prev?.revokeOnClose && prev.url) {
-          URL.revokeObjectURL(prev.url);
-        }
-        return null;
-      });
-      setCoverUploading(false);
-    }
-  };
-
   const handleGalleryUploadClick = (rowId: number) => {
     if (!ensureUploadPrerequisites()) return;
     setGalleryTargetId(rowId);
@@ -1222,6 +1272,9 @@ export default function ProductsPage() {
           }
         }
         setImageRows(rows);
+        if (coverImageId === null && rows.length) {
+          setCoverImageId(rows[0].id);
+        }
         toast.success(`Đã tải ${files.length} ảnh`);
       } catch (error) {
         toast.error(extractErrorMessage(error));
@@ -1281,21 +1334,6 @@ export default function ProductsPage() {
     }
   };
 
-  const handleCoverDialogOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen) {
-      setCoverCropOpen(false);
-      setCoverCropSource((prev) => {
-        if (prev?.revokeOnClose && prev.url) {
-          URL.revokeObjectURL(prev.url);
-          return null;
-        }
-        return prev;
-      });
-    } else if (coverCropSource) {
-      setCoverCropOpen(true);
-    }
-  };
-
   const handleGalleryDialogOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
       setGalleryCropOpen(false);
@@ -1310,6 +1348,34 @@ export default function ProductsPage() {
       setGalleryCropOpen(true);
     }
   };
+
+  // Đồng bộ cover theo danh sách ảnh
+  useEffect(() => {
+    const validRows = imageRows.filter((row) => row.url.trim());
+    const currentCoverRow =
+      coverImageId !== null
+        ? validRows.find((row) => row.id === coverImageId)
+        : null;
+
+    if (!validRows.length) {
+      if (coverImageId !== null) setCoverImageId(null);
+      if (form.coverImage) setForm((prev) => ({ ...prev, coverImage: "" }));
+      return;
+    }
+
+    if (!currentCoverRow) {
+      const first = validRows[0];
+      setCoverImageId(first.id);
+      if (form.coverImage !== first.url) {
+        setForm((prev) => ({ ...prev, coverImage: first.url }));
+      }
+      return;
+    }
+
+    if (currentCoverRow.url && form.coverImage !== currentCoverRow.url) {
+      setForm((prev) => ({ ...prev, coverImage: currentCoverRow.url }));
+    }
+  }, [imageRows, coverImageId, form.coverImage]);
 
   // ===== JSX =====
   return (
@@ -1436,7 +1502,7 @@ export default function ProductsPage() {
                 Chỉnh sửa từng dòng hoặc áp dụng hàng loạt trước khi import.
               </div>
               <div className="text-xs text-gray-500 mt-1">
-                Đã chọn {selectedDraftIds.length}/{drafts.length} sản phẩm.
+                Đã chọn {selectedDraftIds.length}/{importableDrafts.length} sản phẩm (bỏ qua trùng lặp).
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
@@ -1514,9 +1580,16 @@ export default function ProductsPage() {
                     <input
                       type="checkbox"
                       className="h-5 w-5 cursor-pointer"
-                      checked={selectedDraftIds.length === drafts.length}
+                      checked={
+                        importableDrafts.length > 0 &&
+                        selectedDraftIds.length === importableDrafts.length
+                      }
                       onChange={(e) =>
-                        setSelectedDraftIds(e.target.checked ? drafts.map((d) => d.tempId) : [])
+                        setSelectedDraftIds(
+                          e.target.checked
+                            ? importableDrafts.map((d) => d.tempId)
+                            : [],
+                        )
                       }
                     />
                   </th>
@@ -1535,6 +1608,8 @@ export default function ProductsPage() {
               <tbody className="divide-y">
                 {drafts.map((draft) => {
                   const checked = selectedDraftIds.includes(draft.tempId);
+                  const status = draft.changeStatus ?? draft.mode;
+                  const isImportable = status !== "duplicate";
                   const normalizeIssues = (keywords: string[]) =>
                     (draft.issues || []).filter((issue) =>
                       keywords.some((keyword) => issue.toLowerCase().includes(keyword)),
@@ -1548,17 +1623,26 @@ export default function ProductsPage() {
                         issue.toLowerCase().includes(keyword),
                       ),
                   );
-                  const hasError = (draft.issues?.length || 0) > 0 || draft.missing.brand || draft.missing.type || (draft.missing.categories?.length || 0) > 0;
-                  const isUpdate = draft.mode === "update";
+                  const hasError =
+                    (draft.issues?.length || 0) > 0 ||
+                    draft.missing.brand ||
+                    draft.missing.type ||
+                    (draft.missing.categories?.length || 0) > 0;
+                  const isUpdate = status === "update";
+                  const isDuplicate = status === "duplicate";
                   const rowBg = hasError
                     ? "bg-red-50 border-red-200"
                     : isUpdate
                     ? "bg-amber-50 border-amber-200"
+                    : isDuplicate
+                    ? "bg-gray-200 border-gray-300"
                     : "bg-blue-50 border-blue-200";
                   const rowBorder = hasError
                     ? "border-l-4 border-red-400"
                     : isUpdate
                     ? "border-l-4 border-amber-400"
+                    : isDuplicate
+                    ? "border-l-4 border-gray-500"
                     : "border-l-4 border-blue-400";
                   return (
                     <tr
@@ -1568,6 +1652,7 @@ export default function ProductsPage() {
                       <td
                         className="px-2 py-3 cursor-pointer align-middle"
                         onClick={(e) => {
+                          if (!isImportable) return;
                           // tránh toggle khi bấm trực tiếp vào input/label con
                           if ((e.target as HTMLElement).tagName.toLowerCase() === "input") return;
                           setSelectedDraftIds((prev) =>
@@ -1578,8 +1663,10 @@ export default function ProductsPage() {
                         <input
                           type="checkbox"
                           className="h-5 w-5 cursor-pointer"
-                          checked={checked}
+                          checked={checked && isImportable}
+                          disabled={!isImportable}
                           onChange={(e) =>
+                            isImportable &&
                             setSelectedDraftIds((prev) =>
                               e.target.checked
                                 ? [...prev, draft.tempId]
@@ -1632,12 +1719,18 @@ export default function ProductsPage() {
                         />
                         <div
                           className={`mt-1 inline-flex items-center rounded-full px-2 py-1 text-[11px] font-semibold border ${
-                            draft.mode === "create"
+                            status === "create"
                               ? "bg-blue-100 text-blue-800 border-blue-200"
+                              : status === "duplicate"
+                              ? "bg-gray-300 text-gray-900 border-gray-400"
                               : "bg-amber-100 text-amber-800 border-amber-200"
                           }`}
                         >
-                          {draft.mode === "create" ? "Tạo mới" : "Cập nhật"}
+                          {status === "create"
+                            ? "Tạo mới"
+                            : status === "duplicate"
+                            ? "Trùng lặp"
+                            : "Cập nhật"}
                         </div>
                         {nameIssues.map((issue) => (
                           <div key={issue} className="text-[10px] text-red-600">
@@ -2642,45 +2735,6 @@ export default function ProductsPage() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
-                Ảnh đại diện
-              </label>
-              <div className="space-y-2">
-                <input
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  value={form.coverImage}
-                  onChange={(e) =>
-                    setForm({ ...form, coverImage: e.target.value })
-                  }
-                  placeholder="https://..."
-                />
-                <div className="flex flex-wrap gap-2 text-xs">
-                  <button
-                    type="button"
-                    onClick={handleCoverUploadClick}
-                    className="inline-flex items-center rounded-md bg-blue-600 px-3 py-1.5 font-medium text-white hover:bg-blue-700 disabled:opacity-60"
-                    disabled={coverUploading}
-                  >
-                    {coverUploading ? "Đang tải..." : "Tải ảnh"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setForm((prev) => ({ ...prev, coverImage: "" }))
-                    }
-                    className="inline-flex items-center rounded-md border border-gray-300 px-3 py-1.5 font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Xoá URL
-                  </button>
-                </div>
-                <input
-                  ref={coverFileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleCoverFileChange}
-                />
-              </div>
-              <label className="text-sm font-medium text-gray-700">
                 Trạng thái
               </label>
               <select
@@ -2779,21 +2833,41 @@ export default function ProductsPage() {
           <div className="mt-6 space-y-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-gray-800">
-                Ảnh sản phẩm (gallery)
+                Ảnh sản phẩm (gallery) & chọn ảnh đại diện
               </h3>
+              <button
+                type="button"
+                onClick={openGalleryPicker}
+                className="rounded border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100"
+              >
+                Tải ảnh (nhiều file)
+              </button>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <button
+                type="button"
+                onClick={() => fetchLibrary()}
+                className="rounded border border-gray-300 bg-white px-3 py-1.5 font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+              >
+                Chọn từ thư viện (theo loại sản phẩm)
+              </button>
               <button
                 type="button"
                 onClick={addImageRow}
                 className="text-xs font-medium text-blue-600 hover:underline"
               >
-                + Thêm dòng ảnh
+                + Thêm dòng trống
               </button>
+              <span className="text-gray-500">
+                Chọn 1 ảnh làm cover bằng nút &quot;Đặt cover&quot; hoặc dấu chọn.
+              </span>
             </div>
         <div className="overflow-x-auto rounded-lg border border-gray-200">
           <table className="min-w-full text-xs">
                 <thead className="bg-gray-50 text-[11px] uppercase text-gray-500">
                   <tr>
                     <th className="px-2 py-1 text-left">URL ảnh</th>
+                    <th className="px-2 py-1 text-center">Cover</th>
                     <th className="px-2 py-1 text-left">Alt text</th>
                     <th className="px-2 py-1 text-center">Thứ tự</th>
                     <th className="px-2 py-1 text-center">Xoá</th>
@@ -2802,33 +2876,59 @@ export default function ProductsPage() {
                 <tbody>
                   {imageRows.map((img) => (
                     <tr key={img.id} className="border-t border-gray-100">
-                    <td className="px-2 py-1">
-                      <div className="flex gap-2">
-                        <input
-                          className="w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                          value={img.url}
-                          onChange={(e) =>
-                            updateImageRow(img.id, {
-                              url: e.target.value,
-                            })
-                          }
-                          placeholder="https://..."
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleGalleryUploadClick(img.id)}
-                          className="shrink-0 rounded border border-blue-200 bg-blue-50 px-2 py-1 text-[11px] font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
-                          disabled={
-                            galleryUploadingId !== null &&
-                            galleryUploadingId !== img.id
-                          }
-                        >
-                          {galleryUploadingId === img.id
-                            ? "Đang tải..."
-                            : "Upload"}
-                        </button>
-                      </div>
-                    </td>
+                      <td className="px-2 py-1">
+                        <div className="flex gap-2">
+                          <input
+                            className="w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            value={img.url}
+                            onChange={(e) =>
+                              updateImageRow(img.id, {
+                                url: e.target.value,
+                              })
+                            }
+                            placeholder="https://..."
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleGalleryUploadClick(img.id)}
+                            className="shrink-0 rounded border border-blue-200 bg-blue-50 px-2 py-1 text-[11px] font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+                            disabled={
+                              galleryUploadingId !== null &&
+                              galleryUploadingId !== img.id
+                            }
+                          >
+                            {galleryUploadingId === img.id
+                              ? "Đang tải..."
+                              : "Upload"}
+                          </button>
+                        </div>
+                      </td>
+                      <td className="px-2 py-1 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <input
+                            type="radio"
+                            name="cover-image"
+                            className="h-4 w-4"
+                            checked={coverImageId === img.id}
+                            onChange={() => setCoverImageId(img.id)}
+                            disabled={!img.url.trim()}
+                          />
+                          {coverImageId === img.id ? (
+                            <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-800">
+                              Cover
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              className="text-[11px] text-blue-600 hover:underline disabled:opacity-50"
+                              onClick={() => setCoverImageId(img.id)}
+                              disabled={!img.url.trim()}
+                            >
+                              Đặt cover
+                            </button>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-2 py-1">
                         <input
                           className="w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -2878,8 +2978,7 @@ export default function ProductsPage() {
               />
         </div>
             <p className="text-[11px] text-gray-500">
-              Ảnh đầu tiên sẽ được dùng làm ảnh mặc định nếu bạn không nhập
-              &quot;Ảnh đại diện&quot; phía trên.
+              Chọn 1 ảnh làm cover. Bạn có thể tải nhiều ảnh cùng lúc hoặc chọn từ thư viện của loại sản phẩm.
             </p>
           </div>
 
@@ -3009,6 +3108,78 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
+      <Dialog open={libraryOpen} onOpenChange={(open) => setLibraryOpen(open)}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Thư viện ảnh theo loại sản phẩm</DialogTitle>
+            <DialogDescription>
+              Chọn ảnh có sẵn trong thư mục của loại sản phẩm để tái sử dụng làm gallery hoặc cover.
+            </DialogDescription>
+          </DialogHeader>
+          {libraryError && (
+            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+              {libraryError}
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            {libraryItems.map((asset) => (
+              <button
+                key={asset.publicId}
+                type="button"
+                onClick={() => addImageFromLibrary(asset)}
+                className="group overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:border-blue-400 hover:shadow-md"
+              >
+                <div className="relative aspect-square w-full bg-gray-100">
+                  <Image
+                    src={asset.secureUrl}
+                    alt={asset.publicId}
+                    fill
+                    sizes="200px"
+                    className="object-cover transition duration-200 group-hover:scale-[1.02]"
+                  />
+                </div>
+                <div className="p-2 text-left">
+                  <div className="text-[11px] font-semibold text-gray-800 truncate">
+                    {asset.publicId}
+                  </div>
+                  <div className="text-[10px] text-gray-500">
+                    {(asset.width ?? 0)}x{(asset.height ?? 0)} • {((asset.bytes ?? 0) / 1024).toFixed(0)} KB
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+          {!libraryItems.length && !libraryLoading && (
+            <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center text-sm text-gray-600">
+              Chưa có ảnh trong thư viện loại sản phẩm này.
+            </div>
+          )}
+          <DialogFooter className="flex items-center justify-between gap-2">
+            <div className="text-xs text-gray-500">
+              Thư mục: {form.typeId ? "gallery theo loại sản phẩm" : "—"}
+            </div>
+            <div className="flex gap-2">
+              {libraryNextCursor ? (
+                <button
+                  type="button"
+                  onClick={() => fetchLibrary(libraryNextCursor ?? undefined)}
+                  className="rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-60"
+                  disabled={libraryLoading}
+                >
+                  {libraryLoading ? "Đang tải..." : "Tải thêm"}
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setLibraryOpen(false)}
+                className="rounded bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                Đóng
+              </button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog
         open={importConfirmOpen}
         onOpenChange={(open) => {
@@ -3097,14 +3268,6 @@ export default function ProductsPage() {
       </Dialog>
 
       <ImageCropDialog
-        open={coverCropOpen && Boolean(coverCropSource?.url)}
-        imageSrc={coverCropSource?.url ?? null}
-        fileName={coverCropSource?.fileName}
-        aspectRatio={4 / 3}
-        onOpenChange={handleCoverDialogOpenChange}
-        onComplete={handleCoverCropComplete}
-      />
-      <ImageCropDialog
         open={galleryCropOpen && Boolean(galleryCropSource?.url)}
         imageSrc={galleryCropSource?.url ?? null}
         fileName={galleryCropSource?.fileName}
@@ -3119,8 +3282,10 @@ export default function ProductsPage() {
             <h2 className="text-lg font-semibold">Xác nhận nhập sản phẩm</h2>
             <p className="text-sm text-gray-600">
               {importSelection === "selected" ? "Chỉ nhập các dòng đã chọn." : "Nhập toàn bộ danh sách."} Sẽ nhập{" "}
-              {rowsToImport.length} sản phẩm ({rowsToImport.filter((d) => d.mode === "create").length} tạo mới,{" "}
-              {rowsToImport.filter((d) => d.mode === "update").length} cập nhật).
+              {rowsToImport.length} sản phẩm (
+              {rowsToImport.filter((d) => (d.changeStatus ?? d.mode) === "create").length} tạo mới,{" "}
+              {rowsToImport.filter((d) => (d.changeStatus ?? d.mode) === "update").length} cập nhật,{" "}
+              {drafts.filter((d) => (d.changeStatus ?? d.mode) === "duplicate").length} trùng lặp đã bỏ qua).
             </p>
             {importProgress && (
               <div className="space-y-2 text-xs text-gray-500">

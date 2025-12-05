@@ -95,17 +95,20 @@ export async function uploadProductImageToCloudinary(options: {
 
   const categorySegment = sanitizeSegment(options.categorySlug, "uncategorized");
   const typeSegment = sanitizeSegment(options.productTypeSlug, "general");
-  const skuSegment = sanitizeSegment(options.sku, options.productId);
 
-  const baseFolder = `categories/${categorySegment}/${typeSegment}/${skuSegment}`;
+  const baseFolder = `categories/${categorySegment}/${typeSegment}`;
   const folder =
     options.type === "cover" ? `${baseFolder}/cover` : `${baseFolder}/gallery`;
+  const fileBase = sanitizeSegment(
+    options.fileName?.replace(/\.[^.]+$/, ""),
+    "image",
+  );
   const publicId =
     options.type === "cover"
-      ? `cover-${skuSegment}`
+      ? `cover-${sanitizeSegment(options.sku, options.productId)}`
       : options.sequence !== undefined
-      ? `${skuSegment}-${options.sequence}`
-      : undefined;
+      ? `${fileBase}-${options.sequence}`
+      : `${fileBase}-${Date.now()}`;
 
   return uploadBuffer({
     buffer: options.buffer,
@@ -361,6 +364,22 @@ export async function listPopupBannerAssets(options?: {
     folder: "popup_banner",
     nextCursor: options?.nextCursor ?? null,
     maxResults: options?.maxResults,
+  });
+}
+
+export async function listProductGalleryAssets(options: {
+  categorySlug?: string | null;
+  productTypeSlug?: string | null;
+  nextCursor?: string | null;
+  maxResults?: number;
+}) {
+  const categorySegment = sanitizeSegment(options.categorySlug, "uncategorized");
+  const typeSegment = sanitizeSegment(options.productTypeSlug, "general");
+  const folder = `categories/${categorySegment}/${typeSegment}/gallery`;
+  return listAssetsByFolder({
+    folder,
+    nextCursor: options.nextCursor ?? null,
+    maxResults: options.maxResults,
   });
 }
 

@@ -215,7 +215,6 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
   const savingsPercent = showSavings && listPrice ? Math.round((savings / listPrice) * 100) : 0;
   const outOfStock = !requiresQuote && !product.inStock;
   const showStockState = !requiresQuote;
-  const contactHref = `/contact?product=${encodeURIComponent(product.slug)}`;
   const renderPriceBlock = (align: "left" | "right" = "right") => {
     const alignText =
       align === "left" ? "text-left items-start" : "text-right items-end";

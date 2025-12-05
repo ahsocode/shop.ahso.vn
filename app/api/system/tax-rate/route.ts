@@ -1,10 +1,9 @@
-import type { NextRequest } from "next/server";
 import { jsonError, jsonOk, toHttpError } from "@/lib/http";
 import { getDefaultTaxRate } from "@/lib/system-settings";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   try {
     const taxRate = await getDefaultTaxRate();
     return jsonOk({ taxRate });

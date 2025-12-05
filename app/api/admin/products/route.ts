@@ -53,7 +53,10 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status") as z.infer<
       typeof PublishStatusEnum
     > | null;
-    const { page, pageSize, skip, take } = parsePaging(req);
+    const { page, pageSize, skip, take } = parsePaging(req, {
+      defaultPageSize: 50,
+      maxPageSize: 50,
+    });
 
     const where: productWhereInput = {
       ...(q && {
