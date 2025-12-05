@@ -292,9 +292,9 @@ export default function CartPage() {
   /* ================= Render ================= */
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50 to-indigo-50">
-      <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8 md:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8 flex items-center gap-3 rounded-2xl bg-white p-6 shadow-lg">
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:gap-3 rounded-2xl bg-white p-5 sm:p-6 shadow-lg">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-indigo-600">
             <ShoppingCart className="h-6 w-6 text-white" />
           </div>
@@ -309,7 +309,7 @@ export default function CartPage() {
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Cart table */}
           <Card className="shadow-xl lg:col-span-2 border-0">
-            <CardHeader className="flex-row items-center justify-between bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-t-xl">
+            <CardHeader className="flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-t-xl">
               <CardTitle className="text-xl">Danh sách sản phẩm</CardTitle>
               {items.length > 0 && (
                 <Button
@@ -323,7 +323,7 @@ export default function CartPage() {
                 </Button>
               )}
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               {loading ? (
                 <div className="py-16 text-center">
                   <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
@@ -351,8 +351,8 @@ export default function CartPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between rounded-lg bg-linear-to-r from-blue-50 to-indigo-50 p-4">
-                    <div className="flex items-center gap-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-lg bg-linear-to-r from-blue-50 to-indigo-50 p-4">
+                    <div className="flex items-center gap-3 sm:gap-4">
                       <input
                         type="checkbox"
                         checked={allChecked}
@@ -393,7 +393,7 @@ export default function CartPage() {
                             : "border-gray-200"
                         }`}
                       >
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center">
                           <input
                             type="checkbox"
                             checked={!!selected[it.id]}
@@ -401,7 +401,7 @@ export default function CartPage() {
                             className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
                           />
 
-                          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border-2 border-gray-200 bg-white">
+                          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border-2 border-gray-200 bg-white self-start">
                             <Image
                               src={it.imgUrl || "/logo.png"}
                               alt={it.name}
@@ -434,8 +434,8 @@ export default function CartPage() {
                             </div>
                           </div>
 
-                          <div className="flex flex-col items-end gap-3">
-                            <div className="flex items-center gap-2 rounded-lg border-2 border-gray-200 bg-gray-50 p-1">
+                          <div className="flex flex-col items-stretch gap-3 md:items-end">
+                            <div className="flex items-center gap-2 rounded-lg border-2 border-gray-200 bg-gray-50 p-1 self-start md:self-end">
                               <Button
                                 size="icon"
                                 variant="ghost"
@@ -474,7 +474,7 @@ export default function CartPage() {
                               </Button>
                             </div>
 
-                            <div className="text-right">
+                            <div className="text-left md:text-right">
                               <div className="text-xs text-gray-600">Thành tiền</div>
                               <div className="text-lg font-bold text-gray-900">
                                 {formatVND(it.price * it.qty)}
@@ -484,7 +484,7 @@ export default function CartPage() {
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="text-red-500 hover:bg-red-50 hover:text-red-700"
+                              className="self-start text-red-500 hover:bg-red-50 hover:text-red-700 md:self-end"
                               onClick={() => handleRemoveClick(it.id)}
                               disabled={loading}
                             >
@@ -502,14 +502,14 @@ export default function CartPage() {
 
           {/* Summary */}
           <div className="space-y-6">
-            <Card className="sticky top-24 border-0 shadow-xl">
+            <Card className="lg:sticky lg:top-24 border-0 shadow-xl">
               <CardHeader className="bg-linear-to-r from-blue-600 to-indigo-600 rounded-t-xl">
                 <CardTitle className="flex items-center gap-2 text-xl text-white">
                   <PackageCheck className="h-5 w-5" />
                   Tóm tắt đơn hàng
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6 p-6">
+              <CardContent className="space-y-6 p-4 sm:p-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between text-base">
                     <span className="text-gray-600">Tạm tính</span>

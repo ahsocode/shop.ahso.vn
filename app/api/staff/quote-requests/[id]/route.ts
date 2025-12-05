@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonOk, jsonError, toHttpError } from "@/lib/http";
-import { quote_status, contact_priority } from "@/generated/enums";
+import { quote_status } from "@/generated/enums";
 
 //
 // ====== SCHEMA ======

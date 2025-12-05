@@ -103,7 +103,7 @@ export default function StaffContactsPage() {
       setLoading(false);
     }
     },
-    [activeTab, priorityFilter, searchQuery, statusFilter, toast],
+    [activeTab, priorityFilter, searchQuery, statusFilter],
   );
 
   useEffect(() => {

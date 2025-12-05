@@ -9,6 +9,8 @@ import QuoteRequestButton from "../QuoteRequestButton";
 import { buildMetadata } from "@/lib/metadata";
 import type { productInclude as ProductInclude, productGetPayload } from "@/lib/prisma-types";
 import type { Decimal } from "@prisma/client/runtime/library";
+import GallerySlider from "./GallerySlider";
+import RelatedCarousel from "./RelatedCarousel";
 
 export const revalidate = 60;
 
@@ -110,6 +112,32 @@ async function getProduct(slug: string): Promise<ProductWithRelations | null> {
     include: productInclude, // Scalars như ratingAvg, ratingCount, purchaseCount có sẵn
   });
   return record ? transformProduct(record) : null;
+}
+
+async function getRelatedProducts(typeId: string, excludeId: string) {
+  if (!typeId) return [];
+  const rows = await prisma.product.findMany({
+    where: { typeId, id: { not: excludeId } },
+    orderBy: { updatedAt: "desc" },
+    take: 12,
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      price: true,
+      coverImage: true,
+      productimage: { select: { url: true, sortOrder: true }, orderBy: { sortOrder: "asc" } },
+      producttype: { select: { name: true } },
+    },
+  });
+  return rows.map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    price: Number(p.price ?? 0),
+    image: p.coverImage || p.productimage[0]?.url || "/logo.png",
+    typeName: p.producttype?.name || "",
+  }));
 }
 
 async function getReviews(productId: string): Promise<ReviewDTO[]> {
@@ -246,6 +274,7 @@ export default async function ProductDetailPage({
   if (!p) notFound();
 
   const cover = p.coverImage || p.images[0]?.url || "/logo.png";
+  const related = p.type?.id ? (await getRelatedProducts(p.type.id, p.id)).slice(0, 10) : [];
   const price = Number(p.price ?? 0);
   const listPrice = Number(p.listPrice ?? 0);
   const requiresQuote = Boolean(p.requiresQuote);
@@ -297,11 +326,11 @@ export default async function ProductDetailPage({
         {/* Gallery + description + reviews */}
         <div className="lg:col-span-2">
           {/* Gallery */}
-          <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-white border">
-            <Image src={cover} alt={p.name} fill className="object-contain" />
+          <div className="relative">
+            <GallerySlider images={p.images} fallback={cover} />
             {outOfStock && (
               <>
-                <div className="absolute inset-0 bg-black/30" aria-hidden />
+                <div className="absolute inset-0 rounded-xl bg-black/30" aria-hidden />
                 <div className="absolute top-4 left-4">
                   <span className="inline-flex items-center rounded-full bg-gray-900/80 px-4 py-1.5 text-sm font-semibold text-white">
                     Hết hàng
@@ -311,33 +340,20 @@ export default async function ProductDetailPage({
             )}
           </div>
 
-          {p.images.length > 0 && (
-            <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
-              {p.images.map((img: ProductWithRelations["images"][number], i: number) => (
-                <div
-                  key={`${img.url}-${i}`}
-                  className="overflow-hidden rounded-xl border bg-white"
-                >
-                  <Image
-                    src={img.url}
-                    alt={img.alt ?? p.name}
-                    width={400}
-                    height={160}
-                    className="h-40 w-full object-contain bg-white"
-                    loading="lazy"
-                    unoptimized
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-
           {/* Description */}
           {p.description && (
             <article className="prose prose-blue max-w-none mt-6">
               <p>{p.description}</p>
             </article>
           )}
+
+          {/* Related carousel pinned near footer */}
+          <div className="mt-8">
+            <RelatedCarousel
+              items={related}
+              viewAllHref={`/shop/products?type=${p.type?.slug ?? ""}`}
+            />
+          </div>
 
           {/* Reviews */}
           <section className="mt-8">

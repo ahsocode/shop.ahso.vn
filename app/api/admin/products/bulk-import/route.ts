@@ -30,6 +30,7 @@ type ProductDraft = {
   supplierId?: string | null;
   issues: string[];
   mode: "create" | "update";
+  changeStatus?: "create" | "update" | "duplicate";
   existingProductId?: string;
   missing: MissingRefs;
 };
@@ -198,6 +199,40 @@ async function buildProductDrafts(
     .map((r) => r.sku)
     .filter(Boolean) as string[];
 
+  const decimalToNumber = (value: unknown) => {
+    if (value === null || value === undefined) return null;
+    if (typeof value === "number") return value;
+    if (typeof value === "object" && value && "toNumber" in value) {
+      try {
+        return (value as { toNumber: () => number }).toNumber();
+      } catch {
+        // ignore
+      }
+    }
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? null : parsed;
+  };
+
+  const equalNumber = (incoming: number | undefined, existing: unknown) => {
+    if (incoming === undefined) return true;
+    const existingNum = decimalToNumber(existing);
+    return existingNum === incoming;
+  };
+
+  const sameString = (
+    incoming: string | null | undefined,
+    existing: string | null | undefined,
+  ) => {
+    if (incoming === undefined || incoming === null) return true;
+    return (incoming ?? null) === (existing ?? null);
+  };
+
+  const sameCategories = (incoming: string[], existing: string[]) => {
+    if (incoming.length !== existing.length) return false;
+    const set = new Set(existing);
+    return incoming.every((id) => set.has(id));
+  };
+
   const brandSlugs = new Set(
     normalizedRows.map((r) => r.brandSlug ?? "").filter(Boolean),
   );
@@ -226,7 +261,24 @@ async function buildProductDrafts(
     skuList.length
       ? prisma.product.findMany({
           where: { sku: { in: skuList } },
-          select: { id: true, sku: true },
+          select: {
+            id: true,
+            sku: true,
+            slug: true,
+            name: true,
+            description: true,
+            costPrice: true,
+            price: true,
+            listPrice: true,
+            stockOnHand: true,
+            typeId: true,
+            brandId: true,
+            supplierId: true,
+            coverImage: true,
+            currency: true,
+            status: true,
+            productcategorylink: { select: { categoryId: true } },
+          },
         })
       : Promise.resolve([]),
     brandSlugs.size
@@ -266,7 +318,15 @@ async function buildProductDrafts(
 
   console.log("Categories found:", categories.map(c => ({ slug: c.slug, name: c.name })));
 
-  const productMap = new Map(products.map((p) => [p.sku, p]));
+  const productMap = new Map(
+    products.map((p) => [
+      p.sku,
+      {
+        ...p,
+        categoryIds: (p.productcategorylink || []).map((c) => c.categoryId),
+      },
+    ]),
+  );
   const brandMap = new Map(brands.map((b) => [b.slug, b]));
   const brandByName = new Map(brands.map((b) => [slugify(b.name), b]));
   const typeMap = new Map(types.map((t) => [t.slug, t]));
@@ -299,6 +359,7 @@ async function buildProductDrafts(
 
     // === MATCH BRAND (ưu tiên default, slug, tên, fuzzy) ===
     let resolvedBrandSlug = row.brandSlug || defaults.defaultBrandSlug || null;
+    let resolvedBrand: { id: string; slug: string; name: string } | null = null;
     if (resolvedBrandSlug) {
       const normalized = slugify(resolvedBrandSlug);
       const bySlug = brandMap.get(resolvedBrandSlug);
@@ -315,15 +376,20 @@ async function buildProductDrafts(
         );
       });
 
-      if (bySlug) resolvedBrandSlug = bySlug.slug;
-      else if (byName) resolvedBrandSlug = byName.slug;
-      else if (loose) resolvedBrandSlug = loose.slug;
-      else missing.brand = resolvedBrandSlug;
+      const matched = bySlug || byName || loose;
+      if (matched) {
+        resolvedBrandSlug = matched.slug;
+        resolvedBrand = matched;
+      } else {
+        missing.brand = resolvedBrandSlug;
+      }
     }
 
     // === MATCH TYPE (ưu tiên default) + auto danh mục từ type ===
     let resolvedTypeSlug = row.typeSlug || defaults.defaultTypeSlug || null;
     let resolvedCategorySlug = row.primaryCategory;
+    let resolvedType: { id: string; slug: string; categoryId: string | null } | null =
+      null;
 
     if (resolvedTypeSlug) {
       const normalized = slugify(resolvedTypeSlug);
@@ -341,11 +407,12 @@ async function buildProductDrafts(
         );
       });
 
-      const resolvedType = bySlug || byName || loose;
-      if (resolvedType) {
-        resolvedTypeSlug = resolvedType.slug;
-        if (!resolvedCategorySlug && resolvedType.categoryId) {
-          const cat = Array.from(categoryMap.values()).find((c) => c.id === resolvedType.categoryId);
+      const matchedType = bySlug || byName || loose;
+      if (matchedType) {
+        resolvedType = matchedType;
+        resolvedTypeSlug = matchedType.slug;
+        if (!resolvedCategorySlug && matchedType.categoryId) {
+          const cat = Array.from(categoryMap.values()).find((c) => c.id === matchedType.categoryId);
           if (cat) resolvedCategorySlug = cat.slug;
         }
       } else {
@@ -376,14 +443,65 @@ async function buildProductDrafts(
       else missing.categories = [resolvedCategorySlug];
     }
 
+    const adjustedName = normalizeNameWithBrandSku(
+      row.name ?? "",
+      resolvedBrand?.name,
+      row.sku ?? undefined,
+    );
+
     const existing = row.sku ? productMap.get(row.sku) : null;
     const mode: "create" | "update" = existing ? "update" : "create";
+
+    // === Detect changes vs existing ===
+    let changeStatus: "create" | "update" | "duplicate" = mode;
+    if (existing) {
+      const priceDirect = numberOrUndefined(row.price);
+      const costValue = numberOrUndefined(row.costPrice);
+      const listPriceValue = numberOrUndefined(row.listPrice);
+      const stockValue = numberOrUndefined(row.stockOnHand);
+      const descriptionValue =
+        stringOrNull(row.description) ?? stringOrNull(row.descriptionShort) ?? null;
+      const coverValue = stringOrNull(row.coverImage);
+      const categoryIds: string[] = [];
+
+      if (resolvedCategorySlug) {
+        const cat = categoryMap.get(resolvedCategorySlug);
+        if (cat) categoryIds.push(cat.id);
+      } else if (resolvedType?.categoryId) {
+        categoryIds.push(resolvedType.categoryId);
+      }
+
+      const incomingCategoryIds = Array.from(new Set(categoryIds));
+      const hasSpecsChange = (row.specs?.length || 0) > 0;
+      const willChange =
+        !sameString(adjustedName, existing.name) ||
+        !sameString(row.slug ?? undefined, existing.slug) ||
+        !sameString(descriptionValue, existing.description ?? null) ||
+        !equalNumber(priceDirect, existing.price) ||
+        !equalNumber(costValue, existing.costPrice) ||
+        !equalNumber(listPriceValue, existing.listPrice) ||
+        !equalNumber(stockValue, existing.stockOnHand) ||
+        (resolvedType?.id ? resolvedType.id !== existing.typeId : false) ||
+        (resolvedBrand ? resolvedBrand.id !== existing.brandId : false) ||
+        (defaults.defaultSupplierId
+          ? defaults.defaultSupplierId !== existing.supplierId
+          : false) ||
+        (coverValue !== null ? !sameString(coverValue, existing.coverImage ?? null) : false) ||
+        (row.currency ? !sameString(row.currency, existing.currency) : false) ||
+        (row.status ? !sameString(row.status, existing.status) : false) ||
+        (incomingCategoryIds.length
+          ? !sameCategories(incomingCategoryIds, existing.categoryIds ?? [])
+          : false) ||
+        hasSpecsChange;
+
+      changeStatus = willChange ? "update" : "duplicate";
+    }
 
     const draft = {
       tempId: randomUUID(),
       sku: row.sku ?? "",
-      slug: row.slug ?? slugify(row.name || row.sku || `san-pham-${index + 1}`),
-      name: row.name ?? "",
+      slug: row.slug ?? slugify(adjustedName || row.sku || `san-pham-${index + 1}`),
+      name: adjustedName,
       descriptionShort: row.descriptionShort ?? "",
       description: row.description ?? "",
       primaryCategory: resolvedCategorySlug,
@@ -401,6 +519,7 @@ async function buildProductDrafts(
       supplierId: defaults.defaultSupplierId ?? null,
       issues,
       mode,
+      changeStatus,
       existingProductId: existing?.id,
       missing,
     };
@@ -617,6 +736,35 @@ function parseSpecs(row: Record<string, string>): SpecDraft[] {
   }
   
   return specs;
+}
+
+function normalizeNameWithBrandSku(
+  rawName: string,
+  brandName?: string | null,
+  sku?: string | null,
+) {
+  const base = (rawName || "").trim();
+  if (!base) return base;
+
+  const normalizedName = slugify(base);
+  const parts = [base];
+
+  if (brandName) {
+    const brandNormalized = slugify(brandName);
+    if (brandNormalized && !normalizedName.includes(brandNormalized)) {
+      parts.push(brandName.trim());
+    }
+  }
+
+  if (sku) {
+    const skuTrimmed = sku.trim();
+    const skuLower = skuTrimmed.toLowerCase();
+    if (skuTrimmed && !base.toLowerCase().includes(skuLower)) {
+      parts.push(skuTrimmed);
+    }
+  }
+
+  return parts.join(" - ");
 }
 
 type ReferenceMaps = {

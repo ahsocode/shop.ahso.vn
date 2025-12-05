@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { confirmToast } from "@/lib/confirm-toast";
 import { ImageCropDialog } from "@/components/image/image-crop-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getJSON, patchJSON, del, makeHeaders } from "../../_lib/fetcher";
 
 type Option = { id: string; name: string };
@@ -151,10 +152,6 @@ export default function AdminProductDetail({
 
   const [status, setStatus] = useState<ProductDetail["status"]>("DRAFT");
 
-  const [media, setMedia] = useState({
-    coverImage: "",
-  });
-
   const [sourceConfig, setSourceConfig] = useState({
     supplierId: "",
     supplierSku: "",
@@ -173,7 +170,7 @@ export default function AdminProductDetail({
 
   // ====== STATE MEDIA & SPECS ======
   type EditableImage = {
-    id?: string;
+    id?: string | number;
     url: string;
     alt: string;
     sortOrder: string;
@@ -188,17 +185,9 @@ export default function AdminProductDetail({
     sortOrder: string;
   };
 
-const [imageList, setImageList] = useState<EditableImage[]>([]);
-const [specList, setSpecList] = useState<EditableSpec[]>([]);
-  const coverFileInputRef = useRef<HTMLInputElement | null>(null);
+  const [imageList, setImageList] = useState<EditableImage[]>([]);
+  const [specList, setSpecList] = useState<EditableSpec[]>([]);
   const galleryFileInputRef = useRef<HTMLInputElement | null>(null);
-  const [coverCropOpen, setCoverCropOpen] = useState(false);
-  const [coverCropSource, setCoverCropSource] = useState<{
-    url: string;
-    fileName: string;
-    revokeOnClose: boolean;
-  } | null>(null);
-  const [coverUploading, setCoverUploading] = useState(false);
   const [galleryCropOpen, setGalleryCropOpen] = useState(false);
   const [galleryCropSource, setGalleryCropSource] = useState<{
     url: string;
@@ -206,6 +195,15 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
     revokeOnClose: boolean;
   } | null>(null);
   const [galleryUploading, setGalleryUploading] = useState(false);
+  const [coverImageId, setCoverImageId] = useState<string | number | null>(null);
+  const [coverUrl, setCoverUrl] = useState("");
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [libraryLoading, setLibraryLoading] = useState(false);
+  const [libraryItems, setLibraryItems] = useState<
+    { publicId: string; secureUrl: string; width: number; height: number; bytes: number; createdAt: string }[]
+  >([]);
+  const [libraryNextCursor, setLibraryNextCursor] = useState<string | null>(null);
+  const [libraryError, setLibraryError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -264,7 +262,6 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
       });
 
       setStatus(detail.status);
-      setMedia({ coverImage: detail.coverImage ?? "" });
 
       // Source & selling config (có thể bỏ trống)
       setSourceConfig({
@@ -286,7 +283,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
       });
 
       // Image list
-      setImageList(
+      const sortedImages =
         (detail.images || [])
           .slice()
           .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
@@ -295,8 +292,13 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
             url: img.url,
             alt: img.alt ?? "",
             sortOrder: img.sortOrder != null ? String(img.sortOrder) : "",
-          })),
-      );
+          }));
+      setImageList(sortedImages);
+      const matchedCover =
+        sortedImages.find((img) => img.url === (detail.coverImage ?? "")) ||
+        sortedImages[0];
+      setCoverImageId(matchedCover?.id ?? null);
+      setCoverUrl(matchedCover?.url ?? detail.coverImage ?? "");
 
       // Spec list
       setSpecList(
@@ -352,7 +354,6 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
           detail.stockOnHand != null ? String(detail.stockOnHand) : "",
       });
       setStatus(detail.status);
-      setMedia({ coverImage: detail.coverImage ?? "" });
       setSourceConfig({
         supplierId: detail.supplierId ?? "",
         supplierSku: detail.supplierSku ?? "",
@@ -368,7 +369,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
         minOrderQty:
           detail.minOrderQty != null ? String(detail.minOrderQty) : "",
       });
-      setImageList(
+      const updatedImages =
         (detail.images || [])
           .slice()
           .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
@@ -377,8 +378,14 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
             url: img.url,
             alt: img.alt ?? "",
             sortOrder: img.sortOrder != null ? String(img.sortOrder) : "",
-          })),
-      );
+          }));
+      setImageList(updatedImages);
+      const updatedCover =
+        updatedImages.find((img) => img.url === (detail.coverImage ?? "")) ||
+        updatedImages.find((img) => img.id === coverImageId) ||
+        updatedImages[0];
+      setCoverImageId(updatedCover?.id ?? null);
+      setCoverUrl(updatedCover?.url ?? detail.coverImage ?? "");
       setSpecList(
         (detail.specs || [])
           .slice()
@@ -433,12 +440,12 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
     return Number.isFinite(num) ? num : undefined;
   };
 
-  const normalizeCoverImage = () => {
-    const trimmed = media.coverImage.trim();
-    return trimmed ? trimmed : null;
-  };
-
   const buildFullPayload = () => {
+    const coverFromList =
+      imageList.find((img) => img.id === coverImageId && img.url.trim())?.url ||
+      imageList.find((img) => img.url.trim())?.url ||
+      null;
+
     const payload: Record<string, unknown> = {
       name: general.name,
       slug: general.slug || undefined,
@@ -458,7 +465,7 @@ const [specList, setSpecList] = useState<EditableSpec[]>([]);
       currency: sourceConfig.currency || "VND",
       taxRate: parsePercentOrNull(sourceConfig.taxRate),
       taxIncluded: sourceConfig.taxIncluded,
-      coverImage: normalizeCoverImage(),
+      coverImage: coverFromList,
       specs: buildSpecsPayload(),
       images: buildImagesPayload(),
     };
@@ -546,70 +553,17 @@ const parsePercentOrNull = (v: string) => {
 
   // gallery helpers
   const addImageRow = () => {
-    setImageList((prev) => [
-      ...prev,
-      { url: "", alt: "", sortOrder: String(prev.length + 1) },
-    ]);
-  };
-
-  const handleCoverUploadClick = () => {
-    coverFileInputRef.current?.click();
-  };
-
-  const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (coverFileInputRef.current) {
-      coverFileInputRef.current.value = "";
-    }
-    const url = URL.createObjectURL(file);
-    setCoverCropSource((prev) => {
-      if (prev?.revokeOnClose && prev.url) {
-        URL.revokeObjectURL(prev.url);
+    setImageList((prev) => {
+      const newId = `local-${Date.now()}-${prev.length + 1}`;
+      const next = [
+        ...prev,
+        { id: newId, url: "", alt: "", sortOrder: String(prev.length + 1) },
+      ];
+      if (coverImageId === null && next.length) {
+        setCoverImageId(next[0].id ?? null);
       }
-      return { url, fileName: file.name, revokeOnClose: true };
+      return next;
     });
-    setCoverCropOpen(true);
-  };
-
-  const uploadCoverImage = async (file: File) => {
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await fetch(`/api/admin/products/${productId}/upload-cover`, {
-      method: "POST",
-      headers: makeHeaders(),
-      body: fd,
-    });
-    const data = await res.json().catch(() => null);
-    if (!res.ok) {
-      throw new Error(getErrorMessage(data, "Không thể tải ảnh đại diện"));
-    }
-    const url =
-      data?.data?.coverImage || data?.coverImage || data?.data?.url || "";
-    setMedia({ coverImage: url });
-    toast.success("Đã cập nhật ảnh đại diện");
-  };
-
-  const handleCoverCropComplete = async (result: {
-    file: File;
-    previewUrl: string;
-  }) => {
-    setCoverCropOpen(false);
-    setCoverUploading(true);
-    try {
-      await uploadCoverImage(result.file);
-    } catch (error) {
-      toast.error(extractErrorMessage(error));
-    } finally {
-      URL.revokeObjectURL(result.previewUrl);
-      setCoverCropSource((prev) => {
-        if (prev?.revokeOnClose && prev.url) {
-          URL.revokeObjectURL(prev.url);
-        }
-        return null;
-      });
-      setCoverUploading(false);
-    }
   };
 
   const handleGalleryUploadClick = () => {
@@ -668,18 +622,25 @@ const parsePercentOrNull = (v: string) => {
     }
     const created = data?.data;
     if (created?.url) {
-      setImageList((prev) => [
-        ...prev,
-        {
-          id: created.id,
-          url: created.url,
-          alt: created.alt ?? "",
-          sortOrder:
-            created.sortOrder !== undefined
-              ? String(created.sortOrder)
-              : String(prev.length + 1),
-        },
-      ]);
+      setImageList((prev) => {
+        const next = [
+          ...prev,
+          {
+            id: created.id,
+            url: created.url,
+            alt: created.alt ?? "",
+            sortOrder:
+              created.sortOrder !== undefined
+                ? String(created.sortOrder)
+                : String(prev.length + 1),
+          },
+        ];
+        if (coverImageId === null) {
+          setCoverImageId(created.id ?? next[0]?.id ?? null);
+          setCoverUrl(created.url);
+        }
+        return next;
+      });
     }
     toast.success("Đã thêm ảnh vào thư viện");
   };
@@ -706,21 +667,6 @@ const parsePercentOrNull = (v: string) => {
     }
   };
 
-  const handleCoverDialogOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen) {
-      setCoverCropOpen(false);
-      setCoverCropSource((prev) => {
-        if (prev?.revokeOnClose && prev.url) {
-          URL.revokeObjectURL(prev.url);
-          return null;
-        }
-        return prev;
-      });
-    } else if (coverCropSource) {
-      setCoverCropOpen(true);
-    }
-  };
-
   const handleGalleryDialogOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
       setGalleryCropOpen(false);
@@ -735,6 +681,87 @@ const parsePercentOrNull = (v: string) => {
       setGalleryCropOpen(true);
     }
   };
+
+  const fetchLibrary = async (cursor?: string) => {
+    const typeId = assoc.typeId || product?.typeId;
+    if (!typeId) {
+      toast.error("Vui lòng chọn loại sản phẩm trước khi mở thư viện");
+      return;
+    }
+    setLibraryLoading(true);
+    setLibraryError(null);
+    try {
+      const params = new URLSearchParams({ typeId });
+      if (cursor) params.set("nextCursor", cursor);
+      const res = await fetch(`/api/admin/products/gallery?${params.toString()}`, {
+        method: "GET",
+        headers: makeHeaders(),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(getErrorMessage(data, "Không thể tải thư viện ảnh"));
+      }
+      const items = (data?.items ??
+        []) as { publicId: string; secureUrl: string; width: number; height: number; bytes: number; createdAt: string }[];
+      setLibraryItems((prev) => (cursor ? [...prev, ...items] : items));
+      setLibraryNextCursor((data?.nextCursor as string | null) ?? null);
+      setLibraryOpen(true);
+    } catch (error) {
+      const message = extractErrorMessage(error);
+      setLibraryError(message);
+      toast.error(message);
+    } finally {
+      setLibraryLoading(false);
+    }
+  };
+
+  const addImageFromLibrary = (asset: {
+    publicId: string;
+    secureUrl: string;
+    width: number;
+    height: number;
+    bytes: number;
+    createdAt: string;
+  }) => {
+    let createdId: string | number | null = null;
+    setImageList((prev) => {
+      if (prev.some((row) => row.url === asset.secureUrl)) return prev;
+      const nextId = prev.length ? `${prev.length + 1}-${Date.now()}` : Date.now();
+      const nextSort = prev.length ? prev.length + 1 : 1;
+      createdId = nextId;
+      return [
+        ...prev,
+        { id: nextId, url: asset.secureUrl, alt: "", sortOrder: String(nextSort) },
+      ];
+    });
+    if (coverImageId === null && createdId !== null) {
+      setCoverImageId(createdId);
+      setCoverUrl(asset.secureUrl);
+    }
+    setLibraryOpen(false);
+    toast.success("Đã thêm ảnh từ thư viện");
+  };
+
+  useEffect(() => {
+    if (!imageList.length) {
+      setCoverUrl("");
+      setCoverImageId(null);
+      return;
+    }
+    const matchById = imageList.find(
+      (img, idx) => (img.id ?? idx) === coverImageId && img.url.trim(),
+    );
+    const fallback = matchById || imageList.find((img) => img.url.trim()) || imageList[0];
+    if (fallback) {
+      const fallbackId = fallback.id ?? imageList.indexOf(fallback);
+      if (coverImageId !== fallbackId) {
+        setCoverImageId(fallbackId);
+      }
+      if (coverUrl !== fallback.url) {
+        setCoverUrl(fallback.url);
+      }
+    }
+  }, [imageList, coverImageId, coverUrl]);
 
   if (loading && !product) {
     return (
@@ -1518,91 +1545,11 @@ const parsePercentOrNull = (v: string) => {
             </div>
           </div>
 
-          {/* Media (cover) – có thể bỏ trống */}
+          {/* Image gallery – chọn cover từ danh sách */}
           <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between gap-2">
               <h2 className="text-sm font-semibold text-gray-900">
-                Hình ảnh chính
-              </h2>
-              <button
-                onClick={() =>
-                  handleUpdate({
-                    coverImage: normalizeCoverImage(),
-                  })
-                }
-                className="text-xs rounded-lg bg-blue-600 px-3 py-1.5 font-medium text-white shadow-sm hover:bg-blue-700 disabled:opacity-50"
-                disabled={saving}
-              >
-                Lưu
-              </button>
-            </div>
-
-            {media.coverImage ? (
-              <div className="mb-3">
-                <div className="relative h-64 w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                  <Image
-                    src={media.coverImage}
-                    alt={product.name}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-                <div className="mt-1 text-xs text-gray-500">
-                  Ảnh đang hiển thị trên trang sản phẩm.
-                </div>
-              </div>
-            ) : (
-              <div className="mb-3 flex h-32 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 text-xs text-gray-400">
-                Chưa có ảnh đại diện
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-gray-700">
-                URL ảnh đại diện
-              </label>
-              <div className="space-y-2">
-                <input
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  value={media.coverImage}
-                  onChange={(e) =>
-                    setMedia({ coverImage: e.target.value })
-                  }
-                  placeholder="https://..."
-                />
-                <div className="flex flex-wrap gap-2 text-xs">
-                  <button
-                    type="button"
-                    onClick={handleCoverUploadClick}
-                    className="inline-flex items-center rounded-md bg-blue-600 px-3 py-1.5 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-                    disabled={coverUploading}
-                  >
-                    {coverUploading ? "Đang tải..." : "Tải ảnh"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMedia({ coverImage: "" })}
-                    className="inline-flex items-center rounded-md border border-gray-300 px-3 py-1.5 font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Xoá URL
-                  </button>
-                </div>
-                <input
-                  ref={coverFileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleCoverFileChange}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Image gallery – có thể bỏ trống */}
-          <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="mb-3 flex items-center justify-between gap-2">
-              <h2 className="text-sm font-semibold text-gray-900">
-                Thư viện ảnh
+                Thư viện ảnh & ảnh đại diện
               </h2>
               <div className="flex gap-2">
                 <button
@@ -1615,6 +1562,13 @@ const parsePercentOrNull = (v: string) => {
                 </button>
                 <button
                   type="button"
+                  onClick={() => fetchLibrary()}
+                  className="text-xs rounded-lg border border-gray-300 bg-white px-2 py-1 font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Chọn từ thư viện
+                </button>
+                <button
+                  type="button"
                   onClick={addImageRow}
                   className="text-xs rounded-lg border border-gray-300 bg-white px-2 py-1 font-medium text-gray-700 hover:bg-gray-50"
                 >
@@ -1624,6 +1578,9 @@ const parsePercentOrNull = (v: string) => {
                   type="button"
                   onClick={() =>
                     handleUpdate({
+                      coverImage:
+                        imageList.find((img) => img.id === coverImageId && img.url.trim())
+                          ?.url || imageList.find((img) => img.url.trim())?.url || null,
                       images: buildImagesPayload(),
                     })
                   }
@@ -1645,16 +1602,34 @@ const parsePercentOrNull = (v: string) => {
 
             {imageList.length === 0 && (
               <div className="text-xs text-gray-400">
-                Chưa có ảnh chi tiết. Bạn có thể thêm URL Cloudinary hoặc
-                link ảnh khác.
+                Chưa có ảnh chi tiết. Bạn có thể tải nhiều file hoặc chọn từ thư viện.
               </div>
             )}
+
+            {coverUrl ? (
+              <div className="mb-2 flex items-center gap-3 rounded-md border border-blue-100 bg-blue-50 p-2 text-xs text-gray-700">
+                <div className="relative h-14 w-14 overflow-hidden rounded border border-blue-200 bg-white">
+                  <Image
+                    src={coverUrl}
+                    alt="Cover preview"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div>
+                  <div className="font-semibold text-gray-800">Ảnh đại diện hiện tại</div>
+                  <div className="break-all text-[11px] text-gray-600">
+                    {coverUrl}
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             <div className="space-y-3">
               {imageList.map((img, idx) => (
                 <div
-                  key={idx}
-                  className="grid gap-2 rounded-md border border-gray-100 bg-gray-50 p-2 text-xs md:grid-cols-6"
+                  key={img.id ?? idx}
+                  className="grid gap-2 rounded-md border border-gray-100 bg-gray-50 p-2 text-xs md:grid-cols-7"
                 >
                   <div className="md:col-span-3">
                     <label className="text-[11px] font-medium text-gray-700">
@@ -1711,10 +1686,48 @@ const parsePercentOrNull = (v: string) => {
                       placeholder={String(idx + 1)}
                     />
                   </div>
-                  <div className="md:col-span-6">
-                    <div className="mt-2 flex items-center justify-between gap-3">
+                  <div className="md:col-span-1">
+                    <label className="text-[11px] font-medium text-gray-700">
+                      Cover
+                    </label>
+                    <div className="mt-1 flex items-center gap-1">
+                      <input
+                        type="radio"
+                        name="cover-image"
+                        className="h-4 w-4"
+                        checked={coverImageId === (img.id ?? idx)}
+                        onChange={() => {
+                          setCoverImageId(img.id ?? idx);
+                          setCoverUrl(img.url);
+                        }}
+                        disabled={!img.url.trim()}
+                      />
+                      {coverImageId === (img.id ?? idx) ? (
+                        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-800">
+                          Cover
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          className="text-[11px] text-blue-600 hover:underline disabled:opacity-50"
+                          onClick={() => {
+                            setCoverImageId(img.id ?? idx);
+                            setCoverUrl(img.url);
+                          }}
+                          disabled={!img.url.trim()}
+                        >
+                          Đặt cover
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="md:col-span-1">
+                    <label className="text-[11px] font-medium text-gray-700">
+                      Preview
+                    </label>
+                    <div className="mt-1 flex items-center justify-between gap-3">
                       {img.url ? (
-                        <div className="relative h-20 w-20 overflow-hidden rounded border border-gray-200 bg-white">
+                        <div className="relative h-16 w-16 overflow-hidden rounded border border-gray-200 bg-white">
                           <Image
                             src={img.url}
                             alt={img.alt || "preview"}
@@ -1723,16 +1736,26 @@ const parsePercentOrNull = (v: string) => {
                           />
                         </div>
                       ) : (
-                        <div className="flex h-20 w-20 items-center justify-center rounded border border-dashed border-gray-300 bg-white text-[10px] text-gray-400">
+                        <div className="flex h-16 w-16 items-center justify-center rounded border border-dashed border-gray-300 bg-white text-[10px] text-gray-400">
                           Không preview
                         </div>
                       )}
+                    </div>
+                  </div>
+                  <div className="md:col-span-7">
+                    <div className="mt-2 flex items-center justify-end gap-3">
                       <button
                         type="button"
                         onClick={() =>
-                          setImageList((prev) =>
-                            prev.filter((_, i) => i !== idx),
-                          )
+                          setImageList((prev) => {
+                            const next = prev.filter((_, i) => i !== idx);
+                            if (coverImageId === (img.id ?? idx)) {
+                              const fallback = next[0];
+                              setCoverImageId(fallback?.id ?? null);
+                              setCoverUrl(fallback?.url ?? "");
+                            }
+                            return next;
+                          })
                         }
                         className="rounded border border-red-200 bg-red-50 px-2 py-1 text-[11px] font-medium text-red-600 hover:bg-red-100"
                       >
@@ -1768,14 +1791,78 @@ const parsePercentOrNull = (v: string) => {
           </div>
         </div>
       </div>
-      <ImageCropDialog
-        open={coverCropOpen && Boolean(coverCropSource?.url)}
-        imageSrc={coverCropSource?.url ?? null}
-        fileName={coverCropSource?.fileName}
-        aspectRatio={4 / 3}
-        onOpenChange={handleCoverDialogOpenChange}
-        onComplete={handleCoverCropComplete}
-      />
+      <Dialog open={libraryOpen} onOpenChange={(open) => setLibraryOpen(open)}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Thư viện ảnh theo loại sản phẩm</DialogTitle>
+            <DialogDescription>
+              Chọn ảnh có sẵn trong thư mục của loại sản phẩm để tái sử dụng làm gallery/cover.
+            </DialogDescription>
+          </DialogHeader>
+          {libraryError && (
+            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+              {libraryError}
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            {libraryItems.map((asset) => (
+              <button
+                key={asset.publicId}
+                type="button"
+                onClick={() => addImageFromLibrary(asset)}
+                className="group overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:border-blue-400 hover:shadow-md"
+              >
+                <div className="relative aspect-square w-full bg-gray-100">
+                  <Image
+                    src={asset.secureUrl}
+                    alt={asset.publicId}
+                    fill
+                    sizes="200px"
+                    className="object-cover transition duration-200 group-hover:scale-[1.02]"
+                  />
+                </div>
+                <div className="p-2 text-left">
+                  <div className="text-[11px] font-semibold text-gray-800 truncate">
+                    {asset.publicId}
+                  </div>
+                  <div className="text-[10px] text-gray-500">
+                    {(asset.width ?? 0)}x{(asset.height ?? 0)} • {((asset.bytes ?? 0) / 1024).toFixed(0)} KB
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+          {!libraryItems.length && !libraryLoading && (
+            <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center text-sm text-gray-600">
+              Chưa có ảnh trong thư viện loại sản phẩm này.
+            </div>
+          )}
+          <DialogFooter className="flex items-center justify-between gap-2">
+            <div className="text-xs text-gray-500">
+              Thư mục: gallery theo loại sản phẩm
+            </div>
+            <div className="flex gap-2">
+              {libraryNextCursor ? (
+                <button
+                  type="button"
+                  onClick={() => fetchLibrary(libraryNextCursor ?? undefined)}
+                  className="rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-60"
+                  disabled={libraryLoading}
+                >
+                  {libraryLoading ? "Đang tải..." : "Tải thêm"}
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setLibraryOpen(false)}
+                className="rounded bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                Đóng
+              </button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <ImageCropDialog
         open={galleryCropOpen && Boolean(galleryCropSource?.url)}
         imageSrc={galleryCropSource?.url ?? null}
