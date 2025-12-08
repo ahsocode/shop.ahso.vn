@@ -5,6 +5,7 @@ export type OrderStatus =
   | "processing"
   | "shipped"
   | "delivered"
+  | "cancel_requested"   // ✅ thêm
   | "cancelled";
 
 export interface OrderListItemDTO {
@@ -28,7 +29,7 @@ export type OrderDetailDTO = {
   id: string;
   code: string;
   createdAt: string;
-  status: "pending" | "paid" | "processing" | "shipped" | "delivered" | "cancelled";
+  status: OrderStatus;   // ✅ dùng OrderStatus luôn
   customer: { name: string; email?: string; phone?: string };
   shippingAddress?: {
     line1: string;
@@ -54,7 +55,23 @@ export type OrderDetailDTO = {
   }[];
   note?: string;
 
-  // 👉 THÊM BLOCK NÀY
+  // ✅ lý do hủy / yêu cầu hủy
+  cancelRequestReason?: string | null;  // user gửi yêu cầu hủy
+  cancelReason?: string | null;         // staff hủy
+  cancelRejectReason?: string | null;   // staff từ chối yêu cầu hủy
+  cancelRejectAt?: string | null;
+  prevStatusBeforeCancel?: OrderStatus | null;
+  history?: Array<{
+    id: string;
+    fromStatus: OrderStatus | null;
+    toStatus: OrderStatus;
+    reason?: string | null;
+    createdAt: string;
+    createdBy?: string | null;
+    createdByName?: string | null;
+    createdByRole?: string | null;
+  }>;
+
   pricing: {
     subtotal: number;
     discountTotal: number;
@@ -63,4 +80,3 @@ export type OrderDetailDTO = {
     grandTotal: number;
   };
 };
-

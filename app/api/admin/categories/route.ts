@@ -29,32 +29,72 @@ export async function GET(req: NextRequest) {
       }),
     };
 
-    const [total, rows] = await Promise.all([
-      prisma.productcategory.count({ where }),
-      prisma.productcategory.findMany({
-        where,
-        orderBy: { name: "asc" },
-        skip,
-        take,
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          coverImage: true,
-          description: true,
-          createdAt: true,
-          updatedAt: true,
-          _count: { select: { productcategorylink: true } },
-        },
-      }),
-    ]);
+    const total = await prisma.productcategory.count({ where });
+    const rows = await prisma.productcategory.findMany({
+      where,
+      orderBy: { name: "asc" },
+      skip,
+      take,
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        coverImage: true,
+        description: true,
+        createdAt: true,
+        updatedAt: true,
+        productCount: true, // cột denormalized nếu đã có
+        _count: { select: { productcategorylink: true } },
+      },
+    });
+
+    const types = rows.length
+      ? await prisma.producttype.findMany({
+          where: { categoryId: { in: rows.map((r) => r.id) } },
+          select: { id: true, categoryId: true },
+        })
+      : [];
+
+    // Map typeId -> categoryId
+    const typeToCategory = new Map<string, string>();
+    types.forEach((t) => typeToCategory.set(t.id, t.categoryId));
+
+    const typeIds = types.map((t) => t.id);
+    let grouped: Array<{ typeId: string; _count: { _all: number } }> = [];
+    if (typeIds.length) {
+      // groupBy bị ràng kiểu phức tạp trên Prisma; dùng findMany + tự đếm để tránh lỗi build
+      const productTypeIds = await prisma.product.findMany({
+        where: { typeId: { in: typeIds } },
+        select: { typeId: true },
+      });
+      const countMap: Record<string, number> = {};
+      for (const row of productTypeIds) {
+        if (!row.typeId) continue;
+        countMap[row.typeId] = (countMap[row.typeId] || 0) + 1;
+      }
+      grouped = Object.entries(countMap).map(([typeId, count]) => ({
+        typeId,
+        _count: { _all: count },
+      }));
+    }
+
+    const typeCountByCategory: Record<string, number> = {};
+    for (const g of grouped) {
+      const categoryId = g.typeId ? typeToCategory.get(g.typeId) : undefined;
+      if (!categoryId) continue;
+      typeCountByCategory[categoryId] = (typeCountByCategory[categoryId] || 0) + (g._count._all || 0);
+    }
 
     type CategoryRow = (typeof rows)[number];
     const data = rows.map((row: CategoryRow) => {
       const { _count, ...rest } = row;
       return {
         ...rest,
-        productCount: _count.productcategorylink,
+        productCount:
+          typeCountByCategory[rest.id] ??
+          rest.productCount ??
+          _count.productcategorylink ??
+          0,
       };
     });
 

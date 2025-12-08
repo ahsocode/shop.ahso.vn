@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonOk, jsonError, toHttpError } from "@/lib/http";
+import { slugify } from "@/lib/slug";
 import { z } from "zod";
 
 const UpdateSchema = z.object({
@@ -9,7 +10,7 @@ const UpdateSchema = z.object({
   slug: z.string().trim().optional(),
   coverImage: z.string().url().optional(),
   description: z.string().optional(),
-  categoryId: z.string().cuid().optional(), // cho phép chuyển category nếu muốn
+  categoryId: z.string().uuid().optional(), // cho phép chuyển category nếu muốn
 });
 
 export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
@@ -42,11 +43,31 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     const current = await prisma.producttype.findUnique({ where: { id } });
     if (!current) return jsonError("Not Found", 404);
 
-    // Nếu đổi category hoặc slug, cần đảm bảo unique compound (categoryId, slug)
-    const nextCategoryId = parsed.data.categoryId ?? current.categoryId;
-    const nextSlug = parsed.data.slug ?? current.slug;
+    const updates = parsed.data;
+    const hasSlugField = Object.prototype.hasOwnProperty.call(updates, "slug");
+    const explicitSlug = hasSlugField ? (updates.slug ?? "").trim() : undefined;
+    let slugChange: string | undefined;
 
-    if (nextSlug !== current.slug || nextCategoryId !== current.categoryId) {
+    if (explicitSlug && explicitSlug !== current.slug) {
+      slugChange = explicitSlug;
+    } else {
+      let baseName: string | undefined;
+      if (typeof updates.name === "string") {
+        baseName = updates.name;
+      } else if (hasSlugField && !explicitSlug) {
+        baseName = current.name;
+      }
+      if (baseName) {
+        const auto = slugify(baseName);
+        if (auto && auto !== current.slug) slugChange = auto;
+      }
+    }
+
+    // Nếu đổi category hoặc slug, cần đảm bảo unique compound (categoryId, slug)
+    const nextCategoryId = updates.categoryId ?? current.categoryId;
+    const nextSlug = slugChange ?? current.slug;
+
+    if ((slugChange && nextSlug !== current.slug) || nextCategoryId !== current.categoryId) {
       const dup = await prisma.producttype.findUnique({
         where: { categoryId_slug: { categoryId: nextCategoryId, slug: nextSlug } },
       });
@@ -62,9 +83,11 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     const updated = await prisma.producttype.update({
       where: { id },
       data: {
-        ...parsed.data,
+        ...updates,
         // đảm bảo ghi đúng cặp unique
-        ...(parsed.data.slug || parsed.data.categoryId ? { slug: nextSlug, categoryId: nextCategoryId } : {}),
+        ...((slugChange && slugChange.length) || typeof updates.categoryId !== "undefined"
+          ? { slug: nextSlug, categoryId: nextCategoryId }
+          : {}),
       },
     });
 
@@ -84,7 +107,12 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
     return jsonOk({ ok: true });
   } catch (error) {
     const err = toHttpError(error);
-    if (err.code === "P2003") return jsonError("Cannot delete: product type in use", 409);
+    if (err.code === "P2003") {
+      return jsonError(
+        "Không thể xóa loại sản phẩm vì vẫn còn sản phẩm thuộc loại này.",
+        409,
+      );
+    }
     return jsonError(err.message || "Internal Error", err.status || 500);
   }
 }

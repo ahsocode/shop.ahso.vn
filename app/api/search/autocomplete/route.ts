@@ -65,8 +65,8 @@ export async function GET(req: NextRequest) {
             AND: [
               {
                 OR: [
-                  { name: { contains: query } },
-                  { sku: { contains: query } },
+                  { name: { contains: query, mode: "insensitive" } },
+                  { sku: { contains: query, mode: "insensitive" } },
                 ],
               },
               { status: "PUBLISHED" },
@@ -86,8 +86,8 @@ export async function GET(req: NextRequest) {
         prisma.brand.findMany({
           where: {
             OR: [
-              { name: { contains: query } },
-              { slug: { contains: query } },
+              { name: { contains: query, mode: "insensitive" } },
+              { slug: { contains: query, mode: "insensitive" } },
             ],
           },
           take: 3,
@@ -103,8 +103,8 @@ export async function GET(req: NextRequest) {
         prisma.productcategory.findMany({
           where: {
             OR: [
-              { name: { contains: query } },
-              { slug: { contains: query } },
+              { name: { contains: query, mode: "insensitive" } },
+              { slug: { contains: query, mode: "insensitive" } },
             ],
           },
           take: 3,

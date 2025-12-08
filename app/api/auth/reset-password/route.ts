@@ -4,6 +4,7 @@ import { z } from "zod"
 import { jwtVerify, type JWTPayload } from "jose"
 import bcrypt from "bcrypt"
 import { prisma } from "@/lib/prisma"
+import { sendMail } from "@/lib/mailer"
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1, "Token bắt buộc"),
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
     // Find user
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true },
+      select: { id: true, email: true, fullName: true },
     })
 
     if (!user) {
@@ -73,6 +74,32 @@ export async function POST(req: Request) {
       where: { id: userId },
       data: { passwordHash },
     })
+
+    // Notify user via email
+    if (user.email) {
+      const now = new Intl.DateTimeFormat("vi-VN", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(new Date())
+
+      const emailPayload = {
+        to: user.email,
+        subject: "Mật khẩu của bạn đã được đổi",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+            <h2 style="color: #1a56db;">Xin chào ${user.fullName || "bạn"},</h2>
+            <p>Mật khẩu của bạn trên AHSO đã được thay đổi thành công lúc <strong>${now}</strong>.</p>
+            <p>Nếu không phải bạn thực hiện, vui lòng <strong>đặt lại mật khẩu</strong> ngay và liên hệ hỗ trợ.</p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+            <p style="color: #666; font-size: 12px;">
+              AHSO Shop - <a href="https://shop.ahso.vn">shop.ahso.vn</a>
+            </p>
+          </div>
+        `,
+      }
+
+      await sendMail(emailPayload)
+    }
 
     return NextResponse.json({
       message: "Đặt lại mật khẩu thành công",

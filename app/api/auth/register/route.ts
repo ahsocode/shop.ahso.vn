@@ -6,8 +6,9 @@ import { SignJWT } from "jose";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "@/generated/client";
 import { shouldUseSecureAuthCookie } from "@/lib/auth";
+import { sendMail } from "@/lib/mailer";
 
 // ===== Validation =====
 const addressSchema = z.object({
@@ -228,6 +229,36 @@ export async function POST(req: Request) {
       { sub: user.id, username: user.username, email: user.email, role: user.role },
       "7d"
     );
+
+    // Gửi email chào mừng qua SMTP (không chặn luồng nếu lỗi)
+    if (user.email) {
+      const emailPayload = {
+        to: user.email,
+        subject: "Chào mừng bạn đến AHSO",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+            <h2 style="color: #1a56db; margin-bottom: 12px;">Chào mừng ${user.fullName || user.username || "bạn"}!</h2>
+            <p>Cảm ơn bạn đã quan tâm đến <strong>shop.ahso.vn</strong>. Chúng tôi rất hân hạnh được phục vụ bạn.</p>
+            <p>Bạn có thể đăng nhập và bắt đầu mua sắm ngay:</p>
+            <div style="text-align: center; margin: 24px 0;">
+              <a href="${process.env.NEXT_PUBLIC_APP_URL ?? "/"}"
+                 style="background: #1a56db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                Đăng nhập ngay
+              </a>
+            </div>
+            <p style="color: #555;">Nếu bạn không tự đăng ký tài khoản, vui lòng liên hệ với chúng tôi để được hỗ trợ.</p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 24px 0;">
+            <p style="color: #666; font-size: 12px;">AHSO Shop - <a href="https://shop.ahso.vn">shop.ahso.vn</a></p>
+          </div>
+        `,
+      };
+
+      try {
+        await sendMail(emailPayload);
+      } catch (err) {
+        console.error("❌ Failed to send welcome email:", err);
+      }
+    }
 
     const res = NextResponse.json(
       { user, token, tokenType: "Bearer", expiresIn: 7 * 24 * 3600 },

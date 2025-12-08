@@ -69,6 +69,11 @@ export type cartitem = Prisma.cartitemModel
  */
 export type order = Prisma.orderModel
 /**
+ * Model orderstatushistory
+ * 
+ */
+export type orderstatushistory = Prisma.orderstatushistoryModel
+/**
  * Model orderitem
  * 
  */
@@ -78,6 +83,31 @@ export type orderitem = Prisma.orderitemModel
  * 
  */
 export type payment = Prisma.paymentModel
+/**
+ * Model supplier
+ * 
+ */
+export type supplier = Prisma.supplierModel
+/**
+ * Model systemsetting
+ * 
+ */
+export type systemsetting = Prisma.systemsettingModel
+/**
+ * Model herobanner
+ * 
+ */
+export type herobanner = Prisma.herobannerModel
+/**
+ * Model siteannouncement
+ * 
+ */
+export type siteannouncement = Prisma.siteannouncementModel
+/**
+ * Model policysection
+ * 
+ */
+export type policysection = Prisma.policysectionModel
 /**
  * Model product
  * 
@@ -113,6 +143,11 @@ export type productspecvalue = Prisma.productspecvalueModel
  * 
  */
 export type producttype = Prisma.producttypeModel
+/**
+ * Model featuredproduct
+ * 
+ */
+export type featuredproduct = Prisma.featuredproductModel
 /**
  * Model review
  * 
@@ -158,3 +193,33 @@ export type unitdefinition = Prisma.unitdefinitionModel
  * 
  */
 export type user = Prisma.userModel
+/**
+ * Model contacttype
+ * 
+ */
+export type contacttype = Prisma.contacttypeModel
+/**
+ * Model contact
+ * 
+ */
+export type contact = Prisma.contactModel
+/**
+ * Model quoterequest
+ * 
+ */
+export type quoterequest = Prisma.quoterequestModel
+/**
+ * Model stocktransaction
+ * 
+ */
+export type stocktransaction = Prisma.stocktransactionModel
+/**
+ * Model financialtransaction
+ * 
+ */
+export type financialtransaction = Prisma.financialtransactionModel
+/**
+ * Model dailysummary
+ * 
+ */
+export type dailysummary = Prisma.dailysummaryModel

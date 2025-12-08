@@ -6,13 +6,14 @@ import { z } from "zod";
 import { prisma, prismaSupportsUserBlockField } from "../../../../../lib/prisma";
 import { verifyBearerAuth, requireRole, UnauthorizedError, ForbiddenError } from "../../../../../lib/auth";
 import type { userSelect, userWhereInput } from "@/lib/prisma-types";
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "@/generated/client";
 
 const createStaffSchema = z.object({
   // Chấp nhận hoa/thường, sẽ lưu lowercase
-  username: z.string().min(3).max(32).regex(/^[a-zA-Z0-9_.-]+$/),
-  password: z.string().min(8),
-  fullName: z.string().min(1).max(128),
+  username: z.string().min(3, "Username tối thiểu 3 ký tự").max(32, "Username tối đa 32 ký tự").regex(/^[a-zA-Z0-9_.-]+$/, "Username chỉ gồm chữ, số, dấu . _ -"),
+  // Ngoại lệ cho admin: cho phép mật khẩu độ dài bất kỳ (tối thiểu 1 ký tự để tránh rỗng hoàn toàn)
+  password: z.string().min(1, "Mật khẩu không được để trống"),
+  fullName: z.string().min(1, "Họ tên không được để trống").max(128, "Họ tên tối đa 128 ký tự"),
 });
 
 type StaffRow = {
@@ -102,7 +103,14 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const parsed = createStaffSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: "VALIDATION_ERROR", details: parsed.error.flatten() }, { status: 400 });
+      const details = parsed.error.flatten();
+      const firstMessage =
+        (Object.values(details.fieldErrors).flat().filter(Boolean) as string[])[0] ||
+        "Dữ liệu không hợp lệ";
+      return NextResponse.json(
+        { error: "VALIDATION_ERROR", message: firstMessage, details },
+        { status: 400 },
+      );
     }
 
     const data = parsed.data;

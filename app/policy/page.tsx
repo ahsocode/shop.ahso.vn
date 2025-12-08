@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { withRevealDelay } from "@/lib/reveal";
 import Link from "next/link";
 import {
@@ -16,9 +16,83 @@ import {
   CheckCircle,
 } from "lucide-react";
 
+type PolicySectionDTO = {
+  slug: string;
+  title: string;
+  description?: string | null;
+  allowedText?: string | null;
+  deniedText?: string | null;
+  content?: string | null;
+};
+
+const DEFAULT_RETURN_ALLOWED = [
+  "Sản phẩm lỗi kỹ thuật do nhà sản xuất.",
+  "Sai sản phẩm, thiếu phụ kiện, không đúng mô tả.",
+  "Còn nguyên tem, nhãn, hóa đơn, chưa sử dụng.",
+];
+const DEFAULT_RETURN_DENIED = [
+  "Hàng đặt riêng, đã qua sử dụng, tự ý sửa chữa.",
+  "Hư hỏng do vận hành sai, thiên tai, tác động ngoại lực.",
+];
+const DEFAULT_WARRANTY_ALLOWED = [
+  "Sản phẩm còn hạn bảo hành, còn tem niêm phong, chưa tự sửa chữa.",
+  "Có hoá đơn mua hàng tại AHSO hoặc chứng từ xác nhận.",
+];
+const DEFAULT_WARRANTY_DENIED = [
+  "Hỏng hóc do người dùng tác động, cháy nổ, thiên tai.",
+  "Thiếu phụ kiện, tem bảo hành rách, tẩy xoá.",
+];
+const DEFAULT_PAYMENT_CONTENT = [
+  "Cam kết bảo mật tuyệt đối mọi thông tin thanh toán của khách hàng.",
+  "Mọi giao dịch đều được mã hoá SSL và xác thực nhiều lớp.",
+];
+const DEFAULT_SHIPPING_ALLOWED = [
+  "Giao hàng toàn quốc, hỗ trợ kiểm tra trước khi nhận.",
+  "Thời gian giao từ 1-5 ngày tùy khu vực và phương thức vận chuyển.",
+];
+const DEFAULT_SHIPPING_DENIED = [
+  "Không giao hàng cho các mặt hàng bị cấm vận chuyển theo quy định pháp luật.",
+];
+const DEFAULT_CANCEL_CONTENT = [
+  "Khách hàng có thể hủy đơn trong vòng 24h kể từ khi đặt hàng nếu đơn chưa đóng gói.",
+  "Liên hệ hotline/ email để được hỗ trợ thay đổi thông tin đơn hàng.",
+];
+
 export default function PolicyPage() {
-  // Giữ cơ chế cũ cho section lớn
   const sectionsRef = useRef<HTMLElement[]>([]);
+  const [policies, setPolicies] = useState<PolicySectionDTO[]>([]);
+
+  useEffect(() => {
+    fetch("/api/policies")
+      .then((res) => res.json())
+      .then((json) => {
+        if (Array.isArray(json?.data)) setPolicies(json.data);
+      })
+      .catch(() => {
+        /* ignore */
+      });
+  }, []);
+
+  const policyMap = useMemo(() => {
+    return policies.reduce<Record<string, PolicySectionDTO>>((acc, section) => {
+      acc[section.slug] = section;
+      return acc;
+    }, {});
+  }, [policies]);
+
+  const parseLines = (text?: string | null, fallback: string[] = []) => {
+    if (!text) return fallback;
+    const parts = text
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+    return parts.length > 0 ? parts : fallback;
+  };
+
+  const parseParas = (text?: string | null, fallback: string[] = []) => {
+    const lines = parseLines(text, fallback);
+    return lines.length > 0 ? lines : fallback;
+  };
 
   useEffect(() => {
     // ---- Observer cho .reveal (section lớn) ----
@@ -63,6 +137,27 @@ export default function PolicyPage() {
   const addToRefs = (el: HTMLElement | null) => {
     if (el && !sectionsRef.current.includes(el)) sectionsRef.current.push(el);
   };
+
+  const returnPolicy = policyMap["return"];
+  const returnAllowed = parseLines(returnPolicy?.allowedText, DEFAULT_RETURN_ALLOWED);
+  const returnDenied = parseLines(returnPolicy?.deniedText, DEFAULT_RETURN_DENIED);
+  const returnNotes = parseParas(returnPolicy?.content, [
+    "Địa chỉ đổi trả: 39/15 Đ. Cao Bá Quát, Khu Phố Đông Tân, Dĩ An, Bình Dương",
+  ]);
+
+  const warrantyPolicy = policyMap["warranty"];
+  const warrantyAllowed = parseLines(warrantyPolicy?.allowedText, DEFAULT_WARRANTY_ALLOWED);
+  const warrantyDenied = parseLines(warrantyPolicy?.deniedText, DEFAULT_WARRANTY_DENIED);
+
+  const paymentPolicy = policyMap["payment-security"];
+  const paymentContent = parseParas(paymentPolicy?.content, DEFAULT_PAYMENT_CONTENT);
+
+  const shippingPolicy = policyMap["shipping"];
+  const shippingAllowed = parseLines(shippingPolicy?.allowedText, DEFAULT_SHIPPING_ALLOWED);
+  const shippingDenied = parseLines(shippingPolicy?.deniedText, DEFAULT_SHIPPING_DENIED);
+
+  const cancellationPolicy = policyMap["cancellation"];
+  const cancelContent = parseParas(cancellationPolicy?.content, DEFAULT_CANCEL_CONTENT);
 
   return (
     <div className="min-h-screen bg-linear-to-b from-gray-50 to-white">
@@ -142,12 +237,8 @@ export default function PolicyPage() {
                 Các trường hợp được đổi trả
               </h3>
               <ul className="space-y-2 text-gray-700 ml-7">
-                {[
-                  "Sản phẩm lỗi kỹ thuật do nhà sản xuất.",
-                  "Sai sản phẩm, thiếu phụ kiện, không đúng mô tả.",
-                  "Còn nguyên tem, nhãn, hóa đơn, chưa sử dụng.",
-                ].map((t, i) => (
-                  <li key={i} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
+                {returnAllowed.map((t, i) => (
+                  <li key={`${t}-${i}`} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
                     <BadgeCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" /> {t}
                   </li>
                 ))}
@@ -160,11 +251,8 @@ export default function PolicyPage() {
                 Không áp dụng đổi trả
               </h3>
               <ul className="space-y-2 text-gray-700 ml-7">
-                {[
-                  "Hàng đặt riêng, đã qua sử dụng, tự ý sửa chữa.",
-                  "Hư hỏng do vận hành sai, thiên tai, tác động ngoại lực.",
-                ].map((t, i) => (
-                  <li key={i} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
+                {returnDenied.map((t, i) => (
+                  <li key={`${t}-${i}`} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
                     <span className="w-4 h-4 rounded-full bg-amber-600/20 shrink-0 mt-0.5"></span> {t}
                   </li>
                 ))}
@@ -172,9 +260,11 @@ export default function PolicyPage() {
             </div>
 
             <div className="pt-3 border-t" data-reveal>
-              <p className="text-sm text-gray-600">
-                <strong>Địa chỉ đổi trả:</strong> 39/15 Đ. Cao Bá Quát, Khu Phố Đông Tân, Dĩ An, Bình Dương
-              </p>
+              {returnNotes.map((note, idx) => (
+                <p key={idx} className="text-sm text-gray-600">
+                  {note}
+                </p>
+              ))}
             </div>
           </div>
         </div>
@@ -197,12 +287,8 @@ export default function PolicyPage() {
                 Điều kiện bảo hành
               </h3>
               <ul className="space-y-2 text-gray-700 ml-7">
-                {[
-                  "Còn tem, số seri, trong thời hạn bảo hành (12–36 tháng tùy sản phẩm).",
-                  "Lỗi kỹ thuật do nhà sản xuất.",
-                  "Chưa tháo mở, tự ý sửa chữa.",
-                ].map((t, i) => (
-                  <li key={i} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
+                {warrantyAllowed.map((t, i) => (
+                  <li key={`${t}-${i}`} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
                     <BadgeCheck className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" /> {t}
                   </li>
                 ))}
@@ -215,12 +301,8 @@ export default function PolicyPage() {
                 Không bảo hành
               </h3>
               <ul className="space-y-2 text-gray-700 ml-7">
-                {[
-                  "Sử dụng sai điện áp, quá tải, không bảo dưỡng định kỳ.",
-                  "Hư hỏng do người dùng, thiên tai, tai nạn.",
-                  "Phiếu bảo hành bị tẩy xóa, sai lệch thông tin.",
-                ].map((t, i) => (
-                  <li key={i} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
+                {warrantyDenied.map((t, i) => (
+                  <li key={`${t}-${i}`} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
                     <span className="w-4 h-4 rounded-full bg-amber-600/20 shrink-0 mt-0.5"></span> {t}
                   </li>
                 ))}
@@ -245,11 +327,13 @@ export default function PolicyPage() {
           </div>
 
           <div className="bg-white rounded-2xl shadow-md p-6 space-y-5">
-            <div className="flex items-start gap-3" data-reveal>
-              <Globe className="w-5 h-5 text-purple-600 mt-0.5" />
-              <p className="text-gray-700">
-                Hệ thống thanh toán được cung cấp bởi <span className="font-semibold">đối tác cổng thanh toán hợp pháp</span> tại Việt Nam, tuân thủ đầy đủ tiêu chuẩn bảo mật ngành.
-              </p>
+            <div className="space-y-3">
+              {paymentContent.map((paragraph, idx) => (
+                <div key={idx} className="flex items-start gap-3" data-reveal>
+                  <Globe className="w-5 h-5 text-purple-600 mt-0.5" />
+                  <p className="text-gray-700">{paragraph}</p>
+                </div>
+              ))}
             </div>
 
             <div data-reveal>
@@ -263,11 +347,11 @@ export default function PolicyPage() {
               </ul>
             </div>
 
-            <div className="bg-purple-50 rounded-xl p-4 border border-purple-200" data-reveal>
-              <p className="text-sm text-purple-800 font-medium">
-                AHSO <strong>không lưu trữ thông tin thẻ</strong>. Dữ liệu được mã hóa và bảo mật bởi đối tác thanh toán.
-              </p>
-            </div>
+            {paymentPolicy?.description && (
+              <div className="bg-purple-50 rounded-xl p-4 border border-purple-200" data-reveal>
+                <p className="text-sm text-purple-800 font-medium">{paymentPolicy.description}</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -282,18 +366,29 @@ export default function PolicyPage() {
             <h2 className="text-3xl font-bold text-gray-900">Vận chuyển & nhận hàng</h2>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-md p-6">
-            <ul className="space-y-3 text-gray-700">
-              {[
-                { icon: <BadgeCheck className="w-5 h-5 text-blue-600 mt-0.5" />, text: "Kiểm tra thùng hàng nguyên vẹn, không ướt/móp khi nhận." },
-                { icon: <BadgeCheck className="w-5 h-5 text-blue-600 mt-0.5" />, text: "Ghi nhận bất thường với shipper và liên hệ AHSO ngay." },
-                { icon: <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />, text: "Hàng cồng kềnh cần kỹ thuật viên AHSO lắp đặt." },
-              ].map((li, i) => (
-                <li key={i} className="flex gap-3" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
-                  {li.icon} {li.text}
-                </li>
-              ))}
-            </ul>
+          <div className="bg-white rounded-2xl shadow-md p-6 space-y-5">
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Vận chuyển</h4>
+              <ul className="space-y-2 text-gray-700">
+                {shippingAllowed.map((text, i) => (
+                  <li key={`${text}-${i}`} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
+                    <BadgeCheck className="w-5 h-5 text-blue-600 mt-0.5" /> {text}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {shippingDenied.length > 0 && (
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-3">Không áp dụng</h4>
+                <ul className="space-y-2 text-gray-700">
+                  {shippingDenied.map((text, i) => (
+                    <li key={`${text}-${i}`} className="flex gap-2" data-reveal style={withRevealDelay(`${i * 80}ms`)}>
+                      <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" /> {text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -308,11 +403,10 @@ export default function PolicyPage() {
             <h2 className="text-3xl font-bold text-gray-900">Hủy đơn & thay đổi thông tin</h2>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-md p-6 text-gray-700" data-reveal>
-            <p>
-              Yêu cầu <span className="font-semibold">hủy đơn</span> hoặc <span className="font-semibold">sửa địa chỉ/hóa đơn</span> được xử lý <strong>trước khi giao cho vận chuyển</strong>.
-            </p>
-            <p className="mt-2">Liên hệ ngay qua hotline hoặc email để được hỗ trợ nhanh nhất.</p>
+          <div className="bg-white rounded-2xl shadow-md p-6 text-gray-700 space-y-3" data-reveal>
+            {cancelContent.map((content, idx) => (
+              <p key={idx}>{content}</p>
+            ))}
           </div>
         </div>
       </section>

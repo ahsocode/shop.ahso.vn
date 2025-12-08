@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   const username = (process.argv[2] || "admin").toLowerCase();
-  const password = process.argv[3] || "admin123";
+  const password = process.argv[3] || "AdminAHSO2025@";
 
   // Minimal placeholders to satisfy required fields
   const fullName = "AHSO Admin";

@@ -48,6 +48,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/policy" className="text-sm hover:text-blue-500 transition-colors">
+                  Chính sách
+                </Link>
+              </li>
+              <li>
                 <Link href="/contact" className="text-sm hover:text-blue-500 transition-colors">
                   Liên hệ
                 </Link>
@@ -59,7 +64,7 @@ export function Footer() {
           <div>
             <h3 className="font-semibold text-white mb-4">Danh mục</h3>
             <ul className="space-y-2">
-              <li>
+              {/* <li>
                 <Link href="/category/may-moc-cong-nghiep" className="text-sm hover:text-blue-500 transition-colors">
                   Máy móc công nghiệp
                 </Link>
@@ -78,7 +83,7 @@ export function Footer() {
                 <Link href="/category/phu-tung-thay-the" className="text-sm hover:text-blue-500 transition-colors">
                   Phụ tùng thay thế
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 

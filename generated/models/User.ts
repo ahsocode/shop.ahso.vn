@@ -287,7 +287,6 @@ export type userOrderByWithRelationInput = {
   review?: Prisma.reviewOrderByRelationAggregateInput
   address_user_billingAddressIdToaddress?: Prisma.addressOrderByWithRelationInput
   address_user_shippingAddressIdToaddress?: Prisma.addressOrderByWithRelationInput
-  _relevance?: Prisma.userOrderByRelevanceInput
 }
 
 export type userWhereUniqueInput = Prisma.AtLeast<{
@@ -492,12 +491,6 @@ export type userUncheckedUpdateManyInput = {
 export type UserNullableScalarRelationFilter = {
   is?: Prisma.userWhereInput | null
   isNot?: Prisma.userWhereInput | null
-}
-
-export type userOrderByRelevanceInput = {
-  fields: Prisma.userOrderByRelevanceFieldEnum | Prisma.userOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type userCountOrderByAggregateInput = {
@@ -1085,7 +1078,45 @@ export type userSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
+export type userSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  username?: boolean
+  passwordHash?: boolean
+  fullName?: boolean
+  email?: boolean
+  phoneE164?: boolean
+  taxCode?: boolean
+  emailVerified?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  shippingAddressId?: boolean
+  billingAddressId?: boolean
+  role?: boolean
+  avatarUrl?: boolean
+  isBlocked?: boolean
+  address_user_billingAddressIdToaddress?: boolean | Prisma.user$address_user_billingAddressIdToaddressArgs<ExtArgs>
+  address_user_shippingAddressIdToaddress?: boolean | Prisma.addressDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["user"]>
 
+export type userSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  username?: boolean
+  passwordHash?: boolean
+  fullName?: boolean
+  email?: boolean
+  phoneE164?: boolean
+  taxCode?: boolean
+  emailVerified?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  shippingAddressId?: boolean
+  billingAddressId?: boolean
+  role?: boolean
+  avatarUrl?: boolean
+  isBlocked?: boolean
+  address_user_billingAddressIdToaddress?: boolean | Prisma.user$address_user_billingAddressIdToaddressArgs<ExtArgs>
+  address_user_shippingAddressIdToaddress?: boolean | Prisma.addressDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["user"]>
 
 export type userSelectScalar = {
   id?: boolean
@@ -1112,6 +1143,14 @@ export type userInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   address_user_billingAddressIdToaddress?: boolean | Prisma.user$address_user_billingAddressIdToaddressArgs<ExtArgs>
   address_user_shippingAddressIdToaddress?: boolean | Prisma.addressDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type userIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  address_user_billingAddressIdToaddress?: boolean | Prisma.user$address_user_billingAddressIdToaddressArgs<ExtArgs>
+  address_user_shippingAddressIdToaddress?: boolean | Prisma.addressDefaultArgs<ExtArgs>
+}
+export type userIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  address_user_billingAddressIdToaddress?: boolean | Prisma.user$address_user_billingAddressIdToaddressArgs<ExtArgs>
+  address_user_shippingAddressIdToaddress?: boolean | Prisma.addressDefaultArgs<ExtArgs>
 }
 
 export type $userPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1256,6 +1295,30 @@ export interface userDelegate<ExtArgs extends runtime.Types.Extensions.InternalA
   createMany<T extends userCreateManyArgs>(args?: Prisma.SelectSubset<T, userCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
+   * Create many Users and returns the data saved in the database.
+   * @param {userCreateManyAndReturnArgs} args - Arguments to create many Users.
+   * @example
+   * // Create many Users
+   * const user = await prisma.user.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Users and only return the `id`
+   * const userWithIdOnly = await prisma.user.createManyAndReturn({
+   *   select: { id: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends userCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, userCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a User.
    * @param {userDeleteArgs} args - Arguments to delete one User.
    * @example
@@ -1318,6 +1381,36 @@ export interface userDelegate<ExtArgs extends runtime.Types.Extensions.InternalA
    * 
    */
   updateMany<T extends userUpdateManyArgs>(args: Prisma.SelectSubset<T, userUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Update zero or more Users and returns the data updated in the database.
+   * @param {userUpdateManyAndReturnArgs} args - Arguments to update many Users.
+   * @example
+   * // Update many Users
+   * const user = await prisma.user.updateManyAndReturn({
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Update zero or more Users and only return the `id`
+   * const userWithIdOnly = await prisma.user.updateManyAndReturn({
+   *   select: { id: true },
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  updateManyAndReturn<T extends userUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, userUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
    * Create or update one User.
@@ -1759,6 +1852,29 @@ export type userCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
+ * user createManyAndReturn
+ */
+export type userCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the user
+   */
+  select?: Prisma.userSelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the user
+   */
+  omit?: Prisma.userOmit<ExtArgs> | null
+  /**
+   * The data used to create many users.
+   */
+  data: Prisma.userCreateManyInput | Prisma.userCreateManyInput[]
+  skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.userIncludeCreateManyAndReturn<ExtArgs> | null
+}
+
+/**
  * user update
  */
 export type userUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1800,6 +1916,36 @@ export type userUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many users to update.
    */
   limit?: number
+}
+
+/**
+ * user updateManyAndReturn
+ */
+export type userUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the user
+   */
+  select?: Prisma.userSelectUpdateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the user
+   */
+  omit?: Prisma.userOmit<ExtArgs> | null
+  /**
+   * The data used to update users.
+   */
+  data: Prisma.XOR<Prisma.userUpdateManyMutationInput, Prisma.userUncheckedUpdateManyInput>
+  /**
+   * Filter which users to update
+   */
+  where?: Prisma.userWhereInput
+  /**
+   * Limit how many users to update.
+   */
+  limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.userIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

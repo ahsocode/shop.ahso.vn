@@ -8,10 +8,11 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// ===== ADDRESS =====
 model address {
   id                                   String   @id
   line1                                String
@@ -27,6 +28,7 @@ model address {
   user_user_shippingAddressIdToaddress user?    @relation("user_shippingAddressIdToaddress")
 }
 
+// ===== BRAND =====
 model brand {
   id           String    @id
   name         String
@@ -39,6 +41,7 @@ model brand {
   product      product[]
 }
 
+// ===== CART =====
 model cart {
   id            String      @id
   userId        String?
@@ -57,6 +60,7 @@ model cart {
   @@index([userId], map: "Cart_userId_idx")
 }
 
+// ===== CART ITEM =====
 model cartitem {
   id            String   @id
   cartId        String
@@ -81,48 +85,73 @@ model cartitem {
   @@index([productId], map: "CartItem_productId_idx")
 }
 
+// ===== ORDER =====
 model order {
   id                 String       @id
   code               String       @unique(map: "Order_code_key")
   status             order_status @default(pending)
+  prevStatusBeforeCancel order_status?
   shippingMethod     String?
   shippingFee        Decimal      @default(0.00) @db.Decimal(12, 2)
-  note               String?
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime
-  addressId          String?
-  userId             String?
-  billingCity        String?
-  billingCountry     String       @default("VN") @db.Char(2)
-  billingLine1       String?
-  billingLine2       String?
-  billingPostalCode  String?
-  billingState       String?
-  currency           String       @default("VND")
-  customerEmail      String
-  customerFullName   String
-  customerPhone      String
-  customerTaxCode    String?      @db.VarChar(13)
-  discountTotal      Decimal      @default(0.00) @db.Decimal(12, 2)
-  grandTotal         Decimal      @db.Decimal(12, 2)
-  shippingCity       String
-  shippingCountry    String       @default("VN") @db.Char(2)
-  shippingLine1      String
-  shippingLine2      String?
-  shippingPostalCode String?
-  shippingState      String?
-  subtotal           Decimal      @db.Decimal(12, 2)
-  taxTotal           Decimal      @default(0.00) @db.Decimal(12, 2)
-  address            address?     @relation(fields: [addressId], references: [id], map: "Order_addressId_fkey")
-  user               user?        @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
-  orderitem          orderitem[]
-  payment            payment?
 
+  note                 String?      @db.Text
+  cancelReason         String?      @db.Text
+  cancelRequestReason  String?      @db.Text
+  cancelRejectReason   String?      @db.Text
+  cancelRejectAt       DateTime?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime
+  addressId            String?
+  userId               String?
+  billingCity          String?
+  billingCountry       String       @default("VN") @db.Char(2)
+  billingLine1         String?
+  billingLine2         String?
+  billingPostalCode    String?
+  billingState         String?
+  currency             String       @default("VND")
+  customerEmail        String
+  customerFullName     String
+  customerPhone        String
+  customerTaxCode      String?      @db.VarChar(13)
+  discountTotal        Decimal      @default(0.00) @db.Decimal(12, 2)
+  grandTotal           Decimal      @db.Decimal(12, 2)
+  shippingCity         String
+  shippingCountry      String       @default("VN") @db.Char(2)
+  shippingLine1        String
+  shippingLine2        String?
+  shippingPostalCode   String?
+  shippingState        String?
+  subtotal             Decimal      @db.Decimal(12, 2)
+  taxTotal             Decimal      @default(0.00) @db.Decimal(12, 2)
+  address              address?     @relation(fields: [addressId], references: [id], map: "Order_addressId_fkey")
+  user                 user?        @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
+  orderitem            orderitem[]
+  payment              payment?
+  stocktransaction      stocktransaction[]
+  financialtransaction  financialtransaction[]
+  orderstatushistory    orderstatushistory[]
   @@index([addressId], map: "Order_addressId_idx")
   @@index([status, createdAt], map: "Order_status_createdAt_idx")
   @@index([userId], map: "Order_userId_idx")
 }
 
+model orderstatushistory {
+  id         String       @id @default(cuid())
+  orderId    String
+  fromStatus order_status?
+  toStatus   order_status
+  reason     String?      @db.Text
+  createdAt  DateTime     @default(now())
+  createdBy  String?
+
+  order order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId], map: "OrderStatusHistory_orderId_idx")
+  @@index([createdAt], map: "OrderStatusHistory_createdAt_idx")
+}
+
+// ===== ORDER ITEM =====
 model orderitem {
   id            String   @id
   orderId       String
@@ -148,6 +177,7 @@ model orderitem {
   @@index([sku], map: "OrderItem_sku_idx")
 }
 
+// ===== PAYMENT =====
 model payment {
   id                   String         @id
   orderId              String         @unique(map: "Payment_orderId_key")
@@ -163,64 +193,205 @@ model payment {
   @@index([status], map: "Payment_status_idx")
 }
 
-model product {
-  id                                                    String                @id
-  slug                                                  String                @unique(map: "Product_slug_key")
-  sku                                                   String                @unique(map: "Product_sku_key")
-  metaTitle                                             String?
-  metaDescription                                       String?
-  status                                                product_status        @default(DRAFT)
-  publishAt                                             DateTime?
-  brandId                                               String?
-  createdAt                                             DateTime              @default(now())
-  updatedAt                                             DateTime
-  coverImage                                            String?               @db.Text
-  currency                                              String                @default("VND")
-  description                                           String?
-  heightMm                                              Int?
-  lengthMm                                              Int?
-  listPrice                                             Decimal?              @db.Decimal(12, 2)
-  minOrderQty                                           Int?                  @default(1)
-  name                                                  String
-  price                                                 Decimal               @db.Decimal(12, 2)
-  quantityLabel                                         String?
-  quantityUnitId                                        String?
-  quantityValue                                         Decimal?              @db.Decimal(20, 6)
-  stepQty                                               Int?                  @default(1)
-  stockOnHand                                           Int                   @default(0)
-  stockReserved                                         Int                   @default(0)
-  taxIncluded                                           Boolean               @default(true)
-  typeId                                                String
-  unitId                                                String?
-  weightGrams                                           Int?
-  widthMm                                               Int?
-  purchaseCount                                         Int                   @default(0)
-  ratingAvg                                             Float                 @default(0)
-  ratingCount                                           Int                   @default(0)
-  cartitem                                              cartitem[]
-  orderitem                                             orderitem[]
-  brand                                                 brand?                @relation(fields: [brandId], references: [id], map: "Product_brandId_fkey")
-  unitdefinition_product_quantityUnitIdTounitdefinition unitdefinition?       @relation("product_quantityUnitIdTounitdefinition", fields: [quantityUnitId], references: [id], map: "Product_quantityUnitId_fkey")
-  producttype                                           producttype           @relation(fields: [typeId], references: [id], map: "Product_typeId_fkey")
-  unitdefinition_product_unitIdTounitdefinition         unitdefinition?       @relation("product_unitIdTounitdefinition", fields: [unitId], references: [id], map: "Product_unitId_fkey")
-  productcategorylink                                   productcategorylink[]
-  productimage                                          productimage[]
-  productspecvalue                                      productspecvalue[]
-  review                                                review[]
+// ===== SUPPLIER (Nhà cung cấp) =====
+model supplier {
+  id   String  @id @default(cuid())
+  name String
+  slug String  @unique
+  code String? @unique // Mã nhà cung cấp (VD: SUP-001)
 
-  @@index([brandId], map: "Product_brandId_idx")
-  @@index([name], map: "Product_name_idx")
+  // Contact Info
+  contactPerson String?
+  email         String?
+  phone         String?
+  address       String? @db.Text
+  taxCode       String? @db.VarChar(13)
+
+  // Business Terms
+  paymentTerms  String?  @default("COD") // "COD", "Net 30", "Net 60"
+  minOrderValue Decimal? @db.Decimal(12, 2)
+  shippingFee   Decimal? @db.Decimal(12, 2)
+
+  // Rating & Status
+  rating      Float?  @default(0)
+  totalOrders Int     @default(0)
+  notes       String? @db.Text
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product product[]
+
+  @@index([name], map: "Supplier_name_idx")
+  @@index([isActive], map: "Supplier_isActive_idx")
+  @@index([rating], map: "Supplier_rating_idx")
+}
+
+// ===== SYSTEM SETTINGS =====
+model systemsetting {
+  key         String   @id
+  value       String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model herobanner {
+  id         String   @id @default(cuid())
+  imageUrl   String   @db.Text
+  title      String?  @db.Text
+  content    String?  @db.Text
+  ctaLabel   String?
+  ctaHref    String?
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model siteannouncement {
+  id          String   @id @default(cuid())
+  title       String?  @db.Text
+  content     String?  @db.Text
+  imageUrl    String?  @db.Text
+  ctaLabel    String?
+  ctaHref     String?
+  isActive    Boolean  @default(true)
+  showOnLogin Boolean  @default(true)
+  showOnVisit Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model policysection {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String?  @db.Text
+  allowedText String?  @db.Text
+  deniedText  String?  @db.Text
+  content     String?  @db.Text
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+// ===== PRODUCT =====
+model product {
+  id String @id
+
+  // ===== MÃ SẢN PHẨM =====
+  sku      String  @unique // Mã gốc từ nhà cung cấp/nhà sản xuất
+  saleCode String? @unique // Mã bán hàng: AHSO-CLV1P-123456
+  slug     String  @unique
+
+  name        String
+  description String? @db.Text
+
+  // ===== NGUỒN HÀNG =====
+  supplierId  String? // Nguồn hàng chính
+  supplierSku String? // SKU của nhà cung cấp (có thể khác với SKU nội bộ)
+
+  // ===== GIÁ NHẬP & GIÁ BÁN =====
+  costPrice Decimal? @db.Decimal(12, 2) // Giá nhập (từ supplier)
+  price     Decimal  @db.Decimal(12, 2) // Giá bán
+  listPrice Decimal? @db.Decimal(12, 2) // Giá niêm yết
+
+  profitAmount Decimal? @db.Decimal(12, 2) // Lãi = price - costPrice
+  profitMargin Decimal? @db.Decimal(5, 2) // % lãi = (profit/costPrice)*100
+
+  // ===== THUẾ =====
+  taxRate     Decimal @default(0.10) @db.Decimal(5, 4) // 10% VAT
+  taxIncluded Boolean @default(true) // Giá đã bao gồm thuế?
+
+  currency String @default("VND")
+
+  // ===== BÁO GIÁ =====
+  requiresQuote Boolean @default(false) // true = Cần liên hệ báo giá
+  quoteNote     String? @db.Text // Ghi chú cho báo giá
+
+  // ===== TỒN KHO =====
+  stockOnHand   Int  @default(0)
+  stockReserved Int  @default(0)
+  reorderLevel  Int? @default(10) // Mức cảnh báo tồn kho thấp
+  reorderQty    Int? @default(50) // Số lượng đặt hàng lại
+  
+  minOrderQty Int? @default(1)
+  stepQty     Int? @default(1)
+
+  // ===== THÔNG TIN KHÁC =====
+  status     product_status @default(DRAFT)
+  typeId     String
+  brandId    String?
+  coverImage String?        @db.Text
+
+  // Dimensions
+  weightGrams Int?
+  lengthMm    Int?
+  widthMm     Int?
+  heightMm    Int?
+
+  // Unit
+  unitId         String?
+  quantityValue  Decimal? @db.Decimal(20, 6)
+  quantityUnitId String?
+  quantityLabel  String?
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+
+  // Metrics
+  ratingAvg     Float @default(0)
+  ratingCount   Int   @default(0)
+  purchaseCount Int   @default(0)
+  viewCount     Int   @default(0)
+
+  // Timestamps
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  publishAt DateTime?
+
+  // ===== RELATIONS =====
+  supplier    supplier?   @relation(fields: [supplierId], references: [id], map: "Product_supplierId_fkey")
+  producttype producttype @relation(fields: [typeId], references: [id], map: "Product_typeId_fkey")
+  brand       brand?      @relation(fields: [brandId], references: [id], map: "Product_brandId_fkey")
+
+  unitdefinition_product_unitIdTounitdefinition         unitdefinition? @relation("product_unitIdTounitdefinition", fields: [unitId], references: [id], map: "Product_unitId_fkey")
+  unitdefinition_product_quantityUnitIdTounitdefinition unitdefinition? @relation("product_quantityUnitIdTounitdefinition", fields: [quantityUnitId], references: [id], map: "Product_quantityUnitId_fkey")
+
+  cartitem            cartitem[]
+  orderitem           orderitem[]
+  productimage        productimage[]
+  productspecvalue    productspecvalue[]
+  productcategorylink productcategorylink[]
+  review              review[]
+  quoterequest        quoterequest[]
+  featuredproduct featuredproduct?
+  stocktransaction stocktransaction[]
+  
+  @@index([saleCode], map: "Product_saleCode_idx")
+  @@index([sku], map: "Product_sku_idx")
+  @@index([supplierId], map: "Product_supplierId_idx")
   @@index([price], map: "Product_price_idx")
+  @@index([costPrice], map: "Product_costPrice_idx")
+  @@index([profitMargin], map: "Product_profitMargin_idx")
+  @@index([requiresQuote], map: "Product_requiresQuote_idx")
+  @@index([status], map: "Product_status_idx")
+  @@index([typeId], map: "Product_typeId_idx")
+  @@index([brandId], map: "Product_brandId_idx")
+  @@index([stockOnHand], map: "Product_stockOnHand_idx")
+  @@index([reorderLevel], map: "Product_reorderLevel_idx")
+  @@index([name], map: "Product_name_idx")
   @@index([purchaseCount], map: "Product_purchaseCount_idx")
-  @@index([quantityUnitId], map: "Product_quantityUnitId_idx")
-  @@index([quantityValue], map: "Product_quantityValue_idx")
   @@index([ratingAvg], map: "Product_ratingAvg_idx")
   @@index([ratingCount], map: "Product_ratingCount_idx")
   @@index([status, publishAt], map: "Product_status_publishAt_idx")
-  @@index([typeId], map: "Product_typeId_idx")
-  @@index([unitId], map: "Product_unitId_fkey")
+  @@index([quantityUnitId], map: "Product_quantityUnitId_idx")
+  @@index([quantityValue], map: "Product_quantityValue_idx")
 }
 
+// ===== PRODUCT CATEGORY =====
 model productcategory {
   coverImage          String?               @db.Text
   createdAt           DateTime              @default(now())
@@ -237,6 +408,7 @@ model productcategory {
   @@index([productCount], map: "ProductCategory_productCount_idx")
 }
 
+// ===== PRODUCT CATEGORY LINK =====
 model productcategorylink {
   productId       String
   categoryId      String
@@ -247,6 +419,7 @@ model productcategorylink {
   @@index([categoryId], map: "ProductCategoryLink_categoryId_idx")
 }
 
+// ===== PRODUCT IMAGE =====
 model productimage {
   id        String   @id
   productId String
@@ -261,6 +434,7 @@ model productimage {
   @@index([sortOrder], map: "ProductImage_sortOrder_idx")
 }
 
+// ===== PRODUCT SPEC DEFINITION =====
 model productspecdefinition {
   id               String             @id
   name             String
@@ -272,6 +446,7 @@ model productspecdefinition {
   @@index([name], map: "ProductSpecDefinition_name_idx")
 }
 
+// ===== PRODUCT SPEC VALUE =====
 model productspecvalue {
   id                    String                @id
   productId             String
@@ -292,6 +467,7 @@ model productspecvalue {
   @@index([specDefinitionId], map: "ProductSpecValue_specDefinitionId_idx")
 }
 
+// ===== PRODUCT TYPE =====
 model producttype {
   id              String          @id
   slug            String
@@ -310,15 +486,33 @@ model producttype {
   @@index([name], map: "ProductType_name_idx")
   @@index([productCount], map: "ProductType_productCount_idx")
 }
-
+model featuredproduct {
+  id          String   @id @default(cuid())
+  productId   String
+  title       String?  @db.Text
+  description String?  @db.Text
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  product     product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@unique([productId])
+  @@index([isActive, sortOrder], map: "FeaturedProduct_isActive_sortOrder_idx")
+  @@index([startDate, endDate], map: "FeaturedProduct_date_range_idx")
+}
+// ===== REVIEW =====
 model review {
   id          String        @id
   productId   String
   userId      String?
   rating      Int
-  feedback    String?
-  description String?
-  reply       String?
+  feedback    String?       @db.Text
+  description String?       @db.Text
+  reply       String?       @db.Text
   createdAt   DateTime      @default(now())
   updatedAt   DateTime
   product     product       @relation(fields: [productId], references: [id], onDelete: Cascade, map: "Review_productId_fkey")
@@ -329,6 +523,7 @@ model review {
   @@index([userId], map: "Review_userId_idx")
 }
 
+// ===== REVIEW IMAGE =====
 model reviewimage {
   id        String   @id
   reviewId  String
@@ -341,13 +536,14 @@ model reviewimage {
   @@index([reviewId], map: "ReviewImage_reviewId_idx")
 }
 
+// ===== SOFTWARE =====
 model software {
   id               String           @id
   title            String
   slug             String           @unique(map: "Software_slug_key")
-  summary          String?
+  summary          String?          @db.Text
   coverImage       String?          @db.Text
-  bodyHtml         String           @db.LongText
+  bodyHtml         String           @db.Text
   status           software_status  @default(DRAFT)
   publishedAt      DateTime?
   metaTitle        String?
@@ -359,14 +555,16 @@ model software {
   softwarecategory softwarecategory @relation(fields: [categoryId], references: [id], map: "Software_categoryId_fkey")
 
   @@index([categoryId, status], map: "Software_categoryId_status_idx")
-  @@fulltext([title, bodyHtml], map: "Software_title_bodyHtml_idx")
+  @@index([title], map: "Software_title_idx")
+  @@index([bodyHtml], map: "Software_bodyHtml_idx")
 }
 
+// ===== SOFTWARE CATEGORY =====
 model softwarecategory {
   id                     String             @id
   name                   String
   slug                   String             @unique(map: "SoftwareCategory_slug_key")
-  description            String?
+  description            String?            @db.Text
   image                  String?            @db.Text
   parentId               String?
   sortOrder              Int                @default(0)
@@ -380,13 +578,14 @@ model softwarecategory {
   @@index([parentId, sortOrder], map: "SoftwareCategory_parentId_sortOrder_idx")
 }
 
+// ===== SOLUTION =====
 model solution {
   id               String           @id
   title            String
   slug             String           @unique(map: "Solution_slug_key")
-  summary          String?
+  summary          String?          @db.Text
   coverImage       String?          @db.Text
-  bodyHtml         String           @db.LongText
+  bodyHtml         String           @db.Text
   industry         String?
   usecase          String?
   status           solution_status  @default(DRAFT)
@@ -401,14 +600,17 @@ model solution {
   solutionimage    solutionimage[]
 
   @@index([categoryId, status], map: "Solution_categoryId_status_idx")
-  @@fulltext([title, bodyHtml, usecase], map: "Solution_title_bodyHtml_usecase_idx")
+  @@index([title], map: "Solution_title_idx")
+  @@index([bodyHtml], map: "Solution_bodyHtml_idx")
+  @@index([usecase], map: "Solution_usecase_idx")
 }
 
+// ===== SOLUTION CATEGORY =====
 model solutioncategory {
   id                     String             @id
   name                   String
   slug                   String             @unique(map: "SolutionCategory_slug_key")
-  description            String?
+  description            String?            @db.Text
   image                  String?            @db.Text
   parentId               String?
   sortOrder              Int                @default(0)
@@ -422,6 +624,7 @@ model solutioncategory {
   @@index([parentId, sortOrder], map: "SolutionCategory_parentId_sortOrder_idx")
 }
 
+// ===== SOLUTION IMAGE =====
 model solutionimage {
   id         String   @id
   solutionId String
@@ -434,6 +637,7 @@ model solutionimage {
   @@index([solutionId, sortOrder], map: "SolutionImage_solutionId_sortOrder_idx")
 }
 
+// ===== UNIT DEFINITION =====
 model unitdefinition {
   id                                             String    @id
   name                                           String    @unique(map: "UnitDefinition_name_key")
@@ -447,6 +651,7 @@ model unitdefinition {
   product_product_unitIdTounitdefinition         product[] @relation("product_unitIdTounitdefinition")
 }
 
+// ===== USER =====
 model user {
   id                                      String    @id
   username                                String    @unique(map: "User_username_key")
@@ -469,6 +674,236 @@ model user {
   address_user_shippingAddressIdToaddress address   @relation("user_shippingAddressIdToaddress", fields: [shippingAddressId], references: [id], map: "User_shippingAddressId_fkey")
 }
 
+// ===== CONTACT TYPE (Chủ đề liên hệ) =====
+model contacttype {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  slug        String  @unique
+  description String? @db.Text
+  icon        String? @default("message-circle")
+  color       String? @default("#3b82f6")
+  sortOrder   Int     @default(0)
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contact contact[]
+
+  @@index([sortOrder], map: "ContactType_sortOrder_idx")
+  @@index([isActive], map: "ContactType_isActive_idx")
+}
+// ===== CONTACT (Yêu cầu liên hệ) - UPDATED VERSION =====
+model contact {
+  id   String @id @default(cuid())
+  code String @unique // CT-20250115-0001
+
+  // Contact Info
+  fullName String
+  phone    String
+  email    String?
+  company  String?
+
+  // Message
+  subject String?
+  message String  @db.Text
+
+  // Classification
+  typeId String?
+  source String  @default("website") // website, phone, email, chat
+
+  // Status & Priority
+  status   contact_status   @default(new)
+  priority contact_priority @default(normal)
+
+  // Assignment
+  assignedTo String? // userId of staff
+
+  // Response - ADDED FIELD
+  response    String?   @db.Text  // ← Nội dung phản hồi từ staff
+  respondedAt DateTime?
+  respondedBy String? // userId
+
+  // Tracking
+  ipAddress String?
+  userAgent String? @db.Text
+  referrer  String? @db.Text
+
+  // Notes
+  internalNotes String? @db.Text // Ghi chú nội bộ
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contacttype contacttype? @relation(fields: [typeId], references: [id], map: "Contact_typeId_fkey")
+
+  // Indexes - OPTIMIZED
+  @@index([code], map: "Contact_code_idx")
+  @@index([status], map: "Contact_status_idx")
+  @@index([priority], map: "Contact_priority_idx")
+  @@index([typeId], map: "Contact_typeId_idx")
+  @@index([createdAt], map: "Contact_createdAt_idx")
+  @@index([email], map: "Contact_email_idx")
+  @@index([phone], map: "Contact_phone_idx")
+  @@index([assignedTo], map: "Contact_assignedTo_idx")
+  @@index([respondedBy], map: "Contact_respondedBy_idx")        // ← NEW
+  @@index([updatedAt], map: "Contact_updatedAt_idx")            // ← NEW
+  @@index([phone, status], map: "Contact_phone_status_idx")     // ← NEW (for rate limiting)
+}
+
+// ===== QUOTE REQUEST (Yêu cầu báo giá) =====
+model quoterequest {
+  id   String @id @default(cuid())
+  code String @unique // QR-20250115-0001
+
+  // Customer Info
+  fullName String
+  phone    String
+  email    String?
+  company  String?
+  taxCode  String? @db.VarChar(13)
+
+  // Quote Details
+  productId   String?
+  productName String? // Lưu tên sản phẩm tại thời điểm request
+  quantity    Int     @default(1)
+  message     String? @db.Text
+
+  // Pricing
+  quotedPrice Decimal?  @db.Decimal(12, 2)
+  quotedTotal Decimal?  @db.Decimal(12, 2)
+  validUntil  DateTime?
+
+  // Terms
+  paymentTerms  String?
+  deliveryTerms String?
+
+  // Status
+  status   quote_status     @default(pending)
+  priority contact_priority @default(normal)
+
+  // Assignment
+  assignedTo  String? // userId
+  respondedBy String? // userId
+  respondedAt DateTime?
+
+  // Notes
+  customerNotes String? @db.Text
+  internalNotes String? @db.Text
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  expiresAt DateTime?
+
+  product product? @relation(fields: [productId], references: [id], map: "QuoteRequest_productId_fkey")
+
+  @@index([code], map: "QuoteRequest_code_idx")
+  @@index([status], map: "QuoteRequest_status_idx")
+  @@index([priority], map: "QuoteRequest_priority_idx")
+  @@index([productId], map: "QuoteRequest_productId_idx")
+  @@index([createdAt], map: "QuoteRequest_createdAt_idx")
+  @@index([assignedTo], map: "QuoteRequest_assignedTo_idx")
+}
+
+// ===== STOCK TRANSACTION (Lịch sử biến động tồn kho) =====
+model stocktransaction {
+  id            String                 @id @default(cuid())
+  productId     String
+  type          stock_transaction_type
+  quantity      Int // Số lượng thay đổi (+/-)
+  quantityBefore Int // Tồn kho trước khi thay đổi
+  quantityAfter  Int // Tồn kho sau khi thay đổi
+  
+  // Reference
+  orderId       String?
+  orderCode     String?
+  userId        String?
+  
+  // Details
+  reason        String? @db.Text
+  notes         String? @db.Text
+  
+  createdAt     DateTime @default(now())
+  createdBy     String? // userId của người thực hiện
+  
+  product       product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  order         order?  @relation(fields: [orderId], references: [id])
+  
+  @@index([productId, createdAt], map: "StockTransaction_product_date_idx")
+  @@index([orderId], map: "StockTransaction_orderId_idx")
+  @@index([type], map: "StockTransaction_type_idx")
+  @@index([createdAt], map: "StockTransaction_createdAt_idx")
+}
+
+// ===== FINANCIAL TRANSACTION (Lịch sử giao dịch tài chính) =====
+model financialtransaction {
+  id              String                     @id @default(cuid())
+  code            String                     @unique // FT-20250115-0001
+  type            financial_transaction_type
+  category        String // "sale", "refund", "expense", "adjustment"
+  
+  // Amounts
+  amount          Decimal @db.Decimal(12, 2) // Số tiền giao dịch
+  costAmount      Decimal @default(0) @db.Decimal(12, 2) // Giá vốn (nếu là bán hàng)
+  profitAmount    Decimal @default(0) @db.Decimal(12, 2) // Lãi/lỗ
+  
+  // Reference
+  orderId         String?
+  orderCode       String?
+  paymentId       String?
+  userId          String? // Khách hàng
+  
+  // Details
+  description     String @db.Text
+  notes           String? @db.Text
+  
+  // Status
+  status          String @default("completed") // completed, pending, cancelled
+  
+  createdAt       DateTime @default(now())
+  createdBy       String? // Staff thực hiện
+  
+  order           order? @relation(fields: [orderId], references: [id])
+  
+  @@index([code], map: "FinancialTransaction_code_idx")
+  @@index([type], map: "FinancialTransaction_type_idx")
+  @@index([category], map: "FinancialTransaction_category_idx")
+  @@index([orderId], map: "FinancialTransaction_orderId_idx")
+  @@index([createdAt], map: "FinancialTransaction_createdAt_idx")
+  @@index([status], map: "FinancialTransaction_status_idx")
+}
+
+// ===== DAILY SUMMARY (Tổng kết theo ngày) =====
+model dailysummary {
+  id                String   @id @default(cuid())
+  date              DateTime @unique @db.Date
+  
+  // Revenue
+  totalRevenue      Decimal  @default(0) @db.Decimal(12, 2)
+  totalCost         Decimal  @default(0) @db.Decimal(12, 2)
+  totalProfit       Decimal  @default(0) @db.Decimal(12, 2)
+  
+  // Orders
+  orderCount        Int      @default(0)
+  orderCompleted    Int      @default(0)
+  orderCancelled    Int      @default(0)
+  
+  // Products
+  productsSold      Int      @default(0)
+  uniqueProducts    Int      @default(0)
+  
+  // Customers
+  newCustomers      Int      @default(0)
+  returningCustomers Int     @default(0)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([date], map: "DailySummary_date_idx")
+}
+
+// ===== ENUMS =====
+
 enum cart_status {
   ACTIVE
   CHECKOUT
@@ -482,13 +917,16 @@ enum order_status {
   processing
   shipped
   delivered
-  cancelled
+  cancel_requested   
+  cancelled          
 }
+
 
 enum product_status {
   DRAFT
   PUBLISHED
   ARCHIVED
+  OUT_OF_STOCK
 }
 
 enum software_status {
@@ -514,4 +952,46 @@ enum user_role {
   USER
   STAFF
   ADMIN
+}
+
+enum contact_status {
+  new
+  in_progress
+  responded
+  closed
+  spam
+}
+
+enum contact_priority {
+  low
+  normal
+  high
+  urgent
+}
+
+enum quote_status {
+  pending
+  quoted
+  accepted
+  rejected
+  expired
+  converted // Đã chuyển thành đơn hàng
+}
+
+// ===== ENUMS =====
+enum stock_transaction_type {
+  ORDER_SHIPPED      // Xuất kho khi giao hàng
+  ORDER_DELIVERED    // Xác nhận giao thành công
+  ORDER_CANCELLED    // Hoàn kho khi hủy đơn
+  MANUAL_ADJUSTMENT  // Điều chỉnh thủ công
+  RESTOCK           // Nhập kho
+  DAMAGED           // Hàng hỏng
+  RETURNED          // Hàng trả lại
+}
+
+enum financial_transaction_type {
+  INCOME    // Thu (bán hàng)
+  EXPENSE   // Chi (hoàn tiền, chi phí)
+  REFUND    // Hoàn tiền
+  ADJUSTMENT // Điều chỉnh
 }

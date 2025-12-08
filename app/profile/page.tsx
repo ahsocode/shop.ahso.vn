@@ -223,6 +223,7 @@ export default function ProfilePage() {
       } catch (e) {
         if (isMounted) {
           console.error("Recent orders load error:", e);
+          setRecentOrders([]);
         }
       } finally {
         if (isMounted) {

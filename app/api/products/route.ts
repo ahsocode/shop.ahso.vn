@@ -7,7 +7,6 @@ import type {
   productWhereInput,
   productFindManyArgs,
 } from "@/lib/prisma-types";
-import type { Prisma } from "@prisma/client";
 
 type ProductListRow = productGetPayload<{
   include: {
@@ -75,6 +74,7 @@ const mapListItem = (row: ProductListRow) => {
     ratingAvg: row.ratingAvg ?? 0,
     ratingCount: row.ratingCount ?? 0,
     purchaseCount: row.purchaseCount ?? 0,
+    requiresQuote: row.requiresQuote ?? false,
   };
 };
 
@@ -183,19 +183,30 @@ export async function GET(request: NextRequest) {
       ...(!isAll && status && { status }),
       ...(search && {
         OR: [
-          { name: { contains: search } },
-          { description: { contains: search } },
-          { sku: { contains: search } },
+          { name: { contains: search, mode: "insensitive" } },
+          { description: { contains: search, mode: "insensitive" } },
+          { sku: { contains: search, mode: "insensitive" } },
         ],
       }),
       ...(brandSlug && { brand: { is: { slug: brandSlug } } }),
       ...(typeSlug && { producttype: { is: { slug: typeSlug } } }),
       ...(categorySlug && {
-        productcategorylink: {
-          some: {
-            productcategory: { slug: categorySlug },
+        OR: [
+          {
+            productcategorylink: {
+              some: {
+                productcategory: { slug: categorySlug },
+              },
+            },
           },
-        },
+          {
+            producttype: {
+              is: {
+                productcategory: { slug: categorySlug },
+              },
+            },
+          },
+        ],
       }),
       ...((minPrice || maxPrice) && {
         price: {
@@ -241,12 +252,13 @@ export async function GET(request: NextRequest) {
       queryOptions.take = limit;
     }
 
-    // Execute queries in transaction for consistency
-    const { rows, total } = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const items = await tx.product.findMany(queryOptions);
-      const count = await tx.product.count({ where });
-      return { rows: items as ProductListRow[], total: count };
-    });
+    // Execute queries together without interactive transaction (compatible with serverless DBs)
+    const [items, count] = await Promise.all([
+      prisma.product.findMany(queryOptions),
+      prisma.product.count({ where }),
+    ]);
+    const rows = items as ProductListRow[];
+    const total = count;
 
     // Map to client-friendly format
     const data = rows.map(mapListItem);

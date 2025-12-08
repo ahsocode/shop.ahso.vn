@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonOk, jsonError, toHttpError } from "@/lib/http";
+import { slugify } from "@/lib/slug";
 import { z } from "zod";
 
 const CategoryUpdate = z.object({
@@ -37,12 +38,33 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     const current = await prisma.productcategory.findUnique({ where: { id } });
     if (!current) return jsonError("Not Found", 404);
 
-    if (parsed.data.slug && parsed.data.slug !== current.slug) {
-      const dup = await prisma.productcategory.findUnique({ where: { slug: parsed.data.slug } });
-      if (dup) return jsonError("Slug already exists", 409);
+    const updates = parsed.data;
+    const hasSlugField = Object.prototype.hasOwnProperty.call(updates, "slug");
+    const explicitSlug = hasSlugField ? (updates.slug ?? "").trim() : undefined;
+    let slugCandidate: string | undefined;
+
+    if (explicitSlug && explicitSlug !== current.slug) {
+      slugCandidate = explicitSlug;
+    } else {
+      let baseName: string | undefined;
+      if (typeof updates.name === "string") {
+        baseName = updates.name;
+      } else if (hasSlugField && !explicitSlug) {
+        baseName = current.name;
+      }
+      if (baseName) {
+        const auto = slugify(baseName);
+        if (auto && auto !== current.slug) slugCandidate = auto;
+      }
     }
 
-    const updated = await prisma.productcategory.update({ where: { id }, data: parsed.data });
+    if (slugCandidate && slugCandidate !== current.slug) {
+      const dup = await prisma.productcategory.findUnique({ where: { slug: slugCandidate } });
+      if (dup) return jsonError("Slug already exists", 409);
+      updates.slug = slugCandidate;
+    }
+
+    const updated = await prisma.productcategory.update({ where: { id }, data: updates });
     return jsonOk({ data: updated });
   } catch (error) {
     const err = toHttpError(error);
@@ -59,7 +81,12 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
     return jsonOk({ ok: true });
   } catch (error) {
     const err = toHttpError(error);
-    if (err.code === "P2003") return jsonError("Cannot delete: category in use", 409);
+    if (err.code === "P2003") {
+      return jsonError(
+        "Không thể xóa danh mục vì còn loại sản phẩm đang gắn với danh mục này.",
+        409,
+      );
+    }
     return jsonError(err.message || "Internal Error", err.status || 500);
   }
 }

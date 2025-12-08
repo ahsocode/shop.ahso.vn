@@ -166,7 +166,6 @@ export type productcategorylinkOrderByWithRelationInput = {
   categoryId?: Prisma.SortOrder
   productcategory?: Prisma.productcategoryOrderByWithRelationInput
   product?: Prisma.productOrderByWithRelationInput
-  _relevance?: Prisma.productcategorylinkOrderByRelevanceInput
 }
 
 export type productcategorylinkWhereUniqueInput = Prisma.AtLeast<{
@@ -238,12 +237,6 @@ export type ProductcategorylinkListRelationFilter = {
 
 export type productcategorylinkOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type productcategorylinkOrderByRelevanceInput = {
-  fields: Prisma.productcategorylinkOrderByRelevanceFieldEnum | Prisma.productcategorylinkOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type productcategorylinkProductIdCategoryIdCompoundUniqueInput = {
@@ -467,7 +460,19 @@ export type productcategorylinkSelect<ExtArgs extends runtime.Types.Extensions.I
   product?: boolean | Prisma.productDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productcategorylink"]>
 
+export type productcategorylinkSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  productId?: boolean
+  categoryId?: boolean
+  productcategory?: boolean | Prisma.productcategoryDefaultArgs<ExtArgs>
+  product?: boolean | Prisma.productDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["productcategorylink"]>
 
+export type productcategorylinkSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  productId?: boolean
+  categoryId?: boolean
+  productcategory?: boolean | Prisma.productcategoryDefaultArgs<ExtArgs>
+  product?: boolean | Prisma.productDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["productcategorylink"]>
 
 export type productcategorylinkSelectScalar = {
   productId?: boolean
@@ -476,6 +481,14 @@ export type productcategorylinkSelectScalar = {
 
 export type productcategorylinkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"productId" | "categoryId", ExtArgs["result"]["productcategorylink"]>
 export type productcategorylinkInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  productcategory?: boolean | Prisma.productcategoryDefaultArgs<ExtArgs>
+  product?: boolean | Prisma.productDefaultArgs<ExtArgs>
+}
+export type productcategorylinkIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  productcategory?: boolean | Prisma.productcategoryDefaultArgs<ExtArgs>
+  product?: boolean | Prisma.productDefaultArgs<ExtArgs>
+}
+export type productcategorylinkIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   productcategory?: boolean | Prisma.productcategoryDefaultArgs<ExtArgs>
   product?: boolean | Prisma.productDefaultArgs<ExtArgs>
 }
@@ -607,6 +620,30 @@ export interface productcategorylinkDelegate<ExtArgs extends runtime.Types.Exten
   createMany<T extends productcategorylinkCreateManyArgs>(args?: Prisma.SelectSubset<T, productcategorylinkCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
+   * Create many Productcategorylinks and returns the data saved in the database.
+   * @param {productcategorylinkCreateManyAndReturnArgs} args - Arguments to create many Productcategorylinks.
+   * @example
+   * // Create many Productcategorylinks
+   * const productcategorylink = await prisma.productcategorylink.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Productcategorylinks and only return the `productId`
+   * const productcategorylinkWithProductIdOnly = await prisma.productcategorylink.createManyAndReturn({
+   *   select: { productId: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends productcategorylinkCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, productcategorylinkCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$productcategorylinkPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a Productcategorylink.
    * @param {productcategorylinkDeleteArgs} args - Arguments to delete one Productcategorylink.
    * @example
@@ -669,6 +706,36 @@ export interface productcategorylinkDelegate<ExtArgs extends runtime.Types.Exten
    * 
    */
   updateMany<T extends productcategorylinkUpdateManyArgs>(args: Prisma.SelectSubset<T, productcategorylinkUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Update zero or more Productcategorylinks and returns the data updated in the database.
+   * @param {productcategorylinkUpdateManyAndReturnArgs} args - Arguments to update many Productcategorylinks.
+   * @example
+   * // Update many Productcategorylinks
+   * const productcategorylink = await prisma.productcategorylink.updateManyAndReturn({
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Update zero or more Productcategorylinks and only return the `productId`
+   * const productcategorylinkWithProductIdOnly = await prisma.productcategorylink.updateManyAndReturn({
+   *   select: { productId: true },
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  updateManyAndReturn<T extends productcategorylinkUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, productcategorylinkUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$productcategorylinkPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
    * Create or update one Productcategorylink.
@@ -1095,6 +1162,29 @@ export type productcategorylinkCreateManyArgs<ExtArgs extends runtime.Types.Exte
 }
 
 /**
+ * productcategorylink createManyAndReturn
+ */
+export type productcategorylinkCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the productcategorylink
+   */
+  select?: Prisma.productcategorylinkSelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the productcategorylink
+   */
+  omit?: Prisma.productcategorylinkOmit<ExtArgs> | null
+  /**
+   * The data used to create many productcategorylinks.
+   */
+  data: Prisma.productcategorylinkCreateManyInput | Prisma.productcategorylinkCreateManyInput[]
+  skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.productcategorylinkIncludeCreateManyAndReturn<ExtArgs> | null
+}
+
+/**
  * productcategorylink update
  */
 export type productcategorylinkUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1136,6 +1226,36 @@ export type productcategorylinkUpdateManyArgs<ExtArgs extends runtime.Types.Exte
    * Limit how many productcategorylinks to update.
    */
   limit?: number
+}
+
+/**
+ * productcategorylink updateManyAndReturn
+ */
+export type productcategorylinkUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the productcategorylink
+   */
+  select?: Prisma.productcategorylinkSelectUpdateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the productcategorylink
+   */
+  omit?: Prisma.productcategorylinkOmit<ExtArgs> | null
+  /**
+   * The data used to update productcategorylinks.
+   */
+  data: Prisma.XOR<Prisma.productcategorylinkUpdateManyMutationInput, Prisma.productcategorylinkUncheckedUpdateManyInput>
+  /**
+   * Filter which productcategorylinks to update
+   */
+  where?: Prisma.productcategorylinkWhereInput
+  /**
+   * Limit how many productcategorylinks to update.
+   */
+  limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.productcategorylinkIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

@@ -234,7 +234,6 @@ export type solutionimageOrderByWithRelationInput = {
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   solution?: Prisma.solutionOrderByWithRelationInput
-  _relevance?: Prisma.solutionimageOrderByRelevanceInput
 }
 
 export type solutionimageWhereUniqueInput = Prisma.AtLeast<{
@@ -346,12 +345,6 @@ export type SolutionimageListRelationFilter = {
 
 export type solutionimageOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type solutionimageOrderByRelevanceInput = {
-  fields: Prisma.solutionimageOrderByRelevanceFieldEnum | Prisma.solutionimageOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type solutionimageCountOrderByAggregateInput = {
@@ -529,7 +522,25 @@ export type solutionimageSelect<ExtArgs extends runtime.Types.Extensions.Interna
   solution?: boolean | Prisma.solutionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["solutionimage"]>
 
+export type solutionimageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  solutionId?: boolean
+  url?: boolean
+  alt?: boolean
+  sortOrder?: boolean
+  createdAt?: boolean
+  solution?: boolean | Prisma.solutionDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["solutionimage"]>
 
+export type solutionimageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  solutionId?: boolean
+  url?: boolean
+  alt?: boolean
+  sortOrder?: boolean
+  createdAt?: boolean
+  solution?: boolean | Prisma.solutionDefaultArgs<ExtArgs>
+}, ExtArgs["result"]["solutionimage"]>
 
 export type solutionimageSelectScalar = {
   id?: boolean
@@ -542,6 +553,12 @@ export type solutionimageSelectScalar = {
 
 export type solutionimageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "solutionId" | "url" | "alt" | "sortOrder" | "createdAt", ExtArgs["result"]["solutionimage"]>
 export type solutionimageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  solution?: boolean | Prisma.solutionDefaultArgs<ExtArgs>
+}
+export type solutionimageIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  solution?: boolean | Prisma.solutionDefaultArgs<ExtArgs>
+}
+export type solutionimageIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   solution?: boolean | Prisma.solutionDefaultArgs<ExtArgs>
 }
 
@@ -675,6 +692,30 @@ export interface solutionimageDelegate<ExtArgs extends runtime.Types.Extensions.
   createMany<T extends solutionimageCreateManyArgs>(args?: Prisma.SelectSubset<T, solutionimageCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
+   * Create many Solutionimages and returns the data saved in the database.
+   * @param {solutionimageCreateManyAndReturnArgs} args - Arguments to create many Solutionimages.
+   * @example
+   * // Create many Solutionimages
+   * const solutionimage = await prisma.solutionimage.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Solutionimages and only return the `id`
+   * const solutionimageWithIdOnly = await prisma.solutionimage.createManyAndReturn({
+   *   select: { id: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends solutionimageCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, solutionimageCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$solutionimagePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a Solutionimage.
    * @param {solutionimageDeleteArgs} args - Arguments to delete one Solutionimage.
    * @example
@@ -737,6 +778,36 @@ export interface solutionimageDelegate<ExtArgs extends runtime.Types.Extensions.
    * 
    */
   updateMany<T extends solutionimageUpdateManyArgs>(args: Prisma.SelectSubset<T, solutionimageUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Update zero or more Solutionimages and returns the data updated in the database.
+   * @param {solutionimageUpdateManyAndReturnArgs} args - Arguments to update many Solutionimages.
+   * @example
+   * // Update many Solutionimages
+   * const solutionimage = await prisma.solutionimage.updateManyAndReturn({
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Update zero or more Solutionimages and only return the `id`
+   * const solutionimageWithIdOnly = await prisma.solutionimage.updateManyAndReturn({
+   *   select: { id: true },
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  updateManyAndReturn<T extends solutionimageUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, solutionimageUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$solutionimagePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
    * Create or update one Solutionimage.
@@ -1166,6 +1237,29 @@ export type solutionimageCreateManyArgs<ExtArgs extends runtime.Types.Extensions
 }
 
 /**
+ * solutionimage createManyAndReturn
+ */
+export type solutionimageCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the solutionimage
+   */
+  select?: Prisma.solutionimageSelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the solutionimage
+   */
+  omit?: Prisma.solutionimageOmit<ExtArgs> | null
+  /**
+   * The data used to create many solutionimages.
+   */
+  data: Prisma.solutionimageCreateManyInput | Prisma.solutionimageCreateManyInput[]
+  skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.solutionimageIncludeCreateManyAndReturn<ExtArgs> | null
+}
+
+/**
  * solutionimage update
  */
 export type solutionimageUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1207,6 +1301,36 @@ export type solutionimageUpdateManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many solutionimages to update.
    */
   limit?: number
+}
+
+/**
+ * solutionimage updateManyAndReturn
+ */
+export type solutionimageUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the solutionimage
+   */
+  select?: Prisma.solutionimageSelectUpdateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the solutionimage
+   */
+  omit?: Prisma.solutionimageOmit<ExtArgs> | null
+  /**
+   * The data used to update solutionimages.
+   */
+  data: Prisma.XOR<Prisma.solutionimageUpdateManyMutationInput, Prisma.solutionimageUncheckedUpdateManyInput>
+  /**
+   * Filter which solutionimages to update
+   */
+  where?: Prisma.solutionimageWhereInput
+  /**
+   * Limit how many solutionimages to update.
+   */
+  limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.solutionimageIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

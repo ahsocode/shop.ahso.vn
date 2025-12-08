@@ -4,18 +4,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyRequestUser } from "@/lib/auth";
 import { sendMail } from "@/lib/mailer";
-import type { Prisma } from "@prisma/client";
+import { generateOrderConfirmationEmail, generateNewOrderAdminEmail } from "@/lib/email-templates";
+import { getDefaultTaxRate, getOrderNotificationEmail } from "@/lib/system-settings";
+import type { Prisma } from "@/generated/client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const VAT_RATE = 0.1 as const;
 const CART_COOKIE = "cart_id";
 
 const PROMOS = {
   GIAM10: { kind: "percent", value: 10 },
   GIAM50K: { kind: "fixed", value: 50_000 },
-  FREESHIP: { kind: "shipping_free" },
 } as const;
 
 function calcDiscount(code: string | null | undefined, subtotal: number): number {
@@ -34,14 +34,6 @@ function generateOrderCode() {
   const d = String(now.getDate()).padStart(2, "0");
   const rand = Math.floor(Math.random() * 9000) + 1000;
   return `AH${y}${m}${d}-${rand}`;
-}
-
-function formatVND(n: number) {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(Math.max(0, Math.round(n)));
 }
 
 export async function POST(req: NextRequest) {
@@ -150,12 +142,13 @@ export async function POST(req: NextRequest) {
 
     const discount = calcDiscount(coupon ?? null, subtotal);
     const taxable = Math.max(0, subtotal - discount);
-    const vat = taxable * VAT_RATE;
+    const taxRate = await getDefaultTaxRate();
+    const vat = taxable * taxRate;
 
-    const freeShip = coupon?.toUpperCase() === "FREESHIP";
-    const shippingFee = freeShip ? 0 : 30_000;
+    // Người dùng tự thanh toán phí vận chuyển ngoài hệ thống
+    const shippingFee = 0;
 
-    const grandTotal = taxable + vat + shippingFee;
+    const grandTotal = taxable + vat;
 
     // ====== Shipping / Billing ======
     const shippingCountry = (guest.country || "VN").toUpperCase();
@@ -232,6 +225,7 @@ export async function POST(req: NextRequest) {
         data: selectedItems.map((it: (typeof selectedItems)[number]) => ({
           id: randomUUID(),
           orderId: created.id,
+          productId: it.productId ?? undefined,
           sku: it.productSku,
           name: it.productName,
           slug: it.productSlug,
@@ -262,51 +256,45 @@ export async function POST(req: NextRequest) {
       return created;
     });
 
-    // ====== Gửi mail xác nhận đơn (không chặn luồng nếu fail) ======
+    // ====== Gửi mail xác nhận đơn (UPDATED) ======
     try {
-      const itemsText = selectedItems
-        .map((it: (typeof selectedItems)[number]) => {
-          const lineTotal = Number(it.unitPrice) * it.quantity;
-          return `- ${it.productName} (SKU: ${it.productSku}) x${it.quantity} = ${formatVND(
-            lineTotal,
-          )}`;
-        })
-        .join("\n");
+      const orderData = {
+        code: order.code,
+        customerName: order.customerFullName,
+        customerEmail: order.customerEmail!,
+        items: selectedItems.map((it: (typeof selectedItems)[number]) => ({
+          name: it.productName,
+          sku: it.productSku,
+          quantity: it.quantity,
+          price: Number(it.unitPrice),
+        })),
+        subtotal,
+        discount,
+        vat,
+        shippingFee,
+        grandTotal,
+      };
 
-      const text = `
-Cảm ơn bạn đã đặt hàng tại AHSO Industrial!
-
-Mã đơn hàng: ${order.code}
-Họ tên: ${order.customerFullName}
-Số tiền cần thanh toán: ${formatVND(grandTotal)}
-
-Chi tiết đơn hàng:
-${itemsText}
-
-Tạm tính: ${formatVND(subtotal)}
-Giảm giá: -${formatVND(discount)}
-VAT (10%): ${formatVND(vat)}
-Phí vận chuyển: ${formatVND(shippingFee)}
-Tổng cộng: ${formatVND(grandTotal)}
-
-Thông tin chuyển khoản:
-- Ngân hàng: TPBank – Chi nhánh Bình Chánh
-- Số tài khoản: 03168969399
-- Chủ tài khoản: CÔNG TY TNHH AHSO
-- Nội dung chuyển khoản: ${order.code}
-
-Vui lòng chuyển khoản với đúng nội dung trên để chúng tôi xác nhận thanh toán nhanh chóng.
-
-Trân trọng,
-AHSO Industrial
-      `.trim();
-
+      // 1️⃣ Gửi email cho khách hàng
+      const customerEmail = generateOrderConfirmationEmail(orderData);
       await sendMail({
         to: order.customerEmail!,
-        subject: `Xác nhận đơn hàng ${order.code} - AHSO Industrial`,
-        text,
-        html: `<pre style="font-family:Segoe UI,Arial,sans-serif;white-space:pre-wrap">${text}</pre>`,
+        subject: customerEmail.subject,
+        text: customerEmail.text,
+        html: customerEmail.html,
       });
+
+      // 2️⃣ Gửi email thông báo cho admin
+      const adminEmail = generateNewOrderAdminEmail(orderData);
+      const adminNotificationEmail = await getOrderNotificationEmail();
+      await sendMail({
+        to: adminNotificationEmail,
+        subject: adminEmail.subject,
+        text: adminEmail.text,
+        html: adminEmail.html,
+      });
+
+      console.log(`✅ Sent order emails for ${order.code}`);
     } catch (mailErr) {
       console.error("Send order confirmation mail failed:", mailErr);
       // không throw, để user vẫn đặt hàng được
@@ -319,6 +307,7 @@ AHSO Industrial
       subtotal,
       discount,
       vat,
+      taxRate,
       shippingFee,
       grandTotal,
       bankInfo: {

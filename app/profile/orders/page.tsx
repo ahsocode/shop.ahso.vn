@@ -2,34 +2,50 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Search, Eye, RefreshCcw, ChevronLeft, ChevronRight, ShieldCheck, LogIn } from "lucide-react";
+import {
+  Search,
+  Eye,
+  RefreshCcw,
+  ChevronLeft,
+  ChevronRight,
+  ShieldCheck,
+  LogIn,
+} from "lucide-react";
 import type { OrderListItemDTO } from "../../../dto/order.dto";
 
 function formatVND(n: number) {
   return n.toLocaleString("vi-VN") + " ₫";
 }
 
-const STATUS_LABEL: Record<NonNullable<OrderListItemDTO["status"]>, string> = {
+type OrderStatusValue = NonNullable<OrderListItemDTO["status"]>;
+
+const STATUS_LABEL: Record<OrderStatusValue, string> = {
   pending: "Chờ thanh toán",
   paid: "Đã thanh toán",
   processing: "Đang xử lý",
   shipped: "Đã gửi hàng",
   delivered: "Đã giao",
+  cancel_requested: "Yêu cầu hủy",
   cancelled: "Đã hủy",
 };
 
 function StatusBadge({ status }: { status: OrderListItemDTO["status"] }) {
-  const styles: Record<NonNullable<OrderListItemDTO["status"]>, string> = {
+  if (!status) return null;
+
+  const styles: Record<OrderStatusValue, string> = {
     pending: "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200",
     paid: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
     processing: "bg-blue-50 text-blue-700 ring-1 ring-blue-200",
     shipped: "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200",
     delivered: "bg-green-50 text-green-700 ring-green-200",
-    cancelled: "bg-rose-50 text-rose-700 ring-rose-200",
+    cancel_requested: "bg-orange-50 text-orange-700 ring-1 ring-orange-200",
+    cancelled: "bg-rose-50 text-rose-700 ring-1 ring-rose-200",
   };
-  if (!status) return null;
+
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${styles[status]}`}>
+    <span
+      className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${styles[status]}`}
+    >
       {STATUS_LABEL[status]}
     </span>
   );
@@ -48,7 +64,8 @@ export default function CustomerOrdersPage() {
       setLoading(true);
       setUnauth(false);
       try {
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        const token =
+          typeof window !== "undefined" ? localStorage.getItem("token") : null;
         const r = await fetch("/api/profile/orders", {
           cache: "no-store",
           headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -62,7 +79,6 @@ export default function CustomerOrdersPage() {
         const data = (await r.json()) as OrderListItemDTO[];
         setOrders(data);
       } catch {
-        // fallback trống cho khách (không giả mock ở view khách)
         setOrders([]);
       } finally {
         setLoading(false);
@@ -74,7 +90,10 @@ export default function CustomerOrdersPage() {
     return orders.filter((o) => {
       if (!q.trim()) return true;
       const key = q.toLowerCase();
-      return o.code.toLowerCase().includes(key) || o.customerName.toLowerCase().includes(key);
+      return (
+        o.code.toLowerCase().includes(key) ||
+        o.customerName.toLowerCase().includes(key)
+      );
     });
   }, [orders, q]);
 
@@ -89,10 +108,14 @@ export default function CustomerOrdersPage() {
     <div className="mx-auto max-w-7xl p-4 sm:p-6">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight">Đơn hàng của tôi</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Đơn hàng của tôi
+          </h1>
           <ShieldCheck className="h-5 w-5 text-gray-400" />
         </div>
-        <div className="text-sm text-gray-500">Chỉ hiển thị các đơn thuộc tài khoản của bạn</div>
+        <div className="text-sm text-gray-500">
+          Chỉ hiển thị các đơn thuộc tài khoản của bạn
+        </div>
       </div>
 
       {/* Thanh tìm kiếm */}
@@ -139,7 +162,9 @@ export default function CustomerOrdersPage() {
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-sm text-gray-500">Đang tải…</div>
+          <div className="p-8 text-center text-sm text-gray-500">
+            Đang tải…
+          </div>
         ) : pageData.length === 0 ? (
           <div className="p-8 text-center text-sm text-gray-500">
             {unauth ? (
@@ -175,7 +200,9 @@ export default function CustomerOrdersPage() {
               <div className="sm:col-span-3 text-gray-700">
                 {new Date(o.createdAt).toLocaleString("vi-VN")}
               </div>
-              <div className="sm:col-span-3 text-right font-medium">{formatVND(o.total)}</div>
+              <div className="sm:col-span-3 text-right font-medium">
+                {formatVND(o.total)}
+              </div>
               <div className="sm:col-span-2 flex sm:justify-end">
                 <Link
                   href={`/order/${o.id}`}

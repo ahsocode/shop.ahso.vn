@@ -1,3 +1,4 @@
+// app/api/staff/orders/route.ts
 import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
@@ -9,7 +10,17 @@ export const dynamic = "force-dynamic";
 
 type OrderStatus = order_status;
 type PaymentStatus = payment_status;
-const ORDER_STATUSES: OrderStatus[] = ["pending", "paid", "processing", "shipped", "delivered", "cancelled"];
+
+// 🔹 bổ sung cancel_requested vào danh sách status hợp lệ
+const ORDER_STATUSES: OrderStatus[] = [
+  "pending",
+  "paid",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancel_requested",
+  "cancelled",
+];
 
 function parseDate(value?: string | null) {
   if (!value) return undefined;
@@ -116,28 +127,33 @@ export async function GET(req: NextRequest) {
         customerName: order.customerFullName,
         customerEmail: order.customerEmail,
         customerPhone: order.customerPhone,
-        status: order.status,
-        paymentStatus: order.payment?.status ?? null,
+        status: order.status as OrderStatus,
+        paymentStatus: (order.payment?.status as PaymentStatus) ?? null,
         paymentMethod: order.payment?.method ?? null,
         total: grandTotal ?? subtotal + shippingFee,
       };
     });
 
+    // 🔹 statsMap có thêm key cancel_requested
     const statsMap: Record<OrderStatus, number> = {
       pending: 0,
       paid: 0,
       processing: 0,
       shipped: 0,
       delivered: 0,
+      cancel_requested: 0,
       cancelled: 0,
     };
     stats.forEach((row: (typeof stats)[number]) => {
       const countValue =
-        typeof row._count === "object"
-          ? row._count?.status
-          : row._count === true
-            ? 1
-            : row._count;
+        typeof row._count === "object" && row._count !== null
+          ? row._count.status
+          : typeof row._count === "number"
+            ? row._count
+            : row._count
+              ? 1
+              : 0;
+
       const status = row.status as OrderStatus;
       statsMap[status] = typeof countValue === "number" ? countValue : 0;
     });

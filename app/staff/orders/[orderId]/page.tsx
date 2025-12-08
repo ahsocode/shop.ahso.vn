@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { headers } from "next/headers";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowLeft,
@@ -15,7 +14,8 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import type { OrderDetailDTO, OrderStatus } from "@/dto/order.dto";
-import StatusManager from "./status-manager";
+import { cookies } from "next/headers";
+import OrderActions from "../order-actions";
 
 function formatVND(value: number | undefined | null) {
   const num = typeof value === "number" ? value : Number(value ?? 0);
@@ -23,16 +23,22 @@ function formatVND(value: number | undefined | null) {
 }
 
 async function fetchOrder(orderId: string) {
-  const hdrs = await headers();
-  const host = hdrs.get("host");
-  if (!host) notFound();
-  const protocol = hdrs.get("x-forwarded-proto") ?? "http";
-  const base = `${protocol}://${host}`;
+  const cookieStore = await cookies();
+  const authToken = cookieStore.get("auth_token")?.value;
 
-  const res = await fetch(`${base}/api/orders/${orderId}`, {
+  if (!authToken) {
+    redirect(`/login?redirect=/staff/orders/${orderId}`);
+  }
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXTAUTH_URL ||
+    "http://localhost:3000";
+
+  const res = await fetch(new URL(`/api/orders/${orderId}`, baseUrl).toString(), {
     cache: "no-store",
     headers: {
-      cookie: hdrs.get("cookie") ?? "",
+      Authorization: `Bearer ${authToken}`,
     },
   });
 
@@ -51,13 +57,16 @@ async function fetchOrder(orderId: string) {
   return (await res.json()) as OrderDetailDTO;
 }
 
+// Flow tiến trình (không gồm cancel)
 const STATUS_FLOW: OrderStatus[] = ["pending", "paid", "processing", "shipped", "delivered"];
+
 const STATUS_LABEL: Record<OrderStatus, string> = {
   pending: "Chờ thanh toán",
   paid: "Đã thanh toán",
   processing: "Đang xử lý",
   shipped: "Đã gửi hàng",
   delivered: "Đã giao",
+  cancel_requested: "Khách yêu cầu hủy",
   cancelled: "Đã hủy",
 };
 
@@ -67,6 +76,7 @@ const STATUS_DESC: Record<OrderStatus, string> = {
   processing: "Kho và CSKH đang xử lý yêu cầu.",
   shipped: "Đã bàn giao cho đơn vị vận chuyển.",
   delivered: "Khách đã nhận đủ hàng.",
+  cancel_requested: "Khách hàng đã gửi yêu cầu hủy đơn, vui lòng xem xét.",
   cancelled: "Đơn hàng bị hủy theo yêu cầu hoặc hệ thống.",
 };
 
@@ -76,6 +86,7 @@ const STATUS_ICONS: Record<OrderStatus, LucideIcon> = {
   processing: Settings2,
   shipped: Truck,
   delivered: CheckCircle2,
+  cancel_requested: FileText,
   cancelled: FileText,
 };
 
@@ -83,7 +94,7 @@ export default async function StaffOrderDetailPage(props: { params: Promise<{ or
   const { orderId } = await props.params;
   const order = await fetchOrder(orderId);
 
-  const status = order.status ?? "pending";
+  const status: OrderStatus = order.status ?? "pending";
   const pricing = order.pricing || {
     subtotal: 0,
     discountTotal: 0,
@@ -95,9 +106,12 @@ export default async function StaffOrderDetailPage(props: { params: Promise<{ or
   const items = order.items || [];
   const customer = order.customer || { name: "" };
   const shippingAddress = order.shippingAddress;
+  const history = order.history || [];
 
   const statusIndex =
-    status === "cancelled" ? -1 : STATUS_FLOW.findIndex((s) => s === status);
+    status === "cancelled" || status === "cancel_requested"
+      ? -1
+      : STATUS_FLOW.findIndex((s) => s === status);
 
   return (
     <div className="space-y-6">
@@ -123,6 +137,8 @@ export default async function StaffOrderDetailPage(props: { params: Promise<{ or
                 ? "bg-rose-50 text-rose-700"
                 : status === "delivered"
                 ? "bg-emerald-50 text-emerald-700"
+                : status === "cancel_requested"
+                ? "bg-amber-50 text-amber-700"
                 : "bg-blue-50 text-blue-700",
             ].join(" ")}
           >
@@ -136,7 +152,7 @@ export default async function StaffOrderDetailPage(props: { params: Promise<{ or
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-4">
             {STATUS_FLOW.map((step, idx) => {
-              const done = status !== "cancelled" && idx <= statusIndex;
+              const done = statusIndex >= 0 && idx <= statusIndex;
               const Icon = STATUS_ICONS[step];
               return (
                 <div key={step} className="flex items-center gap-3">
@@ -158,9 +174,18 @@ export default async function StaffOrderDetailPage(props: { params: Promise<{ or
               );
             })}
           </div>
+
+          {status === "cancel_requested" && (
+            <div className="p-3 rounded-xl bg-amber-50 text-amber-800 text-sm border border-amber-200">
+              Khách hàng đã gửi <strong>yêu cầu hủy đơn</strong>. Vui lòng kiểm tra và quyết định
+              chấp nhận / từ chối.
+            </div>
+          )}
+
           {status === "cancelled" && (
-            <div className="p-3 rounded-xl bg-rose-50 text-rose-700 text-sm">
-              Đơn hàng đã bị hủy. Vui lòng liên hệ khách hàng nếu cần khôi phục.
+            <div className="p-3 rounded-xl bg-rose-50 text-rose-700 text-sm border border-rose-200">
+              Đơn hàng đã bị hủy. Vui lòng liên hệ khách hàng nếu cần hỗ trợ hoàn tiền / xử lý
+              thêm.
             </div>
           )}
         </div>
@@ -211,7 +236,10 @@ export default async function StaffOrderDetailPage(props: { params: Promise<{ or
                 const price = typeof item.price === "number" ? item.price : 0;
                 const lineTotal = price * qty;
                 return (
-                  <div key={item.sku} className="p-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                  <div
+                    key={item.sku}
+                    className="p-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
+                  >
                     <div className="flex items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -225,9 +253,15 @@ export default async function StaffOrderDetailPage(props: { params: Promise<{ or
                       </div>
                     </div>
                     <div className="text-sm text-slate-600 flex items-center gap-6">
-                      <span>Số lượng: <strong>{qty}</strong></span>
-                      <span>Đơn giá: <strong>{formatVND(price)}</strong></span>
-                      <span className="text-slate-900 font-semibold">{formatVND(lineTotal)}</span>
+                      <span>
+                        Số lượng: <strong>{qty}</strong>
+                      </span>
+                      <span>
+                        Đơn giá: <strong>{formatVND(price)}</strong>
+                      </span>
+                      <span className="text-slate-900 font-semibold">
+                        {formatVND(lineTotal)}
+                      </span>
                     </div>
                   </div>
                 );
@@ -268,6 +302,32 @@ export default async function StaffOrderDetailPage(props: { params: Promise<{ or
               </div>
             </div>
           )}
+
+          {order.cancelRequestReason && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
+              <FileText className="w-5 h-5 text-amber-600" />
+              <div>
+                <p className="font-semibold text-amber-800">
+                  Yêu cầu hủy đơn từ khách hàng
+                </p>
+                <p className="text-sm text-amber-700 whitespace-pre-line">
+                  {order.cancelRequestReason}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {order.cancelReason && (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 flex items-start gap-3">
+              <FileText className="w-5 h-5 text-rose-600" />
+              <div>
+                <p className="font-semibold text-rose-800">Lý do hủy (do staff ghi)</p>
+                <p className="text-sm text-rose-700 whitespace-pre-line">
+                  {order.cancelReason}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">
@@ -278,8 +338,12 @@ export default async function StaffOrderDetailPage(props: { params: Promise<{ or
             </div>
             <div className="text-sm text-slate-700 space-y-1">
               <p>{customer.name}</p>
-              {customer.email && <p className="text-slate-500">Email: {customer.email}</p>}
-              {customer.phone && <p className="text-slate-500">SĐT: {customer.phone}</p>}
+              {customer.email && (
+                <p className="text-slate-500">Email: {customer.email}</p>
+              )}
+              {customer.phone && (
+                <p className="text-slate-500">SĐT: {customer.phone}</p>
+              )}
             </div>
           </div>
 
@@ -293,9 +357,13 @@ export default async function StaffOrderDetailPage(props: { params: Promise<{ or
                 <p>{shippingAddress.line1}</p>
                 {shippingAddress.line2 && <p>{shippingAddress.line2}</p>}
                 <p>
-                  {shippingAddress.district ? `${shippingAddress.district}, ` : ""}
+                  {shippingAddress.district
+                    ? `${shippingAddress.district}, `
+                    : ""}
                   {shippingAddress.city}
-                  {shippingAddress.province ? `, ${shippingAddress.province}` : ""}
+                  {shippingAddress.province
+                    ? `, ${shippingAddress.province}`
+                    : ""}
                 </p>
               </div>
             ) : (
@@ -303,12 +371,52 @@ export default async function StaffOrderDetailPage(props: { params: Promise<{ or
             )}
           </div>
 
-          <StatusManager
-            orderId={order.id}
-            initialStatus={status}
-            initialNote={order.note || ""}
-            initialShippingMethod={order.shipping?.method || ""}
-          />
+          {history.length > 0 && (
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
+              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                <FileText className="w-4 h-4" />
+                Lịch sử trạng thái
+              </div>
+              <div className="space-y-3 text-sm">
+                {history.map((h) => (
+                  <div
+                    key={h.id}
+                    className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
+                  >
+                    <div className="flex items-center justify-between text-xs text-slate-500">
+                      <span>{new Date(h.createdAt).toLocaleString("vi-VN")}</span>
+                      <span className="font-semibold text-slate-700">
+                        {STATUS_LABEL[h.toStatus]}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-600 mt-1">
+                      {h.fromStatus
+                        ? `Chuyển từ ${STATUS_LABEL[h.fromStatus]} → ${STATUS_LABEL[h.toStatus]}`
+                        : `Đặt trạng thái ${STATUS_LABEL[h.toStatus]}`}
+                    </div>
+                    {h.reason && (
+                      <p className="text-xs text-slate-700 mt-1 whitespace-pre-line">
+                        Lý do: {h.reason}
+                      </p>
+                    )}
+                    {h.createdBy && (
+                      <p className="text-xs text-slate-500 mt-1">
+                        Bởi: {h.createdByName || h.createdBy} {h.createdByRole ? `(${h.createdByRole})` : ""}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
+            <p className="text-sm font-semibold text-slate-900">Thao tác nhanh</p>
+            <p className="text-xs text-slate-500">
+              Bạn có thể xác nhận thanh toán, cập nhật tiến trình hoặc hủy đơn tại đây.
+            </p>
+            <OrderActions orderId={order.id} status={status} />
+          </div>
         </div>
       </div>
     </div>

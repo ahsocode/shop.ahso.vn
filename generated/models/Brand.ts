@@ -252,7 +252,6 @@ export type brandOrderByWithRelationInput = {
   productCount?: Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   product?: Prisma.productOrderByRelationAggregateInput
-  _relevance?: Prisma.brandOrderByRelevanceInput
 }
 
 export type brandWhereUniqueInput = Prisma.AtLeast<{
@@ -379,12 +378,6 @@ export type brandUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   productCount?: Prisma.IntFieldUpdateOperationsInput | number
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-}
-
-export type brandOrderByRelevanceInput = {
-  fields: Prisma.brandOrderByRelevanceFieldEnum | Prisma.brandOrderByRelevanceFieldEnum[]
-  sort: Prisma.SortOrder
-  search: string
 }
 
 export type brandCountOrderByAggregateInput = {
@@ -561,7 +554,27 @@ export type brandSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   _count?: boolean | Prisma.BrandCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["brand"]>
 
+export type brandSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  name?: boolean
+  slug?: boolean
+  logoUrl?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  productCount?: boolean
+  summary?: boolean
+}, ExtArgs["result"]["brand"]>
 
+export type brandSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  id?: boolean
+  name?: boolean
+  slug?: boolean
+  logoUrl?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
+  productCount?: boolean
+  summary?: boolean
+}, ExtArgs["result"]["brand"]>
 
 export type brandSelectScalar = {
   id?: boolean
@@ -579,6 +592,8 @@ export type brandInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   product?: boolean | Prisma.brand$productArgs<ExtArgs>
   _count?: boolean | Prisma.BrandCountOutputTypeDefaultArgs<ExtArgs>
 }
+export type brandIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type brandIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $brandPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "brand"
@@ -712,6 +727,30 @@ export interface brandDelegate<ExtArgs extends runtime.Types.Extensions.Internal
   createMany<T extends brandCreateManyArgs>(args?: Prisma.SelectSubset<T, brandCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
 
   /**
+   * Create many Brands and returns the data saved in the database.
+   * @param {brandCreateManyAndReturnArgs} args - Arguments to create many Brands.
+   * @example
+   * // Create many Brands
+   * const brand = await prisma.brand.createManyAndReturn({
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Create many Brands and only return the `id`
+   * const brandWithIdOnly = await prisma.brand.createManyAndReturn({
+   *   select: { id: true },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  createManyAndReturn<T extends brandCreateManyAndReturnArgs>(args?: Prisma.SelectSubset<T, brandCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$brandPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+  /**
    * Delete a Brand.
    * @param {brandDeleteArgs} args - Arguments to delete one Brand.
    * @example
@@ -774,6 +813,36 @@ export interface brandDelegate<ExtArgs extends runtime.Types.Extensions.Internal
    * 
    */
   updateMany<T extends brandUpdateManyArgs>(args: Prisma.SelectSubset<T, brandUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<Prisma.BatchPayload>
+
+  /**
+   * Update zero or more Brands and returns the data updated in the database.
+   * @param {brandUpdateManyAndReturnArgs} args - Arguments to update many Brands.
+   * @example
+   * // Update many Brands
+   * const brand = await prisma.brand.updateManyAndReturn({
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * 
+   * // Update zero or more Brands and only return the `id`
+   * const brandWithIdOnly = await prisma.brand.updateManyAndReturn({
+   *   select: { id: true },
+   *   where: {
+   *     // ... provide filter here
+   *   },
+   *   data: [
+   *     // ... provide data here
+   *   ]
+   * })
+   * Note, that providing `undefined` is treated as the value not being there.
+   * Read more here: https://pris.ly/d/null-undefined
+   * 
+   */
+  updateManyAndReturn<T extends brandUpdateManyAndReturnArgs>(args: Prisma.SelectSubset<T, brandUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$brandPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
   /**
    * Create or update one Brand.
@@ -1205,6 +1274,25 @@ export type brandCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
 }
 
 /**
+ * brand createManyAndReturn
+ */
+export type brandCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the brand
+   */
+  select?: Prisma.brandSelectCreateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the brand
+   */
+  omit?: Prisma.brandOmit<ExtArgs> | null
+  /**
+   * The data used to create many brands.
+   */
+  data: Prisma.brandCreateManyInput | Prisma.brandCreateManyInput[]
+  skipDuplicates?: boolean
+}
+
+/**
  * brand update
  */
 export type brandUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1234,6 +1322,32 @@ export type brandUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
  * brand updateMany
  */
 export type brandUpdateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * The data used to update brands.
+   */
+  data: Prisma.XOR<Prisma.brandUpdateManyMutationInput, Prisma.brandUncheckedUpdateManyInput>
+  /**
+   * Filter which brands to update
+   */
+  where?: Prisma.brandWhereInput
+  /**
+   * Limit how many brands to update.
+   */
+  limit?: number
+}
+
+/**
+ * brand updateManyAndReturn
+ */
+export type brandUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the brand
+   */
+  select?: Prisma.brandSelectUpdateManyAndReturn<ExtArgs> | null
+  /**
+   * Omit specific fields from the brand
+   */
+  omit?: Prisma.brandOmit<ExtArgs> | null
   /**
    * The data used to update brands.
    */

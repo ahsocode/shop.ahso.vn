@@ -1,4 +1,4 @@
-// mappers/order.mapper.ts
+// dto/order.mapper.ts
 import type { OrderListItemDTO, OrderDetailDTO } from "../dto/order.dto";
 
 // Kiểu Entity tối thiểu (tránh phụ thuộc trực tiếp @prisma/client ở đây):
@@ -14,13 +14,17 @@ type OrderEntityMinimal = {
   shippingFee?: number | null;
   note?: string | null;
 
-  // 👉 thêm (optional để không vỡ chỗ cũ)
+  cancelRequestReason?: string | null;
+  cancelReason?: string | null;
+  cancelRejectReason?: string | null;
+  cancelRejectAt?: Date | null;
+  prevStatusBeforeCancel?: string | null;
+
   subtotal?: number | null;
   discountTotal?: number | null;
   taxTotal?: number | null;
   grandTotal?: number | null;
 };
-
 
 type OrderItemEntityMinimal = {
   sku: string;
@@ -47,12 +51,9 @@ export function toOrderListItemDTO(
   order: OrderEntityMinimal,
   items: OrderItemEntityMinimal[],
 ): OrderListItemDTO {
-  // nếu DB đã lưu subtotal thì dùng luôn, không thì fallback tính từ items
   const subtotalFromItems = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const subtotal = order.subtotal ?? subtotalFromItems;
 
-  // nếu grandTotal đã lưu thì ưu tiên dùng,
-  // không thì tạm tính = subtotal + shippingFee
   const shippingFee = order.shippingFee ?? 0;
   const total = order.grandTotal ?? subtotal + shippingFee;
 
@@ -65,8 +66,7 @@ export function toOrderListItemDTO(
     status: order.status as OrderListItemDTO["status"],
   };
 }
-
-
+// mappers/order.mapper.ts
 export function toOrderDetailDTO(params: {
   order: OrderEntityMinimal;
   items: OrderItemEntityMinimal[];
@@ -75,7 +75,6 @@ export function toOrderDetailDTO(params: {
 }): OrderDetailDTO {
   const { order, items, address, payment } = params;
 
-  // fallback đề phòng trường hợp order chưa có số (dev/staging)
   const subtotalFallback = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const subtotal = order.subtotal ?? subtotalFallback;
   const discountTotal = order.discountTotal ?? 0;
@@ -124,7 +123,12 @@ export function toOrderDetailDTO(params: {
     })),
     note: order.note ?? undefined,
 
-    // 👇 FE dùng block này để render breakdown
+    cancelRequestReason: order.cancelRequestReason ?? null,
+    cancelReason: order.cancelReason ?? null,
+    cancelRejectReason: order.cancelRejectReason ?? null,
+    cancelRejectAt: order.cancelRejectAt ? order.cancelRejectAt.toISOString() : null,
+    prevStatusBeforeCancel: (order.prevStatusBeforeCancel as OrderDetailDTO["status"] | null | undefined) ?? null,
+
     pricing: {
       subtotal,
       discountTotal,
@@ -134,3 +138,4 @@ export function toOrderDetailDTO(params: {
     },
   };
 }
+

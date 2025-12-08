@@ -36,11 +36,25 @@ export const ProductCreateSchema = z.object({
   description: z.string().optional().nullable(),
   coverImage: z.string().url().optional(),
   brandId: z.string().optional(),
-  listPrice: z.number().finite().nonnegative().optional(),
-  stockOnHand: z.number().int().nonnegative().optional(),
+  supplierId: z.string().optional().nullable(),
+  supplierSku: z.string().optional().nullable(),
+  listPrice: z.number().finite().nonnegative().optional().nullable(),
+  costPrice: z.number().finite().nonnegative().optional().nullable(),
+  stockOnHand: z.number().int().nonnegative().optional().nullable(),
+  currency: z.string().min(1).optional(),
+  requiresQuote: z.boolean().optional(),
+  quoteNote: z.string().optional().nullable(),
+  taxRate: z.number().finite().nonnegative().optional().nullable(),
+  taxIncluded: z.boolean().optional(),
+  minOrderQty: z.number().int().nonnegative().optional().nullable(),
+  stepQty: z.number().int().nonnegative().optional().nullable(),
+  reorderLevel: z.number().int().nonnegative().optional().nullable(),
+  reorderQty: z.number().int().nonnegative().optional().nullable(),
   status: PublishStatusEnum,
 });
-export const ProductUpdateSchema = ProductCreateSchema.partial();
+export const ProductUpdateSchema = ProductCreateSchema.partial().extend({
+  coverImage: z.string().url().nullable().optional(),
+});
 
 export const SpecDefCreateSchema = z.object({
   name: z.string().min(1),
