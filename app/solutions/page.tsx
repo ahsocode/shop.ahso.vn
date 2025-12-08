@@ -6,7 +6,8 @@ import SolutionsSearchClient, {
 } from "./solutions-search-client";
 import type { solutionWhereInput } from "@/lib/prisma-types";
 
-export const revalidate = 60;
+// Tránh prerender khi không có DB
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Giải pháp công nghiệp & tự động hóa",
@@ -31,11 +32,29 @@ function toInt(value: string, def = 1) {
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : def;
 }
 
+function SolutionsFallback() {
+  return (
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <section className="mb-8 rounded-3xl bg-linear-to-r from-blue-600 to-indigo-600 px-8 py-10 text-white shadow-lg">
+        <h1 className="mt-2 text-3xl sm:text-4xl font-bold">
+          Giải pháp tự động hóa & chuyển đổi số
+        </h1>
+        <p className="mt-3 max-w-2xl text-white/80">
+          Dữ liệu sẽ được tải ở môi trường chạy thật. (CI skip DB khi build.)
+        </p>
+      </section>
+    </div>
+  );
+}
+
 export default async function SolutionsPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
+  const SKIP_BUILD_DB = process.env.SKIP_BUILD_DB === "true";
+  if (SKIP_BUILD_DB) return <SolutionsFallback />;
+
   const params = await searchParams;
   const q = pickParam(params, "q").trim();
   const industry = pickParam(params, "industry").trim();
@@ -55,7 +74,7 @@ export default async function SolutionsPage({
     ];
   }
 
-  const [total, rows] = await Promise.all([
+  const result = await Promise.all([
     prisma.solution.count({ where }),
     prisma.solution.findMany({
       where,
@@ -72,7 +91,13 @@ export default async function SolutionsPage({
         usecase: true,
       },
     }),
-  ]);
+  ]).catch((err) => {
+    console.error("[solutions] DB error, fallback UI:", err);
+    return null;
+  });
+
+  if (!result) return <SolutionsFallback />;
+  const [total, rows] = result;
 
   const initialData: SolutionCard[] = rows.map((r: (typeof rows)[number]): SolutionCard => ({
     id: r.id,

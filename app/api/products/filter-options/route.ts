@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const revalidate = 60;
+// Luôn chạy động để không bị prerender khi dùng request data
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = req.nextUrl;
     const brand = searchParams.get("brand") ?? undefined;
     const category = searchParams.get("category") ?? undefined;
     const type = searchParams.get("type") ?? undefined;

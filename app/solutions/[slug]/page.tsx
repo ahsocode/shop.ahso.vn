@@ -6,7 +6,9 @@ import { prisma } from "@/lib/prisma";
 import { buildMetadata } from "@/lib/metadata";
 import type { solutionInclude as SolutionInclude, solutionGetPayload } from "@/lib/prisma-types";
 
-export const revalidate = 60;
+// Chạy động, tránh build fail khi không có DB
+export const dynamic = "force-dynamic";
+const SKIP_BUILD_DB = process.env.SKIP_BUILD_DB === "true";
 
 const solutionInclude = {
   solutioncategory: { select: { name: true, slug: true } },
@@ -46,7 +48,18 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const solution = await getSolution(slug);
+  if (SKIP_BUILD_DB) {
+    return buildMetadata({
+      title: "Giải pháp | AHSO",
+      description: "Chi tiết giải pháp sẽ được tải ở môi trường chạy thật.",
+      path: `/solutions/${slug}`,
+    });
+  }
+
+  const solution = await getSolution(slug).catch((err) => {
+    console.error("[solution metadata] DB error:", err);
+    return null;
+  });
   if (!solution) {
     return buildMetadata({
       title: "Giải pháp không tồn tại",
@@ -83,13 +96,34 @@ function stripHtml(value?: string | null) {
   return value.replace(/<[^>]+>/g, "").trim();
 }
 
+function SolutionFallback() {
+  return (
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 text-gray-700">
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+        Thông tin giải pháp
+      </h1>
+      <p className="text-gray-600">
+        Dữ liệu sẽ được tải ở môi trường chạy thật. (CI đang skip DB khi build.)
+      </p>
+    </div>
+  );
+}
+
 export default async function SolutionDetailPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const solution = await getSolution(slug);
+  if (SKIP_BUILD_DB) return <SolutionFallback />;
+
+  let solution: SolutionWithRelations | null = null;
+  try {
+    solution = await getSolution(slug);
+  } catch (err) {
+    console.error("[solution page] DB error:", err);
+    return <SolutionFallback />;
+  }
   if (!solution) notFound();
 
   const cover = solution.coverImage || solution.images[0]?.url || "/logo.png";

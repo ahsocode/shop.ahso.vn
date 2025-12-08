@@ -7,7 +7,8 @@ import SoftwareSearchClient, {
   SoftwareCategoryOption,
 } from "./software-search-client";
 
-export const revalidate = 60;
+// Tránh prerender khi không có DB
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Phần mềm công nghiệp & dịch vụ triển khai",
@@ -32,11 +33,27 @@ function toInt(value: string, def = 1) {
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : def;
 }
 
+function SoftwareFallback() {
+  return (
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <section className="mb-8 rounded-3xl bg-linear-to-r from-indigo-600 to-purple-600 px-8 py-10 text-white shadow-lg">
+        <h1 className="mt-2 text-3xl sm:text-4xl font-bold">Phần mềm & dịch vụ</h1>
+        <p className="mt-3 max-w-2xl text-white/80">
+          Dữ liệu sẽ được tải ở môi trường chạy thật. (CI skip DB khi build.)
+        </p>
+      </section>
+    </div>
+  );
+}
+
 export default async function SoftwarePage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
+  const SKIP_BUILD_DB = process.env.SKIP_BUILD_DB === "true";
+  if (SKIP_BUILD_DB) return <SoftwareFallback />;
+
   const params = await searchParams;
   const q = pickParam(params, "q").trim();
   const category = pickParam(params, "category").trim();
@@ -53,7 +70,7 @@ export default async function SoftwarePage({
     ];
   }
 
-  const [total, rows, categories] = await Promise.all([
+  const result = await Promise.all([
     prisma.software.count({ where }),
     prisma.software.findMany({
       where,
@@ -73,7 +90,13 @@ export default async function SoftwarePage({
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
       select: { id: true, slug: true, name: true },
     }),
-  ]);
+  ]).catch((err) => {
+    console.error("[software] DB error, fallback UI:", err);
+    return null;
+  });
+
+  if (!result) return <SoftwareFallback />;
+  const [total, rows, categories] = result;
 
   const initialData: SoftwareCard[] = rows.map((r: (typeof rows)[number]): SoftwareCard => ({
     id: r.id,
