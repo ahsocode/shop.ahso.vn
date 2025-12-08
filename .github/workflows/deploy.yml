@@ -11,7 +11,7 @@ jobs:
 
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || '' }}
 
     steps:
       - name: Checkout code
@@ -86,6 +86,16 @@ jobs:
       # ======================
       - name: Skip build here
         run: echo "Skipping next build on CI. Build will run on VPS."
+        # 🔥 THÊM 2 STEP NÀY
+      - name: Archive node_modules
+        run: |
+          tar -czf node_modules.tar.gz node_modules
+
+      - name: Upload node_modules artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-modules
+          path: node_modules.tar.gz
 
   # ======================================================
   # Deploy to VPS when CI passes
@@ -96,6 +106,22 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
+      - name: Download node_modules artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: node-modules
+          path: .
+
+      - name: Copy node_modules to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          source: "node_modules.tar.gz"
+          target: "/var/www/nextapp"
+
       - name: SSH & deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
