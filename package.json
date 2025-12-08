@@ -55,6 +55,7 @@
         "@types/react": "^19",
         "@types/react-dom": "^19",
         "baseline-browser-mapping": "^2.8.32",
+        "esbuild": "^0.24.2",
         "eslint": "^9.39.0",
         "eslint-config-next": "^16.0.1",
         "prettier": "^3.6.2",
