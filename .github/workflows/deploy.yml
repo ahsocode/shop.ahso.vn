@@ -29,7 +29,7 @@ jobs:
       # ======================
       # Prisma generate
       # ======================
-      - name: Prisma generate (nếu dùng Prisma)
+      - name: Prisma generate
         run: |
           if [ -f prisma/schema.prisma ]; then
             npx prisma generate
@@ -40,7 +40,7 @@ jobs:
       # ======================
       # Prisma validate
       # ======================
-      - name: Prisma validate (optional)
+      - name: Prisma validate
         run: |
           if [ -f prisma/schema.prisma ]; then
             npx prisma validate
@@ -49,7 +49,7 @@ jobs:
           fi
 
       # ======================
-      # TypeScript
+      # TypeScript check
       # ======================
       - name: TypeScript check
         run: |
@@ -71,9 +71,9 @@ jobs:
           fi
 
       # ======================
-      # Tests
+      # Tests (optional)
       # ======================
-      - name: Test (optional)
+      - name: Test
         run: |
           if npm run | grep -q "test"; then
             npm test
@@ -82,7 +82,7 @@ jobs:
           fi
 
       # ======================
-      # Build Next.js trên CI (đã có DB Supabase)
+      # Build Next.js trên GitHub Actions
       # ======================
       - name: Build Next.js
         env:
@@ -92,19 +92,39 @@ jobs:
         run: npm run build
 
       # ======================
-      # Chuẩn bị artifact: .next + public + node_modules(prod)
+      # Tạo artifact NHỎ (chỉ build output + configs)
       # ======================
       - name: Archive build artifact
         run: |
-          # Giữ artifact nhỏ: không kèm node_modules (cài trên VPS)
+          echo "==> Creating minimal artifact (without node_modules)"
+          
+          # Xóa node_modules (không cần gửi lên VPS)
           rm -rf node_modules
-          tar -czf app-artifact.tar.gz .next public package.json package-lock.json prisma prisma.config.ts next.config.ts
+          
+          # Đóng gói CHỈ build output + configs
+          tar -czf app-artifact.tar.gz \
+            .next \
+            public \
+            package.json \
+            package-lock.json \
+            prisma \
+            prisma.config.ts \
+            next.config.ts \
+            tailwind.config.ts \
+            tsconfig.json \
+            components.json
+          
+          # Show artifact size
+          echo "==> Artifact size:"
+          ls -lh app-artifact.tar.gz
+          du -h app-artifact.tar.gz
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: next-app-artifact
           path: app-artifact.tar.gz
+          retention-days: 1
 
   # ======================================================
   # Deploy to VPS when CI passes
@@ -130,6 +150,8 @@ jobs:
           port: 22
           source: "app-artifact.tar.gz"
           target: "/var/www/nextapp"
+          timeout: 10m
+          command_timeout: 10m
 
       - name: SSH & deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
@@ -138,13 +160,55 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
+          timeout: 10m
+          command_timeout: 10m
           script: |
+            set -e  # Exit on error
+            
             cd /var/www/nextapp
-            echo "==> Giải nén artifact mới"
+            
+            echo "==> Extracting new build artifact"
             tar -xzf app-artifact.tar.gz
-            echo "==> Cài đặt dependencies (prod)"
-            npm ci --omit=dev
-            echo "==> Prisma generate"
-            npx prisma generate
-            echo "==> Restart PM2 process: shop"
-            pm2 restart shop
+            rm app-artifact.tar.gz
+            
+            echo "==> Checking if dependencies changed"
+            
+            # Calculate hash of current package.json
+            CURRENT_HASH=$(md5sum package.json 2>/dev/null | awk '{print $1}' || echo "none")
+            
+            # Read saved hash (if exists)
+            if [ -f .package.json.hash ]; then
+              SAVED_HASH=$(cat .package.json.hash)
+            else
+              SAVED_HASH="none"
+            fi
+            
+            echo "Current hash: $CURRENT_HASH"
+            echo "Saved hash: $SAVED_HASH"
+            
+            # Compare hashes
+            if [ "$CURRENT_HASH" != "$SAVED_HASH" ]; then
+              echo "==> 📦 Dependencies CHANGED - Reinstalling..."
+              npm ci --omit=dev
+              
+              echo "==> Generating Prisma client"
+              npx prisma generate
+              
+              echo "==> Saving new hash"
+              echo "$CURRENT_HASH" > .package.json.hash
+              
+              echo "==> ✅ Dependencies updated"
+            else
+              echo "==> ✅ Dependencies UNCHANGED - Skipping npm ci"
+            fi
+            
+            echo "==> Restarting PM2 process: shop"
+            pm2 restart shop --update-env || pm2 start npm --name shop -- start
+            
+            echo "==> 🎉 Deployment complete!"
+            echo ""
+            echo "==> PM2 Status:"
+            pm2 list
+            echo ""
+            echo "==> App Info:"
+            pm2 info shop
