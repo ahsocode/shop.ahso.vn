@@ -88,6 +88,7 @@ jobs:
         env:
           NODE_ENV: production
           SKIP_SITEMAP_DB: "true"
+          SKIP_BUILD_DB: "true"
         run: npm run build
 
       # ======================
