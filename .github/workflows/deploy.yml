@@ -23,7 +23,7 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install dependencies (dev + prod)
         run: npm ci
 
       # ======================
@@ -82,20 +82,30 @@ jobs:
           fi
 
       # ======================
-      # ❗ Bỏ build tại đây (Next.js prerender cần DB)
+      # Build Next.js trên CI (đã có DB Supabase)
       # ======================
-      - name: Skip build here
-        run: echo "Skipping next build on CI. Build will run on VPS."
-        # 🔥 THÊM 2 STEP NÀY
-      - name: Archive node_modules
-        run: |
-          tar -czf node_modules.tar.gz node_modules
+      - name: Build Next.js
+        env:
+          NODE_ENV: production
+        run: npm run build
 
-      - name: Upload node_modules artifact
+      # ======================
+      # Chuẩn bị artifact: .next + public + node_modules(prod)
+      # ======================
+      - name: Install production dependencies only
+        run: |
+          rm -rf node_modules
+          npm ci --omit=dev
+
+      - name: Archive build artifact
+        run: |
+          tar -czf app-artifact.tar.gz .next public package.json package-lock.json node_modules
+
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: node-modules
-          path: node_modules.tar.gz
+          name: next-app-artifact
+          path: app-artifact.tar.gz
 
   # ======================================================
   # Deploy to VPS when CI passes
@@ -106,20 +116,20 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Download node_modules artifact
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: node-modules
+          name: next-app-artifact
           path: .
 
-      - name: Copy node_modules to VPS
+      - name: Copy build artifact to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-          source: "node_modules.tar.gz"
+          source: "app-artifact.tar.gz"
           target: "/var/www/nextapp"
 
       - name: SSH & deploy to VPS
@@ -130,4 +140,8 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
-            bash /var/www/deploy_nextapp.sh
+            cd /var/www/nextapp
+            echo "==> Giải nén artifact mới"
+            tar -xzf app-artifact.tar.gz
+            echo "==> Restart PM2 process: shop"
+            pm2 restart shop
