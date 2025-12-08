@@ -141,17 +141,21 @@ jobs:
           name: next-app-artifact
           path: .
 
-      - name: Copy build artifact to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: 22
-          source: "app-artifact.tar.gz"
-          target: "/var/www/nextapp"
-          timeout: 10m
-          command_timeout: 10m
+      - name: Copy build artifact to VPS (rsync)
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # Copy with rsync (nén, ổn định hơn scp)
+          rsync -az --compress-level=9 --progress \
+            -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p 22" \
+            app-artifact.tar.gz \
+            "${SSH_USER}@${SSH_HOST}:/var/www/nextapp/"
 
       - name: SSH & deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
