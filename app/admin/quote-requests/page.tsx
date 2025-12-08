@@ -153,7 +153,7 @@ export default function QuoteRequestsPage() {
         const resp = await getJSON<{ data: StaffOption[] }>("/api/admin/staff-list");
         if (cancelled) return;
         setStaffOptions(resp.data);
-      } catch (_err) {
+      } catch {
         if (!cancelled) toast.error("Không thể tải danh sách staff");
       }
     })();

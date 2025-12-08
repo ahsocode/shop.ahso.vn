@@ -3,8 +3,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { softwareWhereInput } from "@/lib/prisma-types";
 
-export const revalidate = 60;
-
 function toLimit(v: string | null, def = 12, max = 24) {
   const n = v ? Number(v) : NaN;
   return Number.isFinite(n) && n > 0 ? Math.min(n, max) : def;

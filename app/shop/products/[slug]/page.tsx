@@ -12,7 +12,9 @@ import type { Decimal } from "@prisma/client/runtime/library";
 import GallerySlider from "./GallerySlider";
 import RelatedCarousel from "./RelatedCarousel";
 
-export const revalidate = 60;
+// Chạy động để tránh build fail khi không có DB
+export const dynamic = "force-dynamic";
+const SKIP_BUILD_DB = process.env.SKIP_BUILD_DB === "true";
 
 /* ================== Types ================== */
 const productInclude = {
@@ -172,7 +174,18 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const p = await getProduct(slug);
+  if (SKIP_BUILD_DB) {
+    return buildMetadata({
+      title: "Sản phẩm | AHSO",
+      description: "Chi tiết sản phẩm sẽ được tải ở môi trường chạy thật.",
+      path: `/shop/products/${slug}`,
+    });
+  }
+
+  const p = await getProduct(slug).catch((err) => {
+    console.error("[product metadata] DB error:", err);
+    return null;
+  });
   if (!p) {
     return buildMetadata({
       title: "Sản phẩm không tồn tại",
@@ -227,6 +240,19 @@ function fmtSpec(spec: ProductSpec): string | null {
   return null;
 }
 
+function ProductFallback() {
+  return (
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12 text-gray-700">
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+        Thông tin sản phẩm
+      </h1>
+      <p className="text-gray-600">
+        Dữ liệu sẽ được tải ở môi trường chạy thật. (CI đang skip DB khi build.)
+      </p>
+    </div>
+  );
+}
+
 
 function StarRating({
   value = 0,
@@ -270,7 +296,15 @@ export default async function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const p = await getProduct(slug);
+  if (SKIP_BUILD_DB) return <ProductFallback />;
+
+  let p: ProductWithMetrics | null = null;
+  try {
+    p = await getProduct(slug);
+  } catch (err) {
+    console.error("[product page] DB error:", err);
+    return <ProductFallback />;
+  }
   if (!p) notFound();
 
   const cover = p.coverImage || p.images[0]?.url || "/logo.png";

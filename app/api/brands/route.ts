@@ -3,7 +3,8 @@ import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const revalidate = 60; // Revalidate every 60 seconds
+// Luôn dynamic để tránh prerender API khi có request data
+export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
