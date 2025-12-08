@@ -94,14 +94,11 @@ jobs:
       # ======================
       # Chuẩn bị artifact: .next + public + node_modules(prod)
       # ======================
-      - name: Install production dependencies only
-        run: |
-          rm -rf node_modules
-          npm ci --omit=dev
-
       - name: Archive build artifact
         run: |
-          tar -czf app-artifact.tar.gz .next public package.json package-lock.json node_modules
+          # Giữ artifact nhỏ: không kèm node_modules (cài trên VPS)
+          rm -rf node_modules
+          tar -czf app-artifact.tar.gz .next public package.json package-lock.json prisma prisma.config.ts next.config.ts
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -145,5 +142,9 @@ jobs:
             cd /var/www/nextapp
             echo "==> Giải nén artifact mới"
             tar -xzf app-artifact.tar.gz
+            echo "==> Cài đặt dependencies (prod)"
+            npm ci --omit=dev
+            echo "==> Prisma generate"
+            npx prisma generate
             echo "==> Restart PM2 process: shop"
             pm2 restart shop
