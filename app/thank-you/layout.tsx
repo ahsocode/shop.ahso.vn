@@ -1,3 +1,4 @@
+//thank-you/layout.tsx
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/metadata";
 
