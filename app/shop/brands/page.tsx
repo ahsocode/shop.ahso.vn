@@ -12,10 +12,27 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 async function getBrands() {
-  return prisma.brand.findMany({
-    orderBy: { name: "asc" },
-    select: { id: true, name: true, slug: true, logoUrl: true, productCount: true },
+  const items = await prisma.brand.findMany({
+    orderBy: [
+      { product: { _count: "desc" } },
+      { name: "asc" },
+    ],
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      logoUrl: true,
+      _count: { select: { product: true } },
+    },
   });
+
+  return items.map((item) => ({
+    id: item.id,
+    name: item.name,
+    slug: item.slug,
+    logoUrl: item.logoUrl,
+    productCount: item._count.product,
+  }));
 }
 
 export default async function BrandsPage() {
