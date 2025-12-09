@@ -12,16 +12,47 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 async function getCategories() {
-  return prisma.productcategory.findMany({
-    orderBy: { productCount: "desc" },
+  const items = await prisma.productcategory.findMany({
+    orderBy: [
+      { productcategorylink: { _count: "desc" } },
+      { name: "asc" },
+    ],
     select: {
       id: true,
       name: true,
       slug: true,
       coverImage: true,
-      productCount: true,
+      _count: { select: { productcategorylink: true } },
+      producttype: {
+        orderBy: [
+          { product: { _count: "desc" } },
+          { name: "asc" },
+        ],
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          coverImage: true,
+          _count: { select: { product: true } },
+        },
+      },
     },
   });
+
+  return items.map((item) => ({
+    id: item.id,
+    name: item.name,
+    slug: item.slug,
+    coverImage: item.coverImage,
+    productCount: item._count.productcategorylink,
+    productTypes: item.producttype.map((type) => ({
+      id: type.id,
+      name: type.name,
+      slug: type.slug,
+      coverImage: type.coverImage,
+      productCount: type._count.product,
+    })),
+  }));
 }
 
 function CategoriesFallback() {
@@ -142,31 +173,73 @@ export default async function CategoriesPage() {
           tìm nhanh sản phẩm bạn cần.
         </p>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-6 grid-cols-1">
           {categories.map((cat) => (
-            <Link
+            <div
               key={cat.id}
-              href={`/shop/products?category=${encodeURIComponent(cat.slug)}`}
               className="group rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden"
             >
-              <div className="aspect-4/3 bg-gray-50 relative">
-                <Image
-                  src={cat.coverImage || "/logo.png"}
-                  alt={cat.name}
-                  fill
-                  className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <div className="p-4 flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-gray-900">{cat.name}</h3>
-                  <p className="text-xs text-gray-500">{cat.productCount} sản phẩm</p>
+              <Link
+                href={`/shop/products?category=${encodeURIComponent(cat.slug)}`}
+                className="flex items-center gap-4 p-4 sm:p-5"
+              >
+                <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-xl border border-gray-100 bg-gray-50 overflow-hidden">
+                  <Image
+                    src={cat.coverImage || "/logo.png"}
+                    alt={cat.name}
+                    fill
+                    sizes="(max-width: 640px) 64px, 80px"
+                    className="object-contain p-3 transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-gray-900 line-clamp-1">{cat.name}</h3>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {cat.productCount} sản phẩm · {cat.productTypes.length} loại sản phẩm
+                  </p>
                 </div>
                 <span className="text-sm font-semibold text-blue-600 group-hover:text-blue-700">
                   Xem
                 </span>
+              </Link>
+
+              <div className="border-t border-gray-100 bg-gray-50/70">
+                <div className="px-4 sm:px-5 py-2 text-xs font-semibold uppercase tracking-wide text-gray-600">
+                  Loại sản phẩm trong danh mục
+                </div>
+                {cat.productTypes.length ? (
+                  <div className="px-4 sm:px-5 pb-4 grid gap-3 sm:grid-cols-2">
+                    {cat.productTypes.map((type) => (
+                      <Link
+                        key={type.id}
+                        href={`/shop/products?type=${encodeURIComponent(type.slug)}`}
+                        className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2.5 hover:border-blue-200 hover:shadow-sm transition"
+                      >
+                        <div className="relative h-12 w-12 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center">
+                          <Image
+                            src={type.coverImage || cat.coverImage || "/logo.png"}
+                            alt={type.name}
+                            width={48}
+                            height={48}
+                            className="object-contain p-1"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 line-clamp-1">
+                            {type.name}
+                          </p>
+                          <p className="text-xs text-gray-500">{type.productCount} sản phẩm</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="px-4 sm:px-5 pb-4 text-sm text-gray-500">
+                    Chưa có loại sản phẩm trong danh mục này.
+                  </p>
+                )}
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>

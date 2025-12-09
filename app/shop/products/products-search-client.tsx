@@ -813,7 +813,7 @@ export default function ProductsSearchClient() {
     [router, q, brand, category, productType, minPrice, maxPrice, inStock, sort, page]
   );
 
-  // Fetch brands and categories
+  // Fetch brands, categories, product types
   useEffect(() => {
     const controller = new AbortController();
     let ignore = false;
