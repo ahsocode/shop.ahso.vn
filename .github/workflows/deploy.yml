@@ -154,13 +154,13 @@ jobs:
             app-artifact.tar.gz \
             "${SSH_USER}@${SSH_HOST}:/var/www/shopahsovn/"
 
-
-            - name: SSH & deploy to VPS
+      - name: SSH & deploy to VPS
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_KEY_B64: ${{ secrets.SSH_KEY_B64 }}
         run: |
+          mkdir -p ~/.ssh
           echo "$SSH_KEY_B64" | base64 -d > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
