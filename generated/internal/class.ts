@@ -22,7 +22,7 @@ const config: runtime.GetPrismaClientConfig = {
       "value": "prisma-client"
     },
     "output": {
-      "value": "C:\\AHSO2\\shop.ahso.vn\\generated",
+      "value": "C:\\Dự án\\AHSO\\AHSO2\\shop.ahso.vn\\generated",
       "fromEnvVar": null
     },
     "config": {
@@ -36,7 +36,7 @@ const config: runtime.GetPrismaClientConfig = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\AHSO2\\shop.ahso.vn\\prisma\\schema.prisma",
+    "sourceFilePath": "C:\\Dự án\\AHSO\\AHSO2\\shop.ahso.vn\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativePath": "../prisma",
