@@ -62,7 +62,7 @@ export async function GET(
       cancelRejectAt: r.cancelRejectAt ?? null,
       prevStatusBeforeCancel: r.prevStatusBeforeCancel ?? null,
     },
-    items: r.orderitem.map((it) => ({
+    items: r.orderitem.map((it: (typeof r.orderitem)[number]) => ({
       sku: it.sku,
       name: it.name,
       quantity: it.quantity,

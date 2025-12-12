@@ -5,7 +5,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { sendMail } from "@/lib/mailer";
 import { EMAIL_CONFIG } from "@/lib/email-config";
-import type { contact_status } from "@/generated/enums";
+import type { contact_status } from "@prisma/client";
 
 const RATE_LIMIT = {
   MAX_PENDING: 3, // Tối đa 3 yêu cầu chưa xử lý/số

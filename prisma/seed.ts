@@ -1,6 +1,6 @@
 
 import { randomUUID } from "crypto";
-import { PrismaClient } from "@/generated/client";
+import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 
 const prisma = new PrismaClient();

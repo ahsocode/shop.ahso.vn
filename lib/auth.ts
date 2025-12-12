@@ -4,7 +4,7 @@ import { jwtVerify } from "jose";
 import { z } from "zod";
 import { prisma, prismaSupportsUserBlockField } from "./prisma";
 import type { userSelect } from "@/lib/prisma-types";
-import type { user_role } from "@/generated/enums";
+import type { user_role } from "@prisma/client";
 
 /** Payload JWT (ký bằng jose trong login) */
 export const JwtPayloadSchema = z.object({

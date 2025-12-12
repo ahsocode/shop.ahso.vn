@@ -1,7 +1,7 @@
 // lib/stock-finance-service.ts
 import { prisma } from "@/lib/prisma";
-import type { Prisma } from "@/generated/client";
-import type { financial_transaction_type } from "@/generated/enums";
+import type { Prisma } from "@prisma/client";
+import type { financial_transaction_type } from "@prisma/client";
 
 /**
  * Giảm tồn kho khi đơn hàng được giao (shipped)
