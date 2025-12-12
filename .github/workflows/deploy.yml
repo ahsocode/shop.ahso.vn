@@ -139,58 +139,58 @@ jobs:
           name: next-app-artifact
           path: .
 
-      - name: Copy build artifact to VPS
+      - name: Copy build artifact to VPS (rsync)
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_KEY_B64: ${{ secrets.SSH_KEY_B64 }}
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "$SSH_KEY_B64" | base64 -d > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
 
-          rsync -az --compress-level=9 \
-            -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p 22" \
+          rsync -az --compress-level=9 --progress \
+            -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -p 22" \
             app-artifact.tar.gz \
             "${SSH_USER}@${SSH_HOST}:/var/www/shopahsovn/"
 
-      - name: SSH & deploy to VPS
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: 22
-          timeout: 10m
-          command_timeout: 10m
-          script: |
-            set -e
 
-            cd /var/www/shopahsovn
+            - name: SSH & deploy to VPS
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY_B64: ${{ secrets.SSH_KEY_B64 }}
+        run: |
+          echo "$SSH_KEY_B64" | base64 -d > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
 
-            echo "==> Extracting artifact"
-            rm -rf .next
-            tar -xzf app-artifact.tar.gz
-            rm app-artifact.tar.gz
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -p 22 "${SSH_USER}@${SSH_HOST}" << 'EOF'
+          set -e
+          cd /var/www/shopahsovn
 
-            echo "==> Checking dependency changes"
+          echo "==> Extracting artifact"
+          rm -rf .next
+          tar -xzf app-artifact.tar.gz
+          rm app-artifact.tar.gz
 
-            CURRENT_HASH="$( (md5sum package.json && md5sum package-lock.json) | md5sum | awk '{print $1}' )"
-            SAVED_HASH="$(cat .package.json.hash 2>/dev/null || echo none)"
+          echo "==> Checking dependency changes"
+          CURRENT_HASH="$( (md5sum package.json && md5sum package-lock.json) | md5sum | awk '{print $1}' )"
+          SAVED_HASH="$(cat .package.json.hash 2>/dev/null || echo none)"
 
-            if [ "$CURRENT_HASH" != "$SAVED_HASH" ]; then
-              echo "==> Dependencies changed"
-              npm ci --omit=dev
-              npx prisma generate
-              echo "$CURRENT_HASH" > .package.json.hash
-            else
-              echo "==> Dependencies unchanged"
-            fi
+          if [ "$CURRENT_HASH" != "$SAVED_HASH" ]; then
+            echo "==> Dependencies changed"
+            npm ci --omit=dev
+            npx prisma generate
+            echo "$CURRENT_HASH" > .package.json.hash
+          else
+            echo "==> Dependencies unchanged"
+          fi
 
-            echo "==> Restarting PM2: shopahsovn"
-            pm2 restart shopahsovn --update-env || pm2 start npm --name shopahsovn -- start
-            pm2 save
+          echo "==> Restarting PM2: shopahsovn"
+          pm2 restart shopahsovn --update-env || pm2 start npm --name shopahsovn -- start
+          pm2 save
 
-            echo "==> Deployment complete"
-            pm2 list
-            pm2 info shopahsovn
+          pm2 list
+          pm2 info shopahsovn
+          EOF
+
