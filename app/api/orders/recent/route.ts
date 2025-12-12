@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { verifyRequestUser } from "@/lib/auth";
 import { toOrderListItemDTO } from "@/dto/order.mapper";
 import type { orderGetPayload, orderWhereInput } from "@/lib/prisma-types";
-import type { order_status } from "@/generated/enums";
+import type { order_status } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 

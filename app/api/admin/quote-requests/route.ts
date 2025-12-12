@@ -3,8 +3,8 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonOk, jsonError, toHttpError, parsePaging, getQueryParam } from "@/lib/http";
-import { quote_status, contact_priority } from "@/generated/enums";
-import type { Prisma } from "@/generated/client";
+import { quote_status, contact_priority } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import {
   QuoteRequestCreateSchema,
   quoteRequestSelect,

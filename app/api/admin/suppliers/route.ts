@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonOk, jsonError, toHttpError, parsePaging, getQueryParam } from "@/lib/http";
 import { slugify } from "@/lib/slug";
-import type { Prisma } from "@/generated/client";
+import type { Prisma } from "@prisma/client";
 import {
   SupplierCreateSchema,
   mapSupplierRow,

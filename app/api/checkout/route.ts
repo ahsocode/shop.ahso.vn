@@ -6,7 +6,7 @@ import { verifyRequestUser } from "@/lib/auth";
 import { sendMail } from "@/lib/mailer";
 import { generateOrderConfirmationEmail, generateNewOrderAdminEmail } from "@/lib/email-templates";
 import { getDefaultTaxRate, getOrderNotificationEmail } from "@/lib/system-settings";
-import type { Prisma } from "@/generated/client";
+import type { Prisma } from "@prisma/client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

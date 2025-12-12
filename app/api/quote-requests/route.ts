@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonOk, jsonError, toHttpError } from "@/lib/http";
 import { QuoteRequestCreateSchema } from "@/app/api/admin/quote-requests/utils";
-import { quote_status, contact_priority } from "@/generated/enums";
+import { quote_status, contact_priority } from "@prisma/client";
 import { EMAIL_CONFIG } from "@/lib/email-config";
 import { sendMail } from "@/lib/mailer";
 

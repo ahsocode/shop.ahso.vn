@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import type { Prisma } from "@/generated/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonOk, jsonError, toHttpError } from "@/lib/http";

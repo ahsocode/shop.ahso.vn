@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonError, jsonOk, parsePaging, toHttpError } from "@/lib/http";
-import type { order_status, payment_status } from "@/generated/enums";
+import type { order_status, payment_status } from "@prisma/client";
 import type { orderWhereInput } from "@/lib/prisma-types";
 
 export const dynamic = "force-dynamic";
