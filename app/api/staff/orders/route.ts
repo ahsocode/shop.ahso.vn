@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
       toEndOfDay.setHours(23, 59, 59, 999);
     }
 
-    const where: orderWhereInput = {
+    const baseWhere: orderWhereInput = {
       ...(q && {
         OR: [
           { code: { contains: q } },
@@ -70,14 +70,17 @@ export async function GET(req: NextRequest) {
           { customerPhone: { contains: q } },
         ],
       }),
-      ...(statusParam && ORDER_STATUSES.includes(statusParam as OrderStatus) && {
-        status: statusParam as OrderStatus,
-      }),
       ...((from || toEndOfDay) && {
         createdAt: {
           ...(from && { gte: from }),
           ...(toEndOfDay && { lte: toEndOfDay }),
         },
+      }),
+    };
+    const where: orderWhereInput = {
+      ...baseWhere,
+      ...(statusParam && ORDER_STATUSES.includes(statusParam as OrderStatus) && {
+        status: statusParam as OrderStatus,
       }),
     };
 
@@ -110,7 +113,7 @@ export async function GET(req: NextRequest) {
       prisma.order.groupBy({
         by: ["status"],
         _count: { status: true },
-        where,
+        where: baseWhere,
         orderBy: { status: "asc" },
       }),
     ]);

@@ -109,8 +109,8 @@ type ReviewDTO = {
 /* ================== Data ================== */
 async function getProduct(slug: string): Promise<ProductWithRelations | null> {
   if (!slug) return null;
-  const record = await prisma.product.findUnique({
-    where: { slug },
+  const record = await prisma.product.findFirst({
+    where: { slug, status: "PUBLISHED" },
     include: productInclude, // Scalars như ratingAvg, ratingCount, purchaseCount có sẵn
   });
   return record ? transformProduct(record) : null;
@@ -119,7 +119,7 @@ async function getProduct(slug: string): Promise<ProductWithRelations | null> {
 async function getRelatedProducts(typeId: string, excludeId: string) {
   if (!typeId) return [];
   const rows = await prisma.product.findMany({
-    where: { typeId, id: { not: excludeId } },
+    where: { typeId, id: { not: excludeId }, status: "PUBLISHED" },
     orderBy: { updatedAt: "desc" },
     take: 12,
     select: {

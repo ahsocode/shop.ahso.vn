@@ -112,11 +112,20 @@ type ProductDraft = {
   };
 };
 
-type BulkImageState = {
-  file: File | null;
+type BulkImageItem = {
+  file: File;
   fileName: string;
   preview: string;
+};
+
+type BulkImageState = {
+  files: BulkImageItem[];
   uploading: boolean;
+  cover:
+    | { source: "upload"; index: number }
+    | { source: "library"; url: string }
+    | null;
+  coverMode: "missing" | "overwrite";
 };
 
 const specsToText = (specs?: Array<{ key: string; value: string; unit?: string }>) =>
@@ -257,13 +266,14 @@ export default function ProductsPage() {
   const [bulkQuote, setBulkQuote] = useState("");
   const [bulkType, setBulkType] = useState("");
   const [bulkImage, setBulkImage] = useState<BulkImageState>({
-    file: null,
-    fileName: "",
-    preview: "",
+    files: [],
     uploading: false,
+    cover: null,
+    coverMode: "missing",
   });
   const [bulkLibrarySelection, setBulkLibrarySelection] = useState<string[]>([]);
   const [bulkLibraryApplying, setBulkLibraryApplying] = useState(false);
+  const [bulkImageModalOpen, setBulkImageModalOpen] = useState(false);
   const [bulkUpdating, setBulkUpdating] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [rowDeletingId, setRowDeletingId] = useState<string | null>(null);
@@ -415,9 +425,6 @@ export default function ProductsPage() {
     }
     setLibraryMode(mode);
     setLibraryTypeId(targetTypeId);
-    if (mode === "bulk" && !cursor) {
-      setBulkLibrarySelection([]);
-    }
     setLibraryLoading(true);
     setLibraryError(null);
     try {
@@ -544,18 +551,18 @@ export default function ProductsPage() {
   };
 
   const bulkImageInputRef = useRef<HTMLInputElement | null>(null);
-  const releaseBulkPreview = (url?: string) => {
-    if (url) URL.revokeObjectURL(url);
+  const releaseBulkPreviews = (urls: string[]) => {
+    urls.forEach((url) => URL.revokeObjectURL(url));
   };
 
   useEffect(() => {
     return () => {
-      releaseBulkPreview(bulkImage.preview);
+      releaseBulkPreviews(bulkImage.files.map((item) => item.preview));
     };
-  }, [bulkImage.preview]);
+  }, [bulkImage.files]);
 
   const handleBulkImageButtonClick = () => {
-    bulkImageInputRef.current?.click();
+    setBulkImageModalOpen(true);
   };
 
   const requestImportConfirm = (intent: ImportIntent) => {
@@ -592,41 +599,75 @@ export default function ProductsPage() {
   };
 
   const handleBulkImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] ?? null;
-    releaseBulkPreview(bulkImage.preview);
-    if (!file) {
-      if (bulkImageInputRef.current) bulkImageInputRef.current.value = "";
-      setBulkImage({ file: null, fileName: "", preview: "", uploading: false });
-      return;
-    }
-    const preview = URL.createObjectURL(file);
-    setBulkImage({
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    const nextFiles = files.map((file) => ({
       file,
       fileName: file.name,
-      preview,
-      uploading: false,
-    });
+      preview: URL.createObjectURL(file),
+    }));
+    setBulkImage((prev) => ({
+      ...prev,
+      files: [...prev.files, ...nextFiles],
+    }));
+    if (bulkImageInputRef.current) bulkImageInputRef.current.value = "";
   };
 
   const clearBulkImage = () => {
-    releaseBulkPreview(bulkImage.preview);
+    releaseBulkPreviews(bulkImage.files.map((item) => item.preview));
     if (bulkImageInputRef.current) bulkImageInputRef.current.value = "";
-    setBulkImage({ file: null, fileName: "", preview: "", uploading: false });
+    setBulkImage((prev) => ({
+      ...prev,
+      files: [],
+      cover: prev.cover?.source === "upload" ? null : prev.cover,
+      coverMode: "missing",
+      uploading: false,
+    }));
+  };
+
+  const removeBulkImageAt = (index: number) => {
+    setBulkImage((prev) => {
+      const target = prev.files[index];
+      if (target) URL.revokeObjectURL(target.preview);
+      const nextFiles = prev.files.filter((_, idx) => idx !== index);
+      let nextCover = prev.cover;
+      if (prev.cover?.source === "upload") {
+        if (prev.cover.index === index) {
+          nextCover = null;
+        } else if (prev.cover.index > index) {
+          nextCover = { source: "upload", index: prev.cover.index - 1 };
+        }
+      }
+      return { ...prev, files: nextFiles, cover: nextCover };
+    });
+  };
+
+  const removeBulkLibraryImage = (url: string) => {
+    setBulkLibrarySelection((prev) => prev.filter((item) => item !== url));
+    setBulkImage((prev) => ({
+      ...prev,
+      cover: prev.cover?.source === "library" && prev.cover.url === url ? null : prev.cover,
+    }));
   };
 
   const handleBulkImageUpload = async () => {
-    if (!bulkImage.file) return;
+    if (!bulkImage.files.length) return;
     if (!selectedProductIds.length) {
       toast.error("Vui lòng chọn sản phẩm trước khi tải ảnh");
       return;
     }
-    const file = bulkImage.file;
-    const previewUrl = bulkImage.preview;
     setBulkImage((prev) => ({ ...prev, uploading: true }));
     let success = false;
     try {
       const fd = new FormData();
-      fd.append("file", file);
+      bulkImage.files.forEach((item) => fd.append("files", item.file));
+      if (bulkImage.cover?.source === "upload") {
+        fd.append("coverIndex", String(bulkImage.cover.index));
+        fd.append("coverMode", bulkImage.coverMode);
+      }
+      if (bulkImage.cover?.source === "library") {
+        fd.append("skipCover", "1");
+      }
       selectedProductIds.forEach((id) => fd.append("productIds", id));
 
       const res = await fetch("/api/admin/products/bulk-upload-image", {
@@ -640,24 +681,26 @@ export default function ProductsPage() {
           getErrorMessage(data, "Không thể tải ảnh cho sản phẩm đã chọn"),
         );
       }
-      toast.success(`Đã thêm ảnh cho ${data?.uploaded ?? 0} sản phẩm`);
+      const uploadedImages = data?.uploadedImages ?? data?.uploaded ?? 0;
+      const uploadedProducts = data?.uploadedProducts ?? selectedProductIds.length;
+      toast.success(`Đã thêm ${uploadedImages} ảnh cho ${uploadedProducts} sản phẩm`);
       success = true;
     } catch (error) {
       setBulkImage((prev) => ({ ...prev, uploading: false }));
       throw error instanceof Error
         ? error
         : new Error("Không thể tải ảnh cho sản phẩm đã chọn");
-    } finally {
+      } finally {
       if (success) {
-        releaseBulkPreview(previewUrl);
+        releaseBulkPreviews(bulkImage.files.map((item) => item.preview));
         if (bulkImageInputRef.current) {
           bulkImageInputRef.current.value = "";
         }
         setBulkImage({
-          file: null,
-          fileName: "",
-          preview: "",
+          files: [],
           uploading: false,
+          cover: null,
+          coverMode: "missing",
         });
       }
     }
@@ -831,6 +874,10 @@ export default function ProductsPage() {
     setBulkLibrarySelection((prev) =>
       prev.includes(url) ? prev.filter((item) => item !== url) : [...prev, url],
     );
+    setBulkImage((prev) => ({
+      ...prev,
+      cover: prev.cover?.source === "library" && prev.cover.url === url ? null : prev.cover,
+    }));
   };
   const openBulkLibraryPicker = () => {
     if (!selectedCount) {
@@ -855,13 +902,24 @@ export default function ProductsPage() {
     }
     setBulkLibraryApplying(true);
     try {
-      const payload = {
+      const payload: {
+        productIds: string[];
+        images: { url: string }[];
+        coverUrl?: string;
+        coverMode?: "missing" | "overwrite";
+      } = {
         productIds: selectedProductIds,
         images: bulkLibrarySelection.map((url) => ({ url })),
       };
+      if (
+        bulkImage.cover?.source === "library" &&
+        bulkLibrarySelection.includes(bulkImage.cover.url)
+      ) {
+        payload.coverUrl = bulkImage.cover.url;
+        payload.coverMode = bulkImage.coverMode;
+      }
       await postJSON("/api/admin/products/bulk-link-images", payload);
       toast.success(`Đã gán ${bulkLibrarySelection.length} ảnh cho sản phẩm đã chọn`);
-      setLibraryOpen(false);
       setBulkLibrarySelection([]);
       triggerReload();
       return true;
@@ -876,13 +934,14 @@ export default function ProductsPage() {
       setBulkLibraryApplying(false);
     }
   };
+  const bulkImageTotalCount =
+    bulkImage.files.length + bulkLibrarySelection.length;
   const bulkFormFilled = Boolean(
     bulkSupplier ||
       bulkStatus ||
       bulkQuote ||
       bulkType ||
-      bulkImage.file ||
-      bulkLibrarySelection.length,
+      bulkImageTotalCount,
   );
   const bulkDisabled =
     !selectedCount ||
@@ -967,6 +1026,11 @@ export default function ProductsPage() {
   const clearSelection = () => {
     setSelectedProductIds([]);
     clearBulkImage();
+    setBulkLibrarySelection([]);
+    setBulkImage((prev) => ({
+      ...prev,
+      cover: prev.cover?.source === "library" ? null : prev.cover,
+    }));
   };
 
   const requestBulkUpdate = () => {
@@ -1028,7 +1092,7 @@ export default function ProductsPage() {
       setBulkType("");
     }
 
-      if (bulkImage.file) {
+      if (bulkImage.files.length) {
         await handleBulkImageUpload();
       }
 
@@ -1039,6 +1103,8 @@ export default function ProductsPage() {
 
       setSelectedProductIds([]);
       clearBulkImage();
+      setBulkLibrarySelection([]);
+      setBulkImage((prev) => ({ ...prev, cover: null }));
       triggerReload();
       return true;
     } catch (error) {
@@ -1068,6 +1134,8 @@ export default function ProductsPage() {
       toast.success(`Đã xóa ${res.deleted} sản phẩm`);
       setSelectedProductIds([]);
       clearBulkImage();
+      setBulkLibrarySelection([]);
+      setBulkImage((prev) => ({ ...prev, cover: null }));
       triggerReload();
       return true;
     } catch (error) {
@@ -1118,9 +1186,17 @@ export default function ProductsPage() {
       ? "Xóa sản phẩm"
       : "";
 
+  const bulkUpdateImageNote = bulkImageTotalCount
+    ? `Ảnh: ${bulkImageTotalCount} ảnh${
+        bulkImage.cover
+          ? `, ảnh bìa từ ${bulkImage.cover.source === "library" ? "Cloudinary" : "tải lên"}`
+          : ""
+      }.`
+    : "Ảnh: không thay đổi.";
+
   const confirmDescription =
     confirmAction?.type === "bulk-update"
-      ? `Thao tác này sẽ cập nhật ${selectedCount} sản phẩm đã chọn.`
+      ? `Thao tác này sẽ cập nhật ${selectedCount} sản phẩm đã chọn. ${bulkUpdateImageNote}`
       : confirmAction?.type === "bulk-delete"
       ? `Thao tác này sẽ xóa ${selectedCount} sản phẩm và không thể hoàn tác.`
       : confirmAction?.type === "row-delete"
@@ -2191,53 +2267,13 @@ export default function ProductsPage() {
                   className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={bulkImage.uploading || bulkUpdating}
                 >
-                  {bulkImage.fileName ? "Đổi ảnh" : "Tải ảnh lên"}
+                  Quản lý ảnh
                 </button>
-                <button
-                  type="button"
-                  onClick={openBulkLibraryPicker}
-                  className="rounded border border-blue-200 bg-blue-50 px-2 py-1 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
-                  disabled={bulkLibraryApplying || bulkUpdating}
-                >
-                  Chọn ảnh sẵn có
-                </button>
-                {bulkLibrarySelection.length > 0 && (
+                {bulkImageTotalCount > 0 && (
                   <span className="text-xs text-gray-600">
-                    Đang chọn {bulkLibrarySelection.length} ảnh từ thư viện
+                    Đã chọn {bulkImageTotalCount} ảnh
                   </span>
                 )}
-                {bulkImage.fileName && (
-                  <div className="flex items-center gap-2">
-                    <div className="relative h-8 w-8 overflow-hidden rounded border border-gray-200 bg-white">
-                      <Image
-                        src={bulkImage.preview}
-                        alt="Bulk preview"
-                        fill
-                        sizes="32px"
-                        className="object-cover"
-                        unoptimized
-                      />
-                    </div>
-                    <span className="max-w-[120px] truncate text-xs text-gray-600">
-                      {bulkImage.fileName}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={clearBulkImage}
-                      className="text-xs text-red-600 hover:underline disabled:opacity-60"
-                      disabled={bulkImage.uploading}
-                    >
-                      Xóa
-                    </button>
-                  </div>
-                )}
-                <input
-                  ref={bulkImageInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleBulkImageChange}
-                />
               </div>
               <button
                 onClick={requestBulkUpdate}
@@ -3184,19 +3220,226 @@ export default function ProductsPage() {
         </div>
       )}
       <Dialog
+        open={bulkImageModalOpen}
+        onOpenChange={setBulkImageModalOpen}
+      >
+        <DialogContent className="sm:max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Quản lý ảnh cho sản phẩm đã chọn</DialogTitle>
+            <DialogDescription>
+              Ảnh sẽ được áp dụng khi bấm “Cập nhật nhanh” và xác nhận lần cuối.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => bulkImageInputRef.current?.click()}
+              className="rounded border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+              disabled={bulkImage.uploading}
+            >
+              Chọn ảnh từ máy
+            </button>
+            <button
+              type="button"
+              onClick={openBulkLibraryPicker}
+              className="rounded border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={bulkLibraryApplying || bulkUpdating}
+            >
+              Chọn từ thư viện Cloudinary
+            </button>
+            {bulkImageTotalCount > 0 && (
+              <span className="text-xs text-gray-600">
+                Đã chọn {bulkImageTotalCount} ảnh
+              </span>
+            )}
+            {bulkImageTotalCount > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  clearBulkImage();
+                  setBulkLibrarySelection([]);
+                  setBulkImage((prev) => ({ ...prev, cover: null }));
+                }}
+                className="text-xs text-red-600 hover:underline"
+                disabled={bulkImage.uploading}
+              >
+                Xóa tất cả ảnh đã chọn
+              </button>
+            )}
+            <input
+              ref={bulkImageInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handleBulkImageChange}
+            />
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-sm text-gray-700">
+              <span>Chọn ảnh bìa</span>
+              <select
+                className="rounded border border-gray-300 bg-white px-2 py-1 text-xs disabled:opacity-60"
+                value={bulkImage.coverMode}
+                onChange={(e) =>
+                  setBulkImage((prev) => ({
+                    ...prev,
+                    coverMode: e.target.value as BulkImageState["coverMode"],
+                  }))
+                }
+                disabled={!bulkImage.cover}
+              >
+                <option value="missing">Chỉ đặt nếu chưa có</option>
+                <option value="overwrite">Ghi đè ảnh bìa</option>
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              {bulkImage.files.map((item, idx) => {
+                const isCover =
+                  bulkImage.cover?.source === "upload" &&
+                  bulkImage.cover.index === idx;
+                return (
+                  <div
+                    key={`upload-${item.fileName}-${idx}`}
+                    className={`group relative overflow-hidden rounded-lg border bg-white shadow-sm ${
+                      isCover ? "border-blue-500 ring-2 ring-blue-100" : "border-gray-200"
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setBulkImage((prev) => ({
+                          ...prev,
+                          cover:
+                            prev.cover?.source === "upload" && prev.cover.index === idx
+                              ? null
+                              : { source: "upload", index: idx },
+                        }))
+                      }
+                      className="block w-full"
+                      title={isCover ? "Ảnh bìa" : "Chọn làm ảnh bìa"}
+                    >
+                      <div className="relative aspect-square w-full bg-gray-100">
+                        <Image
+                          src={item.preview}
+                          alt={item.fileName}
+                          fill
+                          sizes="200px"
+                          className="object-cover"
+                          unoptimized
+                        />
+                        <div className="absolute left-2 top-2 rounded bg-gray-900/70 px-2 py-0.5 text-[10px] font-semibold text-white">
+                          Upload
+                        </div>
+                        {isCover && (
+                          <div className="absolute bottom-2 left-2 rounded bg-blue-600/90 px-2 py-0.5 text-[10px] font-semibold text-white">
+                            Ảnh bìa
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                    <div className="flex items-center justify-between gap-2 px-2 py-1">
+                      <span className="truncate text-[11px] text-gray-600">
+                        {item.fileName}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeBulkImageAt(idx)}
+                        className="text-[11px] text-red-600 hover:underline"
+                      >
+                        Xóa
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+              {bulkLibrarySelection.map((url) => {
+                const isCover =
+                  bulkImage.cover?.source === "library" && bulkImage.cover.url === url;
+                return (
+                  <div
+                    key={`library-${url}`}
+                    className={`group relative overflow-hidden rounded-lg border bg-white shadow-sm ${
+                      isCover ? "border-blue-500 ring-2 ring-blue-100" : "border-gray-200"
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setBulkImage((prev) => ({
+                          ...prev,
+                          cover:
+                            prev.cover?.source === "library" && prev.cover.url === url
+                              ? null
+                              : { source: "library", url },
+                        }))
+                      }
+                      className="block w-full"
+                      title={isCover ? "Ảnh bìa" : "Chọn làm ảnh bìa"}
+                    >
+                      <div className="relative aspect-square w-full bg-gray-100">
+                        <Image
+                          src={url}
+                          alt="Cloudinary"
+                          fill
+                          sizes="200px"
+                          className="object-cover"
+                        />
+                        <div className="absolute left-2 top-2 rounded bg-blue-700/80 px-2 py-0.5 text-[10px] font-semibold text-white">
+                          Cloudinary
+                        </div>
+                        {isCover && (
+                          <div className="absolute bottom-2 left-2 rounded bg-blue-600/90 px-2 py-0.5 text-[10px] font-semibold text-white">
+                            Ảnh bìa
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                    <div className="flex items-center justify-between gap-2 px-2 py-1">
+                      <span className="truncate text-[11px] text-gray-600">
+                        {url.split("/").pop()}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeBulkLibraryImage(url)}
+                        className="text-[11px] text-red-600 hover:underline"
+                      >
+                        Xóa
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {bulkImageTotalCount === 0 && (
+              <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center text-sm text-gray-600">
+                Chưa chọn ảnh nào.
+              </div>
+            )}
+          </div>
+          <DialogFooter className="gap-2">
+            <button
+              type="button"
+              className="rounded border px-4 py-2"
+              onClick={() => setBulkImageModalOpen(false)}
+            >
+              Đóng
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog
         open={libraryOpen}
         onOpenChange={(open) => {
           setLibraryOpen(open);
-          if (!open && libraryMode === "bulk") {
-            setBulkLibrarySelection([]);
-          }
         }}
       >
         <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>Thư viện ảnh theo loại sản phẩm</DialogTitle>
             <DialogDescription>
-              Chọn ảnh có sẵn trong thư mục của loại sản phẩm để tái sử dụng làm gallery hoặc cover.
+              Chọn nhiều ảnh từ thư viện để dùng cho gallery hoặc ảnh bìa. Ảnh sẽ áp dụng khi bấm “Cập nhật nhanh”.
             </DialogDescription>
           </DialogHeader>
           {libraryError && (
@@ -3262,11 +3505,10 @@ export default function ProductsPage() {
                   </div>
                   <button
                     type="button"
-                    onClick={applyBulkLibrarySelection}
-                    className="rounded border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-60"
-                    disabled={bulkLibraryApplying}
+                    onClick={() => setLibraryOpen(false)}
+                    className="rounded border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 hover:bg-blue-100"
                   >
-                    {bulkLibraryApplying ? "Đang gán..." : "Gán cho sản phẩm đã chọn"}
+                    Xác nhận chọn ảnh
                   </button>
                 </>
               )}

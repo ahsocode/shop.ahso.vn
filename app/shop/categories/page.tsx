@@ -59,7 +59,7 @@ function CategoriesFallback() {
   return (
     <div className="min-h-screen bg-linear-to-b from-gray-50 to-white">
       <div className="bg-white/60 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
+        <div className="w-full px-4 sm:px-6 lg:px-8 pt-6">
           <div className="flex items-center gap-2 text-sm font-semibold text-blue-700">
             <Link
               href="/shop/products"
@@ -79,7 +79,7 @@ function CategoriesFallback() {
           </div>
         </div>
       </div>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         <nav className="text-sm text-gray-500 mb-4 flex items-center gap-2">
           <Link href="/" className="hover:text-gray-900">
             Trang chủ
@@ -123,7 +123,7 @@ export default async function CategoriesPage() {
   return (
     <div className="min-h-screen bg-linear-to-b from-gray-50 to-white">
       <div className="bg-white/60 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
+        <div className="w-full px-4 sm:px-6 lg:px-8 pt-6">
           <div className="flex items-center gap-2 text-sm font-semibold text-blue-700">
             <Link
               href="/shop/products"
@@ -146,7 +146,7 @@ export default async function CategoriesPage() {
           </div>
         </div>
       </div>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         <nav className="text-sm text-gray-500 mb-4 flex items-center gap-2">
           <Link href="/" className="hover:text-gray-900">
             Trang chủ
@@ -208,7 +208,7 @@ export default async function CategoriesPage() {
                   Loại sản phẩm trong danh mục
                 </div>
                 {cat.productTypes.length ? (
-                  <div className="px-4 sm:px-5 pb-4 grid gap-3 sm:grid-cols-2">
+                  <div className="px-4 sm:px-5 pb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {cat.productTypes.map((type) => (
                       <Link
                         key={type.id}
