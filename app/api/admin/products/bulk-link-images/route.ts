@@ -15,6 +15,8 @@ const BodySchema = z.object({
       }),
     )
     .min(1),
+  coverUrl: z.string().url().optional(),
+  coverMode: z.enum(["missing", "overwrite"]).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -28,7 +30,7 @@ export async function POST(req: NextRequest) {
       return jsonError("Validation Error", 400, { issues: parsed.error.issues });
     }
 
-    const { productIds, images } = parsed.data;
+    const { productIds, images, coverUrl, coverMode } = parsed.data;
     const products = await prisma.product.findMany({
       where: { id: { in: productIds } },
       select: {
@@ -87,10 +89,12 @@ export async function POST(req: NextRequest) {
           data: rowsToCreate,
           skipDuplicates: true,
         });
-        if (!product.coverImage) {
+        const coverCandidate = coverUrl ?? rowsToCreate[0]?.url ?? null;
+        const shouldOverwrite = coverMode === "overwrite";
+        if (coverCandidate && (shouldOverwrite || !product.coverImage)) {
           await tx.product.update({
             where: { id: product.id },
-            data: { coverImage: rowsToCreate[0]?.url ?? null, updatedAt: now },
+            data: { coverImage: coverCandidate, updatedAt: now },
           });
         }
       });
