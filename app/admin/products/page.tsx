@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -56,6 +56,20 @@ type SpecDefOption = {
   id: string;
   name: string;
   slug: string;
+};
+
+type GalleryAsset = {
+  publicId: string;
+  secureUrl: string;
+  width: number;
+  height: number;
+  bytes: number;
+  createdAt: string;
+};
+
+type GalleryUploadItem = {
+  file: File;
+  preview: string;
 };
 
 // Dòng thông số kỹ thuật nhập trên UI
@@ -340,6 +354,24 @@ export default function ProductsPage() {
   const [filterBrand, setFilterBrand] = useState("");
   const [filterType, setFilterType] = useState("");
   const [sortKey, setSortKey] = useState("updatedAt_desc");
+  const [activeTab, setActiveTab] = useState<"products" | "gallery">("products");
+  const [galleryTypeId, setGalleryTypeId] = useState<string | null>(null);
+  const [galleryAssets, setGalleryAssets] = useState<GalleryAsset[]>([]);
+  const [galleryNextCursor, setGalleryNextCursor] = useState<string | null>(null);
+  const [galleryLoading, setGalleryLoading] = useState(false);
+  const [galleryError, setGalleryError] = useState<string | null>(null);
+  const [galleryUploadItems, setGalleryUploadItems] = useState<GalleryUploadItem[]>([]);
+  const [galleryUploadSku, setGalleryUploadSku] = useState("");
+  const [galleryUploading, setGalleryUploading] = useState(false);
+  const [galleryUploadProgress, setGalleryUploadProgress] = useState<{
+    done: number;
+    total: number;
+  } | null>(null);
+  const galleryUploadInputRef = useRef<HTMLInputElement | null>(null);
+  const [gallerySelected, setGallerySelected] = useState<string[]>([]);
+  const [galleryConfirmAction, setGalleryConfirmAction] = useState<
+    null | { type: "upload" | "delete" }
+  >(null);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const importableDrafts = drafts.filter(
@@ -353,6 +385,37 @@ export default function ProductsPage() {
             selectedDraftIds.includes(draft.tempId),
         )
       : importableDrafts;
+
+  const groupedTypes = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; slug?: string; types: Option[] }>();
+    categories.forEach((cat) => {
+      map.set(cat.id, { id: cat.id, name: cat.name, slug: cat.slug, types: [] });
+    });
+    const ungrouped: Option[] = [];
+    types.forEach((type) => {
+      if (type.categoryId && map.has(type.categoryId)) {
+        map.get(type.categoryId)?.types.push(type);
+      } else {
+        ungrouped.push(type);
+      }
+    });
+    const groups = Array.from(map.values());
+    if (ungrouped.length) {
+      groups.push({ id: "__uncat__", name: "Khác", slug: "uncategorized", types: ungrouped });
+    }
+    return groups;
+  }, [categories, types]);
+
+  const selectedGalleryType = galleryTypeId
+    ? types.find((type) => type.id === galleryTypeId) ?? null
+    : null;
+  const selectedGalleryCategory = selectedGalleryType?.categoryId
+    ? categories.find((cat) => cat.id === selectedGalleryType.categoryId) ?? null
+    : null;
+  const galleryFolderPath = selectedGalleryType
+    ? `categories/${slugify(selectedGalleryCategory?.slug ?? selectedGalleryCategory?.name ?? "uncategorized")}/` +
+      `${slugify(selectedGalleryType.slug ?? selectedGalleryType.name)}/gallery`
+    : "";
 
   useEffect(() => {
     setSelectedDraftIds((prev) =>
@@ -861,6 +924,178 @@ export default function ProductsPage() {
       prev.filter((id) => rows.some((row) => row.id === id)),
     );
   }, [rows]);
+
+  useEffect(() => {
+    setGallerySelected([]);
+  }, [galleryTypeId]);
+
+  useEffect(() => {
+    return () => {
+      galleryUploadItems.forEach((item) => URL.revokeObjectURL(item.preview));
+    };
+  }, [galleryUploadItems]);
+
+  const loadGalleryManager = async (
+    typeId: string,
+    options: { cursor?: string | null; append?: boolean } = {},
+  ) => {
+    setGalleryLoading(true);
+    setGalleryError(null);
+    try {
+      const params = new URLSearchParams({ typeId });
+      if (options.cursor) params.set("nextCursor", options.cursor);
+      const res = await fetch(`/api/admin/products/gallery?${params.toString()}`, {
+        headers: makeHeaders(),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(getErrorMessage(data, "Không thể tải ảnh từ Cloudinary"));
+      }
+      const items = (data?.items ?? []) as GalleryAsset[];
+      setGalleryAssets((prev) => (options.append ? [...prev, ...items] : items));
+      setGalleryNextCursor((data?.nextCursor as string | null) ?? null);
+      if (!options.append) {
+        setGallerySelected([]);
+      }
+    } catch (error) {
+      const message = extractErrorMessage(error);
+      setGalleryError(message);
+      toast.error(message);
+    } finally {
+      setGalleryLoading(false);
+    }
+  };
+
+  const handleGalleryUploadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    const nextItems = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    setGalleryUploadItems((prev) => [...prev, ...nextItems]);
+    if (galleryUploadInputRef.current) {
+      galleryUploadInputRef.current.value = "";
+    }
+  };
+
+  const handleGalleryUpload = async () => {
+    if (!galleryTypeId) {
+      toast.error("Vui lòng chọn loại sản phẩm");
+      return;
+    }
+    if (!galleryUploadItems.length) {
+      toast.error("Vui lòng chọn ảnh để tải lên");
+      return;
+    }
+    const skuValue =
+      galleryUploadSku.trim() ||
+      selectedGalleryType?.slug ||
+      selectedGalleryType?.name ||
+      "gallery";
+
+    setGalleryUploading(true);
+    setGalleryUploadProgress({ done: 0, total: galleryUploadItems.length });
+    try {
+      for (const [idx, item] of galleryUploadItems.entries()) {
+        const fd = new FormData();
+        fd.append("file", item.file);
+        fd.append("typeId", galleryTypeId);
+        fd.append("sku", skuValue);
+        fd.append("kind", "gallery");
+
+        const res = await fetch("/api/admin/products/upload-temp", {
+          method: "POST",
+          headers: makeHeaders(),
+          body: fd,
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+          throw new Error(getErrorMessage(data, "Không thể upload ảnh"));
+        }
+        setGalleryUploadProgress((prev) =>
+          prev ? { ...prev, done: Math.min(prev.total, idx + 1) } : prev,
+        );
+      }
+      toast.success(`Đã upload ${galleryUploadItems.length} ảnh`);
+      galleryUploadItems.forEach((item) => URL.revokeObjectURL(item.preview));
+      setGalleryUploadItems([]);
+      setGalleryUploadSku("");
+      await loadGalleryManager(galleryTypeId);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Không thể upload ảnh",
+      );
+    } finally {
+      setGalleryUploading(false);
+      setGalleryUploadProgress(null);
+    }
+  };
+
+  const clearGalleryUploads = () => {
+    galleryUploadItems.forEach((item) => URL.revokeObjectURL(item.preview));
+    setGalleryUploadItems([]);
+    setGalleryUploadSku("");
+  };
+
+  const removeGalleryUploadItem = (index: number) => {
+    setGalleryUploadItems((prev) => {
+      const target = prev[index];
+      if (target) URL.revokeObjectURL(target.preview);
+      return prev.filter((_, idx) => idx !== index);
+    });
+  };
+
+  const toggleGallerySelection = (publicId: string) => {
+    setGallerySelected((prev) =>
+      prev.includes(publicId)
+        ? prev.filter((id) => id !== publicId)
+        : [...prev, publicId],
+    );
+  };
+
+  const clearGallerySelection = () => {
+    setGallerySelected([]);
+  };
+
+  const requestGalleryUpload = () => {
+    if (!galleryUploadItems.length) {
+      toast.error("Vui lòng chọn ảnh để upload");
+      return;
+    }
+    setGalleryConfirmAction({ type: "upload" });
+  };
+
+  const requestGalleryDelete = () => {
+    if (!gallerySelected.length) {
+      toast.error("Vui lòng chọn ảnh để xóa");
+      return;
+    }
+    setGalleryConfirmAction({ type: "delete" });
+  };
+
+  const runGalleryDelete = async () => {
+    if (!gallerySelected.length) return;
+    try {
+      const res = await fetch("/api/admin/products/gallery/manage", {
+        method: "DELETE",
+        headers: { ...makeHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({ publicIds: gallerySelected }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(getErrorMessage(data, "Không thể xóa ảnh"));
+      }
+      toast.success(`Đã xóa ${gallerySelected.length} ảnh`);
+      setGallerySelected([]);
+      if (galleryTypeId) await loadGalleryManager(galleryTypeId);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Không thể xóa ảnh",
+      );
+    }
+  };
+
 
   const currentPageIds = rows.map((row) => row.id);
   const allCurrentSelected =
@@ -1518,8 +1753,302 @@ export default function ProductsPage() {
   // ===== JSX =====
   return (
     <div className="mx-auto max-w-[1400px] xl:max-w-[95vw] space-y-5 px-2 xl:px-4">
-      {/* Upload products via file */}
-      <div className="rounded-xl border bg-white p-5 shadow-sm">
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-white p-2 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setActiveTab("products")}
+          className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+            activeTab === "products"
+              ? "bg-blue-600 text-white shadow"
+              : "text-gray-700 hover:bg-gray-100"
+          }`}
+        >
+          Danh sách sản phẩm
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("gallery")}
+          className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+            activeTab === "gallery"
+              ? "bg-blue-600 text-white shadow"
+              : "text-gray-700 hover:bg-gray-100"
+          }`}
+        >
+          Quản lý ảnh sản phẩm
+        </button>
+      </div>
+
+      {activeTab === "gallery" ? (
+        <div className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <div className="rounded-xl border bg-white p-4 shadow-sm">
+            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Cấu trúc thư mục
+            </div>
+            <div className="mt-3 space-y-3">
+              {groupedTypes.map((group) => (
+                <div key={group.id} className="space-y-2">
+                  <div className="text-sm font-semibold text-gray-800">
+                    {group.name}
+                  </div>
+                  <div className="space-y-1">
+                    {group.types.length ? (
+                      group.types.map((type) => (
+                        <button
+                          key={type.id}
+                          type="button"
+                          onClick={() => {
+                            setGalleryTypeId(type.id);
+                            loadGalleryManager(type.id);
+                          }}
+                          className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-xs font-semibold transition ${
+                            galleryTypeId === type.id
+                              ? "border-blue-500 bg-blue-50 text-blue-700"
+                              : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          <span>{type.name}</span>
+                          <span className="text-[10px] text-gray-400">
+                            {type.slug ?? slugify(type.name)}
+                          </span>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="text-xs text-gray-400">Chưa có loại sản phẩm</div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="rounded-xl border bg-white p-4 shadow-sm">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold text-gray-900">
+                    Thư mục ảnh đang xem
+                  </div>
+                  <div className="mt-1 text-xs text-gray-500">
+                    {galleryFolderPath || "Chọn loại sản phẩm để xem ảnh"}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  {galleryLoading && "Đang tải ảnh..."}
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 lg:grid-cols-[1.2fr_1fr]">
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold text-gray-600">Upload ảnh vào thư mục</div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => galleryUploadInputRef.current?.click()}
+                      className="rounded border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                      disabled={galleryUploading}
+                    >
+                      Chọn ảnh
+                    </button>
+                    <button
+                      type="button"
+                      onClick={requestGalleryUpload}
+                      className="rounded bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                      disabled={galleryUploading || !galleryUploadItems.length || !galleryTypeId}
+                    >
+                      {galleryUploading ? "Đang upload..." : "Xác nhận upload"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={clearGalleryUploads}
+                      className="text-xs text-red-600 hover:underline disabled:opacity-60"
+                      disabled={galleryUploading || (!galleryUploadItems.length && !galleryUploadSku)}
+                    >
+                      Xóa danh sách
+                    </button>
+                    <input
+                      ref={galleryUploadInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handleGalleryUploadChange}
+                    />
+                  </div>
+                  <input
+                    value={galleryUploadSku}
+                    onChange={(e) => setGalleryUploadSku(e.target.value)}
+                    placeholder="SKU hoặc tiền tố ảnh (tuỳ chọn)"
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs"
+                  />
+                  <div className="text-[11px] text-gray-500">
+                    Ảnh sẽ được lưu trong thư mục gallery của loại sản phẩm đang chọn.
+                  </div>
+                </div>
+                <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-3 text-xs text-gray-600">
+                  <div>Đã chọn: {galleryUploadItems.length} ảnh</div>
+                  {galleryUploadProgress && (
+                    <div className="mt-2 text-[11px] text-blue-600">
+                      Đang upload {galleryUploadProgress.done}/{galleryUploadProgress.total}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {galleryUploadItems.length > 0 && (
+                <div className="mt-4">
+                  <div className="text-xs font-semibold text-gray-600 mb-2">
+                    Ảnh đã chọn (xem trước)
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
+                    {galleryUploadItems.map((item, idx) => (
+                      <div
+                        key={`${item.file.name}-${idx}`}
+                        className="overflow-hidden rounded-lg border border-gray-200 bg-white"
+                      >
+                        <div className="relative aspect-square w-full bg-gray-100">
+                          <button
+                            type="button"
+                            onClick={() => removeGalleryUploadItem(idx)}
+                            className="absolute right-2 top-2 z-10 rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold text-red-600 shadow"
+                          >
+                            Xóa
+                          </button>
+                          <img
+                            src={item.preview}
+                            alt={item.file.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="p-2 text-[10px] text-gray-500 truncate">
+                          {item.file.name}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-xl border bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-semibold text-gray-900">
+                  Ảnh trong thư mục
+                </div>
+                <div className="flex items-center gap-2">
+                  {galleryNextCursor && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        galleryTypeId &&
+                        loadGalleryManager(galleryTypeId, {
+                          cursor: galleryNextCursor,
+                          append: true,
+                        })
+                      }
+                      className="rounded border border-gray-200 px-3 py-1 text-xs text-gray-700 hover:bg-gray-50"
+                      disabled={galleryLoading}
+                    >
+                      {galleryLoading ? "Đang tải..." : "Tải thêm"}
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setGallerySelected((prev) =>
+                      prev.length === galleryAssets.length
+                        ? []
+                        : galleryAssets.map((item) => item.publicId),
+                    )
+                  }
+                  className="rounded border border-gray-200 px-2 py-1 text-gray-600 hover:bg-gray-50"
+                  disabled={!galleryAssets.length}
+                >
+                  {gallerySelected.length === galleryAssets.length && galleryAssets.length
+                    ? "Bỏ chọn tất cả"
+                    : "Chọn tất cả"}
+                </button>
+                <button
+                  type="button"
+                  onClick={clearGallerySelection}
+                  className="rounded border border-gray-200 px-2 py-1 text-gray-600 hover:bg-gray-50"
+                  disabled={!gallerySelected.length}
+                >
+                  Bỏ chọn
+                </button>
+                <button
+                  type="button"
+                  onClick={requestGalleryDelete}
+                  className="rounded border border-red-200 bg-red-50 px-2 py-1 text-red-600 hover:bg-red-100 disabled:opacity-60"
+                  disabled={!gallerySelected.length}
+                >
+                  Xóa ảnh đã chọn
+                </button>
+                {gallerySelected.length > 0 && (
+                  <span className="text-[11px] text-gray-500">
+                    Đã chọn {gallerySelected.length} ảnh
+                  </span>
+                )}
+              </div>
+              {galleryError && (
+                <div className="mt-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                  {galleryError}
+                </div>
+              )}
+              {!galleryLoading && !galleryAssets.length ? (
+                <div className="mt-4 rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-600">
+                  Chưa có ảnh trong thư mục này.
+                </div>
+              ) : (
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6">
+                  {galleryAssets.map((asset) => (
+                    <div
+                      key={asset.publicId}
+                      className={`overflow-hidden rounded-lg border bg-white ${
+                        gallerySelected.includes(asset.publicId)
+                          ? "border-blue-400 ring-2 ring-blue-100"
+                          : "border-gray-200"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => toggleGallerySelection(asset.publicId)}
+                        className="relative aspect-square w-full bg-gray-100 text-left"
+                        title="Chọn ảnh"
+                      >
+                        <span className="absolute left-2 top-2 z-10 h-4 w-4 rounded border border-white bg-white/80">
+                          {gallerySelected.includes(asset.publicId) && (
+                            <span className="block h-full w-full rounded bg-blue-600" />
+                          )}
+                        </span>
+                        <Image
+                          src={asset.secureUrl}
+                          alt={asset.publicId}
+                          fill
+                          sizes="160px"
+                          className="object-cover"
+                        />
+                      </button>
+                      <div className="p-2 text-[10px] text-gray-500">
+                        <div className="truncate">{asset.publicId}</div>
+                        <div>
+                          {(asset.width ?? 0)}x{(asset.height ?? 0)} ·{" "}
+                          {((asset.bytes ?? 0) / 1024).toFixed(0)} KB
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Upload products via file */}
+          <div className="rounded-xl border bg-white p-5 shadow-sm">
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-2">
             <p className="text-xs font-semibold uppercase text-fuchsia-600 tracking-wide">
@@ -3219,6 +3748,80 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
+        </>
+      )}
+      <Dialog
+        open={!!galleryConfirmAction}
+        onOpenChange={(open) => {
+          if (!open) setGalleryConfirmAction(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>
+              {galleryConfirmAction?.type === "upload"
+                ? "Xác nhận upload ảnh"
+                : galleryConfirmAction?.type === "delete"
+                ? "Xác nhận xóa ảnh"
+                : ""}
+            </DialogTitle>
+            <DialogDescription>
+              {galleryConfirmAction?.type === "upload"
+                ? `Sẽ upload ${galleryUploadItems.length} ảnh vào ${galleryFolderPath || "thư mục đã chọn"}.`
+                : galleryConfirmAction?.type === "delete"
+                ? `Bạn sắp xóa ${gallerySelected.length} ảnh khỏi Cloudinary.`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          {galleryConfirmAction?.type === "upload" && galleryUploadItems.length > 0 && (
+            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
+              {galleryUploadItems.map((item, idx) => (
+                <div
+                  key={`${item.file.name}-${idx}`}
+                  className="overflow-hidden rounded-lg border border-gray-200 bg-white"
+                >
+                  <div className="relative aspect-square w-full bg-gray-100">
+                    <img
+                      src={item.preview}
+                      alt={item.file.name}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="p-2 text-[10px] text-gray-500 truncate">
+                    {item.file.name}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <button
+              type="button"
+              className="rounded-md border px-4 py-2"
+              onClick={() => setGalleryConfirmAction(null)}
+              disabled={galleryUploading}
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              className="rounded-md bg-blue-600 px-4 py-2 text-white disabled:opacity-60"
+              disabled={galleryUploading}
+              onClick={async () => {
+                if (!galleryConfirmAction) return;
+                if (galleryConfirmAction.type === "upload") {
+                  await handleGalleryUpload();
+                } else if (galleryConfirmAction.type === "delete") {
+                  await runGalleryDelete();
+                }
+                setGalleryConfirmAction(null);
+              }}
+            >
+              {galleryUploading ? "Đang xử lý..." : "Xác nhận"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog
         open={bulkImageModalOpen}
         onOpenChange={setBulkImageModalOpen}

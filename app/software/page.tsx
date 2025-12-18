@@ -21,7 +21,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 function pickParam(
   params: Record<string, string | string[] | undefined>,
-  key: string
+  key: string,
 ) {
   const value = params[key];
   if (Array.isArray(value)) return value[0] ?? "";
@@ -35,13 +35,17 @@ function toInt(value: string, def = 1) {
 
 function SoftwareFallback() {
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-      <section className="mb-8 rounded-3xl bg-linear-to-r from-indigo-600 to-purple-600 px-8 py-10 text-white shadow-lg">
-        <h1 className="mt-2 text-3xl sm:text-4xl font-bold">Phần mềm & dịch vụ</h1>
-        <p className="mt-3 max-w-2xl text-white/80">
-          Dữ liệu sẽ được tải ở môi trường chạy thật. (CI skip DB khi build.)
-        </p>
-      </section>
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50/30">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            Phần mềm & dịch vụ
+          </h1>
+          <p className="mt-2 text-gray-600">
+            Dữ liệu sẽ được tải ở môi trường chạy thật. (CI skip DB khi build.)
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -58,10 +62,15 @@ export default async function SoftwarePage({
   const q = pickParam(params, "q").trim();
   const category = pickParam(params, "category").trim();
   const page = toInt(pickParam(params, "page"), 1);
-  const pageSize = toInt(pickParam(params, "pageSize"), 12);
+  const pageSize = toInt(pickParam(params, "pageSize"), 24);
 
   const where: softwareWhereInput = { status: "PUBLISHED" };
-  if (category) where.softwarecategory = { is: { slug: category } };
+
+  if (category) {
+    // quan hệ 1-n: software -> softwarecategory
+    where.softwarecategory = { is: { slug: category } };
+  }
+
   if (q) {
     where.OR = [
       { title: { contains: q } },
@@ -83,6 +92,15 @@ export default async function SoftwarePage({
         title: true,
         summary: true,
         coverImage: true,
+
+        // ✅ thêm relation để TS có r.softwarecategory
+        softwarecategory: {
+          select: {
+            id: true,
+            slug: true,
+            name: true,
+          },
+        },
       },
     }),
     prisma.softwarecategory.findMany({
@@ -96,45 +114,36 @@ export default async function SoftwarePage({
   });
 
   if (!result) return <SoftwareFallback />;
+
   const [total, rows, categories] = result;
 
-  const initialData: SoftwareCard[] = rows.map((r: (typeof rows)[number]): SoftwareCard => ({
+  const initialData: SoftwareCard[] = rows.map((r) => ({
     id: r.id,
     slug: r.slug,
     title: r.title,
     summary: r.summary ?? undefined,
     image: r.coverImage ?? null,
+    category: r.softwarecategory
+      ? {
+          id: r.softwarecategory.id,
+          slug: r.softwarecategory.slug,
+          name: r.softwarecategory.name,
+        }
+      : null,
   }));
 
-  const initialCategories: SoftwareCategoryOption[] = categories.map(
-    (c: (typeof categories)[number]): SoftwareCategoryOption => ({
-      id: c.id,
-      slug: c.slug,
-      name: c.name,
-    })
-  );
+  const initialCategories: SoftwareCategoryOption[] = categories.map((c) => ({
+    id: c.id,
+    slug: c.slug,
+    name: c.name,
+  }));
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-      <section className="mb-8 rounded-3xl bg-linear-to-r from-indigo-600 to-purple-600 px-8 py-10 text-white shadow-lg">
-        <p className="text-sm font-semibold uppercase tracking-wide text-white/80">
-          Phần mềm & dịch vụ
-        </p>
-        <h1 className="mt-2 text-3xl sm:text-4xl font-bold">
-          Tối ưu vận hành với nền tảng số công nghiệp
-        </h1>
-        <p className="mt-3 max-w-2xl text-white/80">
-          Sẵn sàng triển khai MES, ERP, CMMS, IoT công nghiệp và các dịch vụ tư
-          vấn, đào tạo, bảo trì đi kèm.
-        </p>
-      </section>
-
-      <SoftwareSearchClient
-        initialData={initialData}
-        initialTotal={total}
-        initialQuery={{ q, category, page, pageSize }}
-        initialCategories={initialCategories}
-      />
-    </div>
+    <SoftwareSearchClient
+      initialData={initialData}
+      initialTotal={total}
+      initialQuery={{ q, category, page, pageSize }}
+      initialCategories={initialCategories}
+    />
   );
 }

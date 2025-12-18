@@ -2,76 +2,68 @@
 
 import { startTransition, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-
 import Link from "next/link";
 import Image from "next/image";
-import FilterLayout from "../shop/filterlayout";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 export type SolutionCard = {
   id: string;
   title: string;
   slug: string;
-  industry?: string;
-  type?: string | null;
-  usecase?: string | null;
+  category?: { id?: string; slug?: string; name?: string } | null;
   image?: string | null;
   summary?: string | null;
 };
+
+export type SolutionCategoryOption = { id: string; slug: string; name: string };
 
 type SolutionsSearchClientProps = {
   initialData?: SolutionCard[];
   initialTotal?: number;
   initialQuery?: {
     q?: string;
-    industry?: string;
-    usecase?: string;
+    category?: string;
     page?: number;
     pageSize?: number;
   };
+  initialCategories?: SolutionCategoryOption[];
 };
-
-const INDUSTRIES = [
-  { value: "", label: "Tất cả ngành" },
-  { value: "food", label: "Thực phẩm" },
-  { value: "auto", label: "Ô tô" },
-  { value: "electronics", label: "Điện tử" },
-  { value: "other", label: "Khác" },
-];
 
 export default function SolutionsSearchClient({
   initialData = [],
   initialTotal = 0,
   initialQuery,
+  initialCategories = [],
 }: SolutionsSearchClientProps = {}) {
   const router = useRouter();
   const sp = useSearchParams();
 
   const defaultQ = sp.get("q") ?? initialQuery?.q ?? "";
-  const defaultIndustry = sp.get("industry") ?? initialQuery?.industry ?? "";
-  const defaultUsecase = sp.get("usecase") ?? initialQuery?.usecase ?? "";
+  const defaultCategory = sp.get("category") ?? initialQuery?.category ?? "";
   const defaultPage = Number(
     sp.get("page") ?? initialQuery?.page ?? 1
   );
-  const pageSize = initialQuery?.pageSize ?? 12;
+  const pageSize = initialQuery?.pageSize ?? 24;
 
   const [q, setQ] = useState(defaultQ);
-  const [industry, setIndustry] = useState(defaultIndustry);
-  const [usecase, setUsecase] = useState(defaultUsecase);
+  const [category, setCategory] = useState(defaultCategory);
   const [page, setPage] = useState(defaultPage);
 
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<SolutionCard[]>(initialData);
   const [total, setTotal] = useState(initialTotal);
+  const [categories, setCategories] =
+    useState<SolutionCategoryOption[]>(initialCategories);
+  const [showFilters, setShowFilters] = useState(false);
 
   const params = useMemo(() => {
     const p = new URLSearchParams();
     if (q) p.set("q", q);
-    if (industry) p.set("industry", industry);
-    if (usecase) p.set("usecase", usecase);
+    if (category) p.set("category", category);
     p.set("page", String(page));
     p.set("pageSize", String(pageSize));
     return p;
-  }, [q, industry, usecase, page, pageSize]);
+  }, [q, category, page, pageSize]);
 
   useEffect(() => {
     const url = `/api/search/solutions?${params.toString()}`;
@@ -142,124 +134,281 @@ export default function SolutionsSearchClient({
 
   useEffect(() => {
     startTransition(() => setPage(1));
-  }, [q, industry, usecase]);
+  }, [q, category]);
 
-  const pages = Math.max(1, Math.ceil(total / pageSize));
+  useEffect(() => {
+    if (categories.length > 0) return;
+    let aborted = false;
+    fetch("/api/solutions/categories")
+      .then((r) => r.json())
+      .then((json) => {
+        if (!aborted) setCategories(json.data ?? []);
+      })
+      .catch(() => {
+        if (!aborted) setCategories([]);
+      });
+    return () => {
+      aborted = true;
+    };
+  }, [categories.length]);
+
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const hasActiveFilters = Boolean(q || category);
 
   return (
-    <FilterLayout
-      searchBar={
-        <div className="relative">
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Tìm giải pháp theo tên/bài toán…"
-            className="w-full rounded-md border px-4 py-3 pl-11 bg-white shadow-sm"
-          />
-          <svg viewBox="0 0 24 24" className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" stroke="currentColor" fill="none">
-            <circle cx="11" cy="11" r="7" strokeWidth="2" />
-            <path d="M20 20l-3.5-3.5" strokeWidth="2" />
-          </svg>
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50/30">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="mb-4 sm:mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            Giải pháp
+          </h1>
+          <p className="text-gray-600 text-sm">
+            Danh sách giải pháp triển khai thực tế của AHSO.
+          </p>
         </div>
-      }
-      sidebar={
-        <>
-          <h3 className="font-semibold mb-4">Bộ lọc (Giải pháp)</h3>
 
-          <label className="block text-sm font-medium mb-1">Ngành</label>
-          <select className="w-full border rounded-md px-3 py-2 mb-4" value={industry} onChange={(e) => setIndustry(e.target.value)}>
-            {INDUSTRIES.map((i) => <option key={i.value} value={i.value}>{i.label}</option>)}
-          </select>
-
-          <label className="block text-sm font-medium mb-1">Bài toán / Use case</label>
-          <input
-            value={usecase}
-            onChange={(e) => setUsecase(e.target.value)}
-            placeholder="VD: packaging, assembly…"
-            className="w-full border rounded-md px-3 py-2 mb-4"
-          />
-
-          <button onClick={() => { setQ(""); setIndustry(""); setUsecase(""); }} className="w-full rounded-md border px-3 py-2 text-sm">
-            Xóa bộ lọc
-          </button>
-        </>
-      }
-      topInfo={
-        <div className="text-sm text-gray-600">
-          {loading ? "Đang tải..." : `Tìm thấy ${total} giải pháp`}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-4">
+          <div className="relative">
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Tìm giải pháp theo tên/bài toán…"
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 pl-11 bg-white shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-50 outline-none"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          </div>
         </div>
-      }
-    >
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 min-h-60">
-        {loading && data.length === 0 ? (
-          <div className="col-span-full text-center text-sm text-gray-600">Đang tải…</div>
-        ) : data.length === 0 ? (
-          <div className="col-span-full text-center text-sm text-gray-600">Không có kết quả</div>
-        ) : (
-          data.map((s) => (
-            <article
-              key={s.id}
-              className="border rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition flex flex-col h-full"
-            >
-              
-              <Link href={`/solutions/${encodeURIComponent(s.slug)}`} className="block">
-                {s.image ? (
-                  <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-gray-100">
-                    <Image
-                      src={s.image}
-                      alt={s.title}
-                      fill
-                      className="object-cover"
-                      sizes="(min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
-                    />
-                  </div>
-                ) : (
-                  <div className="aspect-video w-full rounded-lg bg-gray-100" />
-                )}
-              </Link>
 
-              
-              <div className="mt-3 flex-1 flex flex-col">
-                <h3 className="font-semibold line-clamp-2">{s.title}</h3>
-                {s.summary && (
-                  <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-                    {s.summary}
-                  </p>
-                )}
+        <div className="flex flex-col lg:flex-row gap-6">
+          <aside className="hidden lg:block w-64 shrink-0">
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 sticky top-6">
+              <div className="flex items-center gap-2 mb-4">
+                <SlidersHorizontal className="h-5 w-5 text-gray-700" />
+                <h3 className="font-semibold text-gray-900">Bộ lọc</h3>
+              </div>
 
-                <dl className="mt-2 text-sm text-gray-700 space-y-1">
-                  <div className="flex gap-2">
-                    <dt className="text-gray-500 min-w-14">Ngành</dt>
-                    <dd className="flex-1 truncate">{s.industry || "—"}</dd>
-                  </div>
-                  <div className="flex gap-2">
-                    <dt className="text-gray-500 min-w-14">Loại</dt>
-                    <dd className="flex-1 truncate">{s.type || s.usecase || "—"}</dd>
-                  </div>
-                </dl>
-
-              
-                <div className="mt-auto pt-3">
-                  <Link
-                    href={`/solutions/${encodeURIComponent(s.slug)}`}
-                    className="inline-flex items-center justify-center w-full rounded-md bg-blue-600 text-white px-4 py-2 text-sm font-semibold hover:bg-blue-700"
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Danh mục
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-50 outline-none text-sm"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
                   >
-                    Xem chi tiết
-                  </Link>
+                    <option value="">Tất cả</option>
+                    {categories.map((c) => (
+                      <option key={c.slug} value={c.slug}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {hasActiveFilters && (
+                  <button
+                    onClick={() => {
+                      setQ("");
+                      setCategory("");
+                    }}
+                    className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                  >
+                    <X className="h-4 w-4" />
+                    Xóa bộ lọc
+                  </button>
+                )}
+              </div>
+            </div>
+          </aside>
+
+          <div className="flex-1 min-w-0">
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 mb-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="lg:hidden flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-xl hover:bg-gray-50 text-sm font-medium"
+                >
+                  <SlidersHorizontal className="h-4 w-4" />
+                  Bộ lọc
+                </button>
+
+                <div className="text-sm text-gray-600">
+                  {loading ? "Đang tải..." : `${total.toLocaleString()} giải pháp`}
                 </div>
               </div>
-            </article>
-          ))
-        )}
-      </div>
 
-      {pages > 1 && (
-        <div className="mt-2 flex justify-center gap-2">
-          <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="px-3 py-2 rounded-md border disabled:opacity-50">Trước</button>
-          <span className="px-3 py-2 text-sm">{page}/{pages}</span>
-          <button onClick={() => setPage((p) => Math.min(pages, p + 1))} disabled={page === pages} className="px-3 py-2 rounded-md border disabled:opacity-50">Sau</button>
+              {showFilters && (
+                <div className="lg:hidden mt-4 pt-4 border-t border-gray-200 space-y-3">
+                  <select
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                  >
+                    <option value="">Tất cả danh mục</option>
+                    {categories.map((c) => (
+                      <option key={c.slug} value={c.slug}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  {hasActiveFilters && (
+                    <button
+                      onClick={() => {
+                        setQ("");
+                        setCategory("");
+                      }}
+                      className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                    >
+                      <X className="h-4 w-4" />
+                      Xóa bộ lọc
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+              {loading
+                ? Array.from({ length: pageSize }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="animate-pulse rounded-2xl border bg-white overflow-hidden"
+                    >
+                      <div className="aspect-square bg-gray-100" />
+                      <div className="p-4 space-y-3">
+                        <div className="h-4 bg-gray-100 rounded" />
+                        <div className="h-4 w-2/3 bg-gray-100 rounded" />
+                      </div>
+                    </div>
+                  ))
+                : data.map((s) => (
+                    <article
+                      key={s.id}
+                      className="border rounded-2xl bg-white shadow-sm hover:shadow-md transition flex flex-col h-full overflow-hidden"
+                    >
+                      <Link
+                        href={`/solutions/${encodeURIComponent(s.slug)}`}
+                        className="block"
+                      >
+                        {s.image ? (
+                          <div className="relative aspect-square w-full overflow-hidden bg-gray-100">
+                            <Image
+                              src={s.image}
+                              alt={s.title}
+                              fill
+                              className="object-cover"
+                              sizes="(min-width: 1280px) 16vw, (min-width: 768px) 25vw, 100vw"
+                            />
+                          </div>
+                        ) : (
+                          <div className="aspect-square w-full bg-gray-100" />
+                        )}
+                      </Link>
+
+                      <div className="p-4 flex-1 flex flex-col">
+                        <h3 className="font-semibold line-clamp-2">{s.title}</h3>
+                        {s.category?.name ? (
+                          <div className="mt-1 text-sm text-gray-600">
+                            Danh mục:{" "}
+                            <span className="font-medium">{s.category.name}</span>
+                          </div>
+                        ) : null}
+                        {s.summary && (
+                          <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                            {s.summary}
+                          </p>
+                        )}
+
+                        <div className="mt-auto pt-3">
+                          <Link
+                            href={`/solutions/${encodeURIComponent(s.slug)}`}
+                            className="inline-flex items-center justify-center w-full rounded-md bg-blue-600 text-white px-4 py-2 text-sm font-semibold hover:bg-blue-700"
+                          >
+                            Xem chi tiết
+                          </Link>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+            </div>
+
+            {!loading && data.length === 0 && (
+              <div className="text-center py-16 bg-white rounded-2xl border border-gray-200 mt-4">
+                <Search className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Không tìm thấy giải pháp
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm
+                </p>
+                {hasActiveFilters && (
+                  <button
+                    onClick={() => {
+                      setQ("");
+                      setCategory("");
+                    }}
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-medium"
+                  >
+                    <X className="h-4 w-4" />
+                    Xóa bộ lọc
+                  </button>
+                )}
+              </div>
+            )}
+
+            {totalPages > 1 && !loading && (
+              <div className="mt-8 flex items-center justify-center gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                  className="p-2 rounded-xl border-2 border-gray-200 disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum: number;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (page <= 3) {
+                      pageNum = i + 1;
+                    } else if (page >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = page - 2 + i;
+                    }
+
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setPage(pageNum)}
+                        className={`min-w-10 h-10 rounded-xl font-medium transition-all ${
+                          page === pageNum
+                            ? "bg-blue-600 text-white shadow-lg"
+                            : "border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  className="p-2 rounded-xl border-2 border-gray-200 disabled:opacity-40 hover:bg-gray-50 transition-colors"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      )}
-    </FilterLayout>
+      </div>
+    </div>
   );
 }
