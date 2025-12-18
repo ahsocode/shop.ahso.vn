@@ -6,7 +6,9 @@ import { prisma } from "@/lib/prisma";
 import { buildMetadata } from "@/lib/metadata";
 import type { softwareInclude as SoftwareInclude, softwareGetPayload } from "@/lib/prisma-types";
 
-export const revalidate = 60;
+// Chạy động, tránh build fail khi không có DB
+export const dynamic = "force-dynamic";
+const SKIP_BUILD_DB = process.env.SKIP_BUILD_DB === "true";
 
 const softwareInclude = {
   softwarecategory: { select: { name: true, slug: true } },
@@ -35,13 +37,37 @@ async function getSoftware(slug: string): Promise<SoftwareWithRelations | null> 
   return record ? transformSoftware(record) : null;
 }
 
+function SoftwareFallback() {
+  return (
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 text-gray-700">
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+        Thông tin phần mềm
+      </h1>
+      <p className="text-gray-600">
+        Dữ liệu sẽ được tải ở môi trường chạy thật. (CI đang skip DB khi build.)
+      </p>
+    </div>
+  );
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const software = await getSoftware(slug);
+  if (SKIP_BUILD_DB) {
+    return buildMetadata({
+      title: "Phần mềm | AHSO",
+      description: "Chi tiết phần mềm sẽ được tải ở môi trường chạy thật.",
+      path: `/software/${slug}`,
+    });
+  }
+
+  const software = await getSoftware(slug).catch((err) => {
+    console.error("[software metadata] DB error:", err);
+    return null;
+  });
   if (!software) {
     return buildMetadata({
       title: "Phần mềm không tồn tại",
@@ -77,7 +103,15 @@ export default async function SoftwareDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const software = await getSoftware(slug);
+  if (SKIP_BUILD_DB) return <SoftwareFallback />;
+
+  let software: SoftwareWithRelations | null = null;
+  try {
+    software = await getSoftware(slug);
+  } catch (err) {
+    console.error("[software page] DB error:", err);
+    return <SoftwareFallback />;
+  }
   if (!software) notFound();
 
   const cover = software.coverImage || "/logo.png";

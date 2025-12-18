@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
 import { prisma, prismaSupportsUserBlockField } from "@/lib/prisma";
-import type { Prisma } from "@/generated/client";
+import type { Prisma } from "@prisma/client";
 import { shouldUseSecureAuthCookie } from "@/lib/auth";
 
 type GoogleTokenResponse = {

@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonOk, jsonError, toHttpError } from "@/lib/http";
-import { contact_status } from "@/generated/enums";
+import { contact_status } from "@prisma/client";
 
 const UpdateSchema = z.object({
   status: z.nativeEnum(contact_status).optional(),

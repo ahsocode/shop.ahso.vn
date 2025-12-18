@@ -3,8 +3,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonOk, jsonError, toHttpError, parsePaging, getQueryParam } from "@/lib/http";
-import type { Prisma } from "@/generated/client";
-import { contact_status, contact_priority } from "@/generated/enums";
+import type { Prisma } from "@prisma/client";
+import { contact_status, contact_priority } from "@prisma/client";
 import { ContactUpdateSchema, contactSelect, mapContactRow } from "./utils";
 
 const statusSet = new Set(Object.values(contact_status));

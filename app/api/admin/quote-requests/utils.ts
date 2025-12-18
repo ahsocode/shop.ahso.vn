@@ -1,6 +1,6 @@
 import { z } from "zod";
-import type { Prisma } from "@/generated/client";
-import { quote_status, contact_priority } from "@/generated/enums";
+import type { Prisma } from "@prisma/client";
+import { quote_status, contact_priority } from "@prisma/client";
 
 const decimalField = z
   .preprocess((val) => {

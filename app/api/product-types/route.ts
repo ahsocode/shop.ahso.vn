@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/slug";
 
-export const revalidate = 60;
+// Chạy động để tránh prerender API khi đọc query
+export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {

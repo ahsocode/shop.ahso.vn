@@ -1,31 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const revalidate = 60;
+// Luôn chạy động để không bị prerender khi dùng request data
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = req.nextUrl;
     const brand = searchParams.get("brand") ?? undefined;
     const category = searchParams.get("category") ?? undefined;
     const type = searchParams.get("type") ?? undefined;
 
     const baseWhere = {
       status: "PUBLISHED" as const,
-      ...(brand && { brand: { is: { slug: brand } } }),
       ...(type && { producttype: { is: { slug: type } } }),
       ...(category && {
         OR: [
-          {
-            productcategorylink: {
-              some: { productcategory: { slug: category } },
-            },
-          },
-          {
-            producttype: { is: { productcategory: { slug: category } } },
-          },
+          { productcategorylink: { some: { productcategory: { slug: category } } } },
+          { producttype: { is: { productcategory: { slug: category } } } },
         ],
       }),
+    };
+
+    const whereByBrand = {
+      ...baseWhere,
+      ...(brand && { brand: { is: { slug: brand } } }),
+    };
+
+    const productTypeWhere = {
+      ...(category && { productcategory: { slug: category } }),
+      product: { some: whereByBrand },
     };
 
     const [brandOpts, categoryOpts, typeOpts] = await Promise.all([
@@ -43,22 +47,17 @@ export async function GET(req: NextRequest) {
           id: true,
           name: true,
           slug: true,
-          _count: { select: { product: true } },
+          product: {
+            where: baseWhere,
+            select: { id: true },
+          },
         },
       }),
       prisma.productcategory.findMany({
         where: {
           OR: [
-            {
-              productcategorylink: {
-                some: { product: baseWhere },
-              },
-            },
-            {
-              producttype: {
-                some: { product: { some: baseWhere } },
-              },
-            },
+            { productcategorylink: { some: { product: whereByBrand } } },
+            { producttype: { some: { product: { some: whereByBrand } } } },
           ],
         },
         orderBy: [
@@ -69,15 +68,14 @@ export async function GET(req: NextRequest) {
           id: true,
           name: true,
           slug: true,
-          _count: { select: { productcategorylink: true } },
+          productcategorylink: {
+            where: { product: whereByBrand },
+            select: { productId: true },
+          },
         },
       }),
       prisma.producttype.findMany({
-        where: {
-          product: {
-            some: baseWhere,
-          },
-        },
+        where: productTypeWhere,
         orderBy: [
           { product: { _count: "desc" } },
           { name: "asc" },
@@ -87,7 +85,10 @@ export async function GET(req: NextRequest) {
           name: true,
           slug: true,
           productcategory: { select: { name: true, slug: true } },
-          _count: { select: { product: true } },
+          product: {
+            where: whereByBrand,
+            select: { id: true },
+          },
         },
       }),
     ]);
@@ -99,20 +100,20 @@ export async function GET(req: NextRequest) {
           id: b.id,
           name: b.name,
           slug: b.slug,
-          productCount: b._count.product,
+          productCount: b.product.length,
         })),
         categories: categoryOpts.map((c) => ({
           id: c.id,
           name: c.name,
           slug: c.slug,
-          productCount: c._count.productcategorylink,
+          productCount: c.productcategorylink.length,
         })),
         productTypes: typeOpts.map((t) => ({
           id: t.id,
           name: t.name,
           slug: t.slug,
           category: t.productcategory,
-          productCount: t._count.product,
+          productCount: t.product.length,
         })),
       },
     });

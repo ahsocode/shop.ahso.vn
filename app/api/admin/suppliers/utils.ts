@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Prisma } from "@/generated/client";
+import type { Prisma } from "@prisma/client";
 
 const decimalField = z
   .preprocess((val) => {

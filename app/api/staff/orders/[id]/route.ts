@@ -14,7 +14,7 @@ import {
   generateOrderCancelApprovedEmail,
   generateOrderCancelRejectedEmail,
 } from "@/lib/email-templates";
-import type { order_status } from "@/generated/enums";
+import type { order_status } from "@prisma/client";
 import {
   decreaseStockOnShipped,
   restoreStockOnCancelled,

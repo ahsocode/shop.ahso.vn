@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonOk, jsonError, toHttpError, parsePaging, getQueryParam } from "@/lib/http";
-import { contact_status, contact_priority } from "@/generated/enums";
+import { contact_status, contact_priority } from "@prisma/client";
 
 const statusValues = new Set(Object.values(contact_status));
 const priorityValues = new Set(Object.values(contact_priority));

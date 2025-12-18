@@ -6,12 +6,15 @@ on:
       - main
 
 jobs:
+  # ======================================================
+  # CI: Build + Check on GitHub Actions
+  # ======================================================
   check_on_linux:
     runs-on: ubuntu-latest
 
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || '' }}
 
     steps:
       - name: Checkout code
@@ -21,15 +24,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: npm
 
-      - name: Install dependencies
+      - name: Install dependencies (dev + prod)
         run: npm ci
 
       # ======================
       # Prisma generate
       # ======================
-      - name: Prisma generate (nếu dùng Prisma)
+      - name: Prisma generate
         run: |
           if [ -f prisma/schema.prisma ]; then
             npx prisma generate
@@ -40,7 +43,7 @@ jobs:
       # ======================
       # Prisma validate
       # ======================
-      - name: Prisma validate (optional)
+      - name: Prisma validate
         run: |
           if [ -f prisma/schema.prisma ]; then
             npx prisma validate
@@ -49,7 +52,7 @@ jobs:
           fi
 
       # ======================
-      # TypeScript
+      # TypeScript check
       # ======================
       - name: TypeScript check
         run: |
@@ -71,9 +74,9 @@ jobs:
           fi
 
       # ======================
-      # Tests
+      # Tests (optional)
       # ======================
-      - name: Test (optional)
+      - name: Test
         run: |
           if npm run | grep -q "test"; then
             npm test
@@ -82,13 +85,47 @@ jobs:
           fi
 
       # ======================
-      # ❗ Bỏ build tại đây (Next.js prerender cần DB)
+      # Build Next.js (CI only)
       # ======================
-      - name: Skip build here
-        run: echo "Skipping next build on CI. Build will run on VPS."
+      - name: Build Next.js
+        env:
+          NODE_ENV: production
+          SKIP_SITEMAP_DB: "true"
+          SKIP_BUILD_DB: "true"
+        run: npm run build
+
+      # ======================
+      # Create minimal artifact
+      # ======================
+      - name: Archive build artifact
+        run: |
+          echo "==> Creating minimal artifact"
+
+          rm -rf node_modules
+
+          tar -czf app-artifact.tar.gz \
+            .next \
+            public \
+            package.json \
+            package-lock.json \
+            prisma \
+            prisma.config.ts \
+            next.config.ts \
+            tailwind.config.ts \
+            tsconfig.json \
+            components.json
+
+          ls -lh app-artifact.tar.gz
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-app-artifact
+          path: app-artifact.tar.gz
+          retention-days: 1
 
   # ======================================================
-  # Deploy to VPS when CI passes
+  # CD: Deploy to VPS
   # ======================================================
   deploy:
     runs-on: ubuntu-latest
@@ -96,12 +133,64 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: SSH & deploy to VPS
-        uses: appleboy/ssh-action@v1.0.0
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: 22
-          script: |
-            bash /var/www/deploy_nextapp.sh
+          name: next-app-artifact
+          path: .
+
+      - name: Copy build artifact to VPS (rsync)
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY_B64: ${{ secrets.SSH_KEY_B64 }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY_B64" | base64 -d > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          rsync -az --compress-level=9 --progress \
+            -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -p 22" \
+            app-artifact.tar.gz \
+            "${SSH_USER}@${SSH_HOST}:/var/www/shopahsovn/"
+
+      - name: SSH & deploy to VPS
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY_B64: ${{ secrets.SSH_KEY_B64 }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY_B64" | base64 -d > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -p 22 "${SSH_USER}@${SSH_HOST}" << 'EOF'
+          set -e
+          cd /var/www/shopahsovn
+
+          echo "==> Extracting artifact"
+          rm -rf .next
+          tar -xzf app-artifact.tar.gz
+          rm app-artifact.tar.gz
+
+          echo "==> Checking dependency changes"
+          CURRENT_HASH="$( (md5sum package.json && md5sum package-lock.json) | md5sum | awk '{print $1}' )"
+          SAVED_HASH="$(cat .package.json.hash 2>/dev/null || echo none)"
+
+          if [ "$CURRENT_HASH" != "$SAVED_HASH" ]; then
+            echo "==> Dependencies changed"
+            npm ci --omit=dev
+            npx prisma generate
+            echo "$CURRENT_HASH" > .package.json.hash
+          else
+            echo "==> Dependencies unchanged"
+          fi
+
+          echo "==> Restarting PM2: shopahsovn"
+          pm2 restart shopahsovn --update-env || pm2 start npm --name shopahsovn -- start
+          pm2 save
+
+          pm2 list
+          pm2 info shopahsovn
+          EOF
+

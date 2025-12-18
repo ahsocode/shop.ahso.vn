@@ -6,7 +6,7 @@ import { SignJWT } from "jose";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import type { Prisma } from "@/generated/client";
+import type { Prisma } from "@prisma/client";
 import { shouldUseSecureAuthCookie } from "@/lib/auth";
 import { sendMail } from "@/lib/mailer";
 

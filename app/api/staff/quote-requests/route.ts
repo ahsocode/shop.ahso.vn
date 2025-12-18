@@ -3,8 +3,7 @@ import type { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 import { jsonOk, jsonError, toHttpError, parsePaging, getQueryParam } from "@/lib/http";
-import { quote_status, contact_priority } from "@/generated/enums";
-import type { quoterequestWhereInput } from "@/generated/models/quoterequest";
+import { quote_status, contact_priority, Prisma } from "@prisma/client";
 
 const statusValues = new Set(Object.values(quote_status));
 const priorityValues = new Set(Object.values(contact_priority));
@@ -24,7 +23,7 @@ export async function GET(req: NextRequest) {
     const priorityParam = getQueryParam(req, "priority").toLowerCase();
     const assignedToMe = getQueryParam(req, "assignedToMe") === "true";
 
-    const where: quoterequestWhereInput = {
+    const where: Prisma.quoterequestWhereInput = {
       ...(q && {
         OR: [
           { code: { contains: q } },
