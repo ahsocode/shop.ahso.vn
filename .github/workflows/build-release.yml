@@ -1,0 +1,111 @@
+name: Build Next.js & Publish Release Artifact
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || '' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies (dev + prod)
+        run: npm ci
+
+      - name: Prisma generate (optional)
+        run: |
+          if [ -f prisma/schema.prisma ]; then
+            npx prisma generate
+          else
+            echo "No Prisma schema, skip."
+          fi
+
+      - name: Prisma validate (optional)
+        run: |
+          if [ -f prisma/schema.prisma ]; then
+            npx prisma validate
+          else
+            echo "No Prisma schema, skip."
+          fi
+
+      - name: TypeScript check (optional)
+        run: |
+          if npx tsc -v >/dev/null 2>&1; then
+            npx tsc --noEmit
+          else
+            echo "TS not configured, skip."
+          fi
+
+      - name: Lint (optional)
+        run: |
+          if npm run | grep -q "lint"; then
+            npm run lint
+          else
+            echo "No lint script, skip."
+          fi
+
+      - name: Test (optional)
+        run: |
+          if npm run | grep -q "test"; then
+            npm test
+          else
+            echo "No test script, skip."
+          fi
+
+      - name: Build Next.js
+        env:
+          NODE_ENV: production
+          SKIP_SITEMAP_DB: "true"
+          SKIP_BUILD_DB: "true"
+        run: npm run build
+
+      - name: Create artifact + checksum
+        run: |
+          echo "==> Creating minimal artifact"
+
+          rm -rf node_modules
+
+          tar -czf app-artifact.tar.gz \
+            .next \
+            public \
+            package.json \
+            package-lock.json \
+            prisma \
+            prisma.config.ts \
+            next.config.* \
+            tailwind.config.* \
+            tsconfig.json \
+            components.json
+
+          sha256sum app-artifact.tar.gz > app-artifact.sha256
+
+          ls -lh app-artifact.tar.gz app-artifact.sha256
+
+      # Create or update a stable "latest" release
+      - name: Publish GitHub Release (latest)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: latest
+          draft: false
+          prerelease: false
+          files: |
+            app-artifact.tar.gz
+            app-artifact.sha256
