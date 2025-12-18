@@ -29,8 +29,10 @@ export async function POST(req: NextRequest) {
     if (typeof typeId !== "string" || !typeId) {
       return NextResponse.json({ error: "typeId is required" }, { status: 400 });
     }
-    if (typeof rawSku !== "string" || !rawSku.trim()) {
-      return NextResponse.json({ error: "sku is required" }, { status: 400 });
+    if ((kind === "cover" || kind === "gallery") && (typeof rawSku !== "string" || !rawSku.trim())) {
+      if (kind === "cover") {
+        return NextResponse.json({ error: "sku is required" }, { status: 400 });
+      }
     }
 
     const type = await prisma.producttype.findUnique({
@@ -51,7 +53,7 @@ export async function POST(req: NextRequest) {
     const { secureUrl } = await uploadProductImageToCloudinary({
       buffer,
       productId: typeId,
-      sku: rawSku.trim(),
+      sku: typeof rawSku === "string" && rawSku.trim() ? rawSku.trim() : typeId,
       categorySlug: type.productcategory?.slug,
       productTypeSlug: type.slug,
       fileName: file.name,

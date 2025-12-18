@@ -10,6 +10,8 @@ type CloudinaryConfig = {
   avatarPreset?: string | null;
   productGalleryPreset?: string | null;
   productCoverPreset?: string | null;
+  softwareCoverPreset?: string | null;
+  solutionCoverPreset?: string | null;
   brandPreset?: string | null;
   categoryPreset?: string | null;
   productTypePreset?: string | null;
@@ -46,6 +48,8 @@ function getConfig(): CloudinaryConfig {
   const productTypePreset = process.env.CLOUDINARY_PRODUCT_TYPE_PRESET;
   const heroBannerPreset = process.env.CLOUDINARY_HERO_BANNER_PRESET;
   const popupBannerPreset = process.env.CLOUDINARY_POPUP_BANNER_PRESET;
+  const softwareCoverPreset = process.env.CLOUDINARY_SOFTWARE_COVER_PRESET;
+  const solutionCoverPreset = process.env.CLOUDINARY_SOLUTION_COVER_PRESET;
 
   if (!cloudName || !apiKey || !apiSecret) {
     throw new Error("Missing Cloudinary credentials");
@@ -63,6 +67,8 @@ function getConfig(): CloudinaryConfig {
     productTypePreset: productTypePreset || null,
     heroBannerPreset: heroBannerPreset || null,
     popupBannerPreset: popupBannerPreset || null,
+    softwareCoverPreset: softwareCoverPreset || null,
+    solutionCoverPreset: solutionCoverPreset || null,
   };
 
   return cachedConfig;
@@ -130,6 +136,74 @@ export async function uploadBrandLogoToCloudinary(options: {
     folder: "brands/logos",
     publicId: options.brandId,
     uploadPreset: config.brandPreset,
+  });
+}
+
+export async function uploadSoftwareCoverToCloudinary(options: {
+  buffer: Buffer;
+  fileName?: string;
+}): Promise<UploadResult> {
+  const config = getConfig();
+  const fileBase = sanitizeSegment(
+    options.fileName?.replace(/\.[^.]+$/, ""),
+    "software",
+  );
+  return uploadBuffer({
+    buffer: options.buffer,
+    folder: "software/cover",
+    fileName: options.fileName,
+    publicId: `${fileBase}-${Date.now()}`,
+    uploadPreset: config.softwareCoverPreset,
+  });
+}
+
+export async function uploadSolutionCoverToCloudinary(options: {
+  buffer: Buffer;
+  fileName?: string;
+}): Promise<UploadResult> {
+  const config = getConfig();
+  const fileBase = sanitizeSegment(
+    options.fileName?.replace(/\.[^.]+$/, ""),
+    "solution",
+  );
+  return uploadBuffer({
+    buffer: options.buffer,
+    folder: "solutions/cover",
+    fileName: options.fileName,
+    publicId: `${fileBase}-${Date.now()}`,
+    uploadPreset: config.solutionCoverPreset,
+  });
+}
+
+export async function uploadSoftwareGalleryToCloudinary(options: {
+  buffer: Buffer;
+  fileName?: string;
+}): Promise<UploadResult> {
+  const fileBase = sanitizeSegment(
+    options.fileName?.replace(/\.[^.]+$/, ""),
+    "software",
+  );
+  return uploadBuffer({
+    buffer: options.buffer,
+    folder: "software/gallery",
+    fileName: options.fileName,
+    publicId: `${fileBase}-${Date.now()}`,
+  });
+}
+
+export async function uploadSolutionGalleryToCloudinary(options: {
+  buffer: Buffer;
+  fileName?: string;
+}): Promise<UploadResult> {
+  const fileBase = sanitizeSegment(
+    options.fileName?.replace(/\.[^.]+$/, ""),
+    "solution",
+  );
+  return uploadBuffer({
+    buffer: options.buffer,
+    folder: "solutions/gallery",
+    fileName: options.fileName,
+    publicId: `${fileBase}-${Date.now()}`,
   });
 }
 
@@ -285,6 +359,12 @@ type ListAssetsOptions = {
   folder: string;
 };
 
+type DestroyResult = {
+  publicId: string;
+  result: string;
+};
+
+
 async function listAssetsByFolder(
   options: ListAssetsOptions,
 ): Promise<{ items: CloudinaryAsset[]; nextCursor: string | null }> {
@@ -334,6 +414,48 @@ async function listAssetsByFolder(
   };
 }
 
+async function destroyCloudinaryAsset(publicId: string, invalidate = true) {
+  const config = getConfig();
+  const endpoint = `https://api.cloudinary.com/v1_1/${config.cloudName}/image/destroy`;
+  const timestamp = Math.floor(Date.now() / 1000);
+  const params: Record<string, string> = {
+    public_id: publicId,
+    timestamp: String(timestamp),
+    invalidate: invalidate ? "true" : "false",
+  };
+  const signature = signParams(params, config.apiSecret);
+
+  const formData = new FormData();
+  formData.append("api_key", config.apiKey);
+  Object.entries(params).forEach(([key, value]) => formData.append(key, value));
+  formData.append("signature", signature);
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    body: formData,
+  });
+  const payload = (await res.json().catch(() => null)) as { result?: string; error?: { message?: string } } | null;
+  if (!res.ok || !payload) {
+    const message = payload?.error?.message || "Failed to delete Cloudinary asset";
+    throw new Error(message);
+  }
+  return payload.result ?? "unknown";
+}
+
+
+export async function deleteCloudinaryAssets(options: {
+  publicIds: string[];
+  invalidate?: boolean;
+}): Promise<{ results: DestroyResult[] }> {
+  const results: DestroyResult[] = [];
+  for (const publicId of options.publicIds) {
+    const result = await destroyCloudinaryAsset(publicId, options.invalidate);
+    results.push({ publicId, result });
+  }
+  return { results };
+}
+
+
 export async function listBrandLogosFromCloudinary(options?: {
   nextCursor?: string | null;
   maxResults?: number;
@@ -380,6 +502,28 @@ export async function listProductGalleryAssets(options: {
     folder,
     nextCursor: options.nextCursor ?? null,
     maxResults: options.maxResults,
+  });
+}
+
+export async function listSoftwareGalleryAssets(options?: {
+  nextCursor?: string | null;
+  maxResults?: number;
+}) {
+  return listAssetsByFolder({
+    folder: "software/gallery",
+    nextCursor: options?.nextCursor ?? null,
+    maxResults: options?.maxResults,
+  });
+}
+
+export async function listSolutionGalleryAssets(options?: {
+  nextCursor?: string | null;
+  maxResults?: number;
+}) {
+  return listAssetsByFolder({
+    folder: "solutions/gallery",
+    nextCursor: options?.nextCursor ?? null,
+    maxResults: options?.maxResults,
   });
 }
 
