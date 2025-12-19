@@ -1,11 +1,12 @@
 // app/admin/_lib/fetcher.ts
-export function makeHeaders(base?: HeadersInit) {
+export function makeHeaders(base?: HeadersInit): HeadersInit {
   const h = new Headers(base);
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("token");
     if (token) h.set("Authorization", `Bearer ${token}`);
   }
-  return h;
+  // Convert to plain object so spreading (`...makeHeaders()`) keeps values
+  return Object.fromEntries(h.entries());
 }
 
 export async function getJSON<T>(url: string) {
