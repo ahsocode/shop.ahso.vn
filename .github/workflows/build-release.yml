@@ -70,11 +70,13 @@ jobs:
           fi
 
       - name: Build Next.js
-        env:
-          NODE_ENV: production
-          SKIP_SITEMAP_DB: "true"
-          SKIP_BUILD_DB: "true"
-        run: npm run build
+          env:
+            NODE_ENV: production
+            SKIP_SITEMAP_DB: "true"
+            SKIP_BUILD_DB: "true"
+            NEXT_PUBLIC_TINYMCE_API_KEY: ${{ secrets.NEXT_PUBLIC_TINYMCE_API_KEY }}
+          run: npm run build
+
 
       - name: Create artifact + checksum
         run: |
