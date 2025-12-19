@@ -268,6 +268,7 @@ type FormState = typeof DEFAULT_FORM;
 
 export default function ProductsPage() {
   const pageSize = 50;
+  const GALLERY_MAX_SELECTION = 50;
   const [keyword, setKeyword] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -1050,6 +1051,8 @@ export default function ProductsPage() {
     setGallerySelected((prev) =>
       prev.includes(publicId)
         ? prev.filter((id) => id !== publicId)
+        : prev.length >= GALLERY_MAX_SELECTION
+        ? (toast.error(`Chỉ chọn tối đa ${GALLERY_MAX_SELECTION} ảnh`), prev)
         : [...prev, publicId],
     );
   };
@@ -1956,13 +1959,20 @@ export default function ProductsPage() {
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
                 <button
                   type="button"
-                  onClick={() =>
-                    setGallerySelected((prev) =>
-                      prev.length === galleryAssets.length
-                        ? []
-                        : galleryAssets.map((item) => item.publicId),
-                    )
-                  }
+                  onClick={() => {
+                    const allIds = galleryAssets.map((item) => item.publicId);
+                    setGallerySelected((prev) => {
+                      const isAllSelected =
+                        allIds.length > 0 &&
+                        prev.length === allIds.length &&
+                        allIds.every((id) => prev.includes(id));
+                      if (isAllSelected) return [];
+                      if (allIds.length > GALLERY_MAX_SELECTION) {
+                        toast.error(`Chỉ chọn tối đa ${GALLERY_MAX_SELECTION} ảnh`);
+                      }
+                      return allIds.slice(0, GALLERY_MAX_SELECTION);
+                    });
+                  }}
                   className="rounded border border-gray-200 px-2 py-1 text-gray-600 hover:bg-gray-50"
                   disabled={!galleryAssets.length}
                 >
