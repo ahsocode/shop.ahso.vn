@@ -265,6 +265,10 @@ const DEFAULT_FORM = {
 };
 
 type FormState = typeof DEFAULT_FORM;
+const getAssetLabel = (publicId: string) => {
+  const parts = publicId.split("/");
+  return parts[parts.length - 1] || publicId;
+};
 
 export default function ProductsPage() {
   const pageSize = 50;
@@ -2035,14 +2039,14 @@ export default function ProductsPage() {
                         </span>
                         <Image
                           src={asset.secureUrl}
-                          alt={asset.publicId}
+                          alt={getAssetLabel(asset.publicId)}
                           fill
                           sizes="160px"
                           className="object-cover"
                         />
                       </button>
                       <div className="p-2 text-[10px] text-gray-500">
-                        <div className="truncate">{asset.publicId}</div>
+                        <div className="truncate">{getAssetLabel(asset.publicId)}</div>
                         <div>
                           {(asset.width ?? 0)}x{(asset.height ?? 0)} ·{" "}
                           {((asset.bytes ?? 0) / 1024).toFixed(0)} KB
@@ -4079,7 +4083,7 @@ export default function ProductsPage() {
                 <div className="relative aspect-square w-full bg-gray-100">
                   <Image
                     src={asset.secureUrl}
-                    alt={asset.publicId}
+                    alt={getAssetLabel(asset.publicId)}
                     fill
                     sizes="200px"
                     className="object-cover transition duration-200 group-hover:scale-[1.02]"
@@ -4092,7 +4096,7 @@ export default function ProductsPage() {
                 </div>
                 <div className="p-2 text-left">
                   <div className="text-[11px] font-semibold text-gray-800 truncate">
-                    {asset.publicId}
+                    {getAssetLabel(asset.publicId)}
                   </div>
                   <div className="text-[10px] text-gray-500">
                     {(asset.width ?? 0)}x{(asset.height ?? 0)} • {((asset.bytes ?? 0) / 1024).toFixed(0)} KB
