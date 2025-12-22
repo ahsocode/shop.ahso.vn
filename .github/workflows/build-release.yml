@@ -28,6 +28,8 @@ jobs:
         run: npm ci
 
       - name: Prisma generate (optional)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           if [ -f prisma/schema.prisma ]; then
             npx prisma generate
@@ -36,12 +38,15 @@ jobs:
           fi
 
       - name: Prisma validate (optional)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           if [ -f prisma/schema.prisma ]; then
             npx prisma validate
           else
             echo "No Prisma schema, skip."
           fi
+
 
       - name: TypeScript check (optional)
         run: |
