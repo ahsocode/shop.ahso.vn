@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
 
   images: {
+    unoptimized: true,
     remotePatterns: [
       { protocol: "https", hostname: "img.vietqr.io" },
       { protocol: "https", hostname: "drive.google.com", pathname: "/uc*" },
