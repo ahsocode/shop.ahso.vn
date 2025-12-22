@@ -1,4 +1,4 @@
-name: Build Next.js & Publish Release Artifact
+name: Build Next.js (standalone) & Publish Release Artifact
 
 on:
   push:
@@ -12,13 +12,11 @@ jobs:
   build_and_release:
     runs-on: ubuntu-latest
 
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || '' }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -69,43 +67,45 @@ jobs:
             echo "No test script, skip."
           fi
 
-      - name: Build Next.js
+      - name: Build Next.js (standalone)
         env:
           NODE_ENV: production
+          NEXT_TELEMETRY_DISABLED: "1"
           SKIP_SITEMAP_DB: "true"
           SKIP_BUILD_DB: "true"
           NEXT_PUBLIC_TINYMCE_API_KEY: ${{ secrets.NEXT_PUBLIC_TINYMCE_API_KEY }}
+          # Nếu bạn muốn bỏ TS errors lúc build thì tạo repo variable NEXT_IGNORE_BUILD_ERRORS=1
+          NEXT_IGNORE_BUILD_ERRORS: ${{ vars.NEXT_IGNORE_BUILD_ERRORS || '0' }}
         run: npm run build
 
-
-      - name: Create artifact + checksum
+      - name: Create artifact + checksum (standalone)
         run: |
-          echo "==> Creating minimal artifact"
+          set -e
+          echo "==> Creating standalone artifact"
 
-          rm -rf node_modules
+          # Verify standalone output exists
+          test -f .next/standalone/server.js
+          test -d .next/static
 
+          # Standalone đã chứa runtime deps cần thiết => KHÔNG cần rm node_modules
+          # Bundle tối thiểu để VPS extract là chạy được
           tar -czf app-artifact.tar.gz \
-            .next \
+            .next/standalone \
+            .next/static \
             public \
-            package.json \
-            package-lock.json \
             prisma \
-            prisma.config.ts \
-            next.config.* \
-            tailwind.config.* \
-            tsconfig.json \
-            components.json
+            package.json \
+            package-lock.json
 
           sha256sum app-artifact.tar.gz > app-artifact.sha256
-
           ls -lh app-artifact.tar.gz app-artifact.sha256
 
-      # Create or update a stable "latest" release
       - name: Publish GitHub Release (latest)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
           name: latest
+          target_commitish: ${{ github.sha }}
           draft: false
           prerelease: false
           files: |
