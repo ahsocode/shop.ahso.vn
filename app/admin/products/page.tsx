@@ -2132,7 +2132,7 @@ export default function ProductsPage() {
             </div>
           </div>
           <div className="flex flex-col items-stretch gap-2">
-            <label className="text-xs font-semibold text-gray-700">Kéo CSV/XLSX vào hoặc bấm để chọn</label>
+            <label className="text-xs font-semibold text-gray-700">Kéo CSV vào hoặc bấm để chọn</label>
             <div
               className={`rounded-lg border-2 border-dashed px-4 py-6 text-center text-xs transition ${
                 isDragOver
@@ -2160,7 +2160,7 @@ export default function ProductsPage() {
               <input
                 ref={bulkFileInputRef}
                 type="file"
-                accept=".csv,.xlsx"
+                accept=".csv"
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];

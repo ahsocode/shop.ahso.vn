@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import * as XLSX from "xlsx";
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
@@ -48,6 +47,8 @@ type MissingRefs = {
 };
 
 type CommitRowInput = ProductDraft;
+
+type CsvRow = Record<string, string>;
 
 export async function POST(req: NextRequest) {
   const me = await verifyBearerAuth(req);
@@ -128,36 +129,25 @@ async function handleCommit(req: NextRequest) {
   }
 }
 
-// Ngoài ra, kiểm tra thêm trong parseFileToRows:
 async function parseFileToRows(file: File) {
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
+  const text = Buffer.from(await file.arrayBuffer()).toString("utf8");
+  return parseCsv(text);
+}
 
-  let workbook: XLSX.WorkBook;
-  try {
-    workbook = XLSX.read(buffer, { 
-      type: "buffer",
-      cellText: false,     // Giữ nguyên line breaks
-      cellDates: false,
-      raw: false           // Parse giá trị thành text
-    });
-  } catch {
-    const text = buffer.toString("utf8");
-    workbook = XLSX.read(text, { 
-      type: "string",
-      cellText: false,
-      raw: false 
-    });
-  }
+function parseCsv(text: string): CsvRow[] {
+  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (!lines.length) return [];
+  const [headerLine, ...rows] = lines;
+  const headers = headerLine.split(",").map((h) => h.trim());
 
-  const sheetName = workbook.SheetNames[0];
-  const sheet = workbook.Sheets[sheetName];
-  const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
-    defval: "",
-    raw: false,          // Convert tất cả về string
-    blankrows: false     // Bỏ qua dòng trống
+  return rows.map((line) => {
+    const cols = line.split(",");
+    const obj: CsvRow = {};
+    headers.forEach((h, i) => {
+      obj[h] = (cols[i] ?? "").trim();
+    });
+    return obj;
   });
-  return json;
 }
 type DraftDefaults = {
   defaultBrandSlug?: string;
