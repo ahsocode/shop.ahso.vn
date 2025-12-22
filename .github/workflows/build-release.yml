@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -47,7 +48,6 @@ jobs:
             echo "No Prisma schema, skip."
           fi
 
-
       - name: TypeScript check (optional)
         run: |
           if npx tsc -v >/dev/null 2>&1; then
@@ -88,12 +88,9 @@ jobs:
           set -e
           echo "==> Creating standalone artifact"
 
-          # Verify standalone output exists
           test -f .next/standalone/server.js
           test -d .next/static
 
-          # Standalone đã chứa runtime deps cần thiết => KHÔNG cần rm node_modules
-          # Bundle tối thiểu để VPS extract là chạy được
           tar -czf app-artifact.tar.gz \
             .next/standalone \
             .next/static \
@@ -105,11 +102,20 @@ jobs:
           sha256sum app-artifact.tar.gz > app-artifact.sha256
           ls -lh app-artifact.tar.gz app-artifact.sha256
 
-      - name: Publish GitHub Release (latest)
+      # ✅ Tạo tag/version mới mỗi lần chạy workflow
+      - name: Compute release tag
+        id: rel
+        run: |
+          TAG="v${{ github.run_number }}-${GITHUB_SHA::7}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Release tag: $TAG"
+
+      # ✅ Publish release theo tag mới (không dùng 'latest' nữa)
+      - name: Publish GitHub Release (versioned)
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: latest
-          name: latest
+          tag_name: ${{ steps.rel.outputs.tag }}
+          name: ${{ steps.rel.outputs.tag }}
           target_commitish: ${{ github.sha }}
           draft: false
           prerelease: false
