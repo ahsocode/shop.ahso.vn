@@ -553,7 +553,6 @@ model software {
 
   @@index([categoryId, status], map: "Software_categoryId_status_idx")
   @@index([title], map: "Software_title_idx")
-  @@index([bodyHtml], map: "Software_bodyHtml_idx")
 }
 
 // ===== SOFTWARE CATEGORY =====
@@ -598,7 +597,6 @@ model solution {
 
   @@index([categoryId, status], map: "Solution_categoryId_status_idx")
   @@index([title], map: "Solution_title_idx")
-  @@index([bodyHtml], map: "Solution_bodyHtml_idx")
   @@index([usecase], map: "Solution_usecase_idx")
 }
 
