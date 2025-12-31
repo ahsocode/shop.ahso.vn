@@ -35,7 +35,7 @@ export async function GET() {
           ],
         },
         orderBy: { sortOrder: "asc" },
-        take: 6,
+        take: 10,
         select: {
           id: true,
           title: true,
