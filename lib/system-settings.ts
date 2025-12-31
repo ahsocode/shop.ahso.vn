@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { EMAIL_CONFIG } from "@/lib/email-config";
 
 export const ORDER_NOTIFICATION_EMAIL_KEY = "orderNotificationEmail";
+export const CONTACT_NOTIFICATION_EMAIL_KEY = "contactNotificationEmail";
 export const DEFAULT_TAX_RATE_KEY = "defaultTaxRate";
 
 export async function getOrderNotificationEmail(): Promise<string> {
@@ -15,6 +16,11 @@ export async function getOrderNotificationEmail(): Promise<string> {
   );
 }
 
+export async function getContactNotificationEmail(): Promise<string> {
+  // Dùng chung email với đơn hàng để đảm bảo một địa chỉ admin duy nhất
+  return getOrderNotificationEmail();
+}
+
 export async function updateOrderNotificationEmail(value: string) {
   const normalized = value.trim();
   await prisma.systemsetting.upsert({
@@ -24,6 +30,20 @@ export async function updateOrderNotificationEmail(value: string) {
       key: ORDER_NOTIFICATION_EMAIL_KEY,
       value: normalized,
       description: "Địa chỉ nhận email thông báo đơn hàng mới",
+    },
+  });
+  return normalized;
+}
+
+export async function updateContactNotificationEmail(value: string) {
+  const normalized = value.trim();
+  await prisma.systemsetting.upsert({
+    where: { key: CONTACT_NOTIFICATION_EMAIL_KEY },
+    update: { value: normalized },
+    create: {
+      key: CONTACT_NOTIFICATION_EMAIL_KEY,
+      value: normalized,
+      description: "Địa chỉ nhận email thông báo yêu cầu liên hệ mới",
     },
   });
   return normalized;

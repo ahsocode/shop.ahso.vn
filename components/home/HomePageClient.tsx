@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useState, type ComponentType, type CSSProperties } from "react";
 import {
   Settings,
   Wrench,
@@ -103,6 +103,8 @@ type ApiProduct = {
   requiresQuote?: boolean | null;
 };
 
+type MarqueeStyle = CSSProperties & { "--marquee-duration"?: string };
+
 function normalizeProductData(
   source: ApiProduct | null | undefined,
   options: { fallbackName?: string; fallbackId?: string } = {},
@@ -156,7 +158,8 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
 
   return (
     <div
-      className="animate-slide-up group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col"
+      data-product-card
+      className="animate-slide-up group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col h-full"
       style={{ animationDelay: `${index * 100}ms` }}
     >
       <Link href={product.slug ? `/shop/products/${product.slug}` : "/shop/products"} className="relative aspect-square overflow-hidden bg-gray-100">
@@ -213,7 +216,7 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
             </Link>
           </div>
         ) : (
-          <div className="flex items-end justify-between">
+          <div className="mt-auto flex items-end justify-between">
             <div>
               <div className="text-xl font-bold text-blue-600">{priceLabel}</div>
               {hasDiscount && (
@@ -533,6 +536,59 @@ export default function HomePageClient() {
           opacity: 1;
           transform: translateY(0);
         }
+
+        @keyframes marqueeX {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-50%);
+          }
+        }
+
+        .marquee {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .marquee-track {
+          display: flex;
+          width: max-content;
+          animation: marqueeX var(--marquee-duration, 28s) linear infinite;
+          will-change: transform;
+        }
+
+        .marquee:hover .marquee-track {
+          animation-play-state: paused;
+        }
+
+      .marquee::before,
+      .marquee::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 90px;
+        z-index: 2;
+        pointer-events: none;
+      }
+
+      .marquee::before {
+        left: 0;
+        background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+      }
+
+      .marquee::after {
+        right: 0;
+        background: linear-gradient(to left, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+      }
+
+        @media (prefers-reduced-motion: reduce) {
+          .marquee-track {
+            animation: none !important;
+            transform: none !important;
+          }
+        }
       `}</style>
 
       {/* Hero Section */}
@@ -706,34 +762,48 @@ export default function HomePageClient() {
 
       {/* Featured Products */}
       <section className="py-16 md:py-20 bg-linear-to-b from-gray-50 to-white animate-on-scroll">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
             icon={Star}
             title="Sản phẩm nổi bật"
             subtitle="Những sản phẩm được đánh giá cao nhất từ khách hàng"
           />
+        </div>
 
-          {featuredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredProducts.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
+        {featuredProducts.length > 0 ? (
+          <div className="marquee mt-6">
+            <div
+              className="marquee-track gap-6 pb-3"
+              style={
+                {
+                  "--marquee-duration": `${Math.max(26, featuredProducts.length * 4.2)}s`,
+                } as MarqueeStyle
+              }
+            >
+              {[...featuredProducts, ...featuredProducts].map((product, idx) => (
+                <div
+                  key={`${product.id}-${idx}`}
+                  className="w-[234px] sm:w-[288px] lg:w-[324px] flex-none"
+                >
+                  <ProductCard product={product} index={idx % featuredProducts.length} />
+                </div>
               ))}
             </div>
-          ) : (
-            <p className="text-center text-gray-500">
-              Hiện chưa có sản phẩm nổi bật. Hãy quay lại sau nhé!
-            </p>
-          )}
-
-          <div className="text-center mt-12">
-            <Link
-              href="/shop/products"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 hover:shadow-xl hover:scale-105 transition-all duration-300"
-            >
-              Xem tất cả sản phẩm
-              <ArrowRight className="w-5 h-5" />
-            </Link>
           </div>
+        ) : (
+          <p className="text-center text-gray-500">
+            Hiện chưa có sản phẩm nổi bật. Hãy quay lại sau nhé!
+          </p>
+        )}
+
+        <div className="text-center mt-12">
+          <Link
+            href="/shop/products"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 hover:shadow-xl hover:scale-105 transition-all duration-300"
+          >
+            Xem tất cả sản phẩm
+            <ArrowRight className="w-5 h-5" />
+          </Link>
         </div>
       </section>
 
@@ -748,7 +818,28 @@ export default function HomePageClient() {
             subtitle="Top sản phẩm được nhiều khách hàng tin dùng nhất"
           />
 
-          {bestSellers.length > 0 ? (
+          {bestSellers.length >= 6 ? (
+            <div className="marquee mt-6">
+            <div
+              className="marquee-track gap-6 pb-3"
+              style={
+                {
+                  "--marquee-duration": `${Math.max(26, bestSellers.length * 4.2)}s`,
+                  animationDirection: "reverse",
+                } as MarqueeStyle
+              }
+            >
+                {[...bestSellers, ...bestSellers].map((product, idx) => (
+                  <div
+                    key={`${product.id}-${idx}`}
+                    className="w-[260px] sm:w-[320px] lg:w-[360px] flex-none"
+                  >
+                    <ProductCard product={product} index={idx % bestSellers.length} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : bestSellers.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {bestSellers.map((product, index) => (
                 <ProductCard key={product.id} product={product} index={index} />
@@ -778,7 +869,27 @@ export default function HomePageClient() {
             title="Sản phẩm mới về"
             subtitle="Những mẫu sản phẩm vừa được cập nhật trên hệ thống"
           />
-          {newArrivals.length > 0 ? (
+          {newArrivals.length >= 6 ? (
+            <div className="marquee mt-6">
+            <div
+              className="marquee-track gap-6 pb-3"
+              style={
+                {
+                  "--marquee-duration": `${Math.max(26, newArrivals.length * 4.2)}s`,
+                } as MarqueeStyle
+              }
+            >
+                {[...newArrivals, ...newArrivals].map((product, idx) => (
+                  <div
+                    key={`${product.id}-${idx}`}
+                    className="w-[260px] sm:w-[320px] lg:w-[360px] flex-none"
+                  >
+                    <ProductCard product={product} index={idx % newArrivals.length} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : newArrivals.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {newArrivals.map((product, index) => (
                 <ProductCard key={product.id} product={product} index={index} />
@@ -800,7 +911,28 @@ export default function HomePageClient() {
             title="Được đánh giá cao"
             subtitle="Những sản phẩm nhận được phản hồi tốt nhất"
           />
-          {topRated.length > 0 ? (
+          {topRated.length >= 6 ? (
+            <div className="marquee mt-6">
+            <div
+              className="marquee-track gap-6 pb-3"
+              style={
+                {
+                  "--marquee-duration": `${Math.max(26, topRated.length * 4.2)}s`,
+                  animationDirection: "reverse",
+                } as MarqueeStyle
+              }
+            >
+                {[...topRated, ...topRated].map((product, idx) => (
+                  <div
+                    key={`${product.id}-${idx}`}
+                    className="w-[260px] sm:w-[320px] lg:w-[360px] flex-none"
+                  >
+                    <ProductCard product={product} index={idx % topRated.length} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : topRated.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {topRated.map((product, index) => (
                 <ProductCard key={product.id} product={product} index={index} />
