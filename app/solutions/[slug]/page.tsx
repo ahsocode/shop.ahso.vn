@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { draftMode } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { buildMetadata } from "@/lib/metadata";
 import type { solutionInclude as SolutionInclude, solutionGetPayload } from "@/lib/prisma-types";
@@ -33,10 +34,10 @@ function transformSolution(record: SolutionRecord) {
   };
 }
 
-async function getSolution(slug: string): Promise<SolutionWithRelations | null> {
+async function getSolution(slug: string, preview = false): Promise<SolutionWithRelations | null> {
   if (!slug) return null;
   const record = await prisma.solution.findUnique({
-    where: { slug, status: "PUBLISHED" },
+    where: preview ? { slug } : { slug, status: "PUBLISHED" },
     include: solutionInclude,
   });
   return record ? transformSolution(record) : null;
@@ -48,6 +49,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const { isEnabled: isPreview } = await draftMode();
   if (SKIP_BUILD_DB) {
     return buildMetadata({
       title: "Giải pháp | AHSO",
@@ -56,7 +58,7 @@ export async function generateMetadata({
     });
   }
 
-  const solution = await getSolution(slug).catch((err) => {
+  const solution = await getSolution(slug, isPreview).catch((err) => {
     console.error("[solution metadata] DB error:", err);
     return null;
   });
@@ -115,11 +117,12 @@ export default async function SolutionDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const { isEnabled: isPreview } = await draftMode();
   if (SKIP_BUILD_DB) return <SolutionFallback />;
 
   let solution: SolutionWithRelations | null = null;
   try {
-    solution = await getSolution(slug);
+    solution = await getSolution(slug, isPreview);
   } catch (err) {
     console.error("[solution page] DB error:", err);
     return <SolutionFallback />;
@@ -151,7 +154,7 @@ export default async function SolutionDetailPage({
   };
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -175,103 +178,115 @@ export default async function SolutionDetailPage({
         <span className="font-medium text-gray-900">{solution.title}</span>
       </nav>
 
-      <header className="space-y-4">
+      <div className="mt-6 grid gap-8 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          <header className="space-y-4">
         <p className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600">
           Giải pháp công nghiệp
         </p>
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 break-words">
           {solution.title}
         </h1>
         {solution.summary && (
-          <p className="text-lg text-gray-600 max-w-3xl">{solution.summary}</p>
+          <p className="text-lg text-gray-600 max-w-3xl break-words">{solution.summary}</p>
         )}
       </header>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[2fr,1fr]">
-        <div>
-          <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-gray-100">
-            <Image src={cover} alt={solution.title} fill className="object-cover" />
+          <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+            <div className="relative aspect-[4/3] w-full bg-gray-50">
+              <Image
+                src={cover}
+                alt={solution.title}
+                fill
+                className="object-contain"
+                sizes="(min-width: 1024px) 720px, 100vw"
+              />
+            </div>
           </div>
+
+          {solution.images.length > 1 && (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {solution.images
+                .slice(1)
+                .map((img: SolutionWithRelations["images"][number]) => (
+                  <div
+                    key={img.id}
+                    className="relative aspect-[4/3] overflow-hidden rounded-xl border bg-gray-50"
+                  >
+                    <Image
+                      src={img.url}
+                      alt={img.alt || solution.title}
+                      fill
+                      className="object-contain"
+                      sizes="(min-width: 1024px) 560px, 50vw"
+                    />
+                  </div>
+                ))}
+            </div>
+          )}
+
+          <section className="rounded-2xl border bg-white p-6 shadow-sm space-y-6">
+            <h2 className="text-2xl font-semibold text-gray-900">
+              Mô tả giải pháp
+            </h2>
+            {solution.bodyHtml ? (
+              <div
+                className="prose max-w-none prose-blue break-words [&>img]:w-full [&>img]:h-auto [&>img]:rounded-xl [&>img]:border [&>img]:bg-gray-50 [&>img]:mx-auto"
+                dangerouslySetInnerHTML={{ __html: solution.bodyHtml }}
+              />
+            ) : (
+              <p className="text-gray-600">
+                Nội dung đang được cập nhật. Vui lòng liên hệ đội ngũ AHSO để nhận
+                tài liệu chi tiết.
+              </p>
+            )}
+          </section>
         </div>
-        <aside className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Thông tin nhanh
-          </h2>
-          <dl className="space-y-3 text-sm text-gray-700">
-            {solution.category && (
-              <div className="flex justify-between gap-4">
-                <dt className="text-gray-500">Danh mục</dt>
-                <dd className="text-right">{solution.category.name}</dd>
-              </div>
-            )}
-            {solution.industry && (
-              <div className="flex justify-between gap-4">
-                <dt className="text-gray-500">Ngành</dt>
-                <dd className="text-right">{solution.industry}</dd>
-              </div>
-            )}
-            {solution.usecase && (
-              <div className="flex justify-between gap-4">
-                <dt className="text-gray-500">Use case</dt>
-                <dd className="text-right">{solution.usecase}</dd>
-              </div>
-            )}
-            {publishedAt && (
-              <div className="flex justify-between gap-4">
-                <dt className="text-gray-500">Cập nhật</dt>
-                <dd className="text-right">
-                  {publishedAt.toLocaleDateString("vi-VN")}
-                </dd>
-              </div>
-            )}
-          </dl>
-          <div className="pt-4">
-            <Link
-              href="/contact"
-              className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700"
-            >
-              Nhận tư vấn triển khai
-            </Link>
+
+        <aside className="space-y-4 lg:sticky lg:top-24 self-start">
+          <div className="rounded-2xl border bg-white p-6 shadow-sm space-y-4">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Thông tin nhanh
+            </h2>
+            <dl className="space-y-3 text-sm text-gray-700">
+              {solution.category && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-gray-500">Danh mục</dt>
+                  <dd className="text-right">{solution.category.name}</dd>
+                </div>
+              )}
+              {solution.industry && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-gray-500">Ngành</dt>
+                  <dd className="text-right">{solution.industry}</dd>
+                </div>
+              )}
+              {solution.usecase && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-gray-500">Use case</dt>
+                  <dd className="text-right">{solution.usecase}</dd>
+                </div>
+              )}
+              {publishedAt && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-gray-500">Cập nhật</dt>
+                  <dd className="text-right">
+                    {publishedAt.toLocaleDateString("vi-VN")}
+                  </dd>
+                </div>
+              )}
+            </dl>
+            <div className="pt-2">
+              <Link
+                href="/contact"
+                className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700"
+              >
+                Nhận tư vấn triển khai
+              </Link>
+            </div>
           </div>
         </aside>
       </div>
-
-      {solution.images.length > 1 && (
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          {solution.images
-            .slice(1)
-            .map((img: SolutionWithRelations["images"][number]) => (
-              <div
-                key={img.id}
-                className="relative aspect-video overflow-hidden rounded-xl bg-gray-100"
-              >
-                <Image
-                  src={img.url}
-                  alt={img.alt || solution.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            ))}
-        </div>
-      )}
-
-      <section className="mt-10 rounded-2xl bg-white p-6 shadow-md space-y-6">
-        <h2 className="text-2xl font-semibold text-gray-900">
-          Mô tả giải pháp
-        </h2>
-        {solution.bodyHtml ? (
-          <div
-            className="prose max-w-none prose-blue"
-            dangerouslySetInnerHTML={{ __html: solution.bodyHtml }}
-          />
-        ) : (
-          <p className="text-gray-600">
-            Nội dung đang được cập nhật. Vui lòng liên hệ đội ngũ AHSO để nhận
-            tài liệu chi tiết.
-          </p>
-        )}
-      </section>
     </div>
   );
 }

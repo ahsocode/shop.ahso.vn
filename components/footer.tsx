@@ -64,26 +64,26 @@ export function Footer() {
           <div>
             <h3 className="font-semibold text-white mb-4">Danh mục</h3>
             <ul className="space-y-2">
-              {/* <li>
-                <Link href="/category/may-moc-cong-nghiep" className="text-sm hover:text-blue-500 transition-colors">
-                  Máy móc công nghiệp
+              <li>
+                <Link href="/software" className="text-sm hover:text-blue-500 transition-colors">
+                  Phần mềm & dịch vụ
                 </Link>
               </li>
               <li>
-                <Link href="/category/linh-kien-dien-tu" className="text-sm hover:text-blue-500 transition-colors">
-                  Linh kiện điện tử
+                <Link href="/solutions" className="text-sm hover:text-blue-500 transition-colors">
+                  Giải pháp
                 </Link>
               </li>
               <li>
-                <Link href="/category/thiet-bi-do-luong" className="text-sm hover:text-blue-500 transition-colors">
-                  Thiết bị đo lường
+                <Link href="/shop/products" className="text-sm hover:text-blue-500 transition-colors">
+                  Sản phẩm
                 </Link>
               </li>
               <li>
-                <Link href="/category/phu-tung-thay-the" className="text-sm hover:text-blue-500 transition-colors">
-                  Phụ tùng thay thế
+                <Link href="/shop/brands" className="text-sm hover:text-blue-500 transition-colors">
+                  Thương hiệu
                 </Link>
-              </li> */}
+              </li>
             </ul>
           </div>
 

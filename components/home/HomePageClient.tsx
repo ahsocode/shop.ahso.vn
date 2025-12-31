@@ -29,27 +29,18 @@ type HeroSlide = {
   subtitle?: string | null;
   ctaLabel?: string | null;
   ctaHref?: string | null;
+   textPosition?:
+    | "TOP_LEFT"
+    | "TOP_RIGHT"
+    | "MIDDLE_LEFT"
+    | "MIDDLE_RIGHT"
+    | "BOTTOM_LEFT"
+    | "BOTTOM_RIGHT";
+  overlayOn?: boolean | null;
+  overlayColor?: string | null;
 };
 
 const FALLBACK_IMAGE = "/logo.png";
-
-const FALLBACK_SLIDES: HeroSlide[] = [
-  {
-    image: "/factory1.jpg",
-    title: "Giải pháp công nghiệp toàn diện",
-    subtitle: "Cung cấp thiết bị, máy móc và linh kiện công nghiệp chất lượng cao",
-  },
-  {
-    image: "/factory2.jpg",
-    title: "Giải pháp phần mềm ứng dụng trong công nghiệp",
-    subtitle: "Tối ưu hóa quy trình sản xuất với phần mềm thông minh",
-  },
-  {
-    image: "/factory3.jpg",
-    title: "Sản phẩm công nghiệp chính hãng",
-    subtitle: "Phân phối thiết bị và phụ tùng chính hãng, bảo hành toàn diện",
-  },
-];
 
 type HeroBannerResponse = {
   data?: Array<{
@@ -58,6 +49,15 @@ type HeroBannerResponse = {
     content?: string | null;
     ctaLabel?: string | null;
     ctaHref?: string | null;
+    textPosition?:
+      | "TOP_LEFT"
+      | "TOP_RIGHT"
+      | "MIDDLE_LEFT"
+      | "MIDDLE_RIGHT"
+      | "BOTTOM_LEFT"
+      | "BOTTOM_RIGHT";
+    overlayOn?: boolean | null;
+    overlayColor?: string | null;
   }>;
 };
 
@@ -255,7 +255,7 @@ function SectionHeader({ icon: Icon, title, subtitle }: SectionHeaderProps) {
 
 export default function HomePageClient() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(FALLBACK_SLIDES);
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[] | null>(null);
   const [featuredProducts, setFeaturedProducts] = useState<HomeProduct[]>([]);
   const [bestSellers, setBestSellers] = useState<HomeProduct[]>([]);
   const [newArrivals, setNewArrivals] = useState<HomeProduct[]>([]);
@@ -263,60 +263,73 @@ export default function HomePageClient() {
 
   // Auto-rotate slides
   useEffect(() => {
+    const total = heroSlides?.length ?? 0;
+    if (total <= 1) return;
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+      setCurrentSlide((prev) => (prev + 1) % total);
     }, 5000);
     return () => clearInterval(interval);
-  }, [heroSlides.length]);
+  }, [heroSlides?.length]);
 
   // Fetch hero banners + highlighted product lists
   useEffect(() => {
     let ignore = false;
     const fetchData = async () => {
       try {
-        const [heroRes, featuredRes, bestRes, newRes, topRes] = await Promise.all([
-          fetch("/api/hero-banners"),
-          fetch("/api/featured-products?limit=4"),
-          fetch("/api/products/best-sellers?limit=4"),
-          fetch("/api/products/new-arrivals?limit=4"),
-          fetch("/api/products/top-rated?limit=4"),
-        ]);
-
-        const heroJson: HeroBannerResponse = heroRes.ok ? await heroRes.json() : {};
-        const featuredJson: FeaturedProductResponse = featuredRes.ok
-          ? await featuredRes.json()
-          : { data: [] };
-        const bestJson: ProductListResponse = bestRes.ok ? await bestRes.json() : { data: [] };
-        const newJson: ProductListResponse = newRes.ok ? await newRes.json() : { data: [] };
-        const topJson: ProductListResponse = topRes.ok ? await topRes.json() : { data: [] };
-
+        const res = await fetch("/api/home-feed");
+        if (!res.ok) throw new Error("home-feed error");
+        const json = await res.json().catch(() => ({}));
         if (ignore) return;
 
-        if (Array.isArray(heroJson?.data) && heroJson.data.length > 0) {
-          setHeroSlides(
-            heroJson.data.map((item) => ({
-              image: item.imageUrl,
-              title: item.title,
-              subtitle: item.content,
-              ctaLabel: item.ctaLabel,
-              ctaHref: item.ctaHref,
-            })),
-          );
-        }
+        const heroData: HeroBannerResponse["data"] = json?.data?.hero ?? [];
+        const featuredData: FeaturedProductResponse["data"] = json?.data?.featured ?? [];
+        const bestData: ProductListResponse["data"] = json?.data?.bestSellers ?? [];
+        const newData: ProductListResponse["data"] = json?.data?.newArrivals ?? [];
+        const topData: ProductListResponse["data"] = json?.data?.topRated ?? [];
+
+        setHeroSlides(
+          Array.isArray(heroData)
+            ? heroData.map((item) => ({
+                image: item.imageUrl,
+                title: item.title,
+                subtitle: item.content,
+                ctaLabel: item.ctaLabel,
+                ctaHref: item.ctaHref,
+                textPosition: item.textPosition,
+                overlayOn: item.overlayOn,
+                overlayColor: item.overlayColor,
+              }))
+            : [],
+        );
 
         setFeaturedProducts(
-          (featuredJson?.data ?? []).map((item) =>
-            normalizeProductData(item.product ?? null, {
-              fallbackName: item.title ?? undefined,
-              fallbackId: item.id?.toString(),
-            }),
-          ),
+          Array.isArray(featuredData)
+            ? featuredData.map((item) =>
+                normalizeProductData(item.product ?? null, {
+                  fallbackName: item.title ?? undefined,
+                  fallbackId: item.id?.toString(),
+                }),
+              )
+            : [],
         );
-        setBestSellers((bestJson?.data ?? []).map((item) => normalizeProductData(item)));
-        setNewArrivals((newJson?.data ?? []).map((item) => normalizeProductData(item)));
-        setTopRated((topJson?.data ?? []).map((item) => normalizeProductData(item)));
+        setBestSellers(
+          Array.isArray(bestData) ? bestData.map((item) => normalizeProductData(item)) : [],
+        );
+        setNewArrivals(
+          Array.isArray(newData) ? newData.map((item) => normalizeProductData(item)) : [],
+        );
+        setTopRated(
+          Array.isArray(topData) ? topData.map((item) => normalizeProductData(item)) : [],
+        );
       } catch (error) {
         console.error("Failed to load homepage data:", error);
+        if (!ignore) {
+          setHeroSlides([]);
+          setFeaturedProducts([]);
+          setBestSellers([]);
+          setNewArrivals([]);
+          setTopRated([]);
+        }
       }
     };
     fetchData();
@@ -345,15 +358,61 @@ export default function HomePageClient() {
     return () => observer.disconnect();
   }, []);
 
-  const activeSlide = heroSlides[currentSlide] || FALLBACK_SLIDES[0];
-  const hasContent = activeSlide.title || activeSlide.subtitle;
+  const resolvedSlides = heroSlides ?? [];
+  const totalSlides = Math.max(1, resolvedSlides.length);
+  const hasSlides = resolvedSlides.length > 0;
+  const activeSlide = hasSlides ? resolvedSlides[currentSlide % totalSlides] : null;
+  const displayTitle = activeSlide?.title || "";
+  const displaySubtitle = activeSlide?.subtitle || "";
+  const displayCtaLabel = activeSlide?.ctaLabel ?? null;
+  const displayCtaHref = activeSlide?.ctaHref ?? null;
+  const hasContent = Boolean(displayTitle || displaySubtitle);
+  const positionClass = (() => {
+    switch (activeSlide?.textPosition) {
+      case "TOP_RIGHT":
+        return "items-start justify-end";
+      case "MIDDLE_LEFT":
+        return "items-center justify-start";
+      case "MIDDLE_RIGHT":
+        return "items-center justify-end";
+      case "BOTTOM_LEFT":
+        return "items-end justify-start";
+      case "BOTTOM_RIGHT":
+        return "items-end justify-end";
+      case "TOP_LEFT":
+      default:
+        return "items-start justify-start";
+    }
+  })();
+  const normalizeOverlayColor = (value?: string | null) => {
+    const fallback = "rgba(15,23,42,0.18)";
+    if (!value) return fallback;
+    if (/rgba?\(/i.test(value) || /hsla?\(/i.test(value)) return value;
+    if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value)) {
+      let hex = value.replace("#", "");
+      if (hex.length === 3) {
+        hex = hex.split("").map((ch) => ch + ch).join("");
+      }
+      const hasAlpha = hex.length === 8;
+      const r = parseInt(hex.slice(0, 2), 16);
+      const g = parseInt(hex.slice(2, 4), 16);
+      const b = parseInt(hex.slice(4, 6), 16);
+      const a = hasAlpha ? parseInt(hex.slice(6, 8), 16) / 255 : 0.18;
+      return `rgba(${r}, ${g}, ${b}, ${a})`;
+    }
+    return fallback;
+  };
+
+  const overlayEnabled = hasSlides && Boolean(activeSlide?.overlayOn);
+  // Semi-transparent “veil” so the banner stays visible, even if user picked white
+  const overlayColor = normalizeOverlayColor(hasSlides ? activeSlide?.overlayColor : null);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
   };
 
   const categories = [
@@ -480,28 +539,35 @@ export default function HomePageClient() {
       <section className="relative h-[500px] md:h-[600px] lg:h-[700px] overflow-hidden">
         {/* Background Slides */}
         <div className="absolute inset-0">
-          {heroSlides.map((slide, index) => (
-            <div
-              key={`${slide.image}-${index}`}
-              className="absolute inset-0 transition-opacity duration-1000"
-              style={{
-                opacity: currentSlide === index ? 1 : 0,
-                backgroundImage: `url(${slide.image})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            >
-              {hasContent && (
-                <div className="absolute inset-0 bg-linear-to-r from-blue-900/90 via-blue-800/70 to-blue-900/50" />
-              )}
-            </div>
-          ))}
+          {resolvedSlides.length === 0 ? (
+            <div className="absolute inset-0 bg-linear-to-r from-blue-900 via-blue-800 to-blue-700" />
+          ) : (
+            resolvedSlides.map((slide, index) => (
+              <div
+                key={`${slide.image}-${index}`}
+                className="absolute inset-0 transition-opacity duration-1000"
+                style={{
+                  opacity: currentSlide === index ? 1 : 0,
+                  backgroundImage: `url(${slide.image})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              >
+                {overlayEnabled && (
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: overlayColor }}
+                  />
+                )}
+              </div>
+            ))
+          )}
         </div>
 
         {/* Content Overlay - Only if has content */}
         {hasContent && (
-          <div className="relative z-10 h-full flex items-center">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
+          <div className="relative z-10 h-full">
+            <div className={`h-full w-full px-4 sm:px-6 lg:px-8 flex ${positionClass}`}>
               <div className="max-w-3xl">
                 <div className="inline-block mb-4 px-4 py-2 bg-blue-500/20 backdrop-blur-sm rounded-full border border-blue-400/30 animate-fade-in-up">
                   <span className="text-blue-200 text-sm font-medium">
@@ -509,21 +575,21 @@ export default function HomePageClient() {
                   </span>
                 </div>
 
-                {activeSlide.title && (
+                {displayTitle && (
                   <h1
                     className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white animate-fade-in-up"
                     style={{ animationDelay: "0.1s" }}
                   >
-                    {activeSlide.title}
+                    {displayTitle}
                   </h1>
                 )}
 
-                {activeSlide.subtitle && (
+                {displaySubtitle && (
                   <p
                     className="text-lg md:text-xl lg:text-2xl mb-8 text-blue-100 animate-fade-in-up"
                     style={{ animationDelay: "0.2s" }}
                   >
-                    {activeSlide.subtitle}
+                    {displaySubtitle}
                   </p>
                 )}
 
@@ -547,12 +613,12 @@ export default function HomePageClient() {
                     <Phone className="w-5 h-5" />
                   </Link>
 
-                  {activeSlide.ctaLabel && activeSlide.ctaHref && (
+                  {displayCtaLabel && displayCtaHref && (
                     <Link
-                      href={activeSlide.ctaHref}
+                      href={displayCtaHref}
                       className="px-6 md:px-8 py-3 md:py-4 bg-green-500 text-white rounded-xl font-semibold shadow hover:bg-green-600 hover:scale-105 transition-all duration-300"
                     >
-                      {activeSlide.ctaLabel}
+                      {displayCtaLabel}
                     </Link>
                   )}
                 </div>
@@ -562,7 +628,7 @@ export default function HomePageClient() {
         )}
 
         {/* Navigation Arrows */}
-        {heroSlides.length > 1 && (
+        {resolvedSlides.length > 1 && (
           <>
             <button
               onClick={prevSlide}
@@ -582,9 +648,9 @@ export default function HomePageClient() {
         )}
 
         {/* Slide Indicators */}
-        {heroSlides.length > 1 && (
+        {resolvedSlides.length > 1 && (
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-            {heroSlides.map((_, index) => (
+            {resolvedSlides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}

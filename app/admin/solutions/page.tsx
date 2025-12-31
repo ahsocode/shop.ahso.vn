@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -73,6 +74,8 @@ export default function AdminSolutionsPage() {
   const [galleryCursor, setGalleryCursor] = useState<string | null>(null);
   const [gallerySelected, setGallerySelected] = useState("");
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
+  const [statusLoading, setStatusLoading] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState<string | null>(null);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -98,7 +101,7 @@ export default function AdminSolutionsPage() {
         setRows(listRes.data);
         setTotal(listRes.meta.total);
         setCategories(catRes.data);
-      } catch (error) {
+      } catch {
         if (!ignore) toast.error("Không thể tải danh sách giải pháp");
       } finally {
         if (!ignore) setLoading(false);
@@ -132,7 +135,7 @@ export default function AdminSolutionsPage() {
         categoryId: data.categoryId,
       });
       setFormOpen(true);
-    } catch (error) {
+    } catch {
       toast.error("Không thể tải dữ liệu giải pháp");
     }
   };
@@ -173,7 +176,7 @@ export default function AdminSolutionsPage() {
       const listRes = await getJSON<ListResp<SolutionRow>>(`/api/admin/solutions?${params}`);
       setRows(listRes.data);
       setTotal(listRes.meta.total);
-    } catch (error) {
+    } catch {
       toast.error("Không thể lưu giải pháp");
     } finally {
       setSaving(false);
@@ -213,8 +216,52 @@ export default function AdminSolutionsPage() {
       setRows(listRes.data);
       setTotal(listRes.meta.total);
       if (form.id === row.id) resetForm();
-    } catch (error) {
+    } catch {
       toast.error("Không thể xóa giải pháp");
+    }
+  };
+
+  const handleQuickStatus = async (row: SolutionRow, nextStatus: SolutionStatus) => {
+    if (row.status === nextStatus) return;
+    setStatusLoading(row.id);
+    try {
+      await patchJSON(`/api/admin/solutions/${row.id}/status`, { status: nextStatus });
+      setRows((prev) =>
+        prev.map((r) => (r.id === row.id ? { ...r, status: nextStatus } : r)),
+      );
+      toast.success("Đã cập nhật trạng thái");
+    } catch {
+      toast.error("Không thể cập nhật trạng thái");
+    } finally {
+      setStatusLoading(null);
+    }
+  };
+
+  const handlePreview = async (row: SolutionRow) => {
+    if (!row.slug) {
+      toast.error("Bài viết chưa có slug để preview");
+      return;
+    }
+    setPreviewLoading(row.id);
+    try {
+      const res = await fetch(
+        `/api/admin/preview?type=solutions&slug=${encodeURIComponent(row.slug)}`,
+        { headers: makeHeaders() },
+      );
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(data?.error || "Không thể tạo preview");
+      }
+      const url = data?.url;
+      if (url) {
+        window.open(url, "_blank");
+      } else {
+        throw new Error("Không tìm thấy URL preview");
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Không thể tạo preview");
+    } finally {
+      setPreviewLoading(null);
     }
   };
 
@@ -229,7 +276,7 @@ export default function AdminSolutionsPage() {
       );
       setGalleryItems((prev) => (reset ? res.items : [...prev, ...res.items]));
       setGalleryCursor(res.nextCursor ?? null);
-    } catch (error) {
+    } catch {
       toast.error("Không thể tải thư viện ảnh");
     } finally {
       setGalleryLoading(false);
@@ -276,7 +323,7 @@ export default function AdminSolutionsPage() {
     try {
       await navigator.clipboard.writeText(gallerySelected);
       toast.success("Đã copy link ảnh");
-    } catch (error) {
+    } catch {
       toast.error("Không thể copy link ảnh");
     }
   };
@@ -338,10 +385,30 @@ export default function AdminSolutionsPage() {
                       <div className="font-semibold text-slate-900">{row.title}</div>
                       <div className="text-xs text-gray-500">
                         {row.solutioncategory?.name ?? "Chưa phân loại"} ·{" "}
-                        {row.status}
+                        <span className="font-semibold text-gray-700">{row.status}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
+                      <select
+                        value={row.status}
+                        onChange={(e) =>
+                          handleQuickStatus(row, e.target.value as SolutionStatus)
+                        }
+                        disabled={statusLoading === row.id}
+                        className="rounded border px-2 py-1 text-xs"
+                      >
+                        <option value="DRAFT">DRAFT</option>
+                        <option value="PUBLISHED">PUBLISHED</option>
+                        <option value="ARCHIVED">ARCHIVED</option>
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => handlePreview(row)}
+                        disabled={previewLoading === row.id}
+                        className="text-emerald-600 hover:underline disabled:opacity-60"
+                      >
+                        Preview
+                      </button>
                       <button
                         type="button"
                         onClick={() => startEdit(row)}

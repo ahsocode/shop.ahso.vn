@@ -1,5 +1,6 @@
 // app/order/[orderId]/page.tsx
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import CancelRequestSection from "./cancel-request.client";
 
@@ -14,7 +15,6 @@ import {
   Receipt,
 } from "lucide-react";
 import type { OrderDetailDTO, OrderStatus } from "@/dto/order.dto"; // 👈 dùng OrderStatus từ DTO
-import { cookies } from "next/headers";
 
 function formatVND(n: number | undefined | null) {
   const num = typeof n === "number" ? n : Number(n || 0);
@@ -45,25 +45,15 @@ export default async function OrderDetailPage(props: {
 }) {
   const { orderId } = await props.params;
 
-  // ✅ Đọc cookie trực tiếp
-  const cookieStore = await cookies();
-  const authToken = cookieStore.get("auth_token")?.value;
+  const hdrs = await headers();
+  const host = hdrs.get("host");
+  if (!host) notFound();
+  const protocol = hdrs.get("x-forwarded-proto") ?? "http";
+  const baseUrl = `${protocol}://${host}`;
 
-  if (!authToken) {
-    redirect(`/login?redirect=/order/${orderId}`);
-  }
-
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXTAUTH_URL ||
-    "http://localhost:3000";
-
-  // ✅ Fetch với Authorization header
-  const res = await fetch(new URL(`/api/orders/${orderId}`, baseUrl).toString(), {
+  const res = await fetch(`${baseUrl}/api/orders/${orderId}`, {
     cache: "no-store",
-    headers: {
-      Authorization: `Bearer ${authToken}`,
-    },
+    headers: { cookie: hdrs.get("cookie") ?? "" },
   });
 
   if (res.status === 401 || res.status === 403) {
@@ -71,7 +61,28 @@ export default async function OrderDetailPage(props: {
   }
 
   if (res.status === 404) {
-    notFound();
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-12 text-center space-y-4">
+        <h1 className="text-2xl font-bold text-gray-900">Không tìm thấy đơn hàng</h1>
+        <p className="text-gray-600">
+          Mã đơn hàng không tồn tại hoặc bạn không có quyền xem đơn này.
+        </p>
+        <div className="flex justify-center gap-3">
+          <Link
+            href="/order"
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700"
+          >
+            Về danh sách đơn hàng
+          </Link>
+          <Link
+            href="/contact"
+            className="rounded-md border px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            Liên hệ hỗ trợ
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   if (!res.ok) {

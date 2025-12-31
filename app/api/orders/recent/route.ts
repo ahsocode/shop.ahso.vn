@@ -4,14 +4,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyRequestUser } from "@/lib/auth";
 import { toOrderListItemDTO } from "@/dto/order.mapper";
-import type { orderGetPayload, orderWhereInput } from "@/lib/prisma-types";
-import type { order_status } from "@prisma/client";
+import type { orderWhereInput } from "@/lib/prisma-types";
 
 export const dynamic = "force-dynamic";
-
-type OrderWithItems = orderGetPayload<{
-  include: { orderitem: true };
-}>;
 
 export async function GET(req: NextRequest) {
   const user = await verifyRequestUser(req);
@@ -25,22 +20,19 @@ export async function GET(req: NextRequest) {
   const limitParam = parseInt(searchParams.get("limit") || "3", 10);
   const take = Math.min(5, Math.max(1, limitParam || 3));
 
-  const excludedStatuses: order_status[] = ["cancelled", "delivered"];
-
   const where: orderWhereInput = {
     userId: user.sub,
-    // loại trừ đã giao (hoàn thành) + đã huỷ
-    status: {
-      notIn: excludedStatuses,
-    },
   };
 
-  const rows: OrderWithItems[] = await prisma.order.findMany({
-    where,
-    include: { orderitem: true },
-    orderBy: { createdAt: "desc" },
-    take,
-  });
+  const [rows, total] = await Promise.all([
+    prisma.order.findMany({
+      where,
+      include: { orderitem: true },
+      orderBy: { createdAt: "desc" },
+      take,
+    }),
+    prisma.order.count({ where }),
+  ]);
 
   const data = rows.map((r) =>
     toOrderListItemDTO(
@@ -68,5 +60,5 @@ export async function GET(req: NextRequest) {
     ),
   );
 
-  return NextResponse.json(data);
+  return NextResponse.json({ data, meta: { total } });
 }
