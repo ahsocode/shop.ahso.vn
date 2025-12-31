@@ -811,15 +811,16 @@ export default function HomePageClient() {
 
       {/* Best Sellers */}
       <section className="py-16 md:py-20 bg-linear-to-b from-white to-gray-50 animate-on-scroll">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
             icon={TrendingUp}
             title="Sản phẩm bán chạy"
             subtitle="Top sản phẩm được nhiều khách hàng tin dùng nhất"
           />
+        </div>
 
-          {bestSellers.length >= 6 ? (
-            <div className="marquee mt-6">
+        {bestSellers.length >= 6 ? (
+          <div className="marquee mt-6">
             <div
               className="marquee-track gap-6 pb-3"
               style={
@@ -829,48 +830,50 @@ export default function HomePageClient() {
                 } as MarqueeStyle
               }
             >
-                {[...bestSellers, ...bestSellers].map((product, idx) => (
-                  <div
-                    key={`${product.id}-${idx}`}
-                    className="w-[260px] sm:w-[320px] lg:w-[360px] flex-none"
-                  >
-                    <ProductCard product={product} index={idx % bestSellers.length} />
-                  </div>
-                ))}
-              </div>
+              {[...bestSellers, ...bestSellers].map((product, idx) => (
+                <div
+                  key={`${product.id}-${idx}`}
+                  className="w-[260px] sm:w-[320px] lg:w-[360px] flex-none"
+                >
+                  <ProductCard product={product} index={idx % bestSellers.length} />
+                </div>
+              ))}
             </div>
-          ) : bestSellers.length > 0 ? (
+          </div>
+        ) : bestSellers.length > 0 ? (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {bestSellers.map((product, index) => (
                 <ProductCard key={product.id} product={product} index={index} />
               ))}
             </div>
-          ) : (
-            <p className="text-center text-gray-500">Chưa có dữ liệu bán chạy.</p>
-          )}
-
-          <div className="text-center mt-12">
-            <Link
-              href="/shop/products?sort=popular"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
-            >
-              Khám phá thêm
-              <TrendingUp className="w-5 h-5" />
-            </Link>
           </div>
+        ) : (
+          <p className="text-center text-gray-500">Chưa có dữ liệu bán chạy.</p>
+        )}
+
+        <div className="text-center mt-12">
+          <Link
+            href="/shop/products?sort=popular"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
+          >
+            Khám phá thêm
+            <TrendingUp className="w-5 h-5" />
+          </Link>
         </div>
       </section>
 
       {/* New Arrivals */}
       <section className="py-16 md:py-20 bg-linear-to-b from-gray-50 to-white animate-on-scroll">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
             icon={Sparkles}
             title="Sản phẩm mới về"
             subtitle="Những mẫu sản phẩm vừa được cập nhật trên hệ thống"
           />
-          {newArrivals.length >= 6 ? (
-            <div className="marquee mt-6">
+        </div>
+        {newArrivals.length >= 6 ? (
+          <div className="marquee mt-6">
             <div
               className="marquee-track gap-6 pb-3"
               style={
@@ -879,40 +882,42 @@ export default function HomePageClient() {
                 } as MarqueeStyle
               }
             >
-                {[...newArrivals, ...newArrivals].map((product, idx) => (
-                  <div
-                    key={`${product.id}-${idx}`}
-                    className="w-[260px] sm:w-[320px] lg:w-[360px] flex-none"
-                  >
-                    <ProductCard product={product} index={idx % newArrivals.length} />
-                  </div>
-                ))}
-              </div>
+              {[...newArrivals, ...newArrivals].map((product, idx) => (
+                <div
+                  key={`${product.id}-${idx}`}
+                  className="w-[260px] sm:w-[320px] lg:w-[360px] flex-none"
+                >
+                  <ProductCard product={product} index={idx % newArrivals.length} />
+                </div>
+              ))}
             </div>
-          ) : newArrivals.length > 0 ? (
+          </div>
+        ) : newArrivals.length > 0 ? (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {newArrivals.map((product, index) => (
                 <ProductCard key={product.id} product={product} index={index} />
               ))}
             </div>
-          ) : (
-            <p className="text-center text-gray-500">
-              Hiện chưa có sản phẩm mới. Vui lòng quay lại sau.
-            </p>
-          )}
-        </div>
+          </div>
+        ) : (
+          <p className="text-center text-gray-500">
+            Hiện chưa có sản phẩm mới. Vui lòng quay lại sau.
+          </p>
+        )}
       </section>
 
       {/* Top Rated */}
       <section className="py-16 md:py-20 bg-linear-to-b from-white to-gray-50 animate-on-scroll">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
             icon={Star}
             title="Được đánh giá cao"
             subtitle="Những sản phẩm nhận được phản hồi tốt nhất"
           />
-          {topRated.length >= 6 ? (
-            <div className="marquee mt-6">
+        </div>
+        {topRated.length >= 6 ? (
+          <div className="marquee mt-6">
             <div
               className="marquee-track gap-6 pb-3"
               style={
@@ -922,26 +927,27 @@ export default function HomePageClient() {
                 } as MarqueeStyle
               }
             >
-                {[...topRated, ...topRated].map((product, idx) => (
-                  <div
-                    key={`${product.id}-${idx}`}
-                    className="w-[260px] sm:w-[320px] lg:w-[360px] flex-none"
-                  >
-                    <ProductCard product={product} index={idx % topRated.length} />
-                  </div>
-                ))}
-              </div>
+              {[...topRated, ...topRated].map((product, idx) => (
+                <div
+                  key={`${product.id}-${idx}`}
+                  className="w-[260px] sm:w-[320px] lg:w-[360px] flex-none"
+                >
+                  <ProductCard product={product} index={idx % topRated.length} />
+                </div>
+              ))}
             </div>
-          ) : topRated.length > 0 ? (
+          </div>
+        ) : topRated.length > 0 ? (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {topRated.map((product, index) => (
                 <ProductCard key={product.id} product={product} index={index} />
               ))}
             </div>
-          ) : (
-            <p className="text-center text-gray-500">Chưa có sản phẩm nào được đánh giá.</p>
-          )}
-        </div>
+          </div>
+        ) : (
+          <p className="text-center text-gray-500">Chưa có sản phẩm nào được đánh giá.</p>
+        )}
       </section>
       {/* Features Grid */}
       <section className="py-16 md:py-20 bg-white animate-on-scroll">
