@@ -14,15 +14,25 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const productIdsRaw = formData.getAll("productIds").filter(Boolean);
-    const file = formData.get("file");
+    const filesRaw = formData.getAll("files");
+    const singleFile = formData.get("file");
     const alt = formData.get("alt")?.toString() ?? null;
+    const coverIndexRaw = formData.get("coverIndex")?.toString();
+    const coverMode =
+      formData.get("coverMode")?.toString() === "overwrite" ? "overwrite" : "missing";
+    const skipCover = formData.get("skipCover")?.toString() === "1";
 
     if (!productIdsRaw.length) {
       return jsonError("Missing productIds", 400);
     }
-    if (!file || !(file instanceof File)) {
-      return jsonError("Missing file", 400);
-    }
+    const files =
+      filesRaw.length > 0
+        ? filesRaw.filter((item): item is File => item instanceof File)
+        : singleFile instanceof File
+          ? [singleFile]
+          : [];
+
+    if (!files.length) return jsonError("Missing file", 400);
 
     const uniqueIds = Array.from(new Set(productIdsRaw.map((id) => String(id))));
     const products = await prisma.product.findMany({
@@ -44,8 +54,21 @@ export async function POST(req: NextRequest) {
       return jsonError("No matching products found", 404);
     }
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const fileBuffers = await Promise.all(
+      files.map(async (file) => ({
+        file,
+        buffer: Buffer.from(await file.arrayBuffer()),
+      })),
+    );
+    const coverIndex =
+      coverIndexRaw !== undefined && coverIndexRaw !== null
+        ? Number(coverIndexRaw)
+        : null;
+    const coverSelected =
+      coverIndex !== null &&
+      Number.isInteger(coverIndex) &&
+      coverIndex >= 0 &&
+      coverIndex < fileBuffers.length;
 
     const uploads = await Promise.all(
       products.map(async (product) => {
@@ -55,53 +78,65 @@ export async function POST(req: NextRequest) {
         });
         const nextSortOrder = (maxExistingOrder._max.sortOrder ?? 0) + 1;
 
-        const { secureUrl } = await uploadProductImageToCloudinary({
-          buffer,
-          productId: product.id,
-          sku: product.sku,
-          categorySlug: product.producttype?.productcategory?.slug,
-          productTypeSlug: product.producttype?.slug,
-          fileName: file.name,
-          type: "gallery",
-          sequence: nextSortOrder,
-        });
-
         const now = new Date();
+        const createdImages: Awaited<
+          ReturnType<typeof prisma.productimage.create>
+        >[] = [];
 
-        const created = await prisma.$transaction(async (tx) => {
-          const img = await tx.productimage.create({
+        for (const [idx, entry] of fileBuffers.entries()) {
+          const sortOrder = nextSortOrder + idx;
+          const { secureUrl } = await uploadProductImageToCloudinary({
+            buffer: entry.buffer,
+            productId: product.id,
+            sku: product.sku,
+            categorySlug: product.producttype?.productcategory?.slug,
+            productTypeSlug: product.producttype?.slug,
+            fileName: entry.file.name,
+            type: "gallery",
+            sequence: sortOrder,
+          });
+
+          const img = await prisma.productimage.create({
             data: {
               id: randomUUID(),
               productId: product.id,
               url: secureUrl,
               alt,
-              sortOrder: nextSortOrder,
+              sortOrder,
               createdAt: now,
               updatedAt: now,
             },
           });
+          createdImages.push(img);
+        }
 
-          if (!product.coverImage) {
-            await tx.product.update({
-              where: { id: product.id },
-              data: {
-                coverImage: img.url,
-                updatedAt: now,
-              },
-            });
+        if (!skipCover) {
+          const coverCandidate = coverSelected ? createdImages[coverIndex] : createdImages[0];
+          if (coverCandidate) {
+            const shouldOverwrite = coverMode === "overwrite";
+            if (shouldOverwrite || !product.coverImage) {
+              await prisma.product.update({
+                where: { id: product.id },
+                data: {
+                  coverImage: coverCandidate.url,
+                  updatedAt: now,
+                },
+              });
+            }
           }
-          return img;
-        });
+        }
 
-        return created;
+        return createdImages;
       }),
     );
 
+    const flattened = uploads.flat();
     return NextResponse.json(
       {
         success: true,
-        uploaded: uploads.length,
-        images: uploads,
+        uploadedProducts: products.length,
+        uploadedImages: flattened.length,
+        images: flattened,
       },
       { status: 201 },
     );

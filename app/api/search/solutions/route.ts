@@ -12,21 +12,18 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const q = (searchParams.get("q") || "").trim();
-    const industry = (searchParams.get("industry") || "").trim();
-    const usecase = (searchParams.get("usecase") || "").trim();
+    const category = (searchParams.get("category") || "").trim();
     const page = toInt(searchParams.get("page"), 1);
-    const pageSize = toInt(searchParams.get("pageSize"), 12);
+    const pageSize = toInt(searchParams.get("pageSize"), 24);
 
     const where: solutionWhereInput = {
       status: "PUBLISHED",
-      ...(industry && { industry }),
-      ...(usecase && { usecase }),
+      ...(category && { solutioncategory: { is: { slug: category } } }),
       ...(q && {
         OR: [
           { title: { contains: q } },
           { summary: { contains: q } },
           { bodyHtml: { contains: q } },
-          { usecase: { contains: q } },
         ],
       }),
     };
@@ -44,8 +41,6 @@ export async function GET(req: Request) {
           title: true,
           coverImage: true,
           summary: true,
-          industry: true,
-          usecase: true,
           solutioncategory: { select: { name: true, slug: true } },
         },
       }),
@@ -57,8 +52,6 @@ export async function GET(req: Request) {
         slug: r.slug,
         title: r.title,
         summary: r.summary,
-        industry: r.industry,
-        usecase: r.usecase,
         image: r.coverImage ?? null,
         category: r.solutioncategory,
       })),
@@ -68,7 +61,7 @@ export async function GET(req: Request) {
     console.error("GET /api/search/solutions error:", e);
     // Luôn trả JSON để client không crash
     return NextResponse.json(
-      { data: [], meta: { total: 0, page: 1, pageSize: 12 }, error: "Internal" },
+      { data: [], meta: { total: 0, page: 1, pageSize: 24 }, error: "Internal" },
       { status: 200 }
     );
   }

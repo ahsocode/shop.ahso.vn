@@ -1,25 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
+
   images: {
+    unoptimized: true,
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "img.vietqr.io",
-      },
-      {
-        protocol: "https",
-        hostname: "drive.google.com",
-        pathname: "/uc*",
-      },
-      {
-        protocol: "https",
-        hostname: "res.cloudinary.com",
-      },
+      { protocol: "https", hostname: "img.vietqr.io" },
+      { protocol: "https", hostname: "drive.google.com", pathname: "/uc*" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
     ],
   },
 
-  // 👇 Quan trọng: bỏ TS check khi build nếu có env NEXT_IGNORE_BUILD_ERRORS=1
   typescript: {
     ignoreBuildErrors: process.env.NEXT_IGNORE_BUILD_ERRORS === "1",
   },

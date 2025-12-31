@@ -93,7 +93,7 @@ const jsonLd = {
 function ProductsLoadingSkeleton() {
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50/30">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header Skeleton */}
         <div className="mb-6 sm:mb-8 animate-pulse">
           <div className="h-10 bg-gray-200 rounded-lg w-64 mb-2" />
@@ -122,7 +122,7 @@ function ProductsLoadingSkeleton() {
               <div className="h-10 bg-gray-100 rounded" />
             </div>
             <div className="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {Array.from({ length: 12 }).map((_, i) => (
+              {Array.from({ length: 20 }).map((_, i) => (
                 <div key={i} className="animate-pulse rounded-2xl border bg-white overflow-hidden">
                   <div className="aspect-square bg-gray-100" />
                   <div className="p-4 space-y-3">
@@ -151,7 +151,7 @@ export default function ProductsPage() {
 
       {/* Main Content */}
       <div className="bg-white/60 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
+        <div className="w-full px-4 sm:px-6 lg:px-8 pt-6">
           <div className="flex items-center gap-2 text-sm font-semibold text-blue-700">
             <Link
               href="/shop/products"

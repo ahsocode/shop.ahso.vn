@@ -215,33 +215,29 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
   const savingsPercent = showSavings && listPrice ? Math.round((savings / listPrice) * 100) : 0;
   const outOfStock = !requiresQuote && !product.inStock;
   const showStockState = !requiresQuote;
+
   const renderPriceBlock = (align: "left" | "right" = "right") => {
-    const alignText =
-      align === "left" ? "text-left items-start" : "text-right items-end";
+    const alignText = align === "left" ? "text-left items-start" : "text-right items-end";
     if (requiresQuote) {
       return (
-        <div
-          className={`text-base font-semibold text-amber-700 whitespace-nowrap ${
-            align === "left" ? "text-left" : "text-right"
-          }`}
-        >
-          Liên hệ báo giá
+        <div className={`text-xs font-semibold text-amber-700 whitespace-nowrap ${align === "left" ? "text-left" : "text-right"}`}>
+          Liên hệ
         </div>
       );
     }
     return (
       <div className={`flex flex-col ${alignText}`}>
         {showSavings && (
-          <span className="text-xs text-gray-400 line-through">
-            {listPrice?.toLocaleString()} {currency}
+          <span className="text-[10px] text-gray-400 line-through">
+            {listPrice?.toLocaleString()}đ
           </span>
         )}
-        <span className="text-2xl font-bold text-gray-900">
-          {price.toLocaleString()} {currency}
+        <span className="text-base sm:text-lg font-bold text-gray-900">
+          {price.toLocaleString()}đ
         </span>
         {showSavings && (
-          <span className="text-xs text-rose-600">
-            Tiết kiệm {savingsPercent}% ({savings.toLocaleString()} {currency})
+          <span className="text-[10px] text-rose-600">
+            -{savingsPercent}%
           </span>
         )}
       </div>
@@ -251,85 +247,63 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
   if (viewMode === "list") {
     const listStateClasses = outOfStock
       ? "bg-gray-50 text-gray-500 opacity-95"
-      : "bg-white hover:border-blue-300 hover:shadow-xl";
+      : "bg-white hover:border-blue-300 hover:shadow-lg";
+    
     return (
-      <div
-        className={`group rounded-2xl border border-gray-200 transition-all duration-300 overflow-hidden ${listStateClasses}`}
-        aria-disabled={outOfStock}
-      >
+      <div className={`group rounded-xl border border-gray-200 transition-all duration-300 overflow-hidden ${listStateClasses}`}>
         <div className="flex flex-col sm:flex-row">
           <Link
             href={`/shop/products/${product.slug}`}
-            className={`relative w-full sm:w-48 aspect-square sm:aspect-auto overflow-hidden shrink-0 border ${
-              outOfStock ? "bg-gray-100" : "bg-white"
-            }`}
+            className={`relative w-full sm:w-40 aspect-square sm:aspect-auto overflow-hidden shrink-0 border-b sm:border-b-0 sm:border-r ${outOfStock ? "bg-gray-100" : "bg-white"}`}
           >
             <Image
               src={product.image || "/logo.png"}
               alt={product.name}
               fill
-              className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+              className="object-contain p-3 group-hover:scale-105 transition-transform duration-500"
             />
             {showStockState && !product.inStock && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <span className="bg-white text-gray-900 px-3 py-1.5 rounded-full text-xs font-semibold">
+                <span className="bg-white text-gray-900 px-2 py-1 rounded-full text-[10px] font-semibold">
                   Hết hàng
                 </span>
               </div>
             )}
           </Link>
 
-          <div className="p-5 flex-1 flex flex-col">
-            <div className="flex flex-col gap-2 mb-3">
+          <div className="p-3 flex-1 flex flex-col">
+            <div className="flex flex-col gap-1.5 mb-2">
               <Link
                 href={`/shop/products/${product.slug}`}
-                className="font-semibold text-lg text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
+                className="font-semibold text-sm text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
               >
                 {product.name}
               </Link>
-              <div className="text-sm text-gray-500">SKU: {product.sku}</div>
-              <div className="inline-block px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium w-fit">
+              <div className="text-[10px] text-gray-500">SKU: {product.sku}</div>
+              <div className="inline-block px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full text-[10px] font-medium w-fit">
                 {brandLabel}
               </div>
               <div>{renderPriceBlock("left")}</div>
             </div>
 
             {rating > 0 && (
-              <div className="flex items-center gap-2 mb-2">
-                <StarRating value={rating} size={14} />
-                <span className="text-sm font-medium text-gray-700">
+              <div className="flex items-center gap-1.5 mb-2">
+                <StarRating value={rating} size={12} />
+                <span className="text-[10px] font-medium text-gray-700">
                   {rating.toFixed(1)}
                   <span className="text-gray-400 font-normal"> ({ratingCount})</span>
                 </span>
               </div>
             )}
 
-            {product.description && (
-              <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                {product.description}
-              </p>
-            )}
-
-            <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
-              <div className="flex items-center gap-4 text-sm text-gray-500">
+            <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+              <div className="flex items-center gap-3 text-[10px] text-gray-500">
                 {purchases > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    <TrendingUp className="h-4 w-4" />
-                    <span>{purchases.toLocaleString()} đã bán</span>
+                  <div className="flex items-center gap-1">
+                    <TrendingUp className="h-3 w-3" />
+                    <span>{purchases.toLocaleString()}</span>
                   </div>
                 )}
-                {showStockState &&
-                  (product.inStock ? (
-                    <div className="flex items-center gap-1.5 text-green-600">
-                      <Package className="h-4 w-4" />
-                      <span>Còn hàng</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1.5 text-red-600">
-                      <Package className="h-4 w-4" />
-                      <span>Hết hàng</span>
-                    </div>
-                  ))}
               </div>
 
               {requiresQuote ? (
@@ -338,7 +312,7 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
                   productName={product.name}
                   productSku={product.sku}
                   productSlug={product.slug}
-                  className="inline-flex items-center rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-600 hover:bg-amber-50"
+                  className="inline-flex items-center rounded-full border border-amber-500 px-2.5 py-1 text-[10px] font-semibold text-amber-600 hover:bg-amber-50"
                 />
               ) : (
                 <AddToCartButton
@@ -355,78 +329,79 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
     );
   }
 
+  // Grid view - More compact
   const gridStateClasses = outOfStock
     ? "bg-gray-50 text-gray-500 opacity-95"
-    : "bg-white hover:shadow-xl hover:border-blue-300";
+    : "bg-white hover:shadow-lg hover:border-blue-300";
+  
   return (
-    <div
-      className={`group rounded-2xl border border-gray-200 overflow-hidden flex flex-col transition-all duration-300 ${gridStateClasses}`}
-      aria-disabled={outOfStock}
-    >
+    <div className={`group rounded-xl border border-gray-200 overflow-hidden flex flex-col transition-all duration-300 ${gridStateClasses}`}>
       <Link
         href={`/shop/products/${product.slug}`}
-        className={`relative block aspect-square overflow-hidden border-b ${
-          outOfStock ? "bg-gray-100" : "bg-white"
-        }`}
+        className={`relative block aspect-square overflow-hidden border-b ${outOfStock ? "bg-gray-100" : "bg-white"}`}
       >
         <Image
           src={product.image || "/logo.png"}
           alt={product.name}
           fill
-          className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+          className="object-contain p-2 sm:p-3 group-hover:scale-105 transition-transform duration-500"
         />
         {showStockState && !product.inStock && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-semibold">
+            <span className="bg-white text-gray-900 px-2 py-1 rounded-full text-[10px] font-semibold">
               Hết hàng
             </span>
           </div>
         )}
         {rating > 0 && (
-          <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-lg">
-            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-            <span className="text-xs font-semibold text-gray-900">{rating.toFixed(1)}</span>
+          <div className="absolute top-2 left-2 bg-white/95 backdrop-blur-sm px-1.5 py-1 rounded-lg flex items-center gap-1 shadow">
+            <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
+            <span className="text-[10px] font-semibold text-gray-900">{rating.toFixed(1)}</span>
           </div>
         )}
       </Link>
 
-      <div className="p-4 flex-1 flex flex-col gap-2">
-        <div className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md inline-block self-start">
+      <div className="p-2.5 flex-1 flex flex-col gap-1">
+        <div className="text-[10px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded inline-block self-start line-clamp-1">
           {brandLabel}
         </div>
 
         <Link
           href={`/shop/products/${product.slug}`}
-          className="font-semibold text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors leading-snug min-h-10"
+          className="font-semibold text-xs text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors leading-tight min-h-8"
           title={product.name}
         >
           {product.name}
         </Link>
 
         {rating > 0 && (
-          <div className="flex items-center gap-2">
-            <StarRating value={rating} size={12} />
-            <span className="text-xs text-gray-500">({ratingCount})</span>
+          <div className="flex items-center gap-1">
+            <StarRating value={rating} size={10} />
+            <span className="text-[9px] text-gray-500">({ratingCount})</span>
           </div>
         )}
 
         {purchases > 0 && (
-          <div className="text-xs text-gray-500 flex items-center gap-1.5">
-            <TrendingUp className="h-3.5 w-3.5" />
-            {purchases.toLocaleString()} đã bán
+          <div className="text-[9px] text-gray-500 flex items-center gap-1">
+            <TrendingUp className="h-2.5 w-2.5" />
+            {purchases.toLocaleString()}
           </div>
         )}
 
-        <div className="mt-auto pt-3 flex items-center justify-between border-t border-gray-100">
-          <div className="flex flex-col gap-0.5">{renderPriceBlock("left")}</div>
+        <div className="mt-auto pt-2 flex items-center justify-between border-t border-gray-100 gap-1">
+          <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+            {renderPriceBlock("left")}
+          </div>
           {requiresQuote ? (
             <QuoteRequestButton
               productId={product.id}
               productName={product.name}
               productSku={product.sku}
               productSlug={product.slug}
-              className="inline-flex items-center rounded-full border border-amber-500 px-3 py-1.5 text-xs font-semibold text-amber-600 hover:bg-amber-50"
-            />
+              className="inline-flex items-center rounded-full border border-amber-500 px-2 py-1 text-[10px] font-semibold text-amber-600 hover:bg-amber-50 whitespace-nowrap"
+            >
+              Báo giá
+            </QuoteRequestButton>
           ) : (
             <AddToCartButton
               sku={product.sku}
@@ -764,7 +739,7 @@ export default function ProductsSearchClient() {
   const [page, setPage] = useState(parseInt(searchParams.get("page") || "1"));
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
-  const pageSize = 12;
+  const pageSize = 24;
 
   const dq = useDebounced(q);
 
@@ -980,7 +955,7 @@ export default function ProductsSearchClient() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50/30">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header
         <div className="mb-6 sm:mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
@@ -1290,7 +1265,7 @@ export default function ProductsSearchClient() {
             <div
               className={
                 viewMode === "grid"
-                  ? "grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                  ? "grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
                   : "space-y-4"
               }
             >

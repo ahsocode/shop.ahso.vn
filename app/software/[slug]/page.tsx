@@ -39,7 +39,7 @@ async function getSoftware(slug: string): Promise<SoftwareWithRelations | null> 
 
 function SoftwareFallback() {
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 text-gray-700">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-10 text-gray-700">
       <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
         Thông tin phần mềm
       </h1>
@@ -142,7 +142,7 @@ export default async function SoftwareDetailPage({
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -156,6 +156,12 @@ export default async function SoftwareDetailPage({
         <Link href="/software" className="hover:text-gray-900">
           Phần mềm & dịch vụ
         </Link>
+        {software.category && (
+          <>
+            <span className="text-gray-400">/</span>
+            <span className="text-gray-900">{software.category.name}</span>
+          </>
+        )}
         <span className="text-gray-400">/</span>
         <span className="font-medium text-gray-900">{software.title}</span>
       </nav>

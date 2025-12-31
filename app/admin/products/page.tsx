@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -58,6 +58,20 @@ type SpecDefOption = {
   slug: string;
 };
 
+type GalleryAsset = {
+  publicId: string;
+  secureUrl: string;
+  width: number;
+  height: number;
+  bytes: number;
+  createdAt: string;
+};
+
+type GalleryUploadItem = {
+  file: File;
+  preview: string;
+};
+
 // Dòng thông số kỹ thuật nhập trên UI
 type SpecRow = {
   id: number;
@@ -112,11 +126,20 @@ type ProductDraft = {
   };
 };
 
-type BulkImageState = {
-  file: File | null;
+type BulkImageItem = {
+  file: File;
   fileName: string;
   preview: string;
+};
+
+type BulkImageState = {
+  files: BulkImageItem[];
   uploading: boolean;
+  cover:
+    | { source: "upload"; index: number }
+    | { source: "library"; url: string }
+    | null;
+  coverMode: "missing" | "overwrite";
 };
 
 const specsToText = (specs?: Array<{ key: string; value: string; unit?: string }>) =>
@@ -242,9 +265,14 @@ const DEFAULT_FORM = {
 };
 
 type FormState = typeof DEFAULT_FORM;
+const getAssetLabel = (publicId: string) => {
+  const parts = publicId.split("/");
+  return parts[parts.length - 1] || publicId;
+};
 
 export default function ProductsPage() {
   const pageSize = 50;
+  const GALLERY_MAX_SELECTION = 50;
   const [keyword, setKeyword] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -257,13 +285,14 @@ export default function ProductsPage() {
   const [bulkQuote, setBulkQuote] = useState("");
   const [bulkType, setBulkType] = useState("");
   const [bulkImage, setBulkImage] = useState<BulkImageState>({
-    file: null,
-    fileName: "",
-    preview: "",
+    files: [],
     uploading: false,
+    cover: null,
+    coverMode: "missing",
   });
   const [bulkLibrarySelection, setBulkLibrarySelection] = useState<string[]>([]);
   const [bulkLibraryApplying, setBulkLibraryApplying] = useState(false);
+  const [bulkImageModalOpen, setBulkImageModalOpen] = useState(false);
   const [bulkUpdating, setBulkUpdating] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [rowDeletingId, setRowDeletingId] = useState<string | null>(null);
@@ -330,6 +359,24 @@ export default function ProductsPage() {
   const [filterBrand, setFilterBrand] = useState("");
   const [filterType, setFilterType] = useState("");
   const [sortKey, setSortKey] = useState("updatedAt_desc");
+  const [activeTab, setActiveTab] = useState<"products" | "gallery">("products");
+  const [galleryTypeId, setGalleryTypeId] = useState<string | null>(null);
+  const [galleryAssets, setGalleryAssets] = useState<GalleryAsset[]>([]);
+  const [galleryNextCursor, setGalleryNextCursor] = useState<string | null>(null);
+  const [galleryLoading, setGalleryLoading] = useState(false);
+  const [galleryError, setGalleryError] = useState<string | null>(null);
+  const [galleryUploadItems, setGalleryUploadItems] = useState<GalleryUploadItem[]>([]);
+  const [galleryUploadSku, setGalleryUploadSku] = useState("");
+  const [galleryUploading, setGalleryUploading] = useState(false);
+  const [galleryUploadProgress, setGalleryUploadProgress] = useState<{
+    done: number;
+    total: number;
+  } | null>(null);
+  const galleryUploadInputRef = useRef<HTMLInputElement | null>(null);
+  const [gallerySelected, setGallerySelected] = useState<string[]>([]);
+  const [galleryConfirmAction, setGalleryConfirmAction] = useState<
+    null | { type: "upload" | "delete" }
+  >(null);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const importableDrafts = drafts.filter(
@@ -343,6 +390,37 @@ export default function ProductsPage() {
             selectedDraftIds.includes(draft.tempId),
         )
       : importableDrafts;
+
+  const groupedTypes = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; slug?: string; types: Option[] }>();
+    categories.forEach((cat) => {
+      map.set(cat.id, { id: cat.id, name: cat.name, slug: cat.slug, types: [] });
+    });
+    const ungrouped: Option[] = [];
+    types.forEach((type) => {
+      if (type.categoryId && map.has(type.categoryId)) {
+        map.get(type.categoryId)?.types.push(type);
+      } else {
+        ungrouped.push(type);
+      }
+    });
+    const groups = Array.from(map.values());
+    if (ungrouped.length) {
+      groups.push({ id: "__uncat__", name: "Khác", slug: "uncategorized", types: ungrouped });
+    }
+    return groups;
+  }, [categories, types]);
+
+  const selectedGalleryType = galleryTypeId
+    ? types.find((type) => type.id === galleryTypeId) ?? null
+    : null;
+  const selectedGalleryCategory = selectedGalleryType?.categoryId
+    ? categories.find((cat) => cat.id === selectedGalleryType.categoryId) ?? null
+    : null;
+  const galleryFolderPath = selectedGalleryType
+    ? `categories/${slugify(selectedGalleryCategory?.slug ?? selectedGalleryCategory?.name ?? "uncategorized")}/` +
+      `${slugify(selectedGalleryType.slug ?? selectedGalleryType.name)}/gallery`
+    : "";
 
   useEffect(() => {
     setSelectedDraftIds((prev) =>
@@ -415,9 +493,6 @@ export default function ProductsPage() {
     }
     setLibraryMode(mode);
     setLibraryTypeId(targetTypeId);
-    if (mode === "bulk" && !cursor) {
-      setBulkLibrarySelection([]);
-    }
     setLibraryLoading(true);
     setLibraryError(null);
     try {
@@ -544,18 +619,18 @@ export default function ProductsPage() {
   };
 
   const bulkImageInputRef = useRef<HTMLInputElement | null>(null);
-  const releaseBulkPreview = (url?: string) => {
-    if (url) URL.revokeObjectURL(url);
+  const releaseBulkPreviews = (urls: string[]) => {
+    urls.forEach((url) => URL.revokeObjectURL(url));
   };
 
   useEffect(() => {
     return () => {
-      releaseBulkPreview(bulkImage.preview);
+      releaseBulkPreviews(bulkImage.files.map((item) => item.preview));
     };
-  }, [bulkImage.preview]);
+  }, [bulkImage.files]);
 
   const handleBulkImageButtonClick = () => {
-    bulkImageInputRef.current?.click();
+    setBulkImageModalOpen(true);
   };
 
   const requestImportConfirm = (intent: ImportIntent) => {
@@ -592,41 +667,75 @@ export default function ProductsPage() {
   };
 
   const handleBulkImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] ?? null;
-    releaseBulkPreview(bulkImage.preview);
-    if (!file) {
-      if (bulkImageInputRef.current) bulkImageInputRef.current.value = "";
-      setBulkImage({ file: null, fileName: "", preview: "", uploading: false });
-      return;
-    }
-    const preview = URL.createObjectURL(file);
-    setBulkImage({
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    const nextFiles = files.map((file) => ({
       file,
       fileName: file.name,
-      preview,
-      uploading: false,
-    });
+      preview: URL.createObjectURL(file),
+    }));
+    setBulkImage((prev) => ({
+      ...prev,
+      files: [...prev.files, ...nextFiles],
+    }));
+    if (bulkImageInputRef.current) bulkImageInputRef.current.value = "";
   };
 
   const clearBulkImage = () => {
-    releaseBulkPreview(bulkImage.preview);
+    releaseBulkPreviews(bulkImage.files.map((item) => item.preview));
     if (bulkImageInputRef.current) bulkImageInputRef.current.value = "";
-    setBulkImage({ file: null, fileName: "", preview: "", uploading: false });
+    setBulkImage((prev) => ({
+      ...prev,
+      files: [],
+      cover: prev.cover?.source === "upload" ? null : prev.cover,
+      coverMode: "missing",
+      uploading: false,
+    }));
+  };
+
+  const removeBulkImageAt = (index: number) => {
+    setBulkImage((prev) => {
+      const target = prev.files[index];
+      if (target) URL.revokeObjectURL(target.preview);
+      const nextFiles = prev.files.filter((_, idx) => idx !== index);
+      let nextCover = prev.cover;
+      if (prev.cover?.source === "upload") {
+        if (prev.cover.index === index) {
+          nextCover = null;
+        } else if (prev.cover.index > index) {
+          nextCover = { source: "upload", index: prev.cover.index - 1 };
+        }
+      }
+      return { ...prev, files: nextFiles, cover: nextCover };
+    });
+  };
+
+  const removeBulkLibraryImage = (url: string) => {
+    setBulkLibrarySelection((prev) => prev.filter((item) => item !== url));
+    setBulkImage((prev) => ({
+      ...prev,
+      cover: prev.cover?.source === "library" && prev.cover.url === url ? null : prev.cover,
+    }));
   };
 
   const handleBulkImageUpload = async () => {
-    if (!bulkImage.file) return;
+    if (!bulkImage.files.length) return;
     if (!selectedProductIds.length) {
       toast.error("Vui lòng chọn sản phẩm trước khi tải ảnh");
       return;
     }
-    const file = bulkImage.file;
-    const previewUrl = bulkImage.preview;
     setBulkImage((prev) => ({ ...prev, uploading: true }));
     let success = false;
     try {
       const fd = new FormData();
-      fd.append("file", file);
+      bulkImage.files.forEach((item) => fd.append("files", item.file));
+      if (bulkImage.cover?.source === "upload") {
+        fd.append("coverIndex", String(bulkImage.cover.index));
+        fd.append("coverMode", bulkImage.coverMode);
+      }
+      if (bulkImage.cover?.source === "library") {
+        fd.append("skipCover", "1");
+      }
       selectedProductIds.forEach((id) => fd.append("productIds", id));
 
       const res = await fetch("/api/admin/products/bulk-upload-image", {
@@ -640,24 +749,26 @@ export default function ProductsPage() {
           getErrorMessage(data, "Không thể tải ảnh cho sản phẩm đã chọn"),
         );
       }
-      toast.success(`Đã thêm ảnh cho ${data?.uploaded ?? 0} sản phẩm`);
+      const uploadedImages = data?.uploadedImages ?? data?.uploaded ?? 0;
+      const uploadedProducts = data?.uploadedProducts ?? selectedProductIds.length;
+      toast.success(`Đã thêm ${uploadedImages} ảnh cho ${uploadedProducts} sản phẩm`);
       success = true;
     } catch (error) {
       setBulkImage((prev) => ({ ...prev, uploading: false }));
       throw error instanceof Error
         ? error
         : new Error("Không thể tải ảnh cho sản phẩm đã chọn");
-    } finally {
+      } finally {
       if (success) {
-        releaseBulkPreview(previewUrl);
+        releaseBulkPreviews(bulkImage.files.map((item) => item.preview));
         if (bulkImageInputRef.current) {
           bulkImageInputRef.current.value = "";
         }
         setBulkImage({
-          file: null,
-          fileName: "",
-          preview: "",
+          files: [],
           uploading: false,
+          cover: null,
+          coverMode: "missing",
         });
       }
     }
@@ -819,6 +930,180 @@ export default function ProductsPage() {
     );
   }, [rows]);
 
+  useEffect(() => {
+    setGallerySelected([]);
+  }, [galleryTypeId]);
+
+  useEffect(() => {
+    return () => {
+      galleryUploadItems.forEach((item) => URL.revokeObjectURL(item.preview));
+    };
+  }, [galleryUploadItems]);
+
+  const loadGalleryManager = async (
+    typeId: string,
+    options: { cursor?: string | null; append?: boolean } = {},
+  ) => {
+    setGalleryLoading(true);
+    setGalleryError(null);
+    try {
+      const params = new URLSearchParams({ typeId });
+      if (options.cursor) params.set("nextCursor", options.cursor);
+      const res = await fetch(`/api/admin/products/gallery?${params.toString()}`, {
+        headers: makeHeaders(),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(getErrorMessage(data, "Không thể tải ảnh từ Cloudinary"));
+      }
+      const items = (data?.items ?? []) as GalleryAsset[];
+      setGalleryAssets((prev) => (options.append ? [...prev, ...items] : items));
+      setGalleryNextCursor((data?.nextCursor as string | null) ?? null);
+      if (!options.append) {
+        setGallerySelected([]);
+      }
+    } catch (error) {
+      const message = extractErrorMessage(error);
+      setGalleryError(message);
+      toast.error(message);
+    } finally {
+      setGalleryLoading(false);
+    }
+  };
+
+  const handleGalleryUploadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    const nextItems = files.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    setGalleryUploadItems((prev) => [...prev, ...nextItems]);
+    if (galleryUploadInputRef.current) {
+      galleryUploadInputRef.current.value = "";
+    }
+  };
+
+  const handleGalleryUpload = async () => {
+    if (!galleryTypeId) {
+      toast.error("Vui lòng chọn loại sản phẩm");
+      return;
+    }
+    if (!galleryUploadItems.length) {
+      toast.error("Vui lòng chọn ảnh để tải lên");
+      return;
+    }
+    const skuValue =
+      galleryUploadSku.trim() ||
+      selectedGalleryType?.slug ||
+      selectedGalleryType?.name ||
+      "gallery";
+
+    setGalleryUploading(true);
+    setGalleryUploadProgress({ done: 0, total: galleryUploadItems.length });
+    try {
+      for (const [idx, item] of galleryUploadItems.entries()) {
+        const fd = new FormData();
+        fd.append("file", item.file);
+        fd.append("typeId", galleryTypeId);
+        fd.append("sku", skuValue);
+        fd.append("kind", "gallery");
+
+        const res = await fetch("/api/admin/products/upload-temp", {
+          method: "POST",
+          headers: makeHeaders(),
+          body: fd,
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+          throw new Error(getErrorMessage(data, "Không thể upload ảnh"));
+        }
+        setGalleryUploadProgress((prev) =>
+          prev ? { ...prev, done: Math.min(prev.total, idx + 1) } : prev,
+        );
+      }
+      toast.success(`Đã upload ${galleryUploadItems.length} ảnh`);
+      galleryUploadItems.forEach((item) => URL.revokeObjectURL(item.preview));
+      setGalleryUploadItems([]);
+      setGalleryUploadSku("");
+      await loadGalleryManager(galleryTypeId);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Không thể upload ảnh",
+      );
+    } finally {
+      setGalleryUploading(false);
+      setGalleryUploadProgress(null);
+    }
+  };
+
+  const clearGalleryUploads = () => {
+    galleryUploadItems.forEach((item) => URL.revokeObjectURL(item.preview));
+    setGalleryUploadItems([]);
+    setGalleryUploadSku("");
+  };
+
+  const removeGalleryUploadItem = (index: number) => {
+    setGalleryUploadItems((prev) => {
+      const target = prev[index];
+      if (target) URL.revokeObjectURL(target.preview);
+      return prev.filter((_, idx) => idx !== index);
+    });
+  };
+
+  const toggleGallerySelection = (publicId: string) => {
+    setGallerySelected((prev) =>
+      prev.includes(publicId)
+        ? prev.filter((id) => id !== publicId)
+        : prev.length >= GALLERY_MAX_SELECTION
+        ? (toast.error(`Chỉ chọn tối đa ${GALLERY_MAX_SELECTION} ảnh`), prev)
+        : [...prev, publicId],
+    );
+  };
+
+  const clearGallerySelection = () => {
+    setGallerySelected([]);
+  };
+
+  const requestGalleryUpload = () => {
+    if (!galleryUploadItems.length) {
+      toast.error("Vui lòng chọn ảnh để upload");
+      return;
+    }
+    setGalleryConfirmAction({ type: "upload" });
+  };
+
+  const requestGalleryDelete = () => {
+    if (!gallerySelected.length) {
+      toast.error("Vui lòng chọn ảnh để xóa");
+      return;
+    }
+    setGalleryConfirmAction({ type: "delete" });
+  };
+
+  const runGalleryDelete = async () => {
+    if (!gallerySelected.length) return;
+    try {
+      const res = await fetch("/api/admin/products/gallery/manage", {
+        method: "DELETE",
+        headers: { ...makeHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify({ publicIds: gallerySelected }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(getErrorMessage(data, "Không thể xóa ảnh"));
+      }
+      toast.success(`Đã xóa ${gallerySelected.length} ảnh`);
+      setGallerySelected([]);
+      if (galleryTypeId) await loadGalleryManager(galleryTypeId);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Không thể xóa ảnh",
+      );
+    }
+  };
+
+
   const currentPageIds = rows.map((row) => row.id);
   const allCurrentSelected =
     currentPageIds.length > 0 &&
@@ -831,6 +1116,10 @@ export default function ProductsPage() {
     setBulkLibrarySelection((prev) =>
       prev.includes(url) ? prev.filter((item) => item !== url) : [...prev, url],
     );
+    setBulkImage((prev) => ({
+      ...prev,
+      cover: prev.cover?.source === "library" && prev.cover.url === url ? null : prev.cover,
+    }));
   };
   const openBulkLibraryPicker = () => {
     if (!selectedCount) {
@@ -855,13 +1144,24 @@ export default function ProductsPage() {
     }
     setBulkLibraryApplying(true);
     try {
-      const payload = {
+      const payload: {
+        productIds: string[];
+        images: { url: string }[];
+        coverUrl?: string;
+        coverMode?: "missing" | "overwrite";
+      } = {
         productIds: selectedProductIds,
         images: bulkLibrarySelection.map((url) => ({ url })),
       };
+      if (
+        bulkImage.cover?.source === "library" &&
+        bulkLibrarySelection.includes(bulkImage.cover.url)
+      ) {
+        payload.coverUrl = bulkImage.cover.url;
+        payload.coverMode = bulkImage.coverMode;
+      }
       await postJSON("/api/admin/products/bulk-link-images", payload);
       toast.success(`Đã gán ${bulkLibrarySelection.length} ảnh cho sản phẩm đã chọn`);
-      setLibraryOpen(false);
       setBulkLibrarySelection([]);
       triggerReload();
       return true;
@@ -876,13 +1176,14 @@ export default function ProductsPage() {
       setBulkLibraryApplying(false);
     }
   };
+  const bulkImageTotalCount =
+    bulkImage.files.length + bulkLibrarySelection.length;
   const bulkFormFilled = Boolean(
     bulkSupplier ||
       bulkStatus ||
       bulkQuote ||
       bulkType ||
-      bulkImage.file ||
-      bulkLibrarySelection.length,
+      bulkImageTotalCount,
   );
   const bulkDisabled =
     !selectedCount ||
@@ -967,6 +1268,11 @@ export default function ProductsPage() {
   const clearSelection = () => {
     setSelectedProductIds([]);
     clearBulkImage();
+    setBulkLibrarySelection([]);
+    setBulkImage((prev) => ({
+      ...prev,
+      cover: prev.cover?.source === "library" ? null : prev.cover,
+    }));
   };
 
   const requestBulkUpdate = () => {
@@ -1028,7 +1334,7 @@ export default function ProductsPage() {
       setBulkType("");
     }
 
-      if (bulkImage.file) {
+      if (bulkImage.files.length) {
         await handleBulkImageUpload();
       }
 
@@ -1039,6 +1345,8 @@ export default function ProductsPage() {
 
       setSelectedProductIds([]);
       clearBulkImage();
+      setBulkLibrarySelection([]);
+      setBulkImage((prev) => ({ ...prev, cover: null }));
       triggerReload();
       return true;
     } catch (error) {
@@ -1068,6 +1376,8 @@ export default function ProductsPage() {
       toast.success(`Đã xóa ${res.deleted} sản phẩm`);
       setSelectedProductIds([]);
       clearBulkImage();
+      setBulkLibrarySelection([]);
+      setBulkImage((prev) => ({ ...prev, cover: null }));
       triggerReload();
       return true;
     } catch (error) {
@@ -1118,9 +1428,17 @@ export default function ProductsPage() {
       ? "Xóa sản phẩm"
       : "";
 
+  const bulkUpdateImageNote = bulkImageTotalCount
+    ? `Ảnh: ${bulkImageTotalCount} ảnh${
+        bulkImage.cover
+          ? `, ảnh bìa từ ${bulkImage.cover.source === "library" ? "Cloudinary" : "tải lên"}`
+          : ""
+      }.`
+    : "Ảnh: không thay đổi.";
+
   const confirmDescription =
     confirmAction?.type === "bulk-update"
-      ? `Thao tác này sẽ cập nhật ${selectedCount} sản phẩm đã chọn.`
+      ? `Thao tác này sẽ cập nhật ${selectedCount} sản phẩm đã chọn. ${bulkUpdateImageNote}`
       : confirmAction?.type === "bulk-delete"
       ? `Thao tác này sẽ xóa ${selectedCount} sản phẩm và không thể hoàn tác.`
       : confirmAction?.type === "row-delete"
@@ -1442,8 +1760,309 @@ export default function ProductsPage() {
   // ===== JSX =====
   return (
     <div className="mx-auto max-w-[1400px] xl:max-w-[95vw] space-y-5 px-2 xl:px-4">
-      {/* Upload products via file */}
-      <div className="rounded-xl border bg-white p-5 shadow-sm">
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-white p-2 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setActiveTab("products")}
+          className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+            activeTab === "products"
+              ? "bg-blue-600 text-white shadow"
+              : "text-gray-700 hover:bg-gray-100"
+          }`}
+        >
+          Danh sách sản phẩm
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("gallery")}
+          className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+            activeTab === "gallery"
+              ? "bg-blue-600 text-white shadow"
+              : "text-gray-700 hover:bg-gray-100"
+          }`}
+        >
+          Quản lý ảnh sản phẩm
+        </button>
+      </div>
+
+      {activeTab === "gallery" ? (
+        <div className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <div className="rounded-xl border bg-white p-4 shadow-sm">
+            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Cấu trúc thư mục
+            </div>
+            <div className="mt-3 space-y-3">
+              {groupedTypes.map((group) => (
+                <div key={group.id} className="space-y-2">
+                  <div className="text-sm font-semibold text-gray-800">
+                    {group.name}
+                  </div>
+                  <div className="space-y-1">
+                    {group.types.length ? (
+                      group.types.map((type) => (
+                        <button
+                          key={type.id}
+                          type="button"
+                          onClick={() => {
+                            setGalleryTypeId(type.id);
+                            loadGalleryManager(type.id);
+                          }}
+                          className={`flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-xs font-semibold transition ${
+                            galleryTypeId === type.id
+                              ? "border-blue-500 bg-blue-50 text-blue-700"
+                              : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          <span>{type.name}</span>
+                          <span className="text-[10px] text-gray-400">
+                            {type.slug ?? slugify(type.name)}
+                          </span>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="text-xs text-gray-400">Chưa có loại sản phẩm</div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="rounded-xl border bg-white p-4 shadow-sm">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold text-gray-900">
+                    Thư mục ảnh đang xem
+                  </div>
+                  <div className="mt-1 text-xs text-gray-500">
+                    {galleryFolderPath || "Chọn loại sản phẩm để xem ảnh"}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  {galleryLoading && "Đang tải ảnh..."}
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 lg:grid-cols-[1.2fr_1fr]">
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold text-gray-600">Upload ảnh vào thư mục</div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => galleryUploadInputRef.current?.click()}
+                      className="rounded border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                      disabled={galleryUploading}
+                    >
+                      Chọn ảnh
+                    </button>
+                    <button
+                      type="button"
+                      onClick={requestGalleryUpload}
+                      className="rounded bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                      disabled={galleryUploading || !galleryUploadItems.length || !galleryTypeId}
+                    >
+                      {galleryUploading ? "Đang upload..." : "Xác nhận upload"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={clearGalleryUploads}
+                      className="text-xs text-red-600 hover:underline disabled:opacity-60"
+                      disabled={galleryUploading || (!galleryUploadItems.length && !galleryUploadSku)}
+                    >
+                      Xóa danh sách
+                    </button>
+                    <input
+                      ref={galleryUploadInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handleGalleryUploadChange}
+                    />
+                  </div>
+                  <input
+                    value={galleryUploadSku}
+                    onChange={(e) => setGalleryUploadSku(e.target.value)}
+                    placeholder="SKU hoặc tiền tố ảnh (tuỳ chọn)"
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs"
+                  />
+                  <div className="text-[11px] text-gray-500">
+                    Ảnh sẽ được lưu trong thư mục gallery của loại sản phẩm đang chọn.
+                  </div>
+                </div>
+                <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-3 text-xs text-gray-600">
+                  <div>Đã chọn: {galleryUploadItems.length} ảnh</div>
+                  {galleryUploadProgress && (
+                    <div className="mt-2 text-[11px] text-blue-600">
+                      Đang upload {galleryUploadProgress.done}/{galleryUploadProgress.total}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {galleryUploadItems.length > 0 && (
+                <div className="mt-4">
+                  <div className="text-xs font-semibold text-gray-600 mb-2">
+                    Ảnh đã chọn (xem trước)
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
+                    {galleryUploadItems.map((item, idx) => (
+                      <div
+                        key={`${item.file.name}-${idx}`}
+                        className="overflow-hidden rounded-lg border border-gray-200 bg-white"
+                      >
+                        <div className="relative aspect-square w-full bg-gray-100">
+                          <button
+                            type="button"
+                            onClick={() => removeGalleryUploadItem(idx)}
+                            className="absolute right-2 top-2 z-10 rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold text-red-600 shadow"
+                          >
+                            Xóa
+                          </button>
+                          <img
+                            src={item.preview}
+                            alt={item.file.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="p-2 text-[10px] text-gray-500 truncate">
+                          {item.file.name}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-xl border bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-semibold text-gray-900">
+                  Ảnh trong thư mục
+                </div>
+                <div className="flex items-center gap-2">
+                  {galleryNextCursor && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        galleryTypeId &&
+                        loadGalleryManager(galleryTypeId, {
+                          cursor: galleryNextCursor,
+                          append: true,
+                        })
+                      }
+                      className="rounded border border-gray-200 px-3 py-1 text-xs text-gray-700 hover:bg-gray-50"
+                      disabled={galleryLoading}
+                    >
+                      {galleryLoading ? "Đang tải..." : "Tải thêm"}
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const allIds = galleryAssets.map((item) => item.publicId);
+                    setGallerySelected((prev) => {
+                      const isAllSelected =
+                        allIds.length > 0 &&
+                        prev.length === allIds.length &&
+                        allIds.every((id) => prev.includes(id));
+                      if (isAllSelected) return [];
+                      if (allIds.length > GALLERY_MAX_SELECTION) {
+                        toast.error(`Chỉ chọn tối đa ${GALLERY_MAX_SELECTION} ảnh`);
+                      }
+                      return allIds.slice(0, GALLERY_MAX_SELECTION);
+                    });
+                  }}
+                  className="rounded border border-gray-200 px-2 py-1 text-gray-600 hover:bg-gray-50"
+                  disabled={!galleryAssets.length}
+                >
+                  {gallerySelected.length === galleryAssets.length && galleryAssets.length
+                    ? "Bỏ chọn tất cả"
+                    : "Chọn tất cả"}
+                </button>
+                <button
+                  type="button"
+                  onClick={clearGallerySelection}
+                  className="rounded border border-gray-200 px-2 py-1 text-gray-600 hover:bg-gray-50"
+                  disabled={!gallerySelected.length}
+                >
+                  Bỏ chọn
+                </button>
+                <button
+                  type="button"
+                  onClick={requestGalleryDelete}
+                  className="rounded border border-red-200 bg-red-50 px-2 py-1 text-red-600 hover:bg-red-100 disabled:opacity-60"
+                  disabled={!gallerySelected.length}
+                >
+                  Xóa ảnh đã chọn
+                </button>
+                {gallerySelected.length > 0 && (
+                  <span className="text-[11px] text-gray-500">
+                    Đã chọn {gallerySelected.length} ảnh
+                  </span>
+                )}
+              </div>
+              {galleryError && (
+                <div className="mt-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+                  {galleryError}
+                </div>
+              )}
+              {!galleryLoading && !galleryAssets.length ? (
+                <div className="mt-4 rounded-lg border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-600">
+                  Chưa có ảnh trong thư mục này.
+                </div>
+              ) : (
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6">
+                  {galleryAssets.map((asset) => (
+                    <div
+                      key={asset.publicId}
+                      className={`overflow-hidden rounded-lg border bg-white ${
+                        gallerySelected.includes(asset.publicId)
+                          ? "border-blue-400 ring-2 ring-blue-100"
+                          : "border-gray-200"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => toggleGallerySelection(asset.publicId)}
+                        className="relative aspect-square w-full bg-gray-100 text-left"
+                        title="Chọn ảnh"
+                      >
+                        <span className="absolute left-2 top-2 z-10 h-4 w-4 rounded border border-white bg-white/80">
+                          {gallerySelected.includes(asset.publicId) && (
+                            <span className="block h-full w-full rounded bg-blue-600" />
+                          )}
+                        </span>
+                        <Image
+                          src={asset.secureUrl}
+                          alt={getAssetLabel(asset.publicId)}
+                          fill
+                          sizes="160px"
+                          className="object-cover"
+                        />
+                      </button>
+                      <div className="p-2 text-[10px] text-gray-500">
+                        <div className="truncate">{getAssetLabel(asset.publicId)}</div>
+                        <div>
+                          {(asset.width ?? 0)}x{(asset.height ?? 0)} ·{" "}
+                          {((asset.bytes ?? 0) / 1024).toFixed(0)} KB
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Upload products via file */}
+          <div className="rounded-xl border bg-white p-5 shadow-sm">
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-2">
             <p className="text-xs font-semibold uppercase text-fuchsia-600 tracking-wide">
@@ -1513,7 +2132,7 @@ export default function ProductsPage() {
             </div>
           </div>
           <div className="flex flex-col items-stretch gap-2">
-            <label className="text-xs font-semibold text-gray-700">Kéo CSV/XLSX vào hoặc bấm để chọn</label>
+            <label className="text-xs font-semibold text-gray-700">Kéo CSV vào hoặc bấm để chọn</label>
             <div
               className={`rounded-lg border-2 border-dashed px-4 py-6 text-center text-xs transition ${
                 isDragOver
@@ -1541,7 +2160,7 @@ export default function ProductsPage() {
               <input
                 ref={bulkFileInputRef}
                 type="file"
-                accept=".csv,.xlsx"
+                accept=".csv"
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -2191,53 +2810,13 @@ export default function ProductsPage() {
                   className="rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={bulkImage.uploading || bulkUpdating}
                 >
-                  {bulkImage.fileName ? "Đổi ảnh" : "Tải ảnh lên"}
+                  Quản lý ảnh
                 </button>
-                <button
-                  type="button"
-                  onClick={openBulkLibraryPicker}
-                  className="rounded border border-blue-200 bg-blue-50 px-2 py-1 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
-                  disabled={bulkLibraryApplying || bulkUpdating}
-                >
-                  Chọn ảnh sẵn có
-                </button>
-                {bulkLibrarySelection.length > 0 && (
+                {bulkImageTotalCount > 0 && (
                   <span className="text-xs text-gray-600">
-                    Đang chọn {bulkLibrarySelection.length} ảnh từ thư viện
+                    Đã chọn {bulkImageTotalCount} ảnh
                   </span>
                 )}
-                {bulkImage.fileName && (
-                  <div className="flex items-center gap-2">
-                    <div className="relative h-8 w-8 overflow-hidden rounded border border-gray-200 bg-white">
-                      <Image
-                        src={bulkImage.preview}
-                        alt="Bulk preview"
-                        fill
-                        sizes="32px"
-                        className="object-cover"
-                        unoptimized
-                      />
-                    </div>
-                    <span className="max-w-[120px] truncate text-xs text-gray-600">
-                      {bulkImage.fileName}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={clearBulkImage}
-                      className="text-xs text-red-600 hover:underline disabled:opacity-60"
-                      disabled={bulkImage.uploading}
-                    >
-                      Xóa
-                    </button>
-                  </div>
-                )}
-                <input
-                  ref={bulkImageInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleBulkImageChange}
-                />
               </div>
               <button
                 onClick={requestBulkUpdate}
@@ -3183,20 +3762,301 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
+        </>
+      )}
+      <Dialog
+        open={!!galleryConfirmAction}
+        onOpenChange={(open) => {
+          if (!open) setGalleryConfirmAction(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>
+              {galleryConfirmAction?.type === "upload"
+                ? "Xác nhận upload ảnh"
+                : galleryConfirmAction?.type === "delete"
+                ? "Xác nhận xóa ảnh"
+                : ""}
+            </DialogTitle>
+            <DialogDescription>
+              {galleryConfirmAction?.type === "upload"
+                ? `Sẽ upload ${galleryUploadItems.length} ảnh vào ${galleryFolderPath || "thư mục đã chọn"}.`
+                : galleryConfirmAction?.type === "delete"
+                ? `Bạn sắp xóa ${gallerySelected.length} ảnh khỏi Cloudinary.`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          {galleryConfirmAction?.type === "upload" && galleryUploadItems.length > 0 && (
+            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
+              {galleryUploadItems.map((item, idx) => (
+                <div
+                  key={`${item.file.name}-${idx}`}
+                  className="overflow-hidden rounded-lg border border-gray-200 bg-white"
+                >
+                  <div className="relative aspect-square w-full bg-gray-100">
+                    <img
+                      src={item.preview}
+                      alt={item.file.name}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="p-2 text-[10px] text-gray-500 truncate">
+                    {item.file.name}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <button
+              type="button"
+              className="rounded-md border px-4 py-2"
+              onClick={() => setGalleryConfirmAction(null)}
+              disabled={galleryUploading}
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              className="rounded-md bg-blue-600 px-4 py-2 text-white disabled:opacity-60"
+              disabled={galleryUploading}
+              onClick={async () => {
+                if (!galleryConfirmAction) return;
+                if (galleryConfirmAction.type === "upload") {
+                  await handleGalleryUpload();
+                } else if (galleryConfirmAction.type === "delete") {
+                  await runGalleryDelete();
+                }
+                setGalleryConfirmAction(null);
+              }}
+            >
+              {galleryUploading ? "Đang xử lý..." : "Xác nhận"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={bulkImageModalOpen}
+        onOpenChange={setBulkImageModalOpen}
+      >
+        <DialogContent className="sm:max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Quản lý ảnh cho sản phẩm đã chọn</DialogTitle>
+            <DialogDescription>
+              Ảnh sẽ được áp dụng khi bấm “Cập nhật nhanh” và xác nhận lần cuối.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => bulkImageInputRef.current?.click()}
+              className="rounded border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+              disabled={bulkImage.uploading}
+            >
+              Chọn ảnh từ máy
+            </button>
+            <button
+              type="button"
+              onClick={openBulkLibraryPicker}
+              className="rounded border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={bulkLibraryApplying || bulkUpdating}
+            >
+              Chọn từ thư viện Cloudinary
+            </button>
+            {bulkImageTotalCount > 0 && (
+              <span className="text-xs text-gray-600">
+                Đã chọn {bulkImageTotalCount} ảnh
+              </span>
+            )}
+            {bulkImageTotalCount > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  clearBulkImage();
+                  setBulkLibrarySelection([]);
+                  setBulkImage((prev) => ({ ...prev, cover: null }));
+                }}
+                className="text-xs text-red-600 hover:underline"
+                disabled={bulkImage.uploading}
+              >
+                Xóa tất cả ảnh đã chọn
+              </button>
+            )}
+            <input
+              ref={bulkImageInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handleBulkImageChange}
+            />
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-sm text-gray-700">
+              <span>Chọn ảnh bìa</span>
+              <select
+                className="rounded border border-gray-300 bg-white px-2 py-1 text-xs disabled:opacity-60"
+                value={bulkImage.coverMode}
+                onChange={(e) =>
+                  setBulkImage((prev) => ({
+                    ...prev,
+                    coverMode: e.target.value as BulkImageState["coverMode"],
+                  }))
+                }
+                disabled={!bulkImage.cover}
+              >
+                <option value="missing">Chỉ đặt nếu chưa có</option>
+                <option value="overwrite">Ghi đè ảnh bìa</option>
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              {bulkImage.files.map((item, idx) => {
+                const isCover =
+                  bulkImage.cover?.source === "upload" &&
+                  bulkImage.cover.index === idx;
+                return (
+                  <div
+                    key={`upload-${item.fileName}-${idx}`}
+                    className={`group relative overflow-hidden rounded-lg border bg-white shadow-sm ${
+                      isCover ? "border-blue-500 ring-2 ring-blue-100" : "border-gray-200"
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setBulkImage((prev) => ({
+                          ...prev,
+                          cover:
+                            prev.cover?.source === "upload" && prev.cover.index === idx
+                              ? null
+                              : { source: "upload", index: idx },
+                        }))
+                      }
+                      className="block w-full"
+                      title={isCover ? "Ảnh bìa" : "Chọn làm ảnh bìa"}
+                    >
+                      <div className="relative aspect-square w-full bg-gray-100">
+                        <Image
+                          src={item.preview}
+                          alt={item.fileName}
+                          fill
+                          sizes="200px"
+                          className="object-cover"
+                          unoptimized
+                        />
+                        <div className="absolute left-2 top-2 rounded bg-gray-900/70 px-2 py-0.5 text-[10px] font-semibold text-white">
+                          Upload
+                        </div>
+                        {isCover && (
+                          <div className="absolute bottom-2 left-2 rounded bg-blue-600/90 px-2 py-0.5 text-[10px] font-semibold text-white">
+                            Ảnh bìa
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                    <div className="flex items-center justify-between gap-2 px-2 py-1">
+                      <span className="truncate text-[11px] text-gray-600">
+                        {item.fileName}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeBulkImageAt(idx)}
+                        className="text-[11px] text-red-600 hover:underline"
+                      >
+                        Xóa
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+              {bulkLibrarySelection.map((url) => {
+                const isCover =
+                  bulkImage.cover?.source === "library" && bulkImage.cover.url === url;
+                return (
+                  <div
+                    key={`library-${url}`}
+                    className={`group relative overflow-hidden rounded-lg border bg-white shadow-sm ${
+                      isCover ? "border-blue-500 ring-2 ring-blue-100" : "border-gray-200"
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setBulkImage((prev) => ({
+                          ...prev,
+                          cover:
+                            prev.cover?.source === "library" && prev.cover.url === url
+                              ? null
+                              : { source: "library", url },
+                        }))
+                      }
+                      className="block w-full"
+                      title={isCover ? "Ảnh bìa" : "Chọn làm ảnh bìa"}
+                    >
+                      <div className="relative aspect-square w-full bg-gray-100">
+                        <Image
+                          src={url}
+                          alt="Cloudinary"
+                          fill
+                          sizes="200px"
+                          className="object-cover"
+                        />
+                        <div className="absolute left-2 top-2 rounded bg-blue-700/80 px-2 py-0.5 text-[10px] font-semibold text-white">
+                          Cloudinary
+                        </div>
+                        {isCover && (
+                          <div className="absolute bottom-2 left-2 rounded bg-blue-600/90 px-2 py-0.5 text-[10px] font-semibold text-white">
+                            Ảnh bìa
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                    <div className="flex items-center justify-between gap-2 px-2 py-1">
+                      <span className="truncate text-[11px] text-gray-600">
+                        {url.split("/").pop()}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeBulkLibraryImage(url)}
+                        className="text-[11px] text-red-600 hover:underline"
+                      >
+                        Xóa
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {bulkImageTotalCount === 0 && (
+              <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center text-sm text-gray-600">
+                Chưa chọn ảnh nào.
+              </div>
+            )}
+          </div>
+          <DialogFooter className="gap-2">
+            <button
+              type="button"
+              className="rounded border px-4 py-2"
+              onClick={() => setBulkImageModalOpen(false)}
+            >
+              Đóng
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog
         open={libraryOpen}
         onOpenChange={(open) => {
           setLibraryOpen(open);
-          if (!open && libraryMode === "bulk") {
-            setBulkLibrarySelection([]);
-          }
         }}
       >
         <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>Thư viện ảnh theo loại sản phẩm</DialogTitle>
             <DialogDescription>
-              Chọn ảnh có sẵn trong thư mục của loại sản phẩm để tái sử dụng làm gallery hoặc cover.
+              Chọn nhiều ảnh từ thư viện để dùng cho gallery hoặc ảnh bìa. Ảnh sẽ áp dụng khi bấm “Cập nhật nhanh”.
             </DialogDescription>
           </DialogHeader>
           {libraryError && (
@@ -3223,7 +4083,7 @@ export default function ProductsPage() {
                 <div className="relative aspect-square w-full bg-gray-100">
                   <Image
                     src={asset.secureUrl}
-                    alt={asset.publicId}
+                    alt={getAssetLabel(asset.publicId)}
                     fill
                     sizes="200px"
                     className="object-cover transition duration-200 group-hover:scale-[1.02]"
@@ -3236,7 +4096,7 @@ export default function ProductsPage() {
                 </div>
                 <div className="p-2 text-left">
                   <div className="text-[11px] font-semibold text-gray-800 truncate">
-                    {asset.publicId}
+                    {getAssetLabel(asset.publicId)}
                   </div>
                   <div className="text-[10px] text-gray-500">
                     {(asset.width ?? 0)}x{(asset.height ?? 0)} • {((asset.bytes ?? 0) / 1024).toFixed(0)} KB
@@ -3262,11 +4122,10 @@ export default function ProductsPage() {
                   </div>
                   <button
                     type="button"
-                    onClick={applyBulkLibrarySelection}
-                    className="rounded border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-60"
-                    disabled={bulkLibraryApplying}
+                    onClick={() => setLibraryOpen(false)}
+                    className="rounded border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 hover:bg-blue-100"
                   >
-                    {bulkLibraryApplying ? "Đang gán..." : "Gán cho sản phẩm đã chọn"}
+                    Xác nhận chọn ảnh
                   </button>
                 </>
               )}

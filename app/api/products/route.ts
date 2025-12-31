@@ -140,12 +140,12 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
-    // --- Paging (default 12) ---
+    // --- Paging (default 24) ---
     const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
     const limit =
       parseInt(searchParams.get("pageSize") || "") ||
       parseInt(searchParams.get("limit") || "") ||
-      12;
+      24;
     const skip = (page - 1) * limit;
 
     // --- Cursor-based pagination option (for infinite scroll) ---

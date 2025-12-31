@@ -62,7 +62,9 @@ const navSections = [
     title: "Nội dung",
     icon: Code2,
     items: [
+      { href: "/admin/software-categories", label: "Danh mục phần mềm", icon: Layers },
       { href: "/admin/software", label: "Phần mềm", icon: Code2 },
+      { href: "/admin/solution-categories", label: "Danh mục giải pháp", icon: Layers },
       { href: "/admin/solutions", label: "Giải pháp", icon: Settings },
     ],
   },
