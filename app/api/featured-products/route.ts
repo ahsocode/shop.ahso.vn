@@ -31,18 +31,14 @@ export async function GET(req: NextRequest) {
             id: true,
             name: true,
             slug: true,
-            sku: true,
-            saleCode: true,
             price: true,
             listPrice: true,
             coverImage: true,
-            currency: true,
             requiresQuote: true,
-            status: true,
             brand: {
               select: {
                 name: true,
-                logoUrl: true,
+                slug: true,
               },
             },
           },
@@ -52,20 +48,31 @@ export async function GET(req: NextRequest) {
 
     const data = items.map((item) => ({
       id: item.id,
-      title: item.title || item.product.name,
+      title: item.title || item.product?.name || "",
       description: item.description,
       sortOrder: item.sortOrder,
-      product: {
-        ...item.product,
-        brandName: item.product.brand?.name ?? null,
-        brandLogo: item.product.brand?.logoUrl ?? null,
-      },}));
-return NextResponse.json({ data });
-} catch (error) {
-console.error("Featured products error:", error);
-return NextResponse.json(
-{ error: "Internal Server Error" },
-{ status: 500 }
-);
-}
+      product: item.product
+        ? {
+            id: item.product.id,
+            name: item.product.name,
+            slug: item.product.slug,
+            image: item.product.coverImage || "/logo.png",
+            price: item.product.price != null ? Number(item.product.price) : null,
+            listPrice: item.product.listPrice != null ? Number(item.product.listPrice) : null,
+            requiresQuote: Boolean(item.product.requiresQuote),
+            brand: item.product.brand
+              ? { name: item.product.brand.name, slug: item.product.brand.slug }
+              : null,
+          }
+        : null,
+    }));
+
+    return NextResponse.json({ data, meta: { total: data.length, limit } });
+  } catch (error) {
+    console.error("Featured products error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
+  }
 }

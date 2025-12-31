@@ -29,6 +29,15 @@ type HeroBanner = {
   ctaHref: string | null;
   sortOrder: number;
   isActive: boolean;
+  overlayOn: boolean;
+  overlayColor: string | null;
+  textPosition:
+    | "TOP_LEFT"
+    | "TOP_RIGHT"
+    | "MIDDLE_LEFT"
+    | "MIDDLE_RIGHT"
+    | "BOTTOM_LEFT"
+    | "BOTTOM_RIGHT";
 };
 type Announcement = {
   id: string;
@@ -122,6 +131,9 @@ export default function SystemSettingsPage() {
     ctaLabel: "",
     ctaHref: "",
     sortOrder: 0,
+    overlayOn: false,
+    overlayColor: "rgba(15,23,42,0.18)",
+    textPosition: "MIDDLE_LEFT" as HeroBanner["textPosition"],
   });
   const [newAnnouncement, setNewAnnouncement] = useState({
     title: "",
@@ -182,7 +194,14 @@ export default function SystemSettingsPage() {
         if (ignore) return;
         setEmail(emailData.data.email);
         setTaxRate(taxData.data.rate ?? 0.1);
-        setHeroBanners(bannerData.data);
+        setHeroBanners(
+          (bannerData.data ?? []).map((b) => ({
+            ...b,
+            overlayOn: b.overlayOn ?? false,
+            overlayColor: b.overlayColor ?? null,
+            textPosition: (b.textPosition as HeroBanner["textPosition"] | undefined) ?? "MIDDLE_LEFT",
+          })),
+        );
         setAnnouncements(announcementData.data);
         setPolicySections(policyData.data);
         setFeaturedProducts(featuredData.data);
@@ -519,6 +538,9 @@ export default function SystemSettingsPage() {
         ctaHref: sanitizeOptional(banner.ctaHref),
         sortOrder: banner.sortOrder,
         isActive: banner.isActive,
+        overlayOn: banner.overlayOn,
+        overlayColor: sanitizeOptional(banner.overlayColor),
+        textPosition: banner.textPosition,
       };
 
       const res = await fetch(`/api/admin/hero-banners/${id}`, {
@@ -572,6 +594,9 @@ export default function SystemSettingsPage() {
         ctaHref: sanitizeOptional(newBanner.ctaHref),
         sortOrder: newBanner.sortOrder,
         isActive: true,
+        overlayOn: newBanner.overlayOn,
+        overlayColor: sanitizeOptional(newBanner.overlayColor),
+        textPosition: newBanner.textPosition,
       };
 
       const res = await fetch("/api/admin/hero-banners", {
@@ -589,6 +614,9 @@ export default function SystemSettingsPage() {
         ctaLabel: "",
         ctaHref: "",
         sortOrder: 0,
+        overlayOn: false,
+        overlayColor: "rgba(15,23,42,0.45)",
+        textPosition: "MIDDLE_LEFT",
       });
       toast.success("Đã thêm banner mới.");
     } catch (error) {
@@ -598,6 +626,22 @@ export default function SystemSettingsPage() {
       updateLoadingMap("create-banner", false);
     }
   }
+
+  const TEXT_POS_OPTIONS: { value: HeroBanner["textPosition"]; label: string }[] = [
+    { value: "TOP_LEFT", label: "Trên - Trái" },
+    { value: "TOP_RIGHT", label: "Trên - Phải" },
+    { value: "MIDDLE_LEFT", label: "Giữa - Trái" },
+    { value: "MIDDLE_RIGHT", label: "Giữa - Phải" },
+    { value: "BOTTOM_LEFT", label: "Dưới - Trái" },
+    { value: "BOTTOM_RIGHT", label: "Dưới - Phải" },
+  ];
+
+  const resolveColorValue = (value?: string | null) => {
+    if (typeof value === "string" && value.trim().length > 0 && value.startsWith("#")) {
+      return value;
+    }
+    return "#0f172a";
+  };
 
   /* ===== Announcements ===== */
   const updateLocalAnnouncement = (id: string, changes: Partial<Announcement>) => {
@@ -1105,6 +1149,62 @@ export default function SystemSettingsPage() {
                           className="rounded-xl border border-gray-300 px-3 py-2 text-sm"
                         />
                       </div>
+                      <div className="grid gap-4 md:grid-cols-3 items-center">
+                        <label className="flex items-center gap-2 text-sm text-gray-700">
+                          <input
+                            type="checkbox"
+                            checked={banner.overlayOn}
+                            onChange={(e) =>
+                              updateLocalBanner(banner.id, { overlayOn: e.target.checked })
+                            }
+                          />
+                          Phủ nền trên ảnh
+                        </label>
+                        <div>
+                          <label className="text-xs font-medium text-gray-600">Màu nền phủ</label>
+                          <div className="mt-1 flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={resolveColorValue(banner.overlayColor)}
+                              onChange={(e) =>
+                                updateLocalBanner(banner.id, { overlayColor: e.target.value })
+                              }
+                              className="h-10 w-14 rounded border border-gray-300"
+                              disabled={!banner.overlayOn}
+                            />
+                            <input
+                              type="text"
+                              placeholder="rgba(...) hoặc #hex"
+                              value={banner.overlayColor ?? ""}
+                              onChange={(e) =>
+                                updateLocalBanner(banner.id, { overlayColor: e.target.value })
+                              }
+                              className="flex-1 rounded-xl border border-gray-300 px-3 py-2 text-sm"
+                              disabled={!banner.overlayOn}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium text-gray-600">
+                            Vị trí chữ
+                          </label>
+                          <select
+                            value={banner.textPosition}
+                            onChange={(e) =>
+                              updateLocalBanner(banner.id, {
+                                textPosition: e.target.value as HeroBanner["textPosition"],
+                              })
+                            }
+                            className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
+                          >
+                            {TEXT_POS_OPTIONS.map((opt) => (
+                              <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
                       <div className="flex items-center justify-between">
                         <label className="flex items-center gap-2 text-sm text-gray-600">
                           <input
@@ -1253,6 +1353,61 @@ export default function SystemSettingsPage() {
                     }
                     className="rounded-xl border border-gray-300 px-3 py-2 text-sm"
                   />
+                </div>
+                <div className="grid gap-4 md:grid-cols-3 items-center">
+                  <label className="flex items-center gap-2 text-sm text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={newBanner.overlayOn}
+                      onChange={(e) =>
+                        setNewBanner((prev) => ({ ...prev, overlayOn: e.target.checked }))
+                      }
+                    />
+                    Phủ nền trên ảnh
+                  </label>
+                  <div>
+                    <label className="text-xs font-medium text-gray-600">Màu nền phủ</label>
+                    <div className="mt-1 flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={resolveColorValue(newBanner.overlayColor)}
+                        onChange={(e) =>
+                          setNewBanner((prev) => ({ ...prev, overlayColor: e.target.value }))
+                        }
+                        className="h-10 w-14 rounded border border-gray-300"
+                        disabled={!newBanner.overlayOn}
+                      />
+                      <input
+                        type="text"
+                        placeholder="rgba(...) hoặc #hex"
+                        value={newBanner.overlayColor}
+                        onChange={(e) =>
+                          setNewBanner((prev) => ({ ...prev, overlayColor: e.target.value }))
+                        }
+                        className="flex-1 rounded-xl border border-gray-300 px-3 py-2 text-sm"
+                        disabled={!newBanner.overlayOn}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-gray-600">Vị trí chữ</label>
+                    <select
+                      value={newBanner.textPosition}
+                      onChange={(e) =>
+                        setNewBanner((prev) => ({
+                          ...prev,
+                          textPosition: e.target.value as HeroBanner["textPosition"],
+                        }))
+                      }
+                      className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
+                    >
+                      {TEXT_POS_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 <button
                   type="submit"

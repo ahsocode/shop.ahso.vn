@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { draftMode } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { buildMetadata } from "@/lib/metadata";
 import type { softwareInclude as SoftwareInclude, softwareGetPayload } from "@/lib/prisma-types";
@@ -28,10 +29,10 @@ function transformSoftware(record: SoftwareRecord) {
   };
 }
 
-async function getSoftware(slug: string): Promise<SoftwareWithRelations | null> {
+async function getSoftware(slug: string, preview = false): Promise<SoftwareWithRelations | null> {
   if (!slug) return null;
   const record = await prisma.software.findUnique({
-    where: { slug, status: "PUBLISHED" },
+    where: preview ? { slug } : { slug, status: "PUBLISHED" },
     include: softwareInclude,
   });
   return record ? transformSoftware(record) : null;
@@ -56,6 +57,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const { isEnabled: isPreview } = await draftMode();
   if (SKIP_BUILD_DB) {
     return buildMetadata({
       title: "Phần mềm | AHSO",
@@ -64,7 +66,7 @@ export async function generateMetadata({
     });
   }
 
-  const software = await getSoftware(slug).catch((err) => {
+  const software = await getSoftware(slug, isPreview).catch((err) => {
     console.error("[software metadata] DB error:", err);
     return null;
   });
@@ -103,11 +105,12 @@ export default async function SoftwareDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const { isEnabled: isPreview } = await draftMode();
   if (SKIP_BUILD_DB) return <SoftwareFallback />;
 
   let software: SoftwareWithRelations | null = null;
   try {
-    software = await getSoftware(slug);
+    software = await getSoftware(slug, isPreview);
   } catch (err) {
     console.error("[software page] DB error:", err);
     return <SoftwareFallback />;
@@ -142,7 +145,7 @@ export default async function SoftwareDetailPage({
   };
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -166,71 +169,82 @@ export default async function SoftwareDetailPage({
         <span className="font-medium text-gray-900">{software.title}</span>
       </nav>
 
-      <header className="space-y-3">
+      <div className="mt-6 grid gap-8 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          <header className="space-y-3">
         <p className="text-sm font-semibold text-blue-600">
           Giải pháp phần mềm
         </p>
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 break-words">
           {software.title}
         </h1>
         {software.summary && (
-          <p className="text-lg text-gray-600 max-w-3xl">{software.summary}</p>
+          <p className="text-lg text-gray-600 max-w-3xl break-words">{software.summary}</p>
         )}
       </header>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[2fr,1fr]">
-        <div>
-          <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-gray-100">
-            <Image src={cover} alt={software.title} fill className="object-cover" />
+          <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+            <div className="relative aspect-[4/3] w-full bg-gray-50">
+              <Image
+                src={cover}
+                alt={software.title}
+                fill
+                className="object-contain"
+                sizes="(min-width: 1024px) 720px, 100vw"
+              />
+            </div>
           </div>
+
+          <section className="rounded-2xl border bg-white p-6 shadow-sm space-y-6">
+            <h2 className="text-2xl font-semibold text-gray-900">
+              Thông tin chi tiết
+            </h2>
+            {software.bodyHtml ? (
+              <div
+                className="prose max-w-none prose-blue break-words [&>img]:w-full [&>img]:h-auto [&>img]:rounded-xl [&>img]:border [&>img]:bg-gray-50 [&>img]:mx-auto"
+                dangerouslySetInnerHTML={{ __html: software.bodyHtml }}
+              />
+            ) : (
+              <p className="text-gray-600">
+                Nội dung đang được cập nhật. Vui lòng liên hệ đội ngũ AHSO để nhận
+                tài liệu chi tiết và lộ trình triển khai.
+              </p>
+            )}
+          </section>
         </div>
-        <aside className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Thông tin triển khai
-          </h2>
-          <dl className="space-y-3 text-sm text-gray-700">
-            {software.category && (
-              <div className="flex justify-between gap-4">
-                <dt className="text-gray-500">Danh mục</dt>
-                <dd className="text-right">{software.category.name}</dd>
-              </div>
-            )}
-            {publishedAt && (
-              <div className="flex justify-between gap-4">
-                <dt className="text-gray-500">Cập nhật</dt>
-                <dd className="text-right">
-                  {publishedAt.toLocaleDateString("vi-VN")}
-                </dd>
-              </div>
-            )}
-          </dl>
-          <div className="pt-4">
-            <Link
-              href="/contact"
-              className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700"
-            >
-              Nhận tư vấn demo
-            </Link>
+
+        <aside className="space-y-4 lg:sticky lg:top-24 self-start">
+          <div className="rounded-2xl border bg-white p-6 shadow-sm space-y-4">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Thông tin triển khai
+            </h2>
+            <dl className="space-y-3 text-sm text-gray-700">
+              {software.category && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-gray-500">Danh mục</dt>
+                  <dd className="text-right">{software.category.name}</dd>
+                </div>
+              )}
+              {publishedAt && (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-gray-500">Cập nhật</dt>
+                  <dd className="text-right">
+                    {publishedAt.toLocaleDateString("vi-VN")}
+                  </dd>
+                </div>
+              )}
+            </dl>
+            <div className="pt-2">
+              <Link
+                href="/contact"
+                className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700"
+              >
+                Nhận tư vấn demo
+              </Link>
+            </div>
           </div>
         </aside>
       </div>
-
-      <section className="mt-10 rounded-2xl bg-white p-6 shadow-md space-y-6">
-        <h2 className="text-2xl font-semibold text-gray-900">
-          Thông tin chi tiết
-        </h2>
-        {software.bodyHtml ? (
-          <div
-            className="prose max-w-none prose-blue"
-            dangerouslySetInnerHTML={{ __html: software.bodyHtml }}
-          />
-        ) : (
-          <p className="text-gray-600">
-            Nội dung đang được cập nhật. Vui lòng liên hệ đội ngũ AHSO để nhận
-            tài liệu chi tiết và lộ trình triển khai.
-          </p>
-        )}
-      </section>
     </div>
   );
 }

@@ -203,7 +203,6 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
   const rating = Number(product.ratingAvg ?? 0);
   const ratingCount = Number(product.ratingCount ?? 0);
   const purchases = Number(product.purchaseCount ?? 0);
-  const currency = product.currency ?? "VND";
   const price = Number(product.price ?? 0);
   const listPrice =
     typeof product.listPrice === "number" && Number.isFinite(product.listPrice)

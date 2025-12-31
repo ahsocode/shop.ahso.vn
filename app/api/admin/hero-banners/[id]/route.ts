@@ -13,6 +13,11 @@ const UpdateSchema = z.object({
   ctaHref: z.string().url().optional().nullable(),
   sortOrder: z.number().int().min(0).max(999).optional(),
   isActive: z.boolean().optional(),
+  overlayOn: z.boolean().optional(),
+  overlayColor: z.string().max(50).optional().nullable(),
+  textPosition: z
+    .enum(["TOP_LEFT", "TOP_RIGHT", "MIDDLE_LEFT", "MIDDLE_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"])
+    .optional(),
 });
 
 export async function PATCH(

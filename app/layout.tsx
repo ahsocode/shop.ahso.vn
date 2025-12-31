@@ -30,8 +30,10 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   icons: {
-    icon: "/logo.png",
-  },
+  icon: "/favicon.ico",
+  shortcut: "/favicon.ico",
+},
+
   openGraph: {
     title: `${SITE_NAME} - ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,

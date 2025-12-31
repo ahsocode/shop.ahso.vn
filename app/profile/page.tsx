@@ -67,6 +67,7 @@ type RecentOrder = {
   total: number;
   status: OrderStatus;
 };
+type RecentOrderResponse = { data: RecentOrder[]; meta?: { total?: number } };
 
 /* ================== Helpers ================== */
 
@@ -119,18 +120,19 @@ export default function ProfilePage() {
 
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [totalOrders, setTotalOrders] = useState<number>(0);
 
   const stats = useMemo(
     () => [
       {
         label: "Đơn hàng",
-        value: ordersLoading ? "…" : String(recentOrders.length),
+        value: ordersLoading ? "…" : String(totalOrders),
         icon: Package,
       },
       { label: "Yêu thích", value: "—", icon: Heart },
       { label: "Giỏ hàng", value: "—", icon: ShoppingBag },
     ],
-    [ordersLoading, recentOrders.length],
+    [ordersLoading, totalOrders],
   );
 
   /* ========== Load profile ========== */
@@ -215,15 +217,22 @@ export default function ProfilePage() {
           throw new Error("Failed to load recent orders");
         }
 
-        const data = (await res.json()) as RecentOrder[];
+        const json = (await res.json()) as RecentOrderResponse | RecentOrder[];
 
-        if (isMounted) {
-          setRecentOrders(data);
+        if (!isMounted) return;
+
+        if (Array.isArray(json)) {
+          setRecentOrders(json);
+          setTotalOrders(json.length);
+        } else {
+          setRecentOrders(json.data || []);
+          setTotalOrders(json.meta?.total ?? json.data?.length ?? 0);
         }
       } catch (e) {
         if (isMounted) {
           console.error("Recent orders load error:", e);
           setRecentOrders([]);
+          setTotalOrders(0);
         }
       } finally {
         if (isMounted) {
