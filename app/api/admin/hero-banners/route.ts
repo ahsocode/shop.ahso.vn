@@ -13,6 +13,11 @@ const CreateBannerSchema = z.object({
   ctaHref: z.string().url().optional().nullable(),
   sortOrder: z.number().int().min(0).max(999).optional(),
   isActive: z.boolean().optional(),
+  overlayOn: z.boolean().optional(),
+  overlayColor: z.string().max(50).optional().nullable(),
+  textPosition: z
+    .enum(["TOP_LEFT", "TOP_RIGHT", "MIDDLE_LEFT", "MIDDLE_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"])
+    .optional(),
 });
 
 export async function GET(req: NextRequest) {
@@ -45,6 +50,9 @@ export async function POST(req: NextRequest) {
       ctaHref: parsed.data.ctaHref || null,
       sortOrder: parsed.data.sortOrder ?? 0,
       isActive: parsed.data.isActive ?? true,
+      overlayOn: parsed.data.overlayOn ?? false,
+      overlayColor: parsed.data.overlayColor || null,
+      textPosition: parsed.data.textPosition ?? "MIDDLE_LEFT",
     },
   });
   return NextResponse.json({ data: created });

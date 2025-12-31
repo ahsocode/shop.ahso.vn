@@ -27,7 +27,7 @@ export default function AdminSoftwareCategoriesPage() {
     try {
       const res = await getJSON<{ data: CategoryRow[] }>("/api/admin/software-categories");
       setRows(res.data);
-    } catch (error) {
+    } catch  {
       toast.error("Không thể tải danh mục phần mềm");
     } finally {
       setLoading(false);
@@ -60,7 +60,7 @@ export default function AdminSoftwareCategoriesPage() {
       }
       resetForm();
       await load();
-    } catch (error) {
+    } catch  {
       toast.error("Không thể lưu danh mục");
     } finally {
       setSaving(false);
@@ -73,7 +73,7 @@ export default function AdminSoftwareCategoriesPage() {
       await del(`/api/admin/software-categories/${row.id}`);
       toast.success("Đã xóa danh mục");
       await load();
-    } catch (error) {
+    } catch  {
       toast.error("Không thể xóa danh mục");
     }
   };

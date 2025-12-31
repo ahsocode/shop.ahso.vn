@@ -97,7 +97,9 @@ jobs:
             public \
             prisma \
             package.json \
-            package-lock.json
+            package-lock.json \
+            node_modules/.prisma
+
 
           sha256sum app-artifact.tar.gz > app-artifact.sha256
           ls -lh app-artifact.tar.gz app-artifact.sha256
