@@ -11,6 +11,12 @@ import {
   LogOut,
   UserCircle,
   Package,
+  Home,
+  Layers,
+  Laptop,
+  Info,
+  FileText,
+  Phone,
   Settings,
   ClipboardList,
 } from "lucide-react";
@@ -146,18 +152,18 @@ export function Navbar() {
   };
 
   const navItems = [
-    { href: "/", label: "Trang chủ" },
-    { href: "/shop/products", label: "Sản phẩm" },
-    { href: "/about", label: "Về chúng tôi" },
-    { href: "/policy", label: "Chính sách" },
-    { href: "/contact", label: "Liên hệ" },
-    // { href: "/solutions", label: "Giải pháp" },
-    // { href: "/software", label: "Phần mềm" },
+    { href: "/", label: "Trang chủ", icon: Home },
+    { href: "/solutions", label: "Giải pháp", icon: Layers },
+    { href: "/software", label: "Phần mềm", icon: Laptop },
+    { href: "/shop/products", label: "Sản phẩm", icon: Package },
+    { href: "/about", label: "Về chúng tôi", icon: Info },
+    { href: "/policy", label: "Chính sách", icon: FileText },
+    { href: "/contact", label: "Liên hệ", icon: Phone },
   ];
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1920px] px-3 sm:px-4 lg:px-6">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 font-bold text-xl text-gray-900">
@@ -169,32 +175,36 @@ export function Navbar() {
               className="h-8 w-8 object-contain"
               priority
             />
-            <span>AHSO Shop</span>
+            <span>AHSO Industrial</span>
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
+          <div className="hidden lg:flex items-center gap-6">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative text-sm font-medium transition-all duration-200 ${
+                className={`relative inline-flex items-center gap-2 text-sm lg:text-base font-semibold transition-all duration-200 ${
                   isActive(item.href)
-                    ? "text-blue-600 font-bold"
+                    ? "text-blue-600"
                     : "text-gray-700 hover:text-blue-600"
                 }`}
               >
+                <Icon className="h-4 w-4" />
                 {item.label}
                 {isActive(item.href) && (
                   <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></span>
                 )}
               </Link>
-            ))}
+              );
+            })}
            
           </div>
 
           {/* Right */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link href="/cart" className="relative">
               <Button
                 id="site-cart-icon"
@@ -220,7 +230,7 @@ export function Navbar() {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsUserMenuOpen((v) => !v)}
-                    className="hidden md:flex"
+                    className="hidden lg:flex"
                     aria-label="Mở menu người dùng"
                     ref={userBtnRef}
                   >
@@ -306,20 +316,20 @@ export function Navbar() {
                 </div>
               ) : (
                 <Link href="/login">
-                  <Button className="hidden md:inline-flex" size="sm">
+                  <Button className="hidden lg:inline-flex" size="sm">
                     Đăng nhập
                   </Button>
                 </Link>
               )
             ) : (
-              <div className="hidden md:inline-flex h-9 w-9 animate-pulse rounded-full bg-gray-200" />
+              <div className="hidden lg:inline-flex h-9 w-9 animate-pulse rounded-full bg-gray-200" />
             )}
 
             {/* Mobile Menu Button */}
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="lg:hidden"
               onClick={() => setIsMenuOpen((v) => !v)}
               aria-label="Mở menu"
             >
@@ -330,21 +340,25 @@ export function Navbar() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 space-y-1 border-t border-gray-200">
-            {navItems.map((item) => (
+          <div className="lg:hidden py-4 space-y-1 border-t border-gray-200">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsMenuOpen(false)}
-                className={`block px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                className={`flex items-center gap-3 px-4 py-2.5 text-base font-semibold rounded-md transition-colors ${
                   isActive(item.href)
-                    ? "bg-blue-50 text-blue-600 font-bold"
+                    ? "bg-blue-50 text-blue-600"
                     : "text-gray-700 hover:bg-gray-50"
                 }`}
               >
+                <Icon className="h-4 w-4" />
                 {item.label}
               </Link>
-            ))}
+              );
+            })}
             {/* <Link
               href="/solutions"
               onClick={() => setIsMenuOpen(false)}

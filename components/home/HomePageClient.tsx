@@ -3,23 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, type ComponentType, type CSSProperties } from "react";
-import {
-  Settings,
-  Wrench,
-  Clock,
-  Award,
-  Phone,
-  ArrowRight,
-  Package,
-  Headphones,
-  BadgeCheck,
-  Factory,
-  Laptop,
-  TrendingUp,
-  Star,
-  Sparkles,
-} from "lucide-react";
+import { Phone, ArrowRight, Package, Factory, Laptop, Star } from "lucide-react";
 import QuoteRequestButton from "@/app/shop/products/QuoteRequestButton";
+import { SiteAnnouncementModal } from "@/components/announcements/SiteAnnouncementModal";
 
 type HeroSlide = {
   image: string;
@@ -36,6 +22,7 @@ type HeroSlide = {
     | "BOTTOM_RIGHT";
   overlayOn?: boolean | null;
   overlayColor?: string | null;
+  textColor?: string | null;
 };
 
 const FALLBACK_IMAGE = "/logo.png";
@@ -56,6 +43,7 @@ type HeroBannerResponse = {
       | "BOTTOM_RIGHT";
     overlayOn?: boolean | null;
     overlayColor?: string | null;
+    textColor?: string | null;
   }>;
 };
 
@@ -67,8 +55,36 @@ type FeaturedProductResponse = {
   }>;
 };
 
-type ProductListResponse = {
-  data?: ApiProduct[];
+type FeaturedSolutionResponse = {
+  data?: Array<{
+    id: string;
+    title?: string | null;
+    description?: string | null;
+    solution?: {
+      id: string;
+      title: string;
+      slug: string;
+      summary?: string | null;
+      image?: string | null;
+      categoryName?: string | null;
+    } | null;
+  }>;
+};
+
+type FeaturedSoftwareResponse = {
+  data?: Array<{
+    id: string;
+    title?: string | null;
+    description?: string | null;
+    software?: {
+      id: string;
+      title: string;
+      slug: string;
+      summary?: string | null;
+      image?: string | null;
+      categoryName?: string | null;
+    } | null;
+  }>;
 };
 
 type HomeProduct = {
@@ -236,6 +252,74 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
   );
 }
 
+type FeaturedContent = {
+  id: string;
+  title: string;
+  summary: string | null;
+  image: string;
+  href: string;
+  categoryName: string | null;
+};
+
+function normalizeFeaturedContent(input: {
+  id: string;
+  title?: string | null;
+  description?: string | null;
+  entity?: {
+    title?: string | null;
+    slug?: string | null;
+    summary?: string | null;
+    image?: string | null;
+    categoryName?: string | null;
+  } | null;
+  baseHref: string;
+}): FeaturedContent {
+  const title = input.title?.trim() || input.entity?.title?.trim() || "Nội dung nổi bật";
+  const slug = input.entity?.slug?.trim();
+  const summary = input.description || input.entity?.summary || null;
+  const image = input.entity?.image || FALLBACK_IMAGE;
+  return {
+    id: input.id,
+    title,
+    summary,
+    image,
+    href: slug ? `${input.baseHref}/${slug}` : input.baseHref,
+    categoryName: input.entity?.categoryName ?? null,
+  };
+}
+
+function FeaturedMarqueeCard({ item }: { item: FeaturedContent }) {
+  return (
+      <Link
+      href={item.href}
+      className="group w-full rounded-2xl border border-slate-200 bg-white p-4 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-0"
+    >
+      <div className="relative mb-3 aspect-square w-full overflow-hidden rounded-xl bg-slate-100">
+        <Image
+          src={item.image}
+          alt={item.title}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          sizes="320px"
+        />
+      </div>
+      {item.categoryName && (
+        <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">
+          {item.categoryName}
+        </p>
+      )}
+      <h3 className="text-sm font-semibold text-slate-900 line-clamp-2">
+        {item.title}
+      </h3>
+      {item.summary && (
+        <p className="mt-2 text-xs text-slate-600 line-clamp-2">
+          {item.summary}
+        </p>
+      )}
+    </Link>
+  );
+}
+
 type SectionHeaderProps = {
   icon: ComponentType<{ className?: string }>;
   title: string;
@@ -244,12 +328,12 @@ type SectionHeaderProps = {
 
 function SectionHeader({ icon: Icon, title, subtitle }: SectionHeaderProps) {
   return (
-    <div className="text-center mb-12 animate-fade-in-up">
-      <div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-br from-blue-500 to-blue-600 rounded-2xl mb-4 shadow-lg">
-        <Icon className="w-8 h-8 text-white" />
+    <div className="text-center mb-10 animate-fade-in-up">
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-100 text-slate-700 mb-4">
+        <Icon className="w-6 h-6" />
       </div>
-      <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">{title}</h2>
-      <p className="text-gray-600 max-w-2xl mx-auto">{subtitle}</p>
+      <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-2">{title}</h2>
+      <p className="text-slate-600 max-w-2xl mx-auto">{subtitle}</p>
     </div>
   );
 }
@@ -264,7 +348,7 @@ function HomePageLoading() {
             <Image src={FALLBACK_IMAGE} alt="AHSO" width={64} height={64} />
           </div>
         </div>
-        <div className="text-sm text-gray-500">Đang tải dữ liệu trang chủ...</div>
+        <div className="text-sm text-gray-500">Đang tải...</div>
       </div>
     </div>
   );
@@ -274,9 +358,14 @@ export default function HomePageClient() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [heroSlides, setHeroSlides] = useState<HeroSlide[] | null>(null);
   const [featuredProducts, setFeaturedProducts] = useState<HomeProduct[]>([]);
-  const [bestSellers, setBestSellers] = useState<HomeProduct[]>([]);
-  const [newArrivals, setNewArrivals] = useState<HomeProduct[]>([]);
-  const [topRated, setTopRated] = useState<HomeProduct[]>([]);
+  const [featuredSolutions, setFeaturedSolutions] = useState<FeaturedSolutionResponse["data"]>(
+    [],
+  );
+  const [featuredSoftwares, setFeaturedSoftwares] = useState<FeaturedSoftwareResponse["data"]>(
+    [],
+  );
+  const [activeSolutionIndex, setActiveSolutionIndex] = useState(0);
+  const [activeSoftwareIndex, setActiveSoftwareIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [heroAnimated, setHeroAnimated] = useState(false);
   const [heroAnimationDone, setHeroAnimationDone] = useState(false);
@@ -303,9 +392,10 @@ export default function HomePageClient() {
 
         const heroData: HeroBannerResponse["data"] = json?.data?.hero ?? [];
         const featuredData: FeaturedProductResponse["data"] = json?.data?.featured ?? [];
-        const bestData: ProductListResponse["data"] = json?.data?.bestSellers ?? [];
-        const newData: ProductListResponse["data"] = json?.data?.newArrivals ?? [];
-        const topData: ProductListResponse["data"] = json?.data?.topRated ?? [];
+        const solutionData: FeaturedSolutionResponse["data"] =
+          json?.data?.featuredSolutions ?? [];
+        const softwareData: FeaturedSoftwareResponse["data"] =
+          json?.data?.featuredSoftwares ?? [];
 
         setHeroSlides(
           Array.isArray(heroData)
@@ -318,6 +408,7 @@ export default function HomePageClient() {
                 textPosition: item.textPosition,
                 overlayOn: item.overlayOn,
                 overlayColor: item.overlayColor,
+                textColor: item.textColor,
               }))
             : [],
         );
@@ -332,23 +423,15 @@ export default function HomePageClient() {
               )
             : [],
         );
-        setBestSellers(
-          Array.isArray(bestData) ? bestData.map((item) => normalizeProductData(item)) : [],
-        );
-        setNewArrivals(
-          Array.isArray(newData) ? newData.map((item) => normalizeProductData(item)) : [],
-        );
-        setTopRated(
-          Array.isArray(topData) ? topData.map((item) => normalizeProductData(item)) : [],
-        );
+        setFeaturedSolutions(Array.isArray(solutionData) ? solutionData : []);
+        setFeaturedSoftwares(Array.isArray(softwareData) ? softwareData : []);
       } catch (error) {
         console.error("Failed to load homepage data:", error);
         if (!ignore) {
           setHeroSlides([]);
           setFeaturedProducts([]);
-          setBestSellers([]);
-          setNewArrivals([]);
-          setTopRated([]);
+          setFeaturedSolutions([]);
+          setFeaturedSoftwares([]);
         }
       } finally {
         if (!ignore) {
@@ -437,69 +520,56 @@ export default function HomePageClient() {
 
   // Semi-transparent “veil” so the banner stays visible, even if user picked white
   const getOverlayColor = (value?: string | null) => normalizeOverlayColor(value);
+  const normalizeTextColor = (value?: string | null) => {
+    if (!value) return "#ffffff";
+    if (/rgba?\(/i.test(value) || /hsla?\(/i.test(value)) return value;
+    if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value)) return value;
+    return "#ffffff";
+  };
+  const textColor = normalizeTextColor(hasSlides ? activeSlide?.textColor : null);
 
-  const categories = [
-    {
-      name: "Giải pháp Công nghiệp",
-      href: "/shop/solutions",
-      icon: Factory,
-      image: "/factory1.jpg",
-      gradient: "from-blue-600 to-cyan-500",
-    },
-    {
-      name: "Phần mềm & Dịch vụ",
-      href: "/shop/software",
-      icon: Laptop,
-      image: "/factory2.jpg",
-      gradient: "from-purple-600 to-pink-500",
-    },
-    {
-      name: "Sản phẩm Công Nghiệp",
-      href: "/shop/products",
-      icon: Package,
-      image: "/linhkien1.jpg",
-      gradient: "from-green-600 to-emerald-500",
-    },
-  ];
+  const solutionItems = (featuredSolutions ?? []).map((item) =>
+    normalizeFeaturedContent({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      entity: item.solution ?? undefined,
+      baseHref: "/solutions",
+    }),
+  );
+  const softwareItems = (featuredSoftwares ?? []).map((item) =>
+    normalizeFeaturedContent({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      entity: item.software ?? undefined,
+      baseHref: "/software",
+    }),
+  );
 
-  const features = [
-    {
-      icon: Settings,
-      title: "Máy móc công nghiệp",
-      description: "Máy móc hiện đại, hiệu suất cao",
-      color: "from-blue-500 to-blue-600",
-    },
-    {
-      icon: Wrench,
-      title: "Phụ tùng chính hãng",
-      description: "Linh kiện tương thích hoàn hảo",
-      color: "from-purple-500 to-purple-600",
-    },
-    {
-      icon: BadgeCheck,
-      title: "Bảo hành toàn diện",
-      description: "Cam kết chất lượng lâu dài",
-      color: "from-green-500 to-green-600",
-    },
-    {
-      icon: Clock,
-      title: "Giao hàng nhanh",
-      description: "Vận chuyển toàn quốc", 
-      color: "from-orange-500 to-orange-600",
-    },
-    {
-      icon: Headphones,
-      title: "Tư vấn 24/7",
-      description: "Hỗ trợ kỹ thuật chuyên nghiệp",
-      color: "from-red-500 to-red-600",
-    },
-    {
-      icon: Award,
-      title: "Giá cạnh tranh",
-      description: "Ưu đãi hấp dẫn mọi đơn hàng",
-      color: "from-yellow-500 to-yellow-600",
-    },
-  ];
+  useEffect(() => {
+    if (solutionItems.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveSolutionIndex((prev) => (prev + 1) % solutionItems.length);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, [solutionItems.length]);
+
+  useEffect(() => {
+    if (softwareItems.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveSoftwareIndex((prev) => (prev + 1) % softwareItems.length);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, [softwareItems.length]);
+  const activeSolution =
+    solutionItems.length > 0
+      ? solutionItems[activeSolutionIndex % solutionItems.length]
+      : null;
+  const activeSoftware =
+    softwareItems.length > 0
+      ? softwareItems[activeSoftwareIndex % softwareItems.length]
+      : null;
 
   const shouldAnimateHero = heroAnimated && !heroAnimationDone;
 
@@ -508,7 +578,7 @@ export default function HomePageClient() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <style jsx global>{`
         @keyframes fadeInUp {
           from {
@@ -572,7 +642,8 @@ export default function HomePageClient() {
           }
         }
 
-        .marquee {
+        .marquee,
+        .marquee-clean {
           position: relative;
           overflow: hidden;
         }
@@ -584,30 +655,19 @@ export default function HomePageClient() {
           will-change: transform;
         }
 
-        .marquee:hover .marquee-track {
+        .marquee:hover .marquee-track,
+        .marquee-clean:hover .marquee-track {
           animation-play-state: paused;
         }
 
-      .marquee::before,
-      .marquee::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 90px;
-        z-index: 2;
-        pointer-events: none;
-      }
-
-      .marquee::before {
-        left: 0;
-        background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
-      }
-
-      .marquee::after {
-        right: 0;
-        background: linear-gradient(to left, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
-      }
+        .marquee::before,
+        .marquee::after,
+        .marquee-clean::before,
+        .marquee-clean::after {
+          content: none !important;
+          display: none !important;
+          background: transparent !important;
+        }
 
         @media (prefers-reduced-motion: reduce) {
           .marquee-track {
@@ -660,7 +720,7 @@ export default function HomePageClient() {
                     className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white ${
                       shouldAnimateHero ? "animate-fade-in-up" : ""
                     }`}
-                    style={{ animationDelay: "0.1s" }}
+                    style={{ animationDelay: "0.1s", color: textColor }}
                   >
                     {displayTitle}
                   </h1>
@@ -671,7 +731,7 @@ export default function HomePageClient() {
                     className={`text-lg md:text-xl lg:text-2xl mb-8 text-blue-100 ${
                       shouldAnimateHero ? "animate-fade-in-up" : ""
                     }`}
-                    style={{ animationDelay: "0.2s" }}
+                    style={{ animationDelay: "0.2s", color: textColor }}
                   >
                     {displaySubtitle}
                   </p>
@@ -737,72 +797,267 @@ export default function HomePageClient() {
         )}
       </section>
 
-      {/* Categories */}
-      <section className="py-12 md:py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {categories.map((category, index) => (
-              <Link
-                key={category.name}
-                href={category.href}
-                className="animate-on-scroll group relative rounded-3xl overflow-hidden bg-gray-900 text-white shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300"
-                style={{ transitionDelay: `${index * 100}ms` }}
-              >
-                <div
-                  className="absolute inset-0 bg-cover bg-center opacity-70 group-hover:opacity-50 transition-opacity duration-300"
-                  style={{ backgroundImage: `url(${category.image})` }}
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-gray-900 via-gray-900/60 to-transparent" />
+      <SiteAnnouncementModal />
 
-                <div className="relative p-8 min-h-[280px] flex flex-col justify-end">
-                  <div
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r ${category.gradient} text-sm font-medium backdrop-blur-sm mb-4 w-fit`}
-                  >
-                    <category.icon className="w-4 h-4" />
-                    <span>Khám phá ngay</span>
+      {/* Solutions */}
+      <section className="py-12 md:py-16 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap items-end justify-between gap-3 mb-8">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                Giải pháp
+              </p>
+              <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mt-2">
+                Giải pháp nổi bật
+              </h2>
+            </div>
+            <Link
+              href="/solutions"
+              className="text-sm font-medium text-slate-700 hover:text-slate-900 inline-flex items-center gap-2"
+            >
+              Xem tất cả giải pháp
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 lg:order-1">
+              <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
+                <Factory className="w-4 h-4" />
+                Giải pháp là gì
+              </div>
+              <p className="mt-4 text-sm text-slate-700 leading-relaxed">
+                Các gói giải pháp giúp doanh nghiệp tối ưu quy trình vận hành,
+                tăng hiệu suất và giảm chi phí triển khai. Tất cả đều được chọn
+                lọc theo nhu cầu công nghiệp thực tế.
+              </p>
+              <div className="mt-6 text-xs text-slate-500">
+                Tập trung vào tính ổn định, khả năng mở rộng và tính tương thích.
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 lg:col-span-2 lg:order-2">
+              {activeSolution ? (
+                <div className="grid gap-6 md:grid-cols-[1.05fr_1fr] items-center">
+                  <div className="space-y-3 min-w-0">
+                    {activeSolution.categoryName && (
+                      <p className="text-xs uppercase tracking-wide text-slate-500">
+                        {activeSolution.categoryName}
+                      </p>
+                    )}
+                    <h3 className="text-xl font-semibold text-slate-900 line-clamp-2">
+                      {activeSolution.title}
+                    </h3>
+                    <p className="text-sm text-slate-600 leading-relaxed line-clamp-4">
+                      {activeSolution.summary || "Giải pháp tổng thể cho nhu cầu vận hành hiện đại."}
+                    </p>
+                    <Link
+                      href={activeSolution.href}
+                      className="inline-flex items-center gap-2 text-sm font-medium text-slate-900"
+                    >
+                      Xem chi tiết
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-bold mb-2">
-                    {category.name}
-                  </h3>
-                  <div className="flex items-center gap-2 text-blue-100 group-hover:gap-3 transition-all">
-                    <span>Xem thêm</span>
-                    <ArrowRight className="w-5 h-5" />
+                  <div className="relative h-56 md:h-64 rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
+                    <Image
+                      src={activeSolution.image}
+                      alt={activeSolution.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 420px"
+                    />
                   </div>
                 </div>
-              </Link>
-            ))}
+              ) : (
+                <div className="text-sm text-slate-500">
+                  Hiện chưa có giải pháp nổi bật. Vui lòng quay lại sau.
+                </div>
+              )}
+            </div>
           </div>
+
+          {solutionItems.length > 0 && (
+            <div className="mt-10">
+              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 mb-4">
+                Giải pháp khác
+              </div>
+              {solutionItems.length >= 4 ? (
+                <div className="marquee-clean">
+                  <div
+                    className="marquee-track gap-6 pb-3"
+                    style={
+                      {
+                        "--marquee-duration": `${Math.max(26, solutionItems.length * 4.2)}s`,
+                      } as MarqueeStyle
+                    }
+                  >
+                    {[...solutionItems, ...solutionItems].map((item, idx) => (
+                      <div
+                        key={`${item.id}-${idx}`}
+                        className="w-60 sm:w-[280px] lg:w-[320px] flex-none"
+                      >
+                        <FeaturedMarqueeCard item={item} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {solutionItems.map((item) => (
+                    <FeaturedMarqueeCard key={item.id} item={item} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Softwares */}
+      <section className="py-12 md:py-16 bg-slate-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap items-end justify-between gap-3 mb-8">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                Phần mềm
+              </p>
+              <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 mt-2">
+                Phần mềm nổi bật
+              </h2>
+            </div>
+            <Link
+              href="/software"
+              className="text-sm font-medium text-slate-700 hover:text-slate-900 inline-flex items-center gap-2"
+            >
+              Xem tất cả phần mềm
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+          
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 lg:order-1 lg:col-span-2">
+              {activeSoftware ? (
+                <div className="grid gap-6 md:grid-cols-[1fr_1.05fr] items-center">
+                  <div className="relative h-56 md:h-64 rounded-xl overflow-hidden border border-slate-200 bg-slate-100 md:order-1">
+                    <Image
+                      src={activeSoftware.image}
+                      alt={activeSoftware.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 420px"
+                    />
+                  </div>
+                  <div className="space-y-3 min-w-0 md:order-2">
+                    {activeSoftware.categoryName && (
+                      <p className="text-xs uppercase tracking-wide text-slate-500">
+                        {activeSoftware.categoryName}
+                      </p>
+                    )}
+                    <h3 className="text-xl font-semibold text-slate-900 line-clamp-2">
+                      {activeSoftware.title}
+                    </h3>
+                    <p className="text-sm text-slate-600 leading-relaxed line-clamp-4">
+                      {activeSoftware.summary || "Bộ công cụ phần mềm hỗ trợ vận hành chính xác và an toàn."}
+                    </p>
+                    <Link
+                      href={activeSoftware.href}
+                      className="inline-flex items-center gap-2 text-sm font-medium text-slate-900"
+                    >
+                      Xem chi tiết
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-sm text-slate-500">
+                  Hiện chưa có phần mềm nổi bật. Vui lòng quay lại sau.
+                </div>
+              )}
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-100 p-6 lg:order-2">
+              <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
+                <Laptop className="w-4 h-4" />
+                Phần mềm là gì
+              </div>
+              <p className="mt-4 text-sm text-slate-700 leading-relaxed">
+                Các giải pháp phần mềm giúp số hóa, giám sát và tự động hóa quy
+                trình trong nhà máy. Tập trung vào độ chính xác, bảo mật và khả
+                năng tích hợp.
+              </p>
+              <div className="mt-6 text-xs text-slate-500">
+                Phù hợp cho nhiều quy mô doanh nghiệp công nghiệp.
+              </div>
+            </div>
+            
+          </div>
+
+          {softwareItems.length > 0 && (
+            <div className="mt-10">
+              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 mb-4">
+                Phần mềm khác
+              </div>
+              {softwareItems.length >= 4 ? (
+                <div className="marquee-clean">
+                  <div
+                    className="marquee-track gap-6 pb-3"
+                    style={
+                      {
+                        "--marquee-duration": `${Math.max(26, softwareItems.length * 4.2)}s`,
+                        animationDirection: "reverse",
+                      } as MarqueeStyle
+                    }
+                  >
+                    {[...softwareItems, ...softwareItems].map((item, idx) => (
+                      <div
+                        key={`${item.id}-${idx}`}
+                        className="w-60 sm:w-[280px] lg:w-[320px] flex-none"
+                      >
+                        <FeaturedMarqueeCard item={item} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {softwareItems.map((item) => (
+                    <FeaturedMarqueeCard key={item.id} item={item} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 md:py-20 bg-linear-to-b from-gray-50 to-white animate-on-scroll">
+      <section className="py-16 md:py-20 bg-white animate-on-scroll">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
-            icon={Star}
+            icon={Package}
             title="Sản phẩm nổi bật"
-            subtitle="Những sản phẩm được đánh giá cao nhất từ khách hàng"
+            subtitle="Chọn lọc các sản phẩm tiêu biểu cho nhu cầu công nghiệp"
           />
         </div>
 
         {featuredProducts.length > 0 ? (
           <div className="marquee mt-6">
-            <div
-              className="marquee-track gap-6 pb-3"
-              style={
-                {
-                  "--marquee-duration": `${Math.max(26, featuredProducts.length * 4.2)}s`,
-                } as MarqueeStyle
-              }
-            >
-              {[...featuredProducts, ...featuredProducts].map((product, idx) => (
-                <div
-                  key={`${product.id}-${idx}`}
-                  className="w-[234px] sm:w-[288px] lg:w-[324px] flex-none"
-                >
-                  <ProductCard product={product} index={idx % featuredProducts.length} />
-                </div>
-              ))}
+              <div
+                className="marquee-track gap-6 pb-3"
+                style={
+                  {
+                    "--marquee-duration": `${Math.max(33.8, featuredProducts.length * 5.46)}s`,
+                  } as MarqueeStyle
+                }
+              >
+                {[...featuredProducts, ...featuredProducts].map((product, idx) => (
+                  <div
+                    key={`${product.id}-${idx}`}
+                    className="w-[188px] sm:w-[230px] lg:w-[259px] flex-none"
+                  >
+                    <ProductCard product={product} index={idx % featuredProducts.length} />
+                  </div>
+                ))}
             </div>
           </div>
         ) : (
@@ -814,158 +1069,15 @@ export default function HomePageClient() {
         <div className="text-center mt-12">
           <Link
             href="/shop/products"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 hover:shadow-xl hover:scale-105 transition-all duration-300"
+            className="inline-flex items-center gap-2 px-8 py-3 border border-slate-300 text-slate-800 rounded-xl font-semibold hover:border-slate-400 hover:text-slate-900 transition-all duration-300"
           >
             Xem tất cả sản phẩm
             <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
       </section>
-
-      
-
-      {/* Best Sellers */}
-      <section className="py-16 md:py-20 bg-linear-to-b from-white to-gray-50 animate-on-scroll">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            icon={TrendingUp}
-            title="Sản phẩm bán chạy"
-            subtitle="Top sản phẩm được nhiều khách hàng tin dùng nhất"
-          />
-        </div>
-
-        {bestSellers.length >= 6 ? (
-          <div className="marquee mt-6">
-            <div
-              className="marquee-track gap-6 pb-3"
-              style={
-                {
-                  "--marquee-duration": `${Math.max(26, bestSellers.length * 4.2)}s`,
-                  animationDirection: "reverse",
-                } as MarqueeStyle
-              }
-            >
-              {[...bestSellers, ...bestSellers].map((product, idx) => (
-                <div
-                  key={`${product.id}-${idx}`}
-                  className="w-[260px] sm:w-[320px] lg:w-[360px] flex-none"
-                >
-                  <ProductCard product={product} index={idx % bestSellers.length} />
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : bestSellers.length > 0 ? (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {bestSellers.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <p className="text-center text-gray-500">Chưa có dữ liệu bán chạy.</p>
-        )}
-
-        <div className="text-center mt-12">
-          <Link
-            href="/shop/products?sort=popular"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
-          >
-            Khám phá thêm
-            <TrendingUp className="w-5 h-5" />
-          </Link>
-        </div>
-      </section>
-
-      {/* New Arrivals */}
-      <section className="py-16 md:py-20 bg-linear-to-b from-gray-50 to-white animate-on-scroll">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            icon={Sparkles}
-            title="Sản phẩm mới về"
-            subtitle="Những mẫu sản phẩm vừa được cập nhật trên hệ thống"
-          />
-        </div>
-        {newArrivals.length >= 6 ? (
-          <div className="marquee mt-6">
-            <div
-              className="marquee-track gap-6 pb-3"
-              style={
-                {
-                  "--marquee-duration": `${Math.max(26, newArrivals.length * 4.2)}s`,
-                } as MarqueeStyle
-              }
-            >
-              {[...newArrivals, ...newArrivals].map((product, idx) => (
-                <div
-                  key={`${product.id}-${idx}`}
-                  className="w-[260px] sm:w-[320px] lg:w-[360px] flex-none"
-                >
-                  <ProductCard product={product} index={idx % newArrivals.length} />
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : newArrivals.length > 0 ? (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {newArrivals.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <p className="text-center text-gray-500">
-            Hiện chưa có sản phẩm mới. Vui lòng quay lại sau.
-          </p>
-        )}
-      </section>
-
-      {/* Top Rated */}
-      <section className="py-16 md:py-20 bg-linear-to-b from-white to-gray-50 animate-on-scroll">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            icon={Star}
-            title="Được đánh giá cao"
-            subtitle="Những sản phẩm nhận được phản hồi tốt nhất"
-          />
-        </div>
-        {topRated.length >= 6 ? (
-          <div className="marquee mt-6">
-            <div
-              className="marquee-track gap-6 pb-3"
-              style={
-                {
-                  "--marquee-duration": `${Math.max(26, topRated.length * 4.2)}s`,
-                  animationDirection: "reverse",
-                } as MarqueeStyle
-              }
-            >
-              {[...topRated, ...topRated].map((product, idx) => (
-                <div
-                  key={`${product.id}-${idx}`}
-                  className="w-[260px] sm:w-[320px] lg:w-[360px] flex-none"
-                >
-                  <ProductCard product={product} index={idx % topRated.length} />
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : topRated.length > 0 ? (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {topRated.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <p className="text-center text-gray-500">Chưa có sản phẩm nào được đánh giá.</p>
-        )}
-      </section>
       {/* Features Grid */}
-      <section className="py-16 md:py-20 bg-white animate-on-scroll">
+      {/* <section className="py-16 md:py-20 bg-white animate-on-scroll">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature, idx) => (
@@ -987,10 +1099,10 @@ export default function HomePageClient() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
-      <section className="py-20 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 text-white animate-on-scroll">
+      {/* <section className="py-20 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 text-white animate-on-scroll">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Cần tư vấn giải pháp cho doanh nghiệp?
@@ -1013,7 +1125,7 @@ export default function HomePageClient() {
             </Link>
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }

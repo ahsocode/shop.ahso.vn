@@ -6,8 +6,9 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import {
   Package, Settings, Users, Shield, PanelsTopLeft, Code2, Home,
-  ChevronRight, LogOut, User, Layers, Tag, Grid3x3, 
-  Building2, Inbox, FileText, ChevronDown, Menu, X
+  ChevronRight, LogOut, User, Layers, Tag, Grid3x3,
+  Building2, Inbox, FileText, ChevronDown, Menu, X,
+  ImageIcon, Megaphone, Laptop
 } from "lucide-react";
 import { useAuth } from "@/lib/hooks/useAuth";
 
@@ -72,7 +73,15 @@ const navSections = [
     id: "system",
     title: "Hệ thống",
     icon: Settings,
-    items: [{ href: "/admin/system", label: "Quản lý hệ thống", icon: Settings }],
+    items: [
+      { href: "/admin/system/general", label: "Sơ bộ", icon: Settings },
+      { href: "/admin/system/featured-products", label: "Sản phẩm nổi bật", icon: Package },
+      { href: "/admin/system/featured-solutions", label: "Giải pháp nổi bật", icon: Layers },
+      { href: "/admin/system/featured-softwares", label: "Phần mềm nổi bật", icon: Laptop },
+      { href: "/admin/system/hero-banners", label: "Banner", icon: ImageIcon },
+      { href: "/admin/system/announcements", label: "Banner quảng cáo", icon: Megaphone },
+      { href: "/admin/system/policies", label: "Chính sách", icon: FileText },
+    ],
   },
 ];
 
@@ -145,7 +154,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     const next = findSectionId(pathname);
     const frame = requestAnimationFrame(() => {
-      setExpandedSection((prev) => (next === prev ? prev : next));
+      setExpandedSection((prev) => {
+        if (!next) return prev;
+        return next === prev ? prev : next;
+      });
     });
     return () => cancelAnimationFrame(frame);
   }, [pathname]);
