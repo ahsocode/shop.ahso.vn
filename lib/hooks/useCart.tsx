@@ -2,6 +2,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import { toast } from "sonner";
 
 type CartItem = {
@@ -36,6 +37,7 @@ function getToken(): string | null {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
 
   type ServerCartItem = {
     id: string | number;
@@ -60,6 +62,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const readCart = useCallback(async () => {
+    if (pathname?.startsWith("/admin")) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const token = getToken();
@@ -89,7 +96,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [mapServerItems]);
+  }, [mapServerItems, pathname]);
 
   const refresh = useCallback(async () => {
     await readCart();

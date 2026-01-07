@@ -15,6 +15,7 @@ const UpdateSchema = z.object({
   isActive: z.boolean().optional(),
   overlayOn: z.boolean().optional(),
   overlayColor: z.string().max(50).optional().nullable(),
+  textColor: z.string().max(50).optional().nullable(),
   textPosition: z
     .enum(["TOP_LEFT", "TOP_RIGHT", "MIDDLE_LEFT", "MIDDLE_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"])
     .optional(),

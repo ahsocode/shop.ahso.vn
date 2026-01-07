@@ -41,66 +41,46 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [txPage] = useState(1);
+  const hasFetchedRef = React.useRef(false);
 
-  const fetchStatistics = useCallback(async () => {
+  const fetchOverview = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch(`/api/staff/statistics?period=${period}`, {
+      const res = await fetch(`/api/admin/dashboard/overview?period=${period}&limit=10`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
-        console.error("Stats request failed:", res.status, res.statusText);
+        console.error("Overview request failed:", res.status, res.statusText);
         setStats(null);
+        setTransactions([]);
         return;
       }
       const text = await res.text();
       try {
-        const data = JSON.parse(text) as DashboardStats;
-        setStats(data);
+        const data = JSON.parse(text) as {
+          stats?: DashboardStats;
+          transactions?: Transaction[];
+        };
+        setStats(data.stats ?? null);
+        setTransactions(data.transactions ?? []);
       } catch (err) {
-        console.error("Stats response is not JSON:", err, text.slice(0, 200));
+        console.error("Overview response is not JSON:", err, text.slice(0, 200));
         setStats(null);
+        setTransactions([]);
       }
     } catch (error) {
-      console.error("Error fetching stats:", error);
+      console.error("Error fetching overview:", error);
     } finally {
       setLoading(false);
     }
   }, [period]);
 
-  const fetchTransactions = useCallback(async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`/api/staff/transactions?page=${txPage}&pageSize=10`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) {
-        console.error("Transactions request failed:", res.status, res.statusText);
-        setTransactions([]);
-        return;
-      }
-      const text = await res.text();
-      try {
-        const data = JSON.parse(text) as { data?: Transaction[] };
-        setTransactions(data.data || []);
-      } catch (err) {
-        console.error("Transactions response is not JSON:", err, text.slice(0, 200));
-        setTransactions([]);
-      }
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-    }
-  }, [txPage]);
-
   useEffect(() => {
-    fetchStatistics();
-  }, [fetchStatistics]);
-
-  useEffect(() => {
-    fetchTransactions();
-  }, [fetchTransactions]);
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
+    fetchOverview();
+  }, [fetchOverview]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("vi-VN", {

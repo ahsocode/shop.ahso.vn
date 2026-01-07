@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { toast } from "sonner"
-import { useAuthStore, setUser, getIsHydrated } from "@/lib/auth-store"
+import { useAuthStore, setUser, getIsHydrated, getUser } from "@/lib/auth-store"
+
+let inFlightVerify: Promise<ReturnType<typeof getUser>> | null = null
+let lastVerifiedAt = 0
+let lastToken: string | null = null
 
 export function useAuth(requireAuth = false) {
   const router = useRouter()
@@ -64,31 +68,59 @@ export function useAuth(requireAuth = false) {
         return
       }
 
-      // Nếu có token → verify với server
+      const cachedUser = getUser()
+      const now = Date.now()
+
+      if (
+        cachedUser &&
+        lastToken === token &&
+        now - lastVerifiedAt < 60_000
+      ) {
+        if (mounted) {
+          setLoading(false)
+          setVerified(true)
+          showLoginToastIfNeeded()
+        }
+        return
+      }
+
+      // Nếu có token → verify với server (dùng chung promise để tránh gọi lặp)
       try {
         console.log("🔍 Verifying token...")
-        const res = await fetch("/api/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
-          cache: "no-store",
-        })
-
-        if (!res.ok) {
-          console.error("❌ Token invalid, status:", res.status)
-          throw new Error("Invalid token")
+        if (!inFlightVerify) {
+          inFlightVerify = fetch("/api/auth/me", {
+            headers: { Authorization: `Bearer ${token}` },
+            cache: "no-store",
+          })
+            .then(async (res) => {
+              if (!res.ok) {
+                console.error("❌ Token invalid, status:", res.status)
+                throw new Error("Invalid token")
+              }
+              const { user: freshUser } = await res.json()
+              return {
+                id: freshUser.id,
+                email: freshUser.email,
+                fullName: freshUser.fullName,
+                avatarUrl: freshUser.avatarUrl || "/logo.png",
+                role: freshUser.role,
+              }
+            })
+            .finally(() => {
+              inFlightVerify = null
+            })
         }
 
-        const { user: freshUser } = await res.json()
-        console.log("✅ Token valid, user:", freshUser.email)
+        const verifiedUser = await inFlightVerify
+        console.log("✅ Token valid, user:", verifiedUser?.email)
 
         if (mounted) {
           // Cập nhật store với data mới
-          setUser({
-            id: freshUser.id,
-            email: freshUser.email,
-            fullName: freshUser.fullName,
-            avatarUrl: freshUser.avatarUrl || "/logo.png",
-            role: freshUser.role,
-          })
+          if (verifiedUser) {
+            setUser(verifiedUser)
+          }
+          lastToken = token
+          lastVerifiedAt = Date.now()
           setLoading(false)
           setVerified(true)
           showLoginToastIfNeeded()
@@ -99,6 +131,8 @@ export function useAuth(requireAuth = false) {
           // Clear auth
           setUser(null)
           localStorage.removeItem("token")
+          lastToken = null
+          lastVerifiedAt = 0
           setLoading(false)
           setVerified(true)
           

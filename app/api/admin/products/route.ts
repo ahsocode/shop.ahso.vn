@@ -53,10 +53,12 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status") as z.infer<
       typeof PublishStatusEnum
     > | null;
-    const { page, pageSize, skip, take } = parsePaging(req, {
-      defaultPageSize: 50,
-      maxPageSize: 50,
-    });
+    const mode = (searchParams.get("mode") || "").trim();
+    const pagingOptions =
+      mode === "options"
+        ? { defaultPageSize: 200, maxPageSize: 200 }
+        : { defaultPageSize: 50, maxPageSize: 50 };
+    const { page, pageSize, skip, take } = parsePaging(req, pagingOptions);
 
     const where: productWhereInput = {
       ...(q && {
@@ -89,6 +91,23 @@ export async function GET(req: NextRequest) {
         break;
       default:
         orderBy = { updatedAt: sortOrderParam };
+    }
+
+    if (mode === "options") {
+      const rows = await prisma.product.findMany({
+        where,
+        orderBy,
+        skip,
+        take,
+        select: {
+          id: true,
+          name: true,
+          sku: true,
+          coverImage: true,
+          brand: { select: { name: true } },
+        },
+      });
+      return jsonOk({ data: rows, meta: { total: rows.length, page, pageSize } });
     }
 
     const [total, rows] = await Promise.all([

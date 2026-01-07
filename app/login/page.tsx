@@ -135,6 +135,10 @@ function LoginClient() {
       // Delay nhỏ để đảm bảo cookie được set
       await new Promise((r) => setTimeout(r, 150));
 
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("announcement_login_success", "1");
+      }
+
       const redirectTo = searchParams.get("redirect") || "/";
       const isValidRedirect = redirectTo.startsWith("/") && !redirectTo.startsWith("/login");
       const finalRedirect = isValidRedirect ? redirectTo : "/";

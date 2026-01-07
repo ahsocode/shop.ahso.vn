@@ -15,6 +15,7 @@ const CreateBannerSchema = z.object({
   isActive: z.boolean().optional(),
   overlayOn: z.boolean().optional(),
   overlayColor: z.string().max(50).optional().nullable(),
+  textColor: z.string().max(50).optional().nullable(),
   textPosition: z
     .enum(["TOP_LEFT", "TOP_RIGHT", "MIDDLE_LEFT", "MIDDLE_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"])
     .optional(),
@@ -52,6 +53,7 @@ export async function POST(req: NextRequest) {
       isActive: parsed.data.isActive ?? true,
       overlayOn: parsed.data.overlayOn ?? false,
       overlayColor: parsed.data.overlayColor || null,
+      textColor: parsed.data.textColor || null,
       textPosition: parsed.data.textPosition ?? "MIDDLE_LEFT",
     },
   });
