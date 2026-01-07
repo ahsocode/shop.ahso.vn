@@ -17,8 +17,6 @@ import {
   Laptop,
   TrendingUp,
   Star,
-  ChevronLeft,
-  ChevronRight,
   Sparkles,
 } from "lucide-react";
 import QuoteRequestButton from "@/app/shop/products/QuoteRequestButton";
@@ -256,6 +254,22 @@ function SectionHeader({ icon: Icon, title, subtitle }: SectionHeaderProps) {
   );
 }
 
+function HomePageLoading() {
+  return (
+    <div className="min-h-screen bg-white">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6">
+        <div className="relative w-28 h-28">
+          <div className="absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
+          <div className="absolute inset-2 rounded-full bg-white shadow-md flex items-center justify-center">
+            <Image src={FALLBACK_IMAGE} alt="AHSO" width={64} height={64} />
+          </div>
+        </div>
+        <div className="text-sm text-gray-500">Đang tải dữ liệu trang chủ...</div>
+      </div>
+    </div>
+  );
+}
+
 export default function HomePageClient() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [heroSlides, setHeroSlides] = useState<HeroSlide[] | null>(null);
@@ -263,6 +277,9 @@ export default function HomePageClient() {
   const [bestSellers, setBestSellers] = useState<HomeProduct[]>([]);
   const [newArrivals, setNewArrivals] = useState<HomeProduct[]>([]);
   const [topRated, setTopRated] = useState<HomeProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [heroAnimated, setHeroAnimated] = useState(false);
+  const [heroAnimationDone, setHeroAnimationDone] = useState(false);
 
   // Auto-rotate slides
   useEffect(() => {
@@ -333,6 +350,10 @@ export default function HomePageClient() {
           setNewArrivals([]);
           setTopRated([]);
         }
+      } finally {
+        if (!ignore) {
+          setIsLoading(false);
+        }
       }
     };
     fetchData();
@@ -341,8 +362,16 @@ export default function HomePageClient() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isLoading && !heroAnimated) {
+      setHeroAnimated(true);
+    }
+  }, [isLoading, heroAnimated]);
+
   // Intersection Observer for scroll animations
   useEffect(() => {
+    if (isLoading) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -359,7 +388,7 @@ export default function HomePageClient() {
     elements.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
-  }, []);
+  }, [isLoading]);
 
   const resolvedSlides = heroSlides ?? [];
   const totalSlides = Math.max(1, resolvedSlides.length);
@@ -406,17 +435,8 @@ export default function HomePageClient() {
     return fallback;
   };
 
-  const overlayEnabled = hasSlides && Boolean(activeSlide?.overlayOn);
   // Semi-transparent “veil” so the banner stays visible, even if user picked white
-  const overlayColor = normalizeOverlayColor(hasSlides ? activeSlide?.overlayColor : null);
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % totalSlides);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
-  };
+  const getOverlayColor = (value?: string | null) => normalizeOverlayColor(value);
 
   const categories = [
     {
@@ -480,6 +500,12 @@ export default function HomePageClient() {
       color: "from-yellow-500 to-yellow-600",
     },
   ];
+
+  const shouldAnimateHero = heroAnimated && !heroAnimationDone;
+
+  if (isLoading) {
+    return <HomePageLoading />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -598,25 +624,29 @@ export default function HomePageClient() {
           {resolvedSlides.length === 0 ? (
             <div className="absolute inset-0 bg-linear-to-r from-blue-900 via-blue-800 to-blue-700" />
           ) : (
-            resolvedSlides.map((slide, index) => (
-              <div
-                key={`${slide.image}-${index}`}
-                className="absolute inset-0 transition-opacity duration-1000"
-                style={{
-                  opacity: currentSlide === index ? 1 : 0,
-                  backgroundImage: `url(${slide.image})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              >
-                {overlayEnabled && (
-                  <div
-                    className="absolute inset-0"
-                    style={{ background: overlayColor }}
-                  />
-                )}
-              </div>
-            ))
+            resolvedSlides.map((slide, index) => {
+              const overlayOn = Boolean(slide.overlayOn);
+              const overlayColor = getOverlayColor(slide.overlayColor);
+              return (
+                <div
+                  key={`${slide.image}-${index}`}
+                  className="absolute inset-0 transition-opacity duration-1000"
+                  style={{
+                    opacity: currentSlide === index ? 1 : 0,
+                    backgroundImage: `url(${slide.image})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                >
+                  {overlayOn && (
+                    <div
+                      className="absolute inset-0"
+                      style={{ background: overlayColor }}
+                    />
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
 
@@ -625,15 +655,11 @@ export default function HomePageClient() {
           <div className="relative z-10 h-full">
             <div className={`h-full w-full px-4 sm:px-6 lg:px-8 flex ${positionClass}`}>
               <div className="max-w-3xl">
-                <div className="inline-block mb-4 px-4 py-2 bg-blue-500/20 backdrop-blur-sm rounded-full border border-blue-400/30 animate-fade-in-up">
-                  <span className="text-blue-200 text-sm font-medium">
-                    🏭 Giải pháp công nghiệp hàng đầu
-                  </span>
-                </div>
-
                 {displayTitle && (
                   <h1
-                    className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white animate-fade-in-up"
+                    className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white ${
+                      shouldAnimateHero ? "animate-fade-in-up" : ""
+                    }`}
                     style={{ animationDelay: "0.1s" }}
                   >
                     {displayTitle}
@@ -642,7 +668,9 @@ export default function HomePageClient() {
 
                 {displaySubtitle && (
                   <p
-                    className="text-lg md:text-xl lg:text-2xl mb-8 text-blue-100 animate-fade-in-up"
+                    className={`text-lg md:text-xl lg:text-2xl mb-8 text-blue-100 ${
+                      shouldAnimateHero ? "animate-fade-in-up" : ""
+                    }`}
                     style={{ animationDelay: "0.2s" }}
                   >
                     {displaySubtitle}
@@ -650,8 +678,15 @@ export default function HomePageClient() {
                 )}
 
                 <div
-                  className="flex flex-wrap gap-4 animate-fade-in-up"
+                  className={`flex flex-wrap gap-4 ${
+                    shouldAnimateHero ? "animate-fade-in-up" : ""
+                  }`}
                   style={{ animationDelay: "0.3s" }}
+                  onAnimationEnd={() => {
+                    if (shouldAnimateHero) {
+                      setHeroAnimationDone(true);
+                    }
+                  }}
                 >
                   <Link
                     href="/shop/products"
@@ -681,26 +716,6 @@ export default function HomePageClient() {
               </div>
             </div>
           </div>
-        )}
-
-        {/* Navigation Arrows */}
-        {resolvedSlides.length > 1 && (
-          <>
-            <button
-              onClick={prevSlide}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all"
-              aria-label="Previous slide"
-            >
-              <ChevronLeft className="w-6 h-6 text-white" />
-            </button>
-            <button
-              onClick={nextSlide}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-all"
-              aria-label="Next slide"
-            >
-              <ChevronRight className="w-6 h-6 text-white" />
-            </button>
-          </>
         )}
 
         {/* Slide Indicators */}
