@@ -189,7 +189,7 @@ export async function generateMetadata({
   if (!p) {
     return buildMetadata({
       title: "Sản phẩm không tồn tại",
-      description: "Không tìm thấy sản phẩm bạn yêu cầu trên AHSO Shop.",
+      description: "Không tìm thấy sản phẩm bạn yêu cầu trên AHSO Industrial.",
       path: `/shop/products/${slug}`,
     });
   }

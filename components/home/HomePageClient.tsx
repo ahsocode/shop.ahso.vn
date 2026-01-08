@@ -98,6 +98,7 @@ type HomeProduct = {
   rating?: number | null;
   sales?: number | null;
   requiresQuote?: boolean;
+  isFeatured?: boolean;
 };
 
 type ApiProduct = {
@@ -115,13 +116,14 @@ type ApiProduct = {
   purchaseCount?: number | string | null;
   sales?: number | string | null;
   requiresQuote?: boolean | null;
+  isFeatured?: boolean | null;
 };
 
 type MarqueeStyle = CSSProperties & { "--marquee-duration"?: string };
 
 function normalizeProductData(
   source: ApiProduct | null | undefined,
-  options: { fallbackName?: string; fallbackId?: string } = {},
+  options: { fallbackName?: string; fallbackId?: string; isFeatured?: boolean } = {},
 ): HomeProduct {
   const product = source ?? {};
   const price = product.price != null ? Number(product.price) : null;
@@ -155,6 +157,7 @@ function normalizeProductData(
         ? Number(product.sales)
         : null,
     requiresQuote: Boolean(product.requiresQuote),
+    isFeatured: options.isFeatured ?? Boolean(product.isFeatured),
   };
 }
 
@@ -184,8 +187,13 @@ function ProductCard({ product, index }: { product: HomeProduct; index: number }
           className="object-cover group-hover:scale-110 transition-transform duration-500"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
         />
+        {product.isFeatured && (
+          <span className="absolute top-3 left-3 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow">
+            Nổi bật
+          </span>
+        )}
         {hasDiscount && (
-          <div className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
+          <div className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
             -{discount}%
           </div>
         )}
@@ -259,6 +267,7 @@ type FeaturedContent = {
   image: string;
   href: string;
   categoryName: string | null;
+  isFeatured?: boolean;
 };
 
 function normalizeFeaturedContent(input: {
@@ -273,6 +282,7 @@ function normalizeFeaturedContent(input: {
     categoryName?: string | null;
   } | null;
   baseHref: string;
+  isFeatured?: boolean;
 }): FeaturedContent {
   const title = input.title?.trim() || input.entity?.title?.trim() || "Nội dung nổi bật";
   const slug = input.entity?.slug?.trim();
@@ -285,6 +295,7 @@ function normalizeFeaturedContent(input: {
     image,
     href: slug ? `${input.baseHref}/${slug}` : input.baseHref,
     categoryName: input.entity?.categoryName ?? null,
+    isFeatured: input.isFeatured ?? false,
   };
 }
 
@@ -302,6 +313,11 @@ function FeaturedMarqueeCard({ item }: { item: FeaturedContent }) {
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="320px"
         />
+        {item.isFeatured && (
+          <span className="absolute left-3 top-3 rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow">
+            Nổi bật
+          </span>
+        )}
       </div>
       {item.categoryName && (
         <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">
@@ -419,6 +435,7 @@ export default function HomePageClient() {
                 normalizeProductData(item.product ?? null, {
                   fallbackName: item.title ?? undefined,
                   fallbackId: item.id?.toString(),
+                  isFeatured: true,
                 }),
               )
             : [],
@@ -535,6 +552,7 @@ export default function HomePageClient() {
       description: item.description,
       entity: item.solution ?? undefined,
       baseHref: "/solutions",
+      isFeatured: true,
     }),
   );
   const softwareItems = (featuredSoftwares ?? []).map((item) =>
@@ -544,6 +562,7 @@ export default function HomePageClient() {
       description: item.description,
       entity: item.software ?? undefined,
       baseHref: "/software",
+      isFeatured: true,
     }),
   );
 

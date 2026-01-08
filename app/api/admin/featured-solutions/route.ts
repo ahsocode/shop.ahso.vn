@@ -149,6 +149,11 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    await prisma.solution.update({
+      where: { id: solutionId },
+      data: { isFeatured: Boolean(isActive) },
+    });
+
     const data = {
       ...created,
       solution: {

@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 
 const FALLBACK_SITE_URL = "https://shop.ahso.vn";
 
-export const SITE_NAME = "AHSO Shop";
+export const SITE_NAME = "AHSO Industrial";
 export const SITE_TAGLINE = "Máy móc & Thiết bị Công nghiệp";
 export const SITE_DESCRIPTION =
-  "AHSO Shop cung cấp giải pháp tự động hóa, thiết bị, máy móc và linh kiện công nghiệp chính hãng cho doanh nghiệp Việt Nam.";
+  "AHSO Industrial cung cấp giải pháp tự động hóa, thiết bị, máy móc và linh kiện công nghiệp chính hãng cho doanh nghiệp Việt Nam.";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? FALLBACK_SITE_URL;
 
 const DEFAULT_OG_IMAGE = "/logo.png";

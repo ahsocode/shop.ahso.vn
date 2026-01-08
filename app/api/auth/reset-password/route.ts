@@ -92,7 +92,7 @@ export async function POST(req: Request) {
             <p>Nếu không phải bạn thực hiện, vui lòng <strong>đặt lại mật khẩu</strong> ngay và liên hệ hỗ trợ.</p>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
             <p style="color: #666; font-size: 12px;">
-              AHSO Shop - <a href="https://shop.ahso.vn">shop.ahso.vn</a>
+              AHSO Industrial - <a href="https://shop.ahso.vn">shop.ahso.vn</a>
             </p>
           </div>
         `,

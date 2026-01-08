@@ -62,7 +62,7 @@ export default async function SoftwarePage({
   const q = pickParam(params, "q").trim();
   const category = pickParam(params, "category").trim();
   const page = toInt(pickParam(params, "page"), 1);
-  const pageSize = toInt(pickParam(params, "pageSize"), 24);
+  const pageSize = toInt(pickParam(params, "pageSize"), 20);
 
   const where: softwareWhereInput = { status: "PUBLISHED" };
 
@@ -86,16 +86,17 @@ export default async function SoftwarePage({
       orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
       skip: (page - 1) * pageSize,
       take: pageSize,
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        summary: true,
-        coverImage: true,
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          summary: true,
+          coverImage: true,
+          isFeatured: true,
 
-        // ✅ thêm relation để TS có r.softwarecategory
-        softwarecategory: {
-          select: {
+          // ✅ thêm relation để TS có r.softwarecategory
+          softwarecategory: {
+            select: {
             id: true,
             slug: true,
             name: true,
@@ -123,6 +124,7 @@ export default async function SoftwarePage({
     title: r.title,
     summary: r.summary ?? undefined,
     image: r.coverImage ?? null,
+    isFeatured: r.isFeatured ?? false,
     category: r.softwarecategory
       ? {
           id: r.softwarecategory.id,

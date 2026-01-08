@@ -5,6 +5,20 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { verifyBearerAuth, requireRole } from "@/lib/auth";
 
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
+  const me = await verifyBearerAuth(req);
+  requireRole(me, ["ADMIN", "STAFF"]);
+  const { id } = await context.params;
+  const banner = await prisma.herobanner.findUnique({ where: { id } });
+  if (!banner) {
+    return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
+  }
+  return NextResponse.json({ data: banner });
+}
+
 const UpdateSchema = z.object({
   imageUrl: z.string().url().optional(),
   title: z.string().max(200).optional().nullable(),

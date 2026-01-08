@@ -301,6 +301,7 @@ model product {
   ratingCount                                           Int                   @default(0)
   purchaseCount                                         Int                   @default(0)
   viewCount                                             Int                   @default(0)
+  isFeatured                                            Boolean               @default(false)
   createdAt                                             DateTime              @default(now())
   updatedAt                                             DateTime              @updatedAt
   publishAt                                             DateTime?
@@ -524,6 +525,7 @@ model software {
   metaDescription  String?
   canonicalUrl     String?
   categoryId       String
+  isFeatured       Boolean          @default(false)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime
   softwarecategory softwarecategory @relation(fields: [categoryId], references: [id], map: "Software_categoryId_fkey")
@@ -567,6 +569,7 @@ model solution {
   metaDescription  String?
   canonicalUrl     String?
   categoryId       String
+  isFeatured       Boolean          @default(false)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime
   solutioncategory solutioncategory @relation(fields: [categoryId], references: [id], map: "Solution_categoryId_fkey")

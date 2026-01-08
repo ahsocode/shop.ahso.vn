@@ -13,6 +13,7 @@ export type SoftwareCard = {
   category?: { id?: string; slug?: string; name?: string } | null;
   image?: string | null;
   summary?: string | null;
+  isFeatured?: boolean;
 };
 
 export type SoftwareCategoryOption = { id: string; slug: string; name: string };
@@ -36,7 +37,7 @@ export default function SoftwareSearchClient({
   const defaultQ = sp.get("q") ?? initialQuery?.q ?? "";
   const defaultCategory = sp.get("category") ?? initialQuery?.category ?? "";
   const defaultPage = Number(sp.get("page") ?? initialQuery?.page ?? 1);
-  const pageSize = initialQuery?.pageSize ?? 24;
+  const pageSize = initialQuery?.pageSize ?? 20;
 
   const [q, setQ] = useState(defaultQ);
   const [page, setPage] = useState(defaultPage);
@@ -221,7 +222,7 @@ export default function SoftwareSearchClient({
               )}
             </div>
 
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
               {loading
                 ? Array.from({ length: pageSize }).map((_, i) => (
                     <div
@@ -250,6 +251,11 @@ export default function SoftwareSearchClient({
                               className="object-cover"
                               sizes="(min-width: 1280px) 16vw, (min-width: 768px) 25vw, 100vw"
                             />
+                            {x.isFeatured && (
+                              <span className="absolute left-3 top-3 rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow">
+                                Nổi bật
+                              </span>
+                            )}
                           </div>
                         ) : (
                           <div className="aspect-square w-full bg-gray-100" />

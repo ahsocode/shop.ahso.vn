@@ -48,6 +48,7 @@ type ProductCard = {
   ratingAvg?: number;
   ratingCount?: number;
   purchaseCount?: number;
+  isFeatured?: boolean;
 };
 
 type BrandOpt = { name: string; slug: string; productCount?: number };
@@ -261,6 +262,11 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
               fill
               className="object-contain p-3 group-hover:scale-105 transition-transform duration-500"
             />
+            {product.isFeatured && (
+              <span className="absolute left-2 top-2 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white shadow">
+                Nổi bật
+              </span>
+            )}
             {showStockState && !product.inStock && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                 <span className="bg-white text-gray-900 px-2 py-1 rounded-full text-[10px] font-semibold">
@@ -345,6 +351,11 @@ function ProductCard({ product, viewMode }: { product: ProductCard; viewMode: "g
           fill
           className="object-contain p-2 sm:p-3 group-hover:scale-105 transition-transform duration-500"
         />
+        {product.isFeatured && (
+          <span className="absolute left-2 top-2 rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white shadow">
+            Nổi bật
+          </span>
+        )}
         {showStockState && !product.inStock && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <span className="bg-white text-gray-900 px-2 py-1 rounded-full text-[10px] font-semibold">
@@ -794,7 +805,6 @@ export default function ProductsSearchClient() {
     const params = new URLSearchParams();
     if (brand) params.set("brand", brand);
     if (category) params.set("category", category);
-    if (productType) params.set("type", productType);
     const query = params.toString();
 
     const loadFallback = async () => {

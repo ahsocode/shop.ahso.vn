@@ -164,6 +164,11 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    await prisma.product.update({
+      where: { id: productId },
+      data: { isFeatured: Boolean(isActive) },
+    });
+
     return jsonOk({ data: created }, 201);
   } catch (error) {
     const err = toHttpError(error);
