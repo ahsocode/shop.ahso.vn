@@ -65,7 +65,7 @@ export async function generateMetadata({
   if (!solution) {
     return buildMetadata({
       title: "Giải pháp không tồn tại",
-      description: "Nội dung bạn yêu cầu hiện không khả dụng trên AHSO Shop.",
+      description: "Nội dung bạn yêu cầu hiện không khả dụng trên AHSO Industrial.",
       path: `/solutions/${slug}`,
     });
   }
@@ -184,16 +184,16 @@ export default async function SolutionDetailPage({
         <p className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600">
           Giải pháp công nghiệp
         </p>
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 break-words">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 wrap-break-word">
           {solution.title}
         </h1>
         {solution.summary && (
-          <p className="text-lg text-gray-600 max-w-3xl break-words">{solution.summary}</p>
+          <p className="text-lg text-gray-600 max-w-3xl wrap-break-word">{solution.summary}</p>
         )}
       </header>
 
           <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
-            <div className="relative aspect-[4/3] w-full bg-gray-50">
+            <div className="relative aspect-4/3 w-full bg-gray-50">
               <Image
                 src={cover}
                 alt={solution.title}
@@ -211,7 +211,7 @@ export default async function SolutionDetailPage({
                 .map((img: SolutionWithRelations["images"][number]) => (
                   <div
                     key={img.id}
-                    className="relative aspect-[4/3] overflow-hidden rounded-xl border bg-gray-50"
+                    className="relative aspect-4/3 overflow-hidden rounded-xl border bg-gray-50"
                   >
                     <Image
                       src={img.url}
@@ -231,7 +231,7 @@ export default async function SolutionDetailPage({
             </h2>
             {solution.bodyHtml ? (
               <div
-                className="prose max-w-none prose-blue break-words [&>img]:w-full [&>img]:h-auto [&>img]:rounded-xl [&>img]:border [&>img]:bg-gray-50 [&>img]:mx-auto"
+                className="prose max-w-none prose-blue wrap-break-word [&>img]:w-full [&>img]:h-auto [&>img]:rounded-xl [&>img]:border [&>img]:bg-gray-50 [&>img]:mx-auto"
                 dangerouslySetInnerHTML={{ __html: solution.bodyHtml }}
               />
             ) : (

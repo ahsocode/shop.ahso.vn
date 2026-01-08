@@ -49,6 +49,8 @@ export default function FeaturedSoftwaresPage() {
   const [softwareFilter, setSoftwareFilter] = useState("");
   const [softwareSlotSelection, setSoftwareSlotSelection] = useState<number | null>(null);
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
     let ignore = false;
@@ -94,7 +96,9 @@ export default function FeaturedSoftwaresPage() {
     setLoadingMap((prev) => ({ ...prev, [key]: value }));
 
   async function handleDeleteFeaturedSoftware(id: string) {
-    const confirmed = await confirmToast("Xóa phần mềm nổi bật này?");
+    const confirmed = await confirmToast("Xóa phần mềm nổi bật này?", {
+      variant: "modal",
+    });
     if (!confirmed) return;
     updateLoadingMap(`featured-software-${id}`, true);
     try {
@@ -106,6 +110,7 @@ export default function FeaturedSoftwaresPage() {
       );
       if (!res.ok) throw new Error(await res.text());
       setFeaturedSoftwares((prev) => prev.filter((f) => f.id !== id));
+      setSelectedIds((prev) => prev.filter((x) => x !== id));
       toast.success("Đã xóa phần mềm nổi bật");
     } catch (error) {
       console.error("Failed to delete featured software", error);
@@ -120,15 +125,75 @@ export default function FeaturedSoftwaresPage() {
     [featuredSoftwares],
   );
 
-  const softwareSlots = useMemo(() => {
+  const sortedFeatured = useMemo(() => {
     const sorted = [...featuredSoftwares].sort((a, b) => {
       const orderA = a.sortOrder ?? 0;
       const orderB = b.sortOrder ?? 0;
       if (orderA !== orderB) return orderA - orderB;
       return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
     });
-    return Array.from({ length: 10 }, (_, idx) => sorted[idx] ?? null);
+    return sorted;
   }, [featuredSoftwares]);
+
+  const softwareSlots = useMemo(
+    () => Array.from({ length: 10 }, (_, idx) => sortedFeatured[idx] ?? null),
+    [sortedFeatured],
+  );
+
+  const allFeaturedIds = useMemo(
+    () => sortedFeatured.map((item) => item.id),
+    [sortedFeatured],
+  );
+  const allSelected =
+    allFeaturedIds.length > 0 &&
+    allFeaturedIds.every((id) => selectedIds.includes(id));
+
+  const toggleSelectAll = (checked: boolean) => {
+    setSelectedIds(checked ? allFeaturedIds : []);
+  };
+
+  const toggleSelectItem = (id: string, checked: boolean) => {
+    setSelectedIds((prev) =>
+      checked ? Array.from(new Set([...prev, id])) : prev.filter((x) => x !== id),
+    );
+  };
+
+  async function handleBulkDelete(mode: "all" | "selected") {
+    const total = sortedFeatured.length;
+    if (!total) {
+      toast.info("Không có phần mềm nổi bật để xóa.");
+      return;
+    }
+    const message =
+      mode === "all"
+        ? "Xóa toàn bộ phần mềm nổi bật?"
+        : `Xóa ${selectedIds.length} phần mềm nổi bật đã chọn?`;
+    const confirmed = await confirmToast(message, { variant: "modal" });
+    if (!confirmed) return;
+    setBulkLoading(true);
+    try {
+      const res = await fetch("/api/admin/featured-softwares/bulk-delete", {
+        method: "POST",
+        headers: makeHeaders({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ mode, ids: selectedIds }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const json = (await res.json()) as { deletedIds?: string[] };
+      const deletedIds = json.deletedIds ?? [];
+      if (deletedIds.length) {
+        setFeaturedSoftwares((prev) => prev.filter((f) => !deletedIds.includes(f.id)));
+        setSelectedIds((prev) => prev.filter((id) => !deletedIds.includes(id)));
+        toast.success(`Đã xóa ${deletedIds.length} phần mềm nổi bật`);
+      } else {
+        toast.info("Không có phần mềm nổi bật để xóa.");
+      }
+    } catch (error) {
+      console.error("Failed to bulk delete featured softwares", error);
+      toast.error("Không thể xóa phần mềm nổi bật");
+    } finally {
+      setBulkLoading(false);
+    }
+  }
 
   async function handleAssignFeaturedSoftware(softwareId: string, slotIndex: number) {
     updateLoadingMap(`software-slot-${slotIndex}`, true);
@@ -189,9 +254,38 @@ export default function FeaturedSoftwaresPage() {
             <Laptop className="h-5 w-5 text-blue-500" />
             <h2 className="text-lg font-semibold text-gray-900">Danh sách nổi bật</h2>
           </div>
-          <p className="text-sm text-gray-500">
-            Chọn các phần mềm để hiển thị nổi bật trên trang chủ hoặc các trang khác.
-          </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-gray-500">
+              Chọn các phần mềm để hiển thị nổi bật trên trang chủ hoặc các trang khác.
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={(e) => toggleSelectAll(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                Chọn tất cả
+              </label>
+              <button
+                type="button"
+                onClick={() => handleBulkDelete("all")}
+                disabled={bulkLoading || sortedFeatured.length === 0}
+                className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Xóa toàn bộ
+              </button>
+              <button
+                type="button"
+                onClick={() => handleBulkDelete("selected")}
+                disabled={bulkLoading || selectedIds.length === 0}
+                className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                Xóa đã chọn
+              </button>
+            </div>
+          </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
             {softwareSlots.map((slotItem, index) => (
@@ -215,6 +309,16 @@ export default function FeaturedSoftwaresPage() {
                 </div>
                 {slotItem ? (
                   <div className="flex items-center gap-3 mt-3">
+                    <div className="self-start">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(slotItem.id)}
+                        onChange={(e) => toggleSelectItem(slotItem.id, e.target.checked)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        aria-label={`Chọn ${slotItem.software.title}`}
+                      />
+                    </div>
                     {slotItem.software.coverImage ? (
                       <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-white shadow-sm">
                         <Image

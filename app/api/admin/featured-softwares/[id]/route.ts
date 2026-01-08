@@ -113,6 +113,11 @@ export async function PATCH(
       },
     });
 
+    await prisma.software.update({
+      where: { id: updated.softwareId },
+      data: { isFeatured: Boolean(updated.isActive) },
+    });
+
     const responseData = {
       ...updated,
       software: {
@@ -140,7 +145,17 @@ export async function DELETE(
     const featuredModel = getFeaturedSoftwareModel();
     if (!featuredModel) return jsonError("Feature model unavailable", 500);
 
+    const existing = await featuredModel.findUnique({
+      where: { id },
+      select: { softwareId: true },
+    });
+    if (!existing) return jsonError("Not Found", 404);
+
     await featuredModel.delete({ where: { id } });
+    await prisma.software.update({
+      where: { id: existing.softwareId },
+      data: { isFeatured: false },
+    });
     return jsonOk({ ok: true });
   } catch (error) {
     const err = toHttpError(error);

@@ -75,6 +75,7 @@ const mapListItem = (row: ProductListRow) => {
     ratingCount: row.ratingCount ?? 0,
     purchaseCount: row.purchaseCount ?? 0,
     requiresQuote: row.requiresQuote ?? false,
+    isFeatured: row.isFeatured ?? false,
   };
 };
 

@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/metadata";
 export const metadata: Metadata = buildMetadata({
   title: "Quên mật khẩu",
   description:
-    "Khôi phục mật khẩu tài khoản AHSO Shop bằng email xác thực.",
+    "Khôi phục mật khẩu tài khoản AHSO Industrial bằng email xác thực.",
   path: "/forgot-password",
 });
 

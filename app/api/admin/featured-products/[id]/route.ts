@@ -120,6 +120,11 @@ export async function PATCH(
       },
     });
 
+    await prisma.product.update({
+      where: { id: updated.productId },
+      data: { isFeatured: Boolean(updated.isActive) },
+    });
+
     return jsonOk({ data: updated });
   } catch (error) {
     const err = toHttpError(error);
@@ -139,7 +144,17 @@ export async function DELETE(
     const featuredModel = getFeaturedModel();
     if (!featuredModel) return jsonError("Feature model unavailable", 500);
 
+    const existing = await featuredModel.findUnique({
+      where: { id },
+      select: { productId: true },
+    });
+    if (!existing) return jsonError("Not Found", 404);
+
     await featuredModel.delete({ where: { id } });
+    await prisma.product.update({
+      where: { id: existing.productId },
+      data: { isFeatured: false },
+    });
     return jsonOk({ ok: true });
   } catch (error) {
     const err = toHttpError(error);

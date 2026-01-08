@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/metadata";
 export const metadata: Metadata = buildMetadata({
   title: "Xem lại đơn hàng",
   description:
-    "Kiểm tra thông tin sản phẩm, địa chỉ và chi phí trước khi gửi đơn hàng tại AHSO Shop.",
+    "Kiểm tra thông tin sản phẩm, địa chỉ và chi phí trước khi gửi đơn hàng tại AHSO Industrial.",
   path: "/cart-review",
 });
 
