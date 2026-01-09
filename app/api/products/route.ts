@@ -102,36 +102,51 @@ function normalizeStatus(value?: string | null): { isAll: boolean; status: Produ
 }
 
 type SortDirection = "asc" | "desc";
+type OrderByInput = productOrderByWithRelationInput | productOrderByWithRelationInput[];
 
-function getOrderBy(sortField: string, order: SortDirection): productOrderByWithRelationInput {
+function withStockPriority(
+  base: productOrderByWithRelationInput | productOrderByWithRelationInput[]
+): productOrderByWithRelationInput[] {
+  return [{ stockOnHand: "desc" }, ...(Array.isArray(base) ? base : [base])];
+}
+
+function getOrderBy(sortField: string, order: SortDirection): OrderByInput {
   switch (sortField) {
     case "price":
-      return { price: order };
+      return withStockPriority({ price: order });
     case "name":
-      return { name: order };
+      return withStockPriority({ name: order });
     case "purchaseCount":
-      return { purchaseCount: order };
+      return withStockPriority({ purchaseCount: order });
     case "ratingAvg":
-      return { ratingAvg: order };
+      return withStockPriority({ ratingAvg: order });
+    case "updatedAt":
+      return withStockPriority({ updatedAt: order });
     default:
-      return { createdAt: order };
+      return withStockPriority({ createdAt: order });
   }
 }
 
-function mapUiSort(value: string | null): productOrderByWithRelationInput | null {
+function mapUiSort(value: string | null): OrderByInput | null {
   switch (value) {
+    case "all":
+      return withStockPriority({ updatedAt: "desc" });
     case "price_asc":
-      return { price: "asc" };
+      return withStockPriority({ price: "asc" });
     case "price_desc":
-      return { price: "desc" };
+      return withStockPriority({ price: "desc" });
     case "name_asc":
-      return { name: "asc" };
+      return withStockPriority({ name: "asc" });
     case "name_desc":
-      return { name: "desc" };
+      return withStockPriority({ name: "desc" });
     case "popular":
-      return { purchaseCount: "desc" };
+      return withStockPriority({ purchaseCount: "desc" });
     case "rating":
-      return { ratingAvg: "desc" };
+      return withStockPriority({ ratingAvg: "desc" });
+    case "featured":
+      return withStockPriority([{ isFeatured: "desc" }, { updatedAt: "desc" }]);
+    case "updated_desc":
+      return withStockPriority({ updatedAt: "desc" });
     default:
       return null;
   }
@@ -164,7 +179,7 @@ export async function GET(request: NextRequest) {
     const sortOrderParam =
       (searchParams.get("sortOrder") as SortDirection | null) || "desc";
     const mappedOrder = mapUiSort(uiSort);
-    const orderBy =
+    const orderBy: OrderByInput =
       mappedOrder ?? getOrderBy(sortByParam, sortOrderParam);
 
     // --- Filters ---

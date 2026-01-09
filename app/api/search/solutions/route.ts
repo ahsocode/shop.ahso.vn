@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { solutionWhereInput } from "@/lib/prisma-types";
 
+const FALLBACK_IMAGE = "/logo.png";
+
 function toInt(v: string | null, def = 1) {
   const n = v ? Number(v) : NaN;
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : def;
@@ -53,7 +55,7 @@ export async function GET(req: Request) {
         slug: r.slug,
         title: r.title,
         summary: r.summary,
-        image: r.coverImage ?? null,
+        image: r.coverImage || FALLBACK_IMAGE,
         category: r.solutioncategory,
         isFeatured: r.isFeatured ?? false,
       })),

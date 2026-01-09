@@ -34,6 +34,19 @@ function buildSaleCodeFromSlug(slug: string): string {
   return `AHSO-${prefix}-${randomNumber}`;
 }
 
+function buildWordSearch(q: string): productWhereInput | undefined {
+  const words = q
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!words.length) return undefined;
+  return {
+    AND: words.map((word) => ({
+      name: { contains: word, mode: "insensitive" },
+    })),
+  };
+}
+
 /**
  * GET /api/admin/products
  * List sản phẩm (có filter, paging) + có profitAmount / profitMargin
@@ -61,15 +74,7 @@ export async function GET(req: NextRequest) {
     const { page, pageSize, skip, take } = parsePaging(req, pagingOptions);
 
     const where: productWhereInput = {
-      ...(q && {
-        OR: [
-          { name: { contains: q } },
-          { sku: { contains: q } },
-          { saleCode: { contains: q } },
-          { brand: { name: { contains: q } } },
-          { producttype: { name: { contains: q } } },
-        ],
-      }),
+      ...(q && buildWordSearch(q)),
       ...(brandId && { brandId }),
       ...(typeId && { typeId }),
       ...(status && { status }),

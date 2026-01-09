@@ -843,7 +843,7 @@ export default function HomePageClient() {
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 lg:order-1">
               <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
                 <Factory className="w-4 h-4" />
-                Giải pháp là gì
+                Cung Cấp Giải Pháp 
               </div>
               <p className="mt-4 text-sm text-slate-700 leading-relaxed">
                 Các gói giải pháp giúp doanh nghiệp tối ưu quy trình vận hành,
@@ -997,7 +997,7 @@ export default function HomePageClient() {
             <div className="rounded-2xl border border-slate-200 bg-slate-100 p-6 lg:order-2">
               <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase text-slate-500">
                 <Laptop className="w-4 h-4" />
-                Phần mềm là gì
+                 Cung Cấp Phần Mềm 
               </div>
               <p className="mt-4 text-sm text-slate-700 leading-relaxed">
                 Các giải pháp phần mềm giúp số hóa, giám sát và tự động hóa quy

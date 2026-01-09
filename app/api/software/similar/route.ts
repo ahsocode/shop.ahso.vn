@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { softwareWhereInput } from "@/lib/prisma-types";
 
+const FALLBACK_IMAGE = "/logo.png";
+
 function toLimit(v: string | null, def = 12, max = 24) {
   const n = v ? Number(v) : NaN;
   return Number.isFinite(n) && n > 0 ? Math.min(n, max) : def;
@@ -51,7 +53,7 @@ export async function GET(req: Request) {
       slug: r.slug,
       title: r.title,
       summary: r.summary ?? null,
-      image: r.coverImage ?? null,
+      image: r.coverImage || FALLBACK_IMAGE,
     }));
 
     return NextResponse.json({

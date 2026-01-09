@@ -6,6 +6,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight } from "lucide-react";
 
+const FALLBACK_IMAGE = "/logo.png";
+
 export type SoftwareCard = {
   id: string;
   slug: string;
@@ -236,30 +238,28 @@ export default function SoftwareSearchClient({
                       </div>
                     </div>
                   ))
-                : data.map((x) => (
+                : data.map((x) => {
+                    const imageSrc = x.image || FALLBACK_IMAGE;
+                    return (
                     <article
                       key={x.id}
                       className="border rounded-2xl bg-white shadow-sm hover:shadow-md transition flex flex-col h-full overflow-hidden"
                     >
                       <Link href={`/software/${encodeURIComponent(x.slug)}`} className="block">
-                        {x.image ? (
-                          <div className="relative aspect-square w-full overflow-hidden bg-gray-100">
-                            <Image
-                              src={x.image}
-                              alt={x.title}
-                              fill
-                              className="object-cover"
-                              sizes="(min-width: 1280px) 16vw, (min-width: 768px) 25vw, 100vw"
-                            />
-                            {x.isFeatured && (
-                              <span className="absolute left-3 top-3 rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow">
-                                Nổi bật
-                              </span>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="aspect-square w-full bg-gray-100" />
-                        )}
+                        <div className="relative aspect-square w-full overflow-hidden bg-gray-100">
+                          <Image
+                            src={imageSrc}
+                            alt={x.title}
+                            fill
+                            className="object-cover"
+                            sizes="(min-width: 1280px) 16vw, (min-width: 768px) 25vw, 100vw"
+                          />
+                          {x.isFeatured && (
+                            <span className="absolute left-3 top-3 rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow">
+                              Nổi bật
+                            </span>
+                          )}
+                        </div>
                       </Link>
 
                       <div className="p-4 flex-1 flex flex-col">
@@ -285,7 +285,8 @@ export default function SoftwareSearchClient({
                         </div>
                       </div>
                     </article>
-                  ))}
+                    );
+                  })}
             </div>
 
             {!loading && data.length === 0 && (
