@@ -1,9 +1,15 @@
+import NotFoundPage from "@/components/not-found/NotFoundPage";
+
 export default function NotFound() {
   return (
-	<div className="flex flex-col items-center justify-center min-h-screen">
-	  <h1 className="text-4xl font-bold mb-4">404</h1>
-	  <p className="text-lg text-gray-600">Solution not found</p>
-	</div>
+    <NotFoundPage
+      title="Không tìm thấy giải pháp"
+      description="Giải pháp bạn đang tìm không tồn tại hoặc đã được chuyển sang danh mục khác."
+      primaryHref="/solutions"
+      primaryLabel="Xem giải pháp"
+      secondaryHref="/"
+      secondaryLabel="Về trang chủ"
+    />
   );
 }
 

@@ -109,7 +109,7 @@ export default async function SolutionsPage({
     slug: r.slug,
     title: r.title,
     summary: r.summary ?? undefined,
-    image: r.coverImage ?? null,
+    image: r.coverImage || "/logo.png",
     category: r.solutioncategory ?? null,
     isFeatured: r.isFeatured ?? false,
   }));

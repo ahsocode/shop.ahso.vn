@@ -6,6 +6,8 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 const now = () => new Date();
+const randomPrice = (min: number, max: number) =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
 
 async function ensureAddress(payload: {
   line1: string;
@@ -108,6 +110,223 @@ async function main() {
       },
     });
     console.log("✅ Đã tạo tài khoản admin");
+  }
+
+  const createdAt = now();
+
+  const productCategories = Array.from({ length: 5 }, (_, i) => ({
+    name: `Danh muc ${i + 1}`,
+    slug: `danh-muc-${i + 1}`,
+    description: `Danh muc mau ${i + 1}`,
+  }));
+
+  const productCategoryRecords = [];
+  for (const category of productCategories) {
+    const record = await prisma.productcategory.upsert({
+      where: { slug: category.slug },
+      update: {
+        name: category.name,
+        description: category.description,
+        updatedAt: now(),
+      },
+      create: {
+        id: randomUUID(),
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        createdAt,
+        updatedAt: now(),
+      },
+    });
+    productCategoryRecords.push(record);
+  }
+
+  const productTypes = [];
+  for (const [categoryIndex, category] of productCategoryRecords.entries()) {
+    for (let typeIndex = 0; typeIndex < 2; typeIndex += 1) {
+      const slug = `loai-${categoryIndex + 1}-${typeIndex + 1}`;
+      const type = await prisma.producttype.upsert({
+        where: {
+          categoryId_slug: {
+            categoryId: category.id,
+            slug,
+          },
+        },
+        update: {
+          name: `Loai ${categoryIndex + 1}.${typeIndex + 1}`,
+          updatedAt: now(),
+        },
+        create: {
+          id: randomUUID(),
+          categoryId: category.id,
+          slug,
+          name: `Loai ${categoryIndex + 1}.${typeIndex + 1}`,
+          description: `Loai san pham ${categoryIndex + 1}.${typeIndex + 1}`,
+          createdAt,
+          updatedAt: now(),
+        },
+      });
+      productTypes.push({ ...type, categoryId: category.id });
+    }
+  }
+
+  const productCategoryLinks: { productId: string; categoryId: string }[] = [];
+
+  for (const type of productTypes) {
+    for (let productIndex = 0; productIndex < 2; productIndex += 1) {
+      const sku = `SKU-${type.slug}-${productIndex + 1}`;
+      const slug = `san-pham-${type.slug}-${productIndex + 1}`;
+      const price = randomPrice(100000, 5000000);
+      const product = await prisma.product.upsert({
+        where: { sku },
+        update: {
+          name: `San pham ${type.slug} ${productIndex + 1}`,
+          slug,
+          price,
+          listPrice: price + 50000,
+          stockOnHand: 99,
+          status: "PUBLISHED",
+          typeId: type.id,
+          updatedAt: now(),
+        },
+        create: {
+          id: randomUUID(),
+          sku,
+          slug,
+          name: `San pham ${type.slug} ${productIndex + 1}`,
+          description: `Mo ta san pham ${type.slug} ${productIndex + 1}`,
+          price,
+          listPrice: price + 50000,
+          stockOnHand: 99,
+          status: "PUBLISHED",
+          createdAt,
+          typeId: type.id,
+          currency: "VND",
+        },
+      });
+      productCategoryLinks.push({ productId: product.id, categoryId: type.categoryId });
+    }
+  }
+
+  if (productCategoryLinks.length) {
+    await prisma.productcategorylink.createMany({
+      data: productCategoryLinks,
+      skipDuplicates: true,
+    });
+  }
+
+  const solutionCategories = Array.from({ length: 5 }, (_, i) => ({
+    name: `Solution Category ${i + 1}`,
+    slug: `solution-category-${i + 1}`,
+    description: `Solution category ${i + 1}`,
+  }));
+
+  const solutionCategoryRecords = [];
+  for (const category of solutionCategories) {
+    const record = await prisma.solutioncategory.upsert({
+      where: { slug: category.slug },
+      update: {
+        name: category.name,
+        description: category.description,
+        updatedAt: now(),
+      },
+      create: {
+        id: randomUUID(),
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        createdAt,
+        updatedAt: now(),
+      },
+    });
+    solutionCategoryRecords.push(record);
+  }
+
+  for (const [categoryIndex, category] of solutionCategoryRecords.entries()) {
+    for (let itemIndex = 0; itemIndex < 2; itemIndex += 1) {
+      const slug = `solution-${categoryIndex + 1}-${itemIndex + 1}`;
+      await prisma.solution.upsert({
+        where: { slug },
+        update: {
+          title: `Solution ${categoryIndex + 1}.${itemIndex + 1}`,
+          summary: `Solution summary ${categoryIndex + 1}.${itemIndex + 1}`,
+          bodyHtml: `<p>Solution noi dung ${categoryIndex + 1}.${itemIndex + 1}</p>`,
+          status: "PUBLISHED",
+          publishedAt: now(),
+          categoryId: category.id,
+          updatedAt: now(),
+        },
+        create: {
+          id: randomUUID(),
+          title: `Solution ${categoryIndex + 1}.${itemIndex + 1}`,
+          slug,
+          summary: `Solution summary ${categoryIndex + 1}.${itemIndex + 1}`,
+          bodyHtml: `<p>Solution noi dung ${categoryIndex + 1}.${itemIndex + 1}</p>`,
+          status: "PUBLISHED",
+          publishedAt: now(),
+          categoryId: category.id,
+          createdAt,
+          updatedAt: now(),
+        },
+      });
+    }
+  }
+
+  const softwareCategories = Array.from({ length: 5 }, (_, i) => ({
+    name: `Software Category ${i + 1}`,
+    slug: `software-category-${i + 1}`,
+    description: `Software category ${i + 1}`,
+  }));
+
+  const softwareCategoryRecords = [];
+  for (const category of softwareCategories) {
+    const record = await prisma.softwarecategory.upsert({
+      where: { slug: category.slug },
+      update: {
+        name: category.name,
+        description: category.description,
+        updatedAt: now(),
+      },
+      create: {
+        id: randomUUID(),
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        createdAt,
+        updatedAt: now(),
+      },
+    });
+    softwareCategoryRecords.push(record);
+  }
+
+  for (const [categoryIndex, category] of softwareCategoryRecords.entries()) {
+    for (let itemIndex = 0; itemIndex < 2; itemIndex += 1) {
+      const slug = `software-${categoryIndex + 1}-${itemIndex + 1}`;
+      await prisma.software.upsert({
+        where: { slug },
+        update: {
+          title: `Software ${categoryIndex + 1}.${itemIndex + 1}`,
+          summary: `Software summary ${categoryIndex + 1}.${itemIndex + 1}`,
+          bodyHtml: `<p>Software noi dung ${categoryIndex + 1}.${itemIndex + 1}</p>`,
+          status: "PUBLISHED",
+          publishedAt: now(),
+          categoryId: category.id,
+          updatedAt: now(),
+        },
+        create: {
+          id: randomUUID(),
+          title: `Software ${categoryIndex + 1}.${itemIndex + 1}`,
+          slug,
+          summary: `Software summary ${categoryIndex + 1}.${itemIndex + 1}`,
+          bodyHtml: `<p>Software noi dung ${categoryIndex + 1}.${itemIndex + 1}</p>`,
+          status: "PUBLISHED",
+          publishedAt: now(),
+          categoryId: category.id,
+          createdAt,
+          updatedAt: now(),
+        },
+      });
+    }
   }
 }
 

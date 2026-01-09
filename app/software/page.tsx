@@ -123,7 +123,7 @@ export default async function SoftwarePage({
     slug: r.slug,
     title: r.title,
     summary: r.summary ?? undefined,
-    image: r.coverImage ?? null,
+    image: r.coverImage || "/logo.png",
     isFeatured: r.isFeatured ?? false,
     category: r.softwarecategory
       ? {

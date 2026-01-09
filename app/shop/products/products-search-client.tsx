@@ -745,7 +745,7 @@ export default function ProductsSearchClient() {
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
   const [inStock, setInStock] = useState(searchParams.get("inStock") === "true");
-  const [sort, setSort] = useState(searchParams.get("sort") || "relevance");
+  const [sort, setSort] = useState(searchParams.get("sort") || "all");
   const [page, setPage] = useState(parseInt(searchParams.get("page") || "1"));
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
@@ -783,7 +783,7 @@ export default function ProductsSearchClient() {
       if (state.minPrice) params.set("minPrice", state.minPrice);
       if (state.maxPrice) params.set("maxPrice", state.maxPrice);
       if (state.inStock) params.set("inStock", "true");
-      if (state.sort && state.sort !== "relevance") params.set("sort", state.sort);
+      if (state.sort && state.sort !== "all") params.set("sort", state.sort);
 
       const normalizedPage = Math.max(1, Number(state.page) || 1);
       if (normalizedPage > 1) {
@@ -947,13 +947,13 @@ export default function ProductsSearchClient() {
     setMinPrice("");
     setMaxPrice("");
     setInStock(false);
-    setSort("relevance");
+    setSort("all");
     setPage(1);
     router.replace("/shop/products");
   }
 
   const hasActiveFilters =
-    q || brand || category || productType || minPrice || maxPrice || inStock || sort !== "relevance";
+    q || brand || category || productType || minPrice || maxPrice || inStock || sort !== "all";
 
   // Handle smart search
   const handleSearch = (searchQuery: string) => {
@@ -1153,7 +1153,9 @@ export default function ProductsSearchClient() {
                       syncFiltersToUrl({ sort: value, page: 1 });
                     }}
                   >
-                    <option value="relevance">Liên quan</option>
+                    <option value="all">Tất cả</option>
+                    <option value="featured">Sản phẩm nổi bật</option>
+                    <option value="updated_desc">Mới nhất (cập nhật)</option>
                     <option value="price_asc">Giá tăng</option>
                     <option value="price_desc">Giá giảm</option>
                     <option value="name_asc">A-Z</option>

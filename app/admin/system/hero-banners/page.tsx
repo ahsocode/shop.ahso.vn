@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { DragEvent } from "react";
 import { ImageIcon, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { confirmToast } from "@/lib/confirm-toast";
@@ -39,6 +40,9 @@ export default function HeroBannersPage() {
   const [pageLoading, setPageLoading] = useState(true);
   const [heroBanners, setHeroBanners] = useState<HeroBanner[]>([]);
   const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [reorderLoading, setReorderLoading] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -46,7 +50,7 @@ export default function HeroBannersPage() {
       try {
         const bannerData = await fetchJSON<{ data: HeroBanner[] }>("/api/admin/hero-banners");
         if (ignore) return;
-        setHeroBanners(bannerData.data ?? []);
+        setHeroBanners((bannerData.data ?? []).sort((a, b) => a.sortOrder - b.sortOrder));
       } catch (error) {
         console.error("Failed to load hero banners", error);
         toast.error("Không tải được dữ liệu banner.");
@@ -62,6 +66,133 @@ export default function HeroBannersPage() {
 
   const updateLoadingMap = (key: string, value: boolean) =>
     setLoadingMap((prev) => ({ ...prev, [key]: value }));
+
+  const persistOrder = async (next: HeroBanner[]) => {
+    const updates = next.map((banner, index) => ({
+      id: banner.id,
+      sortOrder: index + 1,
+    }));
+    const changed = updates.filter((update) => {
+      const existing = heroBanners.find((b) => b.id === update.id);
+      return !existing || existing.sortOrder !== update.sortOrder;
+    });
+    if (changed.length === 0) return;
+
+    setReorderLoading(true);
+    try {
+      await Promise.all(
+        changed.map((update) =>
+          fetch(`/api/admin/hero-banners/${update.id}`, {
+            method: "PATCH",
+            headers: makeHeaders(),
+            body: JSON.stringify({ sortOrder: update.sortOrder }),
+          }).then(async (res) => {
+            if (!res.ok) throw new Error(await res.text());
+          })
+        )
+      );
+      setHeroBanners((prev) =>
+        prev
+          .map((banner) => {
+            const update = updates.find((u) => u.id === banner.id);
+            return update ? { ...banner, sortOrder: update.sortOrder } : banner;
+          })
+          .sort((a, b) => a.sortOrder - b.sortOrder)
+      );
+      toast.success("Đã cập nhật thứ tự banner.");
+    } catch (error) {
+      console.error("Failed to update banner order", error);
+      toast.error("Không thể cập nhật thứ tự banner.");
+    } finally {
+      setReorderLoading(false);
+    }
+  };
+
+  const handleDragStart = (id: string) => (e: DragEvent<HTMLDivElement>) => {
+    setDraggingId(id);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", id);
+  };
+
+  const handleDragOver = (id: string) => (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragOverId(id);
+  };
+
+  const handleDrop = (targetId: string) => async (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const sourceId = draggingId || e.dataTransfer.getData("text/plain");
+    setDragOverId(null);
+    setDraggingId(null);
+    if (!sourceId || sourceId === targetId) return;
+
+    const sourceIndex = heroBanners.findIndex((b) => b.id === sourceId);
+    const targetIndex = heroBanners.findIndex((b) => b.id === targetId);
+    if (sourceIndex < 0 || targetIndex < 0) return;
+
+    const next = [...heroBanners];
+    const [moved] = next.splice(sourceIndex, 1);
+    next.splice(targetIndex, 0, moved);
+    setHeroBanners(next);
+    await persistOrder(next);
+  };
+
+  const handleDragEnd = () => {
+    setDragOverId(null);
+    setDraggingId(null);
+  };
+
+  const handleSortOrderChange = (id: string, value: string) => {
+    const nextValue = Number(value);
+    if (!Number.isFinite(nextValue)) return;
+    setHeroBanners((prev) =>
+      prev.map((banner) =>
+        banner.id === id ? { ...banner, sortOrder: nextValue } : banner
+      )
+    );
+  };
+
+  const handleSortOrderCommit = async (id: string) => {
+    const current = heroBanners.find((banner) => banner.id === id);
+    if (!current) return;
+    updateLoadingMap(`sort-${id}`, true);
+    try {
+      const res = await fetch(`/api/admin/hero-banners/${id}`, {
+        method: "PATCH",
+        headers: makeHeaders(),
+        body: JSON.stringify({ sortOrder: current.sortOrder }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setHeroBanners((prev) => [...prev].sort((a, b) => a.sortOrder - b.sortOrder));
+      toast.success("Đã cập nhật thứ tự.");
+    } catch (error) {
+      console.error("Failed to update sort order", error);
+      toast.error("Không thể cập nhật thứ tự.");
+    } finally {
+      updateLoadingMap(`sort-${id}`, false);
+    }
+  };
+
+  const handleToggleStatus = async (banner: HeroBanner, nextValue: boolean) => {
+    updateLoadingMap(`status-${banner.id}`, true);
+    try {
+      const res = await fetch(`/api/admin/hero-banners/${banner.id}`, {
+        method: "PATCH",
+        headers: makeHeaders(),
+        body: JSON.stringify({ isActive: nextValue }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setHeroBanners((prev) =>
+        prev.map((b) => (b.id === banner.id ? { ...b, isActive: nextValue } : b))
+      );
+      toast.success("Đã cập nhật trạng thái.");
+    } catch (error) {
+      console.error("Failed to update status", error);
+      toast.error("Không thể cập nhật trạng thái.");
+    } finally {
+      updateLoadingMap(`status-${banner.id}`, false);
+    }
+  };
 
   async function handleDeleteBanner(id: string) {
     const confirmed = await confirmToast("Xóa banner này?", { variant: "modal" });
@@ -117,7 +248,17 @@ export default function HeroBannersPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {heroBanners.map((banner) => (
-                <div key={banner.id} className="rounded-2xl border border-gray-200 p-4 space-y-3">
+                <div
+                  key={banner.id}
+                  className={`rounded-2xl border border-gray-200 p-4 space-y-3 ${
+                    dragOverId === banner.id ? "border-blue-400 ring-2 ring-blue-100" : ""
+                  }`}
+                  draggable
+                  onDragStart={handleDragStart(banner.id)}
+                  onDragOver={handleDragOver(banner.id)}
+                  onDrop={handleDrop(banner.id)}
+                  onDragEnd={handleDragEnd}
+                >
                   <div className="relative h-40 w-full overflow-hidden rounded-xl border bg-gray-50">
                     {banner.imageUrl ? (
                       <Image
@@ -137,8 +278,32 @@ export default function HeroBannersPage() {
                     <div className="font-semibold text-gray-900 line-clamp-1">
                       {banner.title || "Không có tiêu đề"}
                     </div>
-                    <div className="text-xs text-gray-500">
-                      Thứ tự: {banner.sortOrder} · {banner.isActive ? "Đang hiển thị" : "Ẩn"}
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                      <span>Thứ tự:</span>
+                      <input
+                        type="number"
+                        min={0}
+                        value={banner.sortOrder}
+                        onChange={(e) => handleSortOrderChange(banner.id, e.target.value)}
+                        onBlur={() => handleSortOrderCommit(banner.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
+                        className="w-16 rounded border border-gray-200 px-2 py-1 text-xs"
+                        disabled={loadingMap[`sort-${banner.id}`] || reorderLoading}
+                      />
+                      <span>·</span>
+                      <label className="inline-flex items-center gap-2 text-xs text-gray-600">
+                        <input
+                          type="checkbox"
+                          checked={banner.isActive}
+                          onChange={(e) => handleToggleStatus(banner, e.target.checked)}
+                          disabled={loadingMap[`status-${banner.id}`]}
+                        />
+                        {banner.isActive ? "Đang hiển thị" : "Ẩn"}
+                      </label>
                     </div>
                   </div>
                   <div className="flex items-center justify-end gap-2">
