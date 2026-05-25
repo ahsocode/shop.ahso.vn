@@ -248,14 +248,14 @@ function ContentCard({ item }: { item: FeaturedContent }) {
           sizes="(max-width: 768px) 100vw, 33vw"
         />
       </div>
-      <div className="grid gap-3 p-5">
+      <div className="featured-card-copy grid gap-3 p-5">
         {item.categoryName && (
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
             {item.categoryName}
           </p>
         )}
-        <h3 className="text-lg font-semibold leading-snug text-slate-950">{item.title}</h3>
-        <p className="line-clamp-3 text-sm leading-6 text-slate-600">
+        <h3 className="featured-card-title text-lg font-semibold leading-snug text-slate-950">{item.title}</h3>
+        <p className="featured-card-summary line-clamp-3 text-sm leading-6 text-slate-600">
           {item.summary || "Thông tin được AHSO chọn lọc để khách hàng nhanh chóng hiểu phạm vi và giá trị triển khai."}
         </p>
         <span className="mt-1 inline-flex items-center gap-2 text-sm font-semibold text-slate-950">
@@ -264,6 +264,33 @@ function ContentCard({ item }: { item: FeaturedContent }) {
         </span>
       </div>
     </Link>
+  );
+}
+
+function FeaturedBadge({ className = "" }: { className?: string }) {
+  return (
+    <span
+      className={`inline-flex w-fit items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700 ${className}`}
+    >
+      Nổi bật
+    </span>
+  );
+}
+
+function FeaturedContentCard({
+  item,
+  compact = false,
+}: {
+  item: FeaturedContent;
+  compact?: boolean;
+}) {
+  return (
+    <div className={`relative h-full ${compact ? "[&_.featured-card-copy]:p-4 [&_.featured-card-summary]:line-clamp-2 [&_.featured-card-title]:text-base" : ""}`}>
+      <ContentCard item={item} />
+      <div className="pointer-events-none absolute left-3 top-3">
+        <FeaturedBadge className="border-white/70 bg-white/90" />
+      </div>
+    </div>
   );
 }
 
@@ -457,7 +484,7 @@ export default function HomePageClient() {
   const heroTextPosition = resolveHeroTextPosition(activeSlide?.textPosition);
   const heroTextAlign = resolveHeroTextAlign(activeSlide?.textPosition);
   const heroActionAlign = heroTextAlign === "text-right" ? "sm:justify-end" : "sm:justify-start";
-  const highlightSolutions = useMemo(() => solutions.slice(0, 3), [solutions]);
+  const highlightSolutions = useMemo(() => solutions.slice(0, 5), [solutions]);
   const highlightSoftwares = useMemo(() => softwares, [softwares]);
 
   if (isLoading) {
@@ -635,12 +662,17 @@ export default function HomePageClient() {
           </div>
 
           {highlightSolutions.length > 0 ? (
-            <div className="grid gap-5 md:grid-cols-3">
-              {highlightSolutions.map((item) => (
-                <div key={item.id} data-reveal>
-                  <ContentCard item={item} />
-                </div>
-              ))}
+            <div className="grid gap-5 lg:grid-cols-[1.08fr_1.42fr]">
+              <div data-reveal>
+                <FeaturedContentCard item={highlightSolutions[0]} />
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2">
+                {highlightSolutions.slice(1).map((item) => (
+                  <div key={item.id} data-reveal>
+                    <FeaturedContentCard item={item} compact />
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <EmptyShowcase label="giải pháp" />
@@ -683,7 +715,7 @@ export default function HomePageClient() {
               <div ref={softwareTrackRef} className="grid gap-5">
                 {highlightSoftwares.map((item) => (
                   <div key={item.id} data-reveal>
-                    <ContentCard item={item} />
+                    <FeaturedContentCard item={item} />
                   </div>
                 ))}
               </div>
