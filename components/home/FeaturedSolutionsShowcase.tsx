@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Star } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type FeaturedShowcaseItem = {
@@ -88,7 +88,8 @@ export function FeaturedSolutionsShowcase({ items }: FeaturedSolutionsShowcasePr
           sizes="(max-width: 1024px) 100vw, 38vw"
           priority={displayIndex === 0}
         />
-        <div className="absolute left-4 top-4 rounded-full border border-white/70 bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
+        <div className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-amber-900 shadow-sm">
+          <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-600" />
           Nổi bật
         </div>
       </Link>
@@ -99,7 +100,8 @@ export function FeaturedSolutionsShowcase({ items }: FeaturedSolutionsShowcasePr
         }`}
       >
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-amber-900">
+            <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-600" />
             Nổi bật
           </span>
           {activeItem.categoryName && (

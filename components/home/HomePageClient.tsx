@@ -11,6 +11,7 @@ import {
   Laptop,
   Phone,
   ShieldCheck,
+  Star,
 } from "lucide-react";
 import { SiteAnnouncementModal } from "@/components/announcements/SiteAnnouncementModal";
 import { FeaturedSolutionsShowcase } from "@/components/home/FeaturedSolutionsShowcase";
@@ -271,8 +272,9 @@ function ContentCard({ item }: { item: FeaturedContent }) {
 function FeaturedBadge({ className = "" }: { className?: string }) {
   return (
     <span
-      className={`inline-flex w-fit items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700 ${className}`}
+      className={`inline-flex w-fit items-center gap-1.5 rounded-full border border-amber-300 bg-amber-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-900 ${className}`}
     >
+      <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-600" />
       Nổi bật
     </span>
   );
@@ -289,7 +291,7 @@ function FeaturedContentCard({
     <div className={`relative h-full ${compact ? "[&_.featured-card-copy]:p-4 [&_.featured-card-summary]:line-clamp-2 [&_.featured-card-title]:text-base" : ""}`}>
       <ContentCard item={item} />
       <div className="pointer-events-none absolute left-3 top-3">
-        <FeaturedBadge className="border-white/70 bg-white/90" />
+        <FeaturedBadge className="border-amber-300 bg-amber-100 shadow-sm" />
       </div>
     </div>
   );
