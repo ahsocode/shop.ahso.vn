@@ -95,7 +95,7 @@ export function IndustrialMotionBackground({
       const offset = (scrollY * 0.22) % gridSize;
 
       context.lineWidth = 1;
-      context.strokeStyle = "rgba(31, 61, 104, 0.16)";
+      context.strokeStyle = "rgba(31, 61, 104, 0.24)";
 
       for (let x = -gridSize; x < width + gridSize; x += gridSize) {
         context.beginPath();
@@ -116,8 +116,8 @@ export function IndustrialMotionBackground({
       const railX = width * 0.76;
       const travel = (scrollY * 0.16) % (height * 0.9);
 
-      context.lineWidth = 1.4;
-      context.strokeStyle = "rgba(22, 81, 156, 0.34)";
+      context.lineWidth = 1.6;
+      context.strokeStyle = "rgba(22, 81, 156, 0.46)";
       context.setLineDash([14, 10]);
       context.lineDashOffset = -scrollY * 0.52;
       context.beginPath();
@@ -127,7 +127,7 @@ export function IndustrialMotionBackground({
       context.lineTo(width * 0.88, height + 80 + travel * 0.12);
       context.stroke();
 
-      context.strokeStyle = "rgba(202, 52, 52, 0.28)";
+      context.strokeStyle = "rgba(202, 52, 52, 0.36)";
       context.setLineDash([4, 16]);
       context.lineDashOffset = scrollY * 0.42;
       context.beginPath();
@@ -142,7 +142,7 @@ export function IndustrialMotionBackground({
     function drawScrollScanner(scrollY: number, velocity: number) {
       const y = height * 0.12 + (scrollY * 0.42) % (height * 0.76);
       const speed = Math.min(Math.abs(velocity) / 2600, 1);
-      const alpha = 0.24 + speed * 0.34;
+      const alpha = 0.34 + speed * 0.42;
 
       context.lineWidth = 1.25;
       context.strokeStyle = `rgba(20, 92, 207, ${alpha})`;
@@ -181,7 +181,7 @@ export function IndustrialMotionBackground({
           const distance = Math.hypot(firstX - secondX, firstY - secondY);
 
           if (distance < LINE_DISTANCE) {
-            context.strokeStyle = `rgba(35, 68, 111, ${0.25 * (1 - distance / LINE_DISTANCE)})`;
+            context.strokeStyle = `rgba(35, 68, 111, ${0.34 * (1 - distance / LINE_DISTANCE)})`;
             context.lineWidth = 1;
             context.beginPath();
             context.moveTo(firstX, firstY);
@@ -191,7 +191,7 @@ export function IndustrialMotionBackground({
         }
 
         const pulse = 0.55 + Math.sin(time * 0.002 + first.phase) * 0.25;
-        context.fillStyle = resolveColor(first.accent, 0.28 + pulse * 0.2);
+        context.fillStyle = resolveColor(first.accent, 0.36 + pulse * 0.24);
         context.beginPath();
         context.arc(firstX, firstY, first.radius + pulse, 0, Math.PI * 2);
         context.fill();

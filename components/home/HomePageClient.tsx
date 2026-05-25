@@ -561,7 +561,7 @@ export default function HomePageClient() {
 
       <SiteAnnouncementModal />
 
-      <section className="relative isolate overflow-hidden border-b border-slate-200 bg-white/72 backdrop-blur-[1px]">
+      <section className="relative isolate overflow-hidden border-b border-slate-200 bg-white/64 backdrop-blur-[1px]">
         <div className="relative z-10 mx-auto grid max-w-7xl gap-4 px-4 py-4 sm:px-6 md:grid-cols-3 lg:px-8">
           {proofPoints.map((item) => (
             <div key={item.label} data-reveal className="rounded-lg border border-slate-200 p-5">
@@ -575,7 +575,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      <section className="relative isolate overflow-hidden bg-white/72 py-16 backdrop-blur-[1px] sm:py-20">
+      <section className="relative isolate overflow-hidden bg-white/64 py-16 backdrop-blur-[1px] sm:py-20">
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
             <div data-reveal>
@@ -614,7 +614,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      <section className="relative isolate overflow-hidden bg-slate-50/76 py-16 backdrop-blur-[1px] sm:py-20">
+      <section className="relative isolate overflow-hidden bg-slate-50/68 py-16 backdrop-blur-[1px] sm:py-20">
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div data-reveal>
@@ -650,7 +650,7 @@ export default function HomePageClient() {
 
       <section
         ref={softwareSectionRef}
-        className="relative isolate overflow-hidden bg-white/72 py-16 backdrop-blur-[1px] sm:py-20"
+        className="relative isolate overflow-hidden bg-white/64 py-16 backdrop-blur-[1px] sm:py-20"
       >
         <div className="relative z-10 mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:min-h-[calc(100svh-4rem)] lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:px-8">
           <div data-reveal className="lg:sticky lg:top-24 lg:self-start">
@@ -728,7 +728,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      <section className="relative isolate overflow-hidden bg-white/72 py-16 backdrop-blur-[1px] sm:py-20">
+      <section className="relative isolate overflow-hidden bg-white/64 py-16 backdrop-blur-[1px] sm:py-20">
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div
             data-reveal
