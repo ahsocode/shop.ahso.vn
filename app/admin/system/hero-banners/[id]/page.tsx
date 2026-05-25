@@ -8,7 +8,6 @@ import {
   ArrowRight,
   ImageIcon,
   Loader2,
-  Phone,
   Save,
   Trash2,
   Upload,
@@ -65,10 +64,19 @@ const resolveColorValue = (value?: string | null) => {
 };
 
 const resolveOverlayColor = (value?: string | null) => {
-  if (!value) return "rgba(15,23,42,0.18)";
-  if (/rgba?\(/i.test(value) || /hsla?\(/i.test(value)) return value;
-  if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value)) {
-    let hex = value.replace("#", "");
+  const raw = value?.trim();
+  if (!raw) return "rgba(15,23,42,0.18)";
+  const rgba = raw.match(
+    /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*([01]?(?:\.\d+)?))?\s*\)$/i,
+  );
+  if (rgba) {
+    const [, r, g, b, alpha] = rgba;
+    return `rgba(${r}, ${g}, ${b}, ${Math.min(Number(alpha ?? 0.35), 0.45)})`;
+  }
+  if (/hsla?\(/i.test(raw)) return raw;
+  const normalizedHex = raw.startsWith("#") ? raw : `#${raw}`;
+  if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(normalizedHex)) {
+    let hex = normalizedHex.replace("#", "");
     if (hex.length === 3) {
       hex = hex.split("").map((ch) => ch + ch).join("");
     }
@@ -76,10 +84,10 @@ const resolveOverlayColor = (value?: string | null) => {
     const r = parseInt(hex.slice(0, 2), 16);
     const g = parseInt(hex.slice(2, 4), 16);
     const b = parseInt(hex.slice(4, 6), 16);
-    const a = hasAlpha ? parseInt(hex.slice(6, 8), 16) / 255 : 0.35;
+    const a = hasAlpha ? Math.min(parseInt(hex.slice(6, 8), 16) / 255, 0.45) : 0.35;
     return `rgba(${r}, ${g}, ${b}, ${a})`;
   }
-  return value;
+  return "rgba(15,23,42,0.18)";
 };
 
 const resolveTextPosition = (value: HeroBanner["textPosition"]) => {
@@ -379,23 +387,14 @@ export default function EditHeroBannerPage() {
                           </p>
                         )}
 
-                        <div className="flex flex-wrap gap-3">
-                          <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-white text-blue-600 rounded text-[10px] font-semibold shadow">
-                            Khám phá sản phẩm
-                            <ArrowRight className="w-3 h-3" />
-                          </span>
-
-                          <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-white/10 text-white rounded text-[10px] font-semibold border border-white/30">
-                            Liên hệ tư vấn
-                            <Phone className="w-3 h-3" />
-                          </span>
-
-                          {banner.ctaLabel && banner.ctaHref && (
-                            <span className="inline-flex items-center px-2 py-1 bg-green-500 text-white rounded text-[10px] font-semibold shadow">
+                        {banner.ctaLabel && banner.ctaHref && (
+                          <div className="flex flex-wrap gap-3">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-white text-blue-600 rounded text-[10px] font-semibold shadow">
                               {banner.ctaLabel}
+                              <ArrowRight className="w-3 h-3" />
                             </span>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

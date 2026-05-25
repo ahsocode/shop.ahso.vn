@@ -6,7 +6,7 @@ import {
   uploadImageToDriveWebp,
   ensureUserAvatarFolder,
 } from "@/lib/drive";
-import { getUserIdFromReq } from "../../profile/route";
+import { getUserIdFromReq } from "@/lib/auth-request";
 
 export const runtime = "nodejs";
 
