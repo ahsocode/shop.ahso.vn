@@ -13,6 +13,11 @@ type NodePoint = {
 const NODE_COUNT = 34;
 const LINE_DISTANCE = 170;
 
+type IndustrialMotionBackgroundProps = {
+  className?: string;
+  fixed?: boolean;
+};
+
 function createNodes(width: number, height: number): NodePoint[] {
   return Array.from({ length: NODE_COUNT }, (_, index) => {
     const column = index % 9;
@@ -43,7 +48,10 @@ function resolveColor(accent: NodePoint["accent"], alpha: number) {
   }
 }
 
-export function IndustrialMotionBackground() {
+export function IndustrialMotionBackground({
+  className = "",
+  fixed = true,
+}: IndustrialMotionBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scrollProgressRef = useRef(0);
   const scrollYRef = useRef(0);
@@ -68,8 +76,12 @@ export function IndustrialMotionBackground() {
     let gsapContext: { revert: () => void } | null = null;
 
     function resize() {
-      width = window.innerWidth;
-      height = window.innerHeight;
+      const bounds = fixed
+        ? { width: window.innerWidth, height: window.innerHeight }
+        : canvasElement.parentElement?.getBoundingClientRect();
+
+      width = Math.max(1, Math.floor(bounds?.width ?? window.innerWidth));
+      height = Math.max(1, Math.floor(bounds?.height ?? window.innerHeight));
       canvasElement.width = Math.floor(width * devicePixelRatio);
       canvasElement.height = Math.floor(height * devicePixelRatio);
       canvasElement.style.width = `${width}px`;
@@ -235,12 +247,12 @@ export function IndustrialMotionBackground() {
       window.cancelAnimationFrame(animationFrame);
       gsapContext?.revert();
     };
-  }, []);
+  }, [fixed]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-0 opacity-100"
+      className={`pointer-events-none ${fixed ? "fixed" : "absolute"} inset-0 z-0 opacity-100 ${className}`}
       aria-hidden="true"
     />
   );
