@@ -485,7 +485,7 @@ export default function HomePageClient() {
   const heroTextPosition = resolveHeroTextPosition(activeSlide?.textPosition);
   const heroTextAlign = resolveHeroTextAlign(activeSlide?.textPosition);
   const heroActionAlign = heroTextAlign === "text-right" ? "sm:justify-end" : "sm:justify-start";
-  const highlightSolutions = useMemo(() => solutions.slice(0, 5), [solutions]);
+  const highlightSolutions = useMemo(() => solutions, [solutions]);
   const highlightSoftwares = useMemo(() => softwares, [softwares]);
 
   if (isLoading) {

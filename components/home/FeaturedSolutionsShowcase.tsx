@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type FeaturedShowcaseItem = {
   id: string;
@@ -18,14 +18,26 @@ type FeaturedSolutionsShowcaseProps = {
   items: FeaturedShowcaseItem[];
 };
 
-const ROTATE_DELAY = 5200;
+const ROTATE_DELAY = 7800;
 
 export function FeaturedSolutionsShowcase({ items }: FeaturedSolutionsShowcaseProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const activeItemRef = useRef<HTMLButtonElement | null>(null);
 
   const activeItem = items[activeIndex] ?? items[0];
+  const visibleItems = useMemo(() => {
+    if (items.length <= 1) {
+      return items.map((item, itemIndex) => ({ item, itemIndex }));
+    }
+
+    return Array.from({ length: Math.min(items.length, 6) }, (_, index) => {
+      const itemIndex = (activeIndex + index) % items.length;
+      return {
+        item: items[itemIndex],
+        itemIndex,
+      };
+    });
+  }, [activeIndex, items]);
 
   useEffect(() => {
     if (items.length <= 1 || isPaused) return;
@@ -37,25 +49,18 @@ export function FeaturedSolutionsShowcase({ items }: FeaturedSolutionsShowcasePr
     return () => window.clearInterval(timer);
   }, [isPaused, items.length]);
 
-  useEffect(() => {
-    activeItemRef.current?.scrollIntoView({
-      block: "nearest",
-      inline: "nearest",
-      behavior: "smooth",
-    });
-  }, [activeIndex]);
-
   if (!activeItem) return null;
 
   return (
     <div
-      className="grid overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm lg:grid-cols-[0.95fr_1.15fr_0.72fr]"
+      className="grid overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm lg:grid-cols-[0.9fr_1.15fr_0.7fr]"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
       <Link
+        key={`image-${activeItem.id}`}
         href={activeItem.href}
-        className="group relative min-h-[280px] overflow-hidden bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 lg:min-h-[460px]"
+        className="group relative min-h-[240px] animate-[featured-fade_0.55s_ease-out] overflow-hidden bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 lg:min-h-[390px]"
       >
         <Image
           key={activeItem.image}
@@ -71,7 +76,10 @@ export function FeaturedSolutionsShowcase({ items }: FeaturedSolutionsShowcasePr
         </div>
       </Link>
 
-      <div className="grid content-center gap-5 border-y border-slate-200 p-6 lg:border-x lg:border-y-0 lg:p-10">
+      <div
+        key={`copy-${activeItem.id}`}
+        className="grid animate-[featured-fade-up_0.55s_ease-out] content-center gap-4 border-y border-slate-200 p-6 lg:border-x lg:border-y-0 lg:p-8"
+      >
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
             Nổi bật
@@ -82,10 +90,10 @@ export function FeaturedSolutionsShowcase({ items }: FeaturedSolutionsShowcasePr
             </span>
           )}
         </div>
-        <h3 className="text-2xl font-semibold leading-tight text-slate-950 sm:text-3xl">
+        <h3 className="text-2xl font-semibold leading-tight text-slate-950 sm:text-[2rem]">
           {activeItem.title}
         </h3>
-        <p className="max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
+        <p className="line-clamp-4 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
           {activeItem.summary ||
             "Thông tin được AHSO chọn lọc để khách hàng nhanh chóng hiểu phạm vi và giá trị triển khai."}
         </p>
@@ -98,17 +106,16 @@ export function FeaturedSolutionsShowcase({ items }: FeaturedSolutionsShowcasePr
         </Link>
       </div>
 
-      <div className="max-h-[320px] overflow-y-auto border-slate-200 bg-slate-50/80 p-3 lg:max-h-[460px] lg:p-4">
-        <div className="grid gap-2">
-          {items.map((item, index) => {
-            const isActive = index === activeIndex;
+      <div className="h-[300px] overflow-hidden border-slate-200 bg-slate-50/80 p-3 lg:h-[390px] lg:p-4">
+        <div key={activeIndex} className="grid animate-[featured-list-slide_0.55s_ease-out] gap-2">
+          {visibleItems.map(({ item, itemIndex }, index) => {
+            const isActive = itemIndex === activeIndex;
 
             return (
               <button
-                key={item.id}
-                ref={isActive ? activeItemRef : null}
+                key={`${item.id}-${itemIndex}-${index}`}
                 type="button"
-                onClick={() => setActiveIndex(index)}
+                onClick={() => setActiveIndex(itemIndex)}
                 className={`group rounded-lg border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
                   isActive
                     ? "border-blue-300 bg-white shadow-sm"
@@ -136,7 +143,7 @@ export function FeaturedSolutionsShowcase({ items }: FeaturedSolutionsShowcasePr
                   <div className="mt-3 h-1 overflow-hidden rounded-full bg-blue-100">
                     <div
                       key={activeIndex}
-                      className="h-full rounded-full bg-blue-700 motion-safe:animate-[featured-progress_5.2s_linear]"
+                      className="h-full rounded-full bg-blue-700 motion-safe:animate-[featured-progress_7.8s_linear]"
                     />
                   </div>
                 )}
