@@ -1,146 +1,153 @@
-import Link from "next/link";
-import { Mail, Phone, MapPin, Building2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import {
+  ArrowUpRight,
+  Building2,
+  Mail,
+  MapPin,
+  Package,
+  Phone,
+} from "lucide-react";
+
+const SHOP_URL = "https://shop.ahso.vn";
+
+const footerLinks = [
+  {
+    title: "Khám phá",
+    links: [
+      { label: "Trang chủ", href: "/" },
+      { label: "Giải pháp", href: "/solutions" },
+      { label: "Phần mềm", href: "/software" },
+      { label: "Về AHSO", href: "/about" },
+    ],
+  },
+  {
+    title: "Hỗ trợ",
+    links: [
+      { label: "Liên hệ tư vấn", href: "/contact" },
+      { label: "Chính sách", href: "/policy" },
+      { label: "Sản phẩm", href: SHOP_URL, external: true },
+    ],
+  },
+];
 
 export function Footer() {
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-         
-          {/* Company Info */}
-          <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-2 font-bold text-xl text-white">
+    <footer className="border-t border-slate-200 bg-slate-950 text-slate-300">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr_1fr]">
+          <div className="max-w-xl">
+            <Link href="/" className="inline-flex items-center gap-3 text-white">
               <Image
                 src="/logo.png"
-                alt="AHSO Logo"
-                width={32}
-                height={32}
-                className="h-8 w-8 object-contain"
-                priority
+                alt="AHSO"
+                width={42}
+                height={42}
+                className="h-10 w-10 object-contain"
               />
-              <span>AHSO Industrial</span>
+              <span className="text-lg font-semibold">AHSO Industrial</span>
             </Link>
-            <p className="text-sm text-gray-400 leading-relaxed">
-              <strong>Giới Thiệu Về AHSO</strong><br />
-              AHSO – viết tắt của <em>Automation - High Solution - Optimization</em> – là doanh nghiệp tiên phong cung cấp các giải pháp công nghệ toàn diện trong lĩnh vực tự động hóa, chuyển đổi số, phần mềm doanh nghiệp và trí tuệ nhân tạo (AI).<br /><br />
-              Với định hướng trở thành đối tác chiến lược cho các nhà máy và doanh nghiệp trong hành trình hiện đại hóa, AHSO tập trung mang đến những giải pháp <strong>hiệu quả – thông minh – tối ưu</strong> nhằm nâng cao năng lực cạnh tranh và phát triển bền vững trong kỷ nguyên số.
+            <p className="mt-5 text-sm leading-7 text-slate-400">
+              AHSO cung cấp giải pháp và phần mềm công nghiệp, tập trung vào tự động hóa,
+              giám sát vận hành, tối ưu quy trình và triển khai theo nhu cầu thực tế của
+              nhà máy.
             </p>
+            <Link
+              href="/contact"
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            >
+              Trao đổi với AHSO
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
           </div>
 
-          {/* Quick Links */}
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-1">
+            {footerLinks.map((group) => (
+              <div key={group.title}>
+                <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-white">
+                  {group.title}
+                </h2>
+                <ul className="mt-4 grid gap-3">
+                  {group.links.map((item) => (
+                    <li key={item.label}>
+                      <Link
+                        href={item.href}
+                        target={item.external ? "_blank" : undefined}
+                        rel={item.external ? "noopener noreferrer" : undefined}
+                        className="inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
+                      >
+                        {item.label}
+                        {item.external && <ArrowUpRight className="h-3.5 w-3.5" />}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
           <div>
-            <h3 className="font-semibold text-white mb-4">Liên kết nhanh</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/" className="text-sm hover:text-blue-500 transition-colors">
-                  Trang chủ
-                </Link>
+            <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-white">
+              Thông tin liên hệ
+            </h2>
+            <ul className="mt-4 grid gap-4 text-sm text-slate-400">
+              <li className="flex gap-3">
+                <Building2 className="mt-0.5 h-5 w-5 shrink-0 text-blue-300" />
+                <span>CÔNG TY TNHH AHSO</span>
               </li>
-              <li>
-                <Link href="/shop" className="text-sm hover:text-blue-500 transition-colors">
-                  Sản phẩm
-                </Link>
-              </li>
-              <li>
-                <Link href="/about" className="text-sm hover:text-blue-500 transition-colors">
-                  Về chúng tôi
-                </Link>
-              </li>
-              <li>
-                <Link href="/policy" className="text-sm hover:text-blue-500 transition-colors">
-                  Chính sách
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="text-sm hover:text-blue-500 transition-colors">
-                  Liên hệ
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Categories */}
-          <div>
-            <h3 className="font-semibold text-white mb-4">Danh mục</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/software" className="text-sm hover:text-blue-500 transition-colors">
-                  Phần mềm & dịch vụ
-                </Link>
-              </li>
-              <li>
-                <Link href="/solutions" className="text-sm hover:text-blue-500 transition-colors">
-                  Giải pháp
-                </Link>
-              </li>
-              <li>
-                <Link href="/shop/products" className="text-sm hover:text-blue-500 transition-colors">
-                  Sản phẩm
-                </Link>
-              </li>
-              <li>
-                <Link href="/shop/brands" className="text-sm hover:text-blue-500 transition-colors">
-                  Thương hiệu
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact + Bộ Công Thương */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-white mb-4">Liên hệ</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2">
-                <Building2 className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
-                <span className="text-sm">CÔNG TY TNHH AHSO</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <MapPin className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
-                <span className="text-sm">
-                  39/15 Đường Cao Bá Quát, Khu Phố Đông Tân, Phường Dĩ An, Thành phố Hồ Chí Minh, Việt Nam.
+              <li className="flex gap-3">
+                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-blue-300" />
+                <span>
+                  39/15 Đường Cao Bá Quát, Khu phố Đông Tân, Phường Dĩ An,
+                  Thành phố Hồ Chí Minh, Việt Nam.
                 </span>
               </li>
-              <li className="flex items-center gap-2">
-                <Phone className="h-5 w-5 text-blue-500 shrink-0" />
-                <span className="text-sm">0901 951 351</span>
+              <li className="flex items-center gap-3">
+                <Phone className="h-5 w-5 shrink-0 text-blue-300" />
+                <a href="tel:0901951351" className="transition hover:text-white">
+                  0901 951 351
+                </a>
               </li>
-              <li className="flex items-center gap-2">
-                <Mail className="h-5 w-5 text-blue-500 shrink-0" />
-                <span className="text-sm">sales@ahso.vn</span>
+              <li className="flex items-center gap-3">
+                <Mail className="h-5 w-5 shrink-0 text-blue-300" />
+                <a href="mailto:sales@ahso.vn" className="transition hover:text-white">
+                  sales@ahso.vn
+                </a>
+              </li>
+              <li className="flex items-center gap-3">
+                <Package className="h-5 w-5 shrink-0 text-blue-300" />
+                <Link
+                  href={SHOP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 transition hover:text-white"
+                >
+                  Mua sản phẩm tại shop.ahso.vn
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </Link>
               </li>
             </ul>
-
-            {/* Logo Bộ Công Thương */}
-            <div className="mt-6 pt-4 border-t border-gray-800">
-              <Link
-                href="http://online.gov.vn/Home/WebDetails/95738"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block transition-transform duration-300 hover:scale-105"
-                title="Thông tin website thương mại điện tử - Hệ thống quản lý hoạt động thương mại điện tử"
-              >
-                <Image
-                  src="/bo-cong-thuong.png"
-                  alt="Đã đăng ký với Bộ Công Thương"
-                  width={300}
-                  height={150}
-                  className="h-30 w-auto object-contain"
-                  priority
-                />
-              </Link>
-            </div>
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="mt-12 pt-8 border-t border-gray-800 text-center text-sm text-gray-400">
+        <div className="mt-10 grid gap-5 border-t border-white/10 pt-6 text-xs text-slate-500 md:grid-cols-[1fr_auto] md:items-center">
           <p>
-            &copy; {new Date().getFullYear()} <span className="text-white font-medium">AHSO Industrial</span>. All rights reserved.
+            © {new Date().getFullYear()} AHSO Industrial. Tất cả quyền được bảo lưu.
           </p>
-          <p className="mt-1 text-xs">
-            Đã đăng ký hoạt động thương mại điện tử với Bộ Công Thương
-          </p>
+          <Link
+            href="http://online.gov.vn/Home/WebDetails/95738"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-fit items-center gap-3 transition hover:opacity-90"
+          >
+            <Image
+              src="/bo-cong-thuong.png"
+              alt="Đã đăng ký với Bộ Công Thương"
+              width={150}
+              height={57}
+              className="h-10 w-auto object-contain"
+            />
+          </Link>
         </div>
       </div>
     </footer>
