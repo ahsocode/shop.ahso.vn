@@ -7,10 +7,11 @@ export const metadata: Metadata = buildMetadata({
   description: SITE_DESCRIPTION,
   path: "/",
   keywords: [
-    "máy móc công nghiệp",
-    "thiết bị tự động hóa",
-    "giải pháp nhà máy thông minh",
-    "linh kiện công nghiệp",
+    "giải pháp công nghiệp",
+    "phần mềm công nghiệp",
+    "tự động hóa nhà máy",
+    "tư vấn giải pháp sản xuất",
+    "AHSO Industrial",
   ],
 });
 

@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/metadata";
 export const metadata: Metadata = buildMetadata({
   title: "Liên hệ",
   description:
-    "Liên hệ AHSO Shop để được tư vấn giải pháp công nghiệp, báo giá thiết bị và hỗ trợ kỹ thuật 24/7.",
+    "Liên hệ AHSO Industrial để được tư vấn giải pháp công nghiệp, báo giá thiết bị và hỗ trợ kỹ thuật 24/7.",
   path: "/contact",
   keywords: [
     "liên hệ ahso",

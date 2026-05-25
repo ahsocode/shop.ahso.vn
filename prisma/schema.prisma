@@ -228,6 +228,7 @@ model herobanner {
   updatedAt    DateTime @updatedAt
   overlayOn    Boolean  @default(false)
   overlayColor String?
+  textColor    String?
   textPosition String   @default("MIDDLE_LEFT")
 }
 
@@ -300,6 +301,7 @@ model product {
   ratingCount                                           Int                   @default(0)
   purchaseCount                                         Int                   @default(0)
   viewCount                                             Int                   @default(0)
+  isFeatured                                            Boolean               @default(false)
   createdAt                                             DateTime              @default(now())
   updatedAt                                             DateTime              @updatedAt
   publishAt                                             DateTime?
@@ -446,6 +448,40 @@ model featuredproduct {
   @@index([startDate, endDate], map: "FeaturedProduct_date_range_idx")
 }
 
+model featuredsolution {
+  id          String   @id @default(cuid())
+  solutionId  String   @unique
+  title       String?
+  description String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  solution    solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+
+  @@index([isActive, sortOrder], map: "FeaturedSolution_isActive_sortOrder_idx")
+  @@index([startDate, endDate], map: "FeaturedSolution_date_range_idx")
+}
+
+model featuredsoftware {
+  id          String   @id @default(cuid())
+  softwareId  String   @unique
+  title       String?
+  description String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  software    software @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+
+  @@index([isActive, sortOrder], map: "FeaturedSoftware_isActive_sortOrder_idx")
+  @@index([startDate, endDate], map: "FeaturedSoftware_date_range_idx")
+}
+
 model review {
   id          String        @id
   productId   String
@@ -489,9 +525,11 @@ model software {
   metaDescription  String?
   canonicalUrl     String?
   categoryId       String
+  isFeatured       Boolean          @default(false)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime
   softwarecategory softwarecategory @relation(fields: [categoryId], references: [id], map: "Software_categoryId_fkey")
+  featuredsoftware featuredsoftware?
 
   @@index([categoryId, status], map: "Software_categoryId_status_idx")
   @@index([title], map: "Software_title_idx")
@@ -531,10 +569,12 @@ model solution {
   metaDescription  String?
   canonicalUrl     String?
   categoryId       String
+  isFeatured       Boolean          @default(false)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime
   solutioncategory solutioncategory @relation(fields: [categoryId], references: [id], map: "Solution_categoryId_fkey")
   solutionimage    solutionimage[]
+  featuredsolution featuredsolution?
 
   @@index([categoryId, status], map: "Solution_categoryId_status_idx")
   @@index([title], map: "Solution_title_idx")

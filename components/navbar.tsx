@@ -1,35 +1,47 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
 import {
-  ShoppingCart,
-  User,
-  Menu,
-  LogOut,
-  UserCircle,
-  Package,
-  Settings,
   ClipboardList,
+  FileText,
+  Home,
+  Info,
+  Laptop,
+  Layers,
+  LogOut,
+  Menu,
+  Package,
+  Phone,
+  Settings,
+  User,
+  UserCircle,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useAuthStore, getUser, setUser } from "@/lib/auth-store";
-import { useCart } from "@/lib/hooks/useCart";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { getUser, setUser, useAuthStore } from "@/lib/auth-store";
+
+const SHOP_URL = "https://shop.ahso.vn";
+
+const navItems = [
+  { href: "/", label: "Trang chủ", icon: Home },
+  { href: "/solutions", label: "Giải pháp", icon: Layers },
+  { href: "/software", label: "Phần mềm", icon: Laptop },
+  { href: "/about", label: "Về AHSO", icon: Info },
+  { href: "/policy", label: "Chính sách", icon: FileText },
+  { href: "/contact", label: "Liên hệ", icon: Phone },
+  { href: SHOP_URL, label: "Sản phẩm", icon: Package, external: true },
+];
 
 export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const user = useAuthStore();
-  const { itemCount } = useCart();
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
-
-  // Refs để đóng menu khi click ra ngoài
   const userBtnRef = useRef<HTMLButtonElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -43,15 +55,15 @@ export function Navbar() {
           return;
         }
 
-        const rCookie = await fetch("/api/auth/me", {
+        const cookieResponse = await fetch("/api/auth/me", {
           credentials: "include",
           cache: "no-store",
         });
 
         if (!alive) return;
 
-        if (rCookie.ok) {
-          const { user: me } = await rCookie.json();
+        if (cookieResponse.ok) {
+          const { user: me } = await cookieResponse.json();
           setUser({
             id: me.id,
             email: me.email,
@@ -64,29 +76,30 @@ export function Navbar() {
         }
 
         const token = localStorage.getItem("token");
-        if (token) {
-          const rBearer = await fetch("/api/auth/me", {
-            headers: { Authorization: `Bearer ${token}` },
-            cache: "no-store",
-          });
-          if (!alive) return;
+        if (!token) return;
 
-          if (rBearer.ok) {
-            const { user: me } = await rBearer.json();
-            setUser({
-              id: me.id,
-              email: me.email,
-              fullName: me.fullName,
-              avatarUrl: me.avatarUrl ?? "/logo.png",
-              role: me.role,
-            });
-          } else if (rBearer.status === 401) {
-            localStorage.removeItem("token");
-            setUser(null);
-          }
+        const bearerResponse = await fetch("/api/auth/me", {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
+        });
+
+        if (!alive) return;
+
+        if (bearerResponse.ok) {
+          const { user: me } = await bearerResponse.json();
+          setUser({
+            id: me.id,
+            email: me.email,
+            fullName: me.fullName,
+            avatarUrl: me.avatarUrl ?? "/logo.png",
+            role: me.role,
+          });
+        } else if (bearerResponse.status === 401) {
+          localStorage.removeItem("token");
+          setUser(null);
         }
       } catch {
-        // ignore
+        // Auth hydration is best-effort; the public site remains usable.
       } finally {
         if (alive) setHydrated(true);
       }
@@ -98,20 +111,21 @@ export function Navbar() {
     };
   }, []);
 
-  // Đóng menu user khi click ra ngoài hoặc nhấn Escape
   useEffect(() => {
-    function handleDown(e: MouseEvent) {
+    function handleDown(event: MouseEvent) {
       if (!isUserMenuOpen) return;
-      const btn = userBtnRef.current;
+      const button = userBtnRef.current;
       const menu = userMenuRef.current;
-      const target = e.target as Node;
-      if (menu && !menu.contains(target) && btn && !btn.contains(target)) {
+      const target = event.target as Node;
+      if (menu && !menu.contains(target) && button && !button.contains(target)) {
         setIsUserMenuOpen(false);
       }
     }
-    function handleEsc(e: KeyboardEvent) {
-      if (e.key === "Escape") setIsUserMenuOpen(false);
+
+    function handleEsc(event: KeyboardEvent) {
+      if (event.key === "Escape") setIsUserMenuOpen(false);
     }
+
     document.addEventListener("mousedown", handleDown);
     document.addEventListener("keydown", handleEsc);
     return () => {
@@ -120,16 +134,18 @@ export function Navbar() {
     };
   }, [isUserMenuOpen]);
 
-  // Đổi route thì đóng menu user & mobile
   useEffect(() => {
-    setIsUserMenuOpen(false);
     setIsMenuOpen(false);
+    setIsUserMenuOpen(false);
   }, [pathname]);
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST", credentials: "include" }).catch(() => {});
-    } catch {}
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    } catch {
+      // Local logout still proceeds if the network request fails.
+    }
+
     localStorage.removeItem("token");
     setUser(null);
     setIsUserMenuOpen(false);
@@ -139,95 +155,69 @@ export function Navbar() {
   };
 
   const isActive = (path: string) => {
-    if (path === "/") {
-      return pathname === "/";
-    }
+    if (path === "/") return pathname === "/";
     return pathname.startsWith(path);
   };
 
-  const navItems = [
-    { href: "/", label: "Trang chủ" },
-    { href: "/shop/products", label: "Sản phẩm" },
-    { href: "/about", label: "Về chúng tôi" },
-    { href: "/policy", label: "Chính sách" },
-    { href: "/contact", label: "Liên hệ" },
-    // { href: "/solutions", label: "Giải pháp" },
-    // { href: "/software", label: "Phần mềm" },
-  ];
-
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
+    <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/80">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-gray-900">
+        <div className="flex h-16 items-center justify-between gap-4">
+          <Link
+            href="/"
+            className="flex min-w-0 items-center gap-2 text-lg font-bold text-slate-950"
+          >
             <Image
               src="/logo.png"
               alt="AHSO Logo"
-              width={32}
-              height={32}
+              width={34}
+              height={34}
               className="h-8 w-8 object-contain"
               priority
             />
-            <span>AHSO Shop</span>
+            <span className="truncate">AHSO Industrial</span>
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`relative text-sm font-medium transition-all duration-200 ${
-                  isActive(item.href)
-                    ? "text-blue-600 font-bold"
-                    : "text-gray-700 hover:text-blue-600"
-                }`}
-              >
-                {item.label}
-                {isActive(item.href) && (
-                  <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-600 rounded-full"></span>
-                )}
-              </Link>
-            ))}
-           
+          <div className="hidden items-center gap-5 lg:flex">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active = !item.external && isActive(item.href);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  target={item.external ? "_blank" : undefined}
+                  rel={item.external ? "noopener noreferrer" : undefined}
+                  className={`relative inline-flex items-center gap-2 text-sm font-semibold transition ${
+                    active ? "text-blue-700" : "text-slate-700 hover:text-blue-700"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                  {active && (
+                    <span className="absolute -bottom-2 left-0 right-0 h-0.5 rounded-full bg-blue-700" />
+                  )}
+                </Link>
+              );
+            })}
           </div>
 
-          {/* Right */}
-          <div className="flex items-center gap-3">
-            <Link href="/cart" className="relative">
-              <Button
-                id="site-cart-icon"
-                variant="ghost"
-                size="icon"
-                aria-label="Giỏ hàng"
-                className="relative"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                {itemCount > 0 && (
-                  <span className="absolute -right-1 -top-1 min-w-[18px] rounded-full bg-blue-600 px-1.5 py-0.5 text-center text-[11px] font-semibold leading-none text-white shadow-sm">
-                    {itemCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
-
-            {/* User State */}
+          <div className="flex items-center gap-2">
             {hydrated ? (
               user ? (
-                <div className="relative">
+                <div className="relative hidden lg:block">
                   <Button
+                    ref={userBtnRef}
                     variant="ghost"
                     size="icon"
-                    onClick={() => setIsUserMenuOpen((v) => !v)}
-                    className="hidden md:flex"
+                    onClick={() => setIsUserMenuOpen((value) => !value)}
                     aria-label="Mở menu người dùng"
-                    ref={userBtnRef}
                   >
                     {user.avatarUrl && user.avatarUrl !== "/logo.png" ? (
                       <Image
-                        src={user.avatarUrl!}
-                        alt={user.fullName || "User"}
+                        src={user.avatarUrl}
+                        alt={user.fullName || "Người dùng"}
                         width={32}
                         height={32}
                         className="h-8 w-8 rounded-full object-cover"
@@ -239,21 +229,21 @@ export function Navbar() {
 
                   {isUserMenuOpen && (
                     <>
-                      {/* Backdrop (có thể bỏ, đã có click-outside; giữ lại cho UX) */}
-                      <div
-                        className="fixed inset-0 z-40"
+                      <button
+                        type="button"
+                        className="fixed inset-0 z-40 cursor-default"
                         onClick={() => setIsUserMenuOpen(false)}
-                        aria-hidden
+                        aria-label="Đóng menu người dùng"
                       />
                       <div
-                        className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50"
                         ref={userMenuRef}
+                        className="absolute right-0 z-50 mt-2 w-64 rounded-lg border border-slate-200 bg-white py-2 shadow-xl"
                       >
-                        <div className="px-4 py-3 border-b border-gray-100">
-                          <p className="text-sm font-semibold text-gray-900">{user.fullName}</p>
-                          <p className="text-xs text-gray-500">{user.email}</p>
+                        <div className="border-b border-slate-100 px-4 py-3">
+                          <p className="text-sm font-semibold text-slate-950">{user.fullName}</p>
+                          <p className="text-xs text-slate-500">{user.email}</p>
                           {user.role && user.role !== "USER" && (
-                            <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                            <span className="mt-2 inline-block rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-800">
                               {user.role}
                             </span>
                           )}
@@ -261,43 +251,38 @@ export function Navbar() {
                         <div className="py-1">
                           <Link
                             href="/profile"
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
                           >
-                            <UserCircle className="h-4 w-4" /> Tài khoản của tôi
-                          </Link>
-                          <Link
-                            href="/order"
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                          >
-                            <Package className="h-4 w-4" /> Đơn hàng
+                            <UserCircle className="h-4 w-4" />
+                            Tài khoản của tôi
                           </Link>
                           {(user.role === "STAFF" || user.role === "ADMIN") && (
                             <Link
                               href="/staff"
-                              onClick={() => setIsUserMenuOpen(false)}
-                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
                             >
-                              <ClipboardList className="h-4 w-4" /> Nhân viên
+                              <ClipboardList className="h-4 w-4" />
+                              Nhân viên
                             </Link>
                           )}
                           {user.role === "ADMIN" && (
                             <Link
                               href="/admin"
-                              onClick={() => setIsUserMenuOpen(false)}
-                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50"
                             >
-                              <Settings className="h-4 w-4" /> Quản trị
+                              <Settings className="h-4 w-4" />
+                              Quản trị
                             </Link>
                           )}
                         </div>
-                        <div className="border-t border-gray-100 py-1">
+                        <div className="border-t border-slate-100 py-1">
                           <button
+                            type="button"
                             onClick={handleLogout}
-                            className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                            className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-red-600 transition hover:bg-red-50"
                           >
-                            <LogOut className="h-4 w-4" /> Đăng xuất
+                            <LogOut className="h-4 w-4" />
+                            Đăng xuất
                           </button>
                         </div>
                       </div>
@@ -305,22 +290,22 @@ export function Navbar() {
                   )}
                 </div>
               ) : (
-                <Link href="/login">
-                  <Button className="hidden md:inline-flex" size="sm">
-                    Đăng nhập
-                  </Button>
+                <Link
+                  href="/login"
+                  className="hidden h-9 items-center justify-center rounded-lg bg-blue-700 px-4 text-sm font-semibold text-white transition hover:bg-blue-800 lg:inline-flex"
+                >
+                  Đăng nhập
                 </Link>
               )
             ) : (
-              <div className="hidden md:inline-flex h-9 w-9 animate-pulse rounded-full bg-gray-200" />
+              <div className="hidden h-9 w-9 animate-pulse rounded-full bg-slate-200 lg:block" />
             )}
 
-            {/* Mobile Menu Button */}
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
-              onClick={() => setIsMenuOpen((v) => !v)}
+              className="lg:hidden"
+              onClick={() => setIsMenuOpen((value) => !value)}
               aria-label="Mở menu"
             >
               <Menu className="h-5 w-5" />
@@ -328,71 +313,44 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 space-y-1 border-t border-gray-200">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setIsMenuOpen(false)}
-                className={`block px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${
-                  isActive(item.href)
-                    ? "bg-blue-50 text-blue-600 font-bold"
-                    : "text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-            {/* <Link
-              href="/solutions"
-              onClick={() => setIsMenuOpen(false)}
-              className={`block px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${
-                isActive("/solutions")
-                  ? "bg-blue-50 text-blue-600 font-bold"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              Giải pháp Công Nghiệp
-            </Link>
-            <Link
-              href="/software"
-              onClick={() => setIsMenuOpen(false)}
-              className={`block px-4 py-2.5 text-sm font-medium rounded-md transition-colors ${
-                isActive("/software")
-                  ? "bg-blue-50 text-blue-600 font-bold"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              Phần mềm & Dịch vụ
-            </Link> */}
+          <div className="grid gap-1 border-t border-slate-200 py-4 lg:hidden">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active = !item.external && isActive(item.href);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  target={item.external ? "_blank" : undefined}
+                  rel={item.external ? "noopener noreferrer" : undefined}
+                  className={`flex items-center gap-3 rounded-lg px-4 py-2.5 text-base font-semibold transition ${
+                    active ? "bg-blue-50 text-blue-700" : "text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
 
             {hydrated && user ? (
               <>
-                <div className="border-top border-gray-200 pt-3 mt-2 px-4">
-                  <p className="text-sm font-semibold text-gray-900">{user.fullName}</p>
-                  <p className="text-xs text-gray-500">{user.email}</p>
+                <div className="mt-2 border-t border-slate-200 px-4 pt-4">
+                  <p className="text-sm font-semibold text-slate-950">{user.fullName}</p>
+                  <p className="text-xs text-slate-500">{user.email}</p>
                 </div>
                 <Link
                   href="/profile"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
+                  className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                 >
                   Tài khoản
-                </Link>
-                <Link
-                  href="/order"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
-                >
-                  Đơn hàng
                 </Link>
                 {(user.role === "STAFF" || user.role === "ADMIN") && (
                   <Link
                     href="/staff"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
+                    className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                   >
                     Nhân viên
                   </Link>
@@ -400,27 +358,26 @@ export function Navbar() {
                 {user.role === "ADMIN" && (
                   <Link
                     href="/admin"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md"
+                    className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                   >
                     Quản trị
                   </Link>
                 )}
                 <button
+                  type="button"
                   onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-md"
+                  className="rounded-lg px-4 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50"
                 >
                   Đăng xuất
                 </button>
               </>
             ) : (
-              <div className="px-4 pt-2">
-                <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                  <Button className="w-full" size="sm">
-                    Đăng nhập
-                  </Button>
-                </Link>
-              </div>
+              <Link
+                href="/login"
+                className="mt-2 inline-flex h-10 items-center justify-center rounded-lg bg-blue-700 px-4 text-sm font-semibold text-white transition hover:bg-blue-800"
+              >
+                Đăng nhập
+              </Link>
             )}
           </div>
         )}
@@ -428,4 +385,3 @@ export function Navbar() {
     </nav>
   );
 }
-

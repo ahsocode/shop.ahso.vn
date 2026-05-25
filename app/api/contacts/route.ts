@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { sendMail } from "@/lib/mailer";
 import { EMAIL_CONFIG } from "@/lib/email-config";
 import type { contact_status } from "@prisma/client";
+import { getContactNotificationEmail } from "@/lib/system-settings";
 
 const RATE_LIMIT = {
   MAX_PENDING: 3, // Tối đa 3 yêu cầu chưa xử lý/số
@@ -152,8 +153,9 @@ async function sendAdminNotification(data: {
   company?: string;
   subject?: string;
   message: string;
+  adminEmail?: string;
 }) {
-  const adminEmail = EMAIL_CONFIG.ADMIN_EMAIL;
+  const adminEmail = data.adminEmail || EMAIL_CONFIG.ADMIN_EMAIL;
   const subject = `🔔 Yêu cầu liên hệ mới ${data.code}`;
 
   const text = `
@@ -307,6 +309,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const adminEmail = await getContactNotificationEmail();
+
     emailPromises.push(
       sendAdminNotification({
         code: contact.code,
@@ -316,6 +320,7 @@ export async function POST(req: NextRequest) {
         company: data.company || undefined,
         subject: data.subject || undefined,
         message: data.message,
+        adminEmail,
       }).catch((err) => console.error("Failed to send admin email:", err))
     );
 

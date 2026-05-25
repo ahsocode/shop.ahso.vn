@@ -62,7 +62,7 @@ export default async function SolutionsPage({
   const q = pickParam(params, "q").trim();
   const category = pickParam(params, "category").trim();
   const page = toInt(pickParam(params, "page"), 1);
-  const pageSize = toInt(pickParam(params, "pageSize"), 24);
+  const pageSize = toInt(pickParam(params, "pageSize"), 20);
 
   const where: solutionWhereInput = { status: "PUBLISHED" };
   if (category) where.solutioncategory = { is: { slug: category } };
@@ -87,6 +87,7 @@ export default async function SolutionsPage({
         title: true,
         summary: true,
         coverImage: true,
+        isFeatured: true,
         solutioncategory: { select: { id: true, slug: true, name: true } },
       },
     }),
@@ -108,8 +109,9 @@ export default async function SolutionsPage({
     slug: r.slug,
     title: r.title,
     summary: r.summary ?? undefined,
-    image: r.coverImage ?? null,
+    image: r.coverImage || "/logo.png",
     category: r.solutioncategory ?? null,
+    isFeatured: r.isFeatured ?? false,
   }));
 
   const initialCategories: SolutionCategoryOption[] = categories.map(

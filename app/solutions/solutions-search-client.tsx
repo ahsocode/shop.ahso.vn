@@ -6,6 +6,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight } from "lucide-react";
 
+const FALLBACK_IMAGE = "/logo.png";
+
 export type SolutionCard = {
   id: string;
   title: string;
@@ -13,6 +15,7 @@ export type SolutionCard = {
   category?: { id?: string; slug?: string; name?: string } | null;
   image?: string | null;
   summary?: string | null;
+  isFeatured?: boolean;
 };
 
 export type SolutionCategoryOption = { id: string; slug: string; name: string };
@@ -43,7 +46,7 @@ export default function SolutionsSearchClient({
   const defaultPage = Number(
     sp.get("page") ?? initialQuery?.page ?? 1
   );
-  const pageSize = initialQuery?.pageSize ?? 24;
+  const pageSize = initialQuery?.pageSize ?? 20;
 
   const [q, setQ] = useState(defaultQ);
   const [category, setCategory] = useState(defaultCategory);
@@ -269,7 +272,7 @@ export default function SolutionsSearchClient({
               )}
             </div>
 
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
               {loading
                 ? Array.from({ length: pageSize }).map((_, i) => (
                     <div
@@ -283,7 +286,9 @@ export default function SolutionsSearchClient({
                       </div>
                     </div>
                   ))
-                : data.map((s) => (
+                : data.map((s) => {
+                    const imageSrc = s.image || FALLBACK_IMAGE;
+                    return (
                     <article
                       key={s.id}
                       className="border rounded-2xl bg-white shadow-sm hover:shadow-md transition flex flex-col h-full overflow-hidden"
@@ -292,19 +297,20 @@ export default function SolutionsSearchClient({
                         href={`/solutions/${encodeURIComponent(s.slug)}`}
                         className="block"
                       >
-                        {s.image ? (
-                          <div className="relative aspect-square w-full overflow-hidden bg-gray-100">
-                            <Image
-                              src={s.image}
-                              alt={s.title}
-                              fill
-                              className="object-cover"
-                              sizes="(min-width: 1280px) 16vw, (min-width: 768px) 25vw, 100vw"
-                            />
-                          </div>
-                        ) : (
-                          <div className="aspect-square w-full bg-gray-100" />
-                        )}
+                        <div className="relative aspect-square w-full overflow-hidden bg-gray-100">
+                          <Image
+                            src={imageSrc}
+                            alt={s.title}
+                            fill
+                            className="object-cover"
+                            sizes="(min-width: 1280px) 16vw, (min-width: 768px) 25vw, 100vw"
+                          />
+                          {s.isFeatured && (
+                            <span className="absolute left-3 top-3 rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow">
+                              Nổi bật
+                            </span>
+                          )}
+                        </div>
                       </Link>
 
                       <div className="p-4 flex-1 flex flex-col">
@@ -331,7 +337,8 @@ export default function SolutionsSearchClient({
                         </div>
                       </div>
                     </article>
-                  ))}
+                    );
+                  })}
             </div>
 
             {!loading && data.length === 0 && (

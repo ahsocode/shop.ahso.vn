@@ -38,6 +38,7 @@ export async function GET(req: NextRequest) {
     const q = (searchParams.get("q") || "").trim();
     const status = (searchParams.get("status") || "").trim();
     const categoryId = (searchParams.get("categoryId") || "").trim();
+    const mode = (searchParams.get("mode") || "").trim();
     const page = toInt(searchParams.get("page"), 1);
     const pageSize = toInt(searchParams.get("pageSize"), 20);
 
@@ -51,6 +52,27 @@ export async function GET(req: NextRequest) {
       ...(status && { status: status as "DRAFT" | "PUBLISHED" | "ARCHIVED" }),
       ...(categoryId && { categoryId }),
     };
+
+    if (mode === "options") {
+      const rows = await prisma.software.findMany({
+        where,
+        orderBy: [{ updatedAt: "desc" }],
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          coverImage: true,
+          softwarecategory: { select: { name: true } },
+        },
+      });
+
+      return NextResponse.json({
+        data: rows,
+        meta: { total: rows.length, page, pageSize },
+      });
+    }
 
     const [total, rows] = await Promise.all([
       prisma.software.count({ where }),

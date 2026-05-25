@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { softwareWhereInput } from "@/lib/prisma-types";
 
+const FALLBACK_IMAGE = "/logo.png";
+
 function toInt(v: string | null, def = 1) {
   const n = v ? Number(v) : NaN;
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : def;
@@ -15,7 +17,7 @@ export async function GET(req: Request) {
     const category = (searchParams.get("category") || "").trim(); // category slug
     const categoryId = (searchParams.get("categoryId") || "").trim();
     const page = toInt(searchParams.get("page"), 1);
-    const pageSize = toInt(searchParams.get("pageSize"), 24);
+    const pageSize = toInt(searchParams.get("pageSize"), 20);
 
     const where: softwareWhereInput = {
       status: "PUBLISHED",
@@ -43,6 +45,7 @@ export async function GET(req: Request) {
           title: true,
           coverImage: true,
           summary: true,
+          isFeatured: true,
           softwarecategory: { select: { name: true, slug: true } },
         },
       }),
@@ -54,15 +57,16 @@ export async function GET(req: Request) {
         slug: r.slug,
         title: r.title,
         summary: r.summary ?? null,
-        image: r.coverImage ?? null,
+        image: r.coverImage || FALLBACK_IMAGE,
         category: r.softwarecategory,
+        isFeatured: r.isFeatured ?? false,
       })),
       meta: { total, page, pageSize },
     });
   } catch (e) {
     console.error("GET /api/software error:", e);
     return NextResponse.json(
-      { data: [], meta: { total: 0, page: 1, pageSize: 24 }, error: "Internal" },
+      { data: [], meta: { total: 0, page: 1, pageSize: 20 }, error: "Internal" },
       { status: 200 }
     );
   }

@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
-import { Loader2, Upload, Pencil, Trash2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { confirmToast } from "@/lib/confirm-toast";
-import { ImageCropDialog } from "@/components/image/image-crop-dialog";
-import { getJSON, postJSON, del, patchJSON, makeHeaders } from "../_lib/fetcher";
+import { getJSON, del, makeHeaders } from "../_lib/fetcher";
 
 type Brand = {
   id: string;
@@ -45,16 +45,6 @@ type BulkBrandPreviewRow = {
   issues?: string[];
 };
 
-type BrandLogoAsset = {
-  assetId: string;
-  publicId: string;
-  secureUrl: string;
-  width: number;
-  height: number;
-  bytes: number;
-  createdAt: string;
-};
-
 const formatDate = (iso: string) =>
   new Intl.DateTimeFormat("vi-VN", {
     dateStyle: "medium",
@@ -68,35 +58,10 @@ export default function BrandsPage() {
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<Brand[]>([]);
   const [total, setTotal] = useState(0);
-  const [form, setForm] = useState({
-    name: "",
-    slug: "",
-    logoUrl: "",
-    summary: "",
-  });
   const [loading, setLoading] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
-  const [editing, setEditing] = useState<Brand | null>(null);
-  const [editForm, setEditForm] = useState({
-    name: "",
-    slug: "",
-    logoUrl: "",
-    summary: "",
-  });
-  const [createLoading, setCreateLoading] = useState(false);
-  const [editSaving, setEditSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Brand | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const logoFileRef = useRef<File | null>(null);
-  const logoInputRef = useRef<HTMLInputElement | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [logoCropOpen, setLogoCropOpen] = useState(false);
-  const [logoCropSource, setLogoCropSource] = useState<{
-    url: string;
-    fileName: string;
-    revokeOnClose: boolean;
-  } | null>(null);
-  const editLogoFileInputRef = useRef<HTMLInputElement | null>(null);
 
   // ===== Bulk import state =====
   const [drafts, setDrafts] = useState<BrandDraft[]>([]);
@@ -110,25 +75,8 @@ export default function BrandsPage() {
   const bulkFileInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedDraftIds, setSelectedDraftIds] = useState<string[]>([]);
-  const [logoGalleryOpen, setLogoGalleryOpen] = useState(false);
-  const [logoGalleryItems, setLogoGalleryItems] = useState<BrandLogoAsset[]>([]);
-  const [logoGalleryLoading, setLogoGalleryLoading] = useState(false);
-  const [logoGalleryCursor, setLogoGalleryCursor] = useState<string | null>(null);
-  const [logoGalleryError, setLogoGalleryError] = useState<string | null>(null);
-  const [logoUpdating, setLogoUpdating] = useState(false);
-  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const triggerReload = () => setReloadToken((token) => token + 1);
-
-  const openEdit = (row: Brand) => {
-    setEditing(row);
-    setEditForm({
-      name: row.name,
-      slug: row.slug,
-      logoUrl: row.logoUrl || "",
-      summary: row.summary || "",
-    });
-  };
 
   useEffect(() => {
     let ignore = false;
@@ -159,15 +107,6 @@ export default function BrandsPage() {
     };
   }, [page, pageSize, searchQuery, reloadToken]);
 
-  useEffect(() => {
-    if (!editing) {
-      setLogoGalleryOpen(false);
-      setLogoGalleryItems([]);
-      setLogoGalleryCursor(null);
-      setLogoGalleryError(null);
-      setLogoUpdating(false);
-    }
-  }, [editing]);
 
   const handleSearch = () => {
     const term = keyword.trim();
@@ -176,114 +115,6 @@ export default function BrandsPage() {
       triggerReload();
     } else {
       setSearchQuery(term);
-    }
-  };
-
-  const revokePreview = (url: string | null) => {
-    if (url && url.startsWith("blob:")) {
-      URL.revokeObjectURL(url);
-    }
-  };
-
-  const handleSelectLogo = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (logoInputRef.current) {
-      logoInputRef.current.value = "";
-    }
-    const objectUrl = URL.createObjectURL(file);
-    setLogoCropSource((prev) => {
-      if (prev?.revokeOnClose && prev.url) {
-        URL.revokeObjectURL(prev.url);
-      }
-      return { url: objectUrl, fileName: file.name, revokeOnClose: true };
-    });
-    setLogoCropOpen(true);
-  };
-
-  const handleLogoCropped = (result: { file: File; previewUrl: string }) => {
-    revokePreview(logoPreview);
-    logoFileRef.current = result.file;
-    setLogoPreview(result.previewUrl);
-    setLogoCropSource({
-      url: result.previewUrl,
-      fileName: result.file.name,
-      revokeOnClose: false,
-    });
-    setLogoCropOpen(false);
-  };
-
-  const clearLogoSelection = () => {
-    logoFileRef.current = null;
-    revokePreview(logoPreview);
-    setLogoPreview(null);
-    if (logoCropSource?.revokeOnClose && logoCropSource.url) {
-      URL.revokeObjectURL(logoCropSource.url);
-    }
-    setLogoCropSource(null);
-  };
-
-  const handleLogoDialogOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen) {
-      setLogoCropOpen(false);
-      setLogoCropSource((prev) => {
-        if (prev?.revokeOnClose && prev.url) {
-          URL.revokeObjectURL(prev.url);
-          return null;
-        }
-        return prev;
-      });
-    } else if (logoCropSource) {
-      setLogoCropOpen(true);
-    }
-  };
-
-  const handleCreateBrand = async () => {
-    if (!form.name.trim()) return;
-    setCreateLoading(true);
-    try {
-      const payload = {
-        name: form.name.trim(),
-        slug: form.slug.trim() || undefined,
-        summary: form.summary.trim() || undefined,
-        logoUrl: logoFileRef.current
-          ? undefined
-          : form.logoUrl.trim() || undefined,
-      };
-      const res = await postJSON<{ data: Brand }>(
-        "/api/admin/brands",
-        payload,
-      );
-      const created = res.data;
-
-      if (logoFileRef.current) {
-        const fd = new FormData();
-        fd.append("file", logoFileRef.current);
-        const uploadRes = await fetch(
-          `/api/admin/brands/${created.id}/upload-logo`,
-          {
-            method: "POST",
-            headers: makeHeaders(),
-            body: fd,
-          },
-        );
-        if (!uploadRes.ok) {
-          throw new Error("Upload logo thất bại");
-        }
-      }
-
-      setForm({ name: "", slug: "", logoUrl: "", summary: "" });
-      clearLogoSelection();
-      toast.success("Đã tạo thương hiệu mới");
-      triggerReload();
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Không thể tạo thương hiệu";
-      toast.error(message);
-    } finally {
-      setCreateLoading(false);
     }
   };
 
@@ -330,103 +161,6 @@ export default function BrandsPage() {
     }
   };
 
-  const loadLogoGallery = async (
-    cursor?: string | null,
-    append = false,
-  ) => {
-    setLogoGalleryLoading(true);
-    setLogoGalleryError(null);
-    try {
-      const params = new URLSearchParams();
-      if (cursor) {
-        params.set("cursor", cursor);
-      }
-      const query = params.toString();
-      const url = query
-        ? `/api/admin/brands/gallery?${query}`
-        : "/api/admin/brands/gallery";
-      const res = await fetch(url, {
-        headers: makeHeaders(),
-      });
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || "Không thể tải thư viện logo");
-      }
-      const items = (json.items as BrandLogoAsset[]) ?? [];
-      setLogoGalleryItems((prev) => (append ? [...prev, ...items] : items));
-      setLogoGalleryCursor(json.nextCursor ?? null);
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Không thể tải thư viện logo";
-      setLogoGalleryError(message);
-    } finally {
-      setLogoGalleryLoading(false);
-    }
-  };
-
-  const openLogoGallery = () => {
-    setLogoGalleryItems([]);
-    setLogoGalleryCursor(null);
-    setLogoGalleryError(null);
-    setLogoGalleryOpen(true);
-    loadLogoGallery();
-  };
-
-  const handleEditLogoUpload = async (file: File) => {
-    if (!editing) return;
-    try {
-      setLogoUpdating(true);
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch(`/api/admin/brands/${editing.id}/upload-logo`, {
-        method: "POST",
-        headers: makeHeaders(),
-        body: fd,
-      });
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || "Upload logo thất bại");
-      }
-      const nextUrl: string | undefined = json.data?.logoUrl;
-      if (nextUrl) {
-        setEditForm((prev) => ({ ...prev, logoUrl: nextUrl }));
-        setEditing((prev) => (prev ? { ...prev, logoUrl: nextUrl } : prev));
-      }
-      toast.success("Đã cập nhật logo");
-      triggerReload();
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Không thể tải logo";
-      toast.error(message);
-    } finally {
-      setLogoUpdating(false);
-    }
-  };
-
-  const handleSelectGalleryLogo = async (asset: BrandLogoAsset) => {
-    if (!editing) return;
-    try {
-      setLogoUpdating(true);
-      await patchJSON(`/api/admin/brands/${editing.id}`, {
-        logoUrl: asset.secureUrl,
-      });
-      setEditForm((prev) => ({ ...prev, logoUrl: asset.secureUrl }));
-      setEditing((prev) => (prev ? { ...prev, logoUrl: asset.secureUrl } : prev));
-      toast.success("Đã chọn logo từ thư viện");
-      setLogoGalleryOpen(false);
-      triggerReload();
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Không thể áp dụng logo từ thư viện";
-      toast.error(message);
-    } finally {
-      setLogoUpdating(false);
-    }
-  };
 
   const confirmDeleteBrand = async () => {
     if (!deleteTarget) return;
@@ -444,30 +178,6 @@ export default function BrandsPage() {
       toast.error(message);
     } finally {
       setDeleteLoading(false);
-    }
-  };
-
-  const handleUpdateBrand = async () => {
-    if (!editing) return;
-    try {
-      setEditSaving(true);
-      await patchJSON(`/api/admin/brands/${editing.id}`, {
-        name: editForm.name,
-        slug: editForm.slug || undefined,
-        logoUrl: editForm.logoUrl || undefined,
-        summary: editForm.summary || undefined,
-      });
-      toast.success("Đã cập nhật thương hiệu");
-      setEditing(null);
-      triggerReload();
-    } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Không thể cập nhật thương hiệu";
-      toast.error(message);
-    } finally {
-      setEditSaving(false);
     }
   };
 
@@ -489,12 +199,12 @@ export default function BrandsPage() {
             Tìm
           </button>
         </div>
-        <button
-          onClick={() => setShowCreateForm((prev) => !prev)}
+        <Link
+          href="/admin/brands/create"
           className="inline-flex items-center rounded bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700"
         >
-          {showCreateForm ? "Ẩn form tạo" : "Thêm thương hiệu"}
-        </button>
+          Thêm thương hiệu
+        </Link>
       </div>
 
       {/* Bulk import: upload file + preview */}
@@ -610,13 +320,13 @@ export default function BrandsPage() {
                       />
                     </div>
                   ) : (
-                    <button
-                      onClick={() => openEdit(r)}
+                    <Link
+                      href={`/admin/brands/${r.id}/update`}
                       className="w-16 h-16 rounded border border-dashed border-blue-200 bg-blue-50/60 flex flex-col items-center justify-center text-[11px] text-blue-700 hover:bg-blue-50 transition"
                     >
                       <Upload className="w-4 h-4 mb-1" />
                       Thêm logo
-                    </button>
+                    </Link>
                   )}
                 </td>
                 <td className="px-3 py-2 font-semibold">{r.name}</td>
@@ -637,12 +347,12 @@ export default function BrandsPage() {
                   {formatDate(r.updatedAt)}
                 </td>
                 <td className="px-3 py-2 text-right space-x-3">
-                  <button
-                    onClick={() => openEdit(r)}
+                  <Link
+                    href={`/admin/brands/${r.id}/update`}
                     className="text-blue-600 hover:underline"
                   >
                     Sửa
-                  </button>
+                  </Link>
                   <button
                     onClick={async () => {
                       setDeleteTarget(r);
@@ -921,317 +631,6 @@ export default function BrandsPage() {
         </div>
       )}
 
-      {/* Form tạo brand mới */}
-      {showCreateForm && (
-      <div className="rounded-2xl border bg-white shadow-sm">
-        <div className="border-b px-6 py-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-            Thiết lập nhanh
-          </p>
-          <div className="mt-1 flex flex-col gap-1">
-            <h3 className="text-xl font-semibold">Tạo thương hiệu mới</h3>
-            <p className="text-sm text-gray-500">
-              Thêm tên, mô tả và logo để hiển thị trong trang sản phẩm.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid gap-8 px-6 py-6 lg:grid-cols-3">
-          <div className="space-y-4 lg:col-span-2">
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-gray-800">
-                Tên thương hiệu <span className="text-red-500">*</span>
-              </label>
-              <input
-                className="w-full rounded-lg border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                placeholder="VD: AHSO"
-                value={form.name}
-                onChange={(e) =>
-                  setForm({ ...form, name: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-gray-800">
-                  Slug (tùy chọn)
-                </label>
-                <input
-                  className="w-full rounded-lg border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                  placeholder="auto tạo nếu bỏ trống"
-                  value={form.slug}
-                  onChange={(e) =>
-                    setForm({ ...form, slug: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-gray-800">
-                  Logo URL (tuỳ chọn)
-                </label>
-                <input
-                  className="w-full rounded-lg border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                  placeholder="Dán URL nếu đã host ở nơi khác"
-                  value={form.logoUrl}
-                  onChange={(e) =>
-                    setForm({ ...form, logoUrl: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium text-gray-800">
-                Giới thiệu ngắn
-              </label>
-              <textarea
-                className="w-full rounded-lg border px-3 py-2 text-sm min-h-[140px] focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                placeholder="Tóm tắt lĩnh vực, sản phẩm nổi bật..."
-                value={form.summary}
-                onChange={(e) =>
-                  setForm({ ...form, summary: e.target.value })
-                }
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <label className="text-sm font-medium text-gray-800">
-              Logo tải lên
-            </label>
-            <p className="text-xs text-gray-500">
-              Kích thước vuông, nền trong suốt càng tốt. Ảnh sẽ được chuyển
-              sang WebP trước khi lưu.
-            </p>
-            <div className="flex items-start gap-4">
-              <div className="relative h-28 w-28 overflow-hidden rounded-xl border bg-gray-50">
-                {logoPreview ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={logoPreview}
-                    alt="Logo preview"
-                    className="h-full w-full object-contain"
-                  />
-                ) : form.logoUrl ? (
-                  <Image
-                    src={form.logoUrl}
-                    alt="Logo preview"
-                    fill
-                    sizes="112px"
-                    className="object-contain"
-                  />
-                ) : (
-                  <div className="flex h-full w-full flex-col items-center justify-center text-xs text-gray-400">
-                    <Upload className="h-6 w-6" />
-                    <span>Chưa có logo</span>
-                  </div>
-                )}
-              </div>
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={() => logoInputRef.current?.click()}
-                  className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow hover:bg-blue-700"
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  Chọn ảnh
-                </button>
-                <button
-                  type="button"
-                  disabled={!logoPreview}
-                  onClick={() => {
-                    if (!logoPreview) return;
-                    setLogoCropSource({
-                      url: logoPreview,
-                      fileName: "logo.webp",
-                      revokeOnClose: false,
-                    });
-                    setLogoCropOpen(true);
-                  }}
-                  className="inline-flex items-center rounded-lg border px-3 py-2 text-sm font-medium text-gray-700 transition disabled:opacity-50"
-                >
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Chỉnh sửa
-                </button>
-                <button
-                  type="button"
-                  disabled={!logoPreview}
-                  onClick={clearLogoSelection}
-                  className="inline-flex items-center rounded-lg border px-3 py-2 text-sm font-medium text-gray-700 transition disabled:opacity-50"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Xoá ảnh
-                </button>
-                <input
-                  ref={logoInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleSelectLogo}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t bg-gray-50 px-6 py-4">
-          <div className="text-sm text-gray-500">
-            Ảnh tải lên sẽ được xử lý và lưu tại Cloudinary.
-          </div>
-          <button
-            onClick={handleCreateBrand}
-            disabled={!form.name.trim() || createLoading}
-            className="inline-flex items-center rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 disabled:opacity-60"
-          >
-            {createLoading && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            Lưu thương hiệu
-          </button>
-        </div>
-      </div>
-      )}
-      {/* Modal edit brand */}
-      {editing && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-lg w-full max-w-lg space-y-4 p-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-lg">Chỉnh sửa thương hiệu</h2>
-              <button
-                onClick={() => setEditing(null)}
-                className="text-sm text-gray-500 hover:text-gray-700"
-              >
-                Đóng
-              </button>
-            </div>
-            <div className="space-y-3">
-              <input
-                className="border rounded px-3 py-2 w-full"
-                value={editForm.name}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, name: e.target.value })
-                }
-                placeholder="Tên"
-              />
-              <input
-                className="border rounded px-3 py-2 w-full"
-                value={editForm.slug}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, slug: e.target.value })
-                }
-                placeholder="Slug"
-              />
-              <input
-                className="border rounded px-3 py-2 w-full"
-                value={editForm.logoUrl}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, logoUrl: e.target.value })
-                }
-                placeholder="Logo URL"
-              />
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Logo thương hiệu
-                </label>
-                <div className="flex items-start gap-3">
-                  <div className="relative h-20 w-20 overflow-hidden rounded-lg border bg-gray-50">
-                    {editForm.logoUrl ? (
-                      <Image
-                        src={editForm.logoUrl}
-                        alt={editForm.name || "Logo thương hiệu"}
-                        fill
-                        sizes="80px"
-                        className="object-contain"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-[11px] text-gray-400 text-center px-2">
-                        Chưa có logo
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <button
-                      type="button"
-                      onClick={() => editLogoFileInputRef.current?.click()}
-                      disabled={logoUpdating}
-                      className="inline-flex items-center rounded border px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                    >
-                      {logoUpdating ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Upload className="mr-2 h-4 w-4" />
-                      )}
-                      Tải logo mới
-                    </button>
-                    <button
-                      type="button"
-                      onClick={openLogoGallery}
-                      disabled={logoUpdating}
-                      className="inline-flex items-center rounded border px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                    >
-                      Chọn từ thư viện
-                    </button>
-                    {logoUpdating && (
-                      <div className="text-xs text-gray-500 flex items-center gap-2">
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                        <span>Đang cập nhật logo...</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500">
-                  Thư viện dùng chung từ Cloudinary folder
-                  <code className="ml-1 rounded bg-gray-100 px-1 py-0.5 text-[11px]">
-                    brands/logos
-                  </code>
-                  .
-                </p>
-                <input
-                  ref={editLogoFileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      void handleEditLogoUpload(file);
-                    }
-                    if (e.target) {
-                      e.target.value = "";
-                    }
-                  }}
-                />
-              </div>
-              <textarea
-                className="border rounded px-3 py-2 w-full min-h-[100px]"
-                value={editForm.summary}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, summary: e.target.value })
-                }
-                placeholder="Giới thiệu"
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setEditing(null)}
-                className="px-3 py-2 rounded border"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={handleUpdateBrand}
-                disabled={editSaving || logoUpdating}
-                className="px-3 py-2 rounded bg-blue-600 text-white disabled:opacity-60 inline-flex items-center justify-center gap-2"
-              >
-                {editSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                <span>Lưu</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Modal confirm delete brand */}
       {deleteTarget && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
@@ -1260,93 +659,6 @@ export default function BrandsPage() {
                 {deleteLoading && <Loader2 className="h-4 w-4 animate-spin" />}
                 <span>Xóa</span>
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal gallery logos */}
-      {logoGalleryOpen && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-lg w-full max-w-4xl space-y-4 p-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Thư viện logo Cloudinary</h2>
-              <button
-                onClick={() => setLogoGalleryOpen(false)}
-                className="text-sm text-gray-500 hover:text-gray-700"
-              >
-                Đóng
-              </button>
-            </div>
-
-            {logoGalleryError && (
-              <div className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                {logoGalleryError}
-              </div>
-            )}
-
-            <div className="max-h-[60vh] overflow-y-auto rounded border p-3">
-              {logoGalleryItems.length > 0 ? (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-                  {logoGalleryItems.map((item) => (
-                    <button
-                      key={item.assetId}
-                      type="button"
-                      className="rounded border bg-white p-2 text-left transition hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-                      disabled={logoUpdating}
-                      onClick={() => void handleSelectGalleryLogo(item)}
-                    >
-                      <div className="relative w-full overflow-hidden rounded bg-gray-50 aspect-square">
-                        <Image
-                          src={item.secureUrl}
-                          alt={item.publicId}
-                          fill
-                          className="object-contain"
-                        />
-                      </div>
-                      <div className="mt-2 text-[11px] text-gray-500 line-clamp-2 break-all">
-                        {item.publicId}
-                      </div>
-                      <div className="text-[10px] text-gray-400">
-                        {(item.bytes / 1024).toFixed(0)} KB
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              ) : logoGalleryLoading ? (
-                <div className="py-6 text-center text-sm text-gray-500">
-                  Đang tải thư viện...
-                </div>
-              ) : (
-                <div className="py-6 text-center text-sm text-gray-500">
-                  Chưa có logo nào trong thư viện.
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <div className="text-xs text-gray-500">
-                Folder Cloudinary: <code className="font-mono">brands/logos</code>
-              </div>
-              <div className="flex items-center gap-2">
-                {logoGalleryCursor && (
-                  <button
-                    type="button"
-                    onClick={() => loadLogoGallery(logoGalleryCursor, true)}
-                    disabled={logoGalleryLoading}
-                    className="rounded border px-3 py-2 text-sm disabled:opacity-50"
-                  >
-                    {logoGalleryLoading ? "Đang tải..." : "Tải thêm"}
-                  </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setLogoGalleryOpen(false)}
-                  className="rounded border px-3 py-2 text-sm"
-                >
-                  Đóng
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -1514,14 +826,6 @@ export default function BrandsPage() {
         </div>
       )}
 
-      <ImageCropDialog
-        open={logoCropOpen && Boolean(logoCropSource?.url)}
-        imageSrc={logoCropSource?.url ?? null}
-        fileName={logoCropSource?.fileName}
-        aspectRatio={1}
-        onOpenChange={handleLogoDialogOpenChange}
-        onComplete={handleLogoCropped}
-      />
     </div>
   );
 }
