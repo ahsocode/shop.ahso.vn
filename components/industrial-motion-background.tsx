@@ -46,6 +46,7 @@ function resolveColor(accent: NodePoint["accent"], alpha: number) {
 export function IndustrialMotionBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scrollProgressRef = useRef(0);
+  const scrollYRef = useRef(0);
   const scrollVelocityRef = useRef(0);
   const nodesRef = useRef<NodePoint[]>([]);
 
@@ -77,9 +78,9 @@ export function IndustrialMotionBackground() {
       nodesRef.current = createNodes(width, height);
     }
 
-    function drawGrid(progress: number) {
+    function drawGrid(scrollY: number) {
       const gridSize = 96;
-      const offset = (progress * 120) % gridSize;
+      const offset = (scrollY * 0.22) % gridSize;
 
       context.lineWidth = 1;
       context.strokeStyle = "rgba(31, 61, 104, 0.16)";
@@ -99,14 +100,14 @@ export function IndustrialMotionBackground() {
       }
     }
 
-    function drawRails(progress: number) {
+    function drawRails(progress: number, scrollY: number) {
       const railX = width * 0.76;
-      const travel = progress * height * 0.34;
+      const travel = (scrollY * 0.16) % (height * 0.9);
 
-      context.lineWidth = 1.2;
-      context.strokeStyle = "rgba(22, 81, 156, 0.24)";
+      context.lineWidth = 1.4;
+      context.strokeStyle = "rgba(22, 81, 156, 0.34)";
       context.setLineDash([14, 10]);
-      context.lineDashOffset = -progress * 240;
+      context.lineDashOffset = -scrollY * 0.52;
       context.beginPath();
       context.moveTo(railX, -60 + travel);
       context.lineTo(railX, height * 0.42 + travel);
@@ -114,9 +115,9 @@ export function IndustrialMotionBackground() {
       context.lineTo(width * 0.88, height + 80 + travel * 0.12);
       context.stroke();
 
-      context.strokeStyle = "rgba(202, 52, 52, 0.2)";
+      context.strokeStyle = "rgba(202, 52, 52, 0.28)";
       context.setLineDash([4, 16]);
-      context.lineDashOffset = progress * 180;
+      context.lineDashOffset = scrollY * 0.42;
       context.beginPath();
       context.moveTo(width * 0.08, height * 0.18 - travel * 0.14);
       context.lineTo(width * 0.26, height * 0.34 - travel * 0.08);
@@ -126,49 +127,49 @@ export function IndustrialMotionBackground() {
       context.setLineDash([]);
     }
 
-    function drawScrollScanner(progress: number, velocity: number) {
-      const y = height * (0.16 + progress * 0.68);
+    function drawScrollScanner(scrollY: number, velocity: number) {
+      const y = height * 0.12 + (scrollY * 0.42) % (height * 0.76);
       const speed = Math.min(Math.abs(velocity) / 2600, 1);
-      const alpha = 0.16 + speed * 0.22;
+      const alpha = 0.24 + speed * 0.34;
 
-      context.lineWidth = 1;
+      context.lineWidth = 1.25;
       context.strokeStyle = `rgba(20, 92, 207, ${alpha})`;
       context.setLineDash([32, 18, 8, 18]);
-      context.lineDashOffset = -progress * 360;
+      context.lineDashOffset = -scrollY * 0.65;
       context.beginPath();
       context.moveTo(width * 0.06, y);
-      context.lineTo(width * 0.34, y + Math.sin(progress * Math.PI * 2) * 18);
+      context.lineTo(width * 0.34, y + Math.sin(scrollY * 0.006) * 18);
       context.stroke();
 
       context.strokeStyle = `rgba(218, 48, 48, ${alpha * 0.72})`;
       context.beginPath();
       context.moveTo(width * 0.68, y + 24);
-      context.lineTo(width * 0.94, y - Math.cos(progress * Math.PI * 2) * 16);
+      context.lineTo(width * 0.94, y - Math.cos(scrollY * 0.006) * 16);
       context.stroke();
       context.setLineDash([]);
 
       context.fillStyle = `rgba(20, 92, 207, ${alpha + 0.08})`;
       context.beginPath();
-      context.arc(width * (0.12 + progress * 0.76), y, 3.2 + speed * 2, 0, Math.PI * 2);
+      context.arc(width * (0.12 + ((scrollY * 0.0012) % 0.76)), y, 3.2 + speed * 2, 0, Math.PI * 2);
       context.fill();
     }
 
-    function drawNodes(time: number, progress: number) {
+    function drawNodes(time: number, scrollY: number) {
       const nodes = nodesRef.current;
 
       for (let i = 0; i < nodes.length; i += 1) {
         const first = nodes[i];
         const firstX = first.x + Math.sin(time * 0.0011 + first.phase) * 7;
-        const firstY = first.y + Math.cos(time * 0.0009 + first.phase) * 5 - progress * 46;
+        const firstY = first.y + Math.cos(time * 0.0009 + first.phase) * 5 - (scrollY * 0.035) % 80;
 
         for (let j = i + 1; j < nodes.length; j += 1) {
           const second = nodes[j];
           const secondX = second.x + Math.sin(time * 0.0011 + second.phase) * 7;
-          const secondY = second.y + Math.cos(time * 0.0009 + second.phase) * 5 - progress * 46;
+          const secondY = second.y + Math.cos(time * 0.0009 + second.phase) * 5 - (scrollY * 0.035) % 80;
           const distance = Math.hypot(firstX - secondX, firstY - secondY);
 
           if (distance < LINE_DISTANCE) {
-            context.strokeStyle = `rgba(35, 68, 111, ${0.2 * (1 - distance / LINE_DISTANCE)})`;
+            context.strokeStyle = `rgba(35, 68, 111, ${0.25 * (1 - distance / LINE_DISTANCE)})`;
             context.lineWidth = 1;
             context.beginPath();
             context.moveTo(firstX, firstY);
@@ -178,7 +179,7 @@ export function IndustrialMotionBackground() {
         }
 
         const pulse = 0.55 + Math.sin(time * 0.002 + first.phase) * 0.25;
-        context.fillStyle = resolveColor(first.accent, 0.22 + pulse * 0.18);
+        context.fillStyle = resolveColor(first.accent, 0.28 + pulse * 0.2);
         context.beginPath();
         context.arc(firstX, firstY, first.radius + pulse, 0, Math.PI * 2);
         context.fill();
@@ -188,13 +189,14 @@ export function IndustrialMotionBackground() {
     function render(time = 0) {
       frame += 1;
       const progress = scrollProgressRef.current;
+      const scrollY = scrollYRef.current || window.scrollY;
       const velocity = scrollVelocityRef.current;
 
       context.clearRect(0, 0, width, height);
-      drawGrid(progress);
-      drawRails(progress);
-      drawNodes(time, progress);
-      drawScrollScanner(progress, velocity);
+      drawGrid(scrollY);
+      drawRails(progress, scrollY);
+      drawNodes(time, scrollY);
+      drawScrollScanner(scrollY, velocity);
 
       if (!reduceMotion) {
         animationFrame = window.requestAnimationFrame(render);
@@ -216,6 +218,7 @@ export function IndustrialMotionBackground() {
           end: "max",
           onUpdate: (self) => {
             scrollProgressRef.current = self.progress;
+            scrollYRef.current = self.scroll();
             scrollVelocityRef.current = self.getVelocity();
           },
         });
@@ -237,7 +240,7 @@ export function IndustrialMotionBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-30 opacity-70 mix-blend-multiply"
+      className="pointer-events-none fixed inset-0 z-30 opacity-90 mix-blend-multiply"
       aria-hidden="true"
     />
   );
