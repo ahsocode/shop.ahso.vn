@@ -1,29 +1,69 @@
-FROM node:20-alpine
+FROM node:20-bookworm-slim AS deps
 
 WORKDIR /app
 
-# 1. Copy package để cài dependency
-COPY package.json package-lock.json* ./
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# 2. Copy Prisma schema + config TRƯỚC khi npm ci
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY package.json package-lock.json ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./prisma.config.ts
 
-# 3. Cài dependency (postinstall -> prisma generate OK vì đã có schema)
 RUN npm ci
 
-# 4. Copy toàn bộ source
+FROM node:20-bookworm-slim AS builder
+
+WORKDIR /app
+
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_OPTIONS=--max-old-space-size=4096
+ENV SKIP_BUILD_DB=true
+ENV SKIP_SITEMAP_DB=true
+
+ARG NEXT_PUBLIC_SITE_URL=https://ahso.vn
+ARG NEXT_PUBLIC_APP_URL=https://ahso.vn
+ARG NEXT_PUBLIC_TINYMCE_API_KEY
+
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_TINYMCE_API_KEY=$NEXT_PUBLIC_TINYMCE_API_KEY
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# 5. (Optional) Tăng heap nếu cần khi build
-ENV NODE_OPTIONS=--max-old-space-size=4096
-
-# 6. Generate Prisma client (nếu không dùng postinstall)
-# Nếu bạn đã có "postinstall": "prisma generate" rồi thì có thể bỏ dòng này
 RUN npx prisma generate
-
-# 7. Build Next.js
 RUN npm run build
 
+FROM node:20-bookworm-slim AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY package.json package-lock.json ./
+COPY prisma ./prisma
+COPY prisma.config.ts ./prisma.config.ts
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]

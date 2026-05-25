@@ -2,7 +2,9 @@ import "dotenv/config";
 import path from "node:path";
 import { defineConfig } from "prisma/config";
 
-const dbUrl = process.env.DATABASE_URL || "mysql://user:pass@localhost:3306/dummy";
+const dbUrl =
+  process.env.DATABASE_URL ||
+  "postgresql://user:pass@localhost:5432/dummy?schema=public";
 
 export default defineConfig({
   engine: "classic",

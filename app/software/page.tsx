@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
-import { prisma } from "@/lib/prisma";
+
 import { buildMetadata } from "@/lib/metadata";
+import { prisma } from "@/lib/prisma";
 import type { softwareWhereInput } from "@/lib/prisma-types";
+
 import SoftwareSearchClient, {
-  SoftwareCard,
-  SoftwareCategoryOption,
+  type SoftwareCard,
+  type SoftwareCategoryOption,
 } from "./software-search-client";
 
-// Tránh prerender khi không có DB
+// Tránh prerender khi không có DB.
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Phần mềm công nghiệp & dịch vụ triển khai",
   description:
-    "Lựa chọn giải pháp MES, ERP, CMMS, IoT công nghiệp cùng dịch vụ triển khai, đào tạo và bảo trì từ AHSO.",
+    "Danh sách phần mềm kiểm tra, giám sát, báo cáo, kết nối dữ liệu và dịch vụ triển khai công nghiệp từ AHSO.",
   path: "/software",
 });
 
@@ -21,7 +23,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 function pickParam(
   params: Record<string, string | string[] | undefined>,
-  key: string,
+  key: string
 ) {
   const value = params[key];
   if (Array.isArray(value)) return value[0] ?? "";
@@ -35,14 +37,17 @@ function toInt(value: string, def = 1) {
 
 function SoftwareFallback() {
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50/30">
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="rounded-2xl border border-gray-200 bg-white p-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Phần mềm & dịch vụ
+    <div className="min-h-screen bg-[oklch(0.985_0.006_250)]">
+      <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="rounded-lg border border-slate-200 bg-[oklch(0.998_0.003_250)] p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
+            Phần mềm công nghiệp
+          </p>
+          <h1 className="mt-3 text-3xl font-semibold text-slate-950">
+            Dữ liệu phần mềm sẽ được tải ở môi trường chạy thật.
           </h1>
-          <p className="mt-2 text-gray-600">
-            Dữ liệu sẽ được tải ở môi trường chạy thật. (CI skip DB khi build.)
+          <p className="mt-3 max-w-2xl text-slate-600">
+            Chế độ build đang bỏ qua kết nối cơ sở dữ liệu, giao diện sẽ hiển thị đầy đủ khi chạy với cấu hình DB hợp lệ.
           </p>
         </div>
       </div>
@@ -67,7 +72,6 @@ export default async function SoftwarePage({
   const where: softwareWhereInput = { status: "PUBLISHED" };
 
   if (category) {
-    // quan hệ 1-n: software -> softwarecategory
     where.softwarecategory = { is: { slug: category } };
   }
 
@@ -86,17 +90,15 @@ export default async function SoftwarePage({
       orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
       skip: (page - 1) * pageSize,
       take: pageSize,
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          summary: true,
-          coverImage: true,
-          isFeatured: true,
-
-          // ✅ thêm relation để TS có r.softwarecategory
-          softwarecategory: {
-            select: {
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        summary: true,
+        coverImage: true,
+        isFeatured: true,
+        softwarecategory: {
+          select: {
             id: true,
             slug: true,
             name: true,
@@ -118,26 +120,26 @@ export default async function SoftwarePage({
 
   const [total, rows, categories] = result;
 
-  const initialData: SoftwareCard[] = rows.map((r) => ({
-    id: r.id,
-    slug: r.slug,
-    title: r.title,
-    summary: r.summary ?? undefined,
-    image: r.coverImage || "/logo.png",
-    isFeatured: r.isFeatured ?? false,
-    category: r.softwarecategory
+  const initialData: SoftwareCard[] = rows.map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    summary: row.summary ?? undefined,
+    image: row.coverImage || "/logo.png",
+    isFeatured: row.isFeatured ?? false,
+    category: row.softwarecategory
       ? {
-          id: r.softwarecategory.id,
-          slug: r.softwarecategory.slug,
-          name: r.softwarecategory.name,
+          id: row.softwarecategory.id,
+          slug: row.softwarecategory.slug,
+          name: row.softwarecategory.name,
         }
       : null,
   }));
 
-  const initialCategories: SoftwareCategoryOption[] = categories.map((c) => ({
-    id: c.id,
-    slug: c.slug,
-    name: c.name,
+  const initialCategories: SoftwareCategoryOption[] = categories.map((item) => ({
+    id: item.id,
+    slug: item.slug,
+    name: item.name,
   }));
 
   return (

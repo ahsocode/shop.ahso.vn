@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
-import { prisma } from "@/lib/prisma";
+
 import { buildMetadata } from "@/lib/metadata";
-import SolutionsSearchClient, {
-  SolutionCard,
-  SolutionCategoryOption,
-} from "./solutions-search-client";
+import { prisma } from "@/lib/prisma";
 import type { solutionWhereInput } from "@/lib/prisma-types";
 
-// Tránh prerender khi không có DB
+import SolutionsSearchClient, {
+  type SolutionCard,
+  type SolutionCategoryOption,
+} from "./solutions-search-client";
+
+// Tránh prerender khi không có DB.
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Giải pháp công nghiệp & tự động hóa",
   description:
-    "Tổng hợp giải pháp chuyển đổi số, MES, SCADA, IoT công nghiệp mà AHSO đã triển khai cho nhiều doanh nghiệp sản xuất.",
+    "Tổng hợp giải pháp tự động hóa, robot, dây chuyền và phần mềm công nghiệp mà AHSO tư vấn, thiết kế và triển khai cho doanh nghiệp sản xuất.",
   path: "/solutions",
 });
 
@@ -35,14 +37,17 @@ function toInt(value: string, def = 1) {
 
 function SolutionsFallback() {
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50/30">
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="rounded-2xl border border-gray-200 bg-white p-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Giải pháp tự động hóa & chuyển đổi số
+    <div className="min-h-screen bg-[oklch(0.985_0.006_250)]">
+      <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="rounded-lg border border-slate-200 bg-[oklch(0.998_0.003_250)] p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
+            Giải pháp công nghiệp
+          </p>
+          <h1 className="mt-3 text-3xl font-semibold text-slate-950">
+            Dữ liệu giải pháp sẽ được tải ở môi trường chạy thật.
           </h1>
-          <p className="mt-2 text-gray-600">
-            Dữ liệu sẽ được tải ở môi trường chạy thật. (CI skip DB khi build.)
+          <p className="mt-3 max-w-2xl text-slate-600">
+            Chế độ build đang bỏ qua kết nối cơ sở dữ liệu, giao diện sẽ hiển thị đầy đủ khi chạy với cấu hình DB hợp lệ.
           </p>
         </div>
       </div>
@@ -104,23 +109,21 @@ export default async function SolutionsPage({
   if (!result) return <SolutionsFallback />;
   const [total, rows, categories] = result;
 
-  const initialData: SolutionCard[] = rows.map((r: (typeof rows)[number]): SolutionCard => ({
-    id: r.id,
-    slug: r.slug,
-    title: r.title,
-    summary: r.summary ?? undefined,
-    image: r.coverImage || "/logo.png",
-    category: r.solutioncategory ?? null,
-    isFeatured: r.isFeatured ?? false,
+  const initialData: SolutionCard[] = rows.map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    summary: row.summary ?? undefined,
+    image: row.coverImage || "/logo.png",
+    category: row.solutioncategory ?? null,
+    isFeatured: row.isFeatured ?? false,
   }));
 
-  const initialCategories: SolutionCategoryOption[] = categories.map(
-    (c: (typeof categories)[number]): SolutionCategoryOption => ({
-      id: c.id,
-      slug: c.slug,
-      name: c.name,
-    })
-  );
+  const initialCategories: SolutionCategoryOption[] = categories.map((item) => ({
+    id: item.id,
+    slug: item.slug,
+    name: item.name,
+  }));
 
   return (
     <SolutionsSearchClient

@@ -1,0 +1,32 @@
+name: ahsovn
+
+services:
+  ahsovn_app:
+    image: ghcr.io/duyhaiahso/ahsovn:latest
+    container_name: ahsovn_app
+    restart: unless-stopped
+    ports:
+      - "3200:3000"
+    env_file:
+      - .env.ahsovn
+    depends_on:
+      ahsovn_postgres:
+        condition: service_healthy
+
+  ahsovn_postgres:
+    image: postgres:16
+    container_name: ahsovn_postgres
+    restart: unless-stopped
+    env_file:
+      - .env.ahsovn.postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ahsovn_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  ahsovn_postgres_data:
+    name: ahsovn_postgres_data
