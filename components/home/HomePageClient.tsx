@@ -687,8 +687,7 @@ export default function HomePageClient() {
               Công cụ số giúp vận hành rõ ràng và nhanh hơn.
             </h2>
             <p className="mt-4 text-base leading-8 text-slate-600">
-              Các phần mềm được trình bày ngắn gọn để người xem hiểu mục đích,
-              phạm vi ứng dụng và biết khi nào cần trao đổi với AHSO.
+              Các phần mềm hỗ trợ quản lý, giám sát, báo cáo và kết nối dữ liệu để doanh nghiệp ra quyết định nhanh hơn.
             </p>
             <Link
               href="/software"
@@ -731,8 +730,7 @@ export default function HomePageClient() {
                 Ít bước hơn, nhưng mỗi bước phải rõ ràng.
               </h2>
               <p className="mt-4 text-base leading-8 text-slate-300">
-                AHSO không phóng đại khả năng. Mỗi yêu cầu cần được làm rõ trước khi
-                tư vấn, báo giá hoặc đề xuất phương án triển khai.
+                AHSO luôn đảm bảo mỗi bước trong quy trình làm việc đều rõ ràng về nhu cầu, phương án và giá trị triển khai để khách hàng có thể yên tâm và chủ động trong suốt quá trình hợp tác.
               </p>
             </div>
 
