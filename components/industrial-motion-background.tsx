@@ -46,6 +46,7 @@ function resolveColor(accent: NodePoint["accent"], alpha: number) {
 export function IndustrialMotionBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scrollProgressRef = useRef(0);
+  const scrollVelocityRef = useRef(0);
   const nodesRef = useRef<NodePoint[]>([]);
 
   useEffect(() => {
@@ -104,6 +105,8 @@ export function IndustrialMotionBackground() {
 
       context.lineWidth = 1.2;
       context.strokeStyle = "rgba(22, 81, 156, 0.24)";
+      context.setLineDash([14, 10]);
+      context.lineDashOffset = -progress * 240;
       context.beginPath();
       context.moveTo(railX, -60 + travel);
       context.lineTo(railX, height * 0.42 + travel);
@@ -112,12 +115,42 @@ export function IndustrialMotionBackground() {
       context.stroke();
 
       context.strokeStyle = "rgba(202, 52, 52, 0.2)";
+      context.setLineDash([4, 16]);
+      context.lineDashOffset = progress * 180;
       context.beginPath();
       context.moveTo(width * 0.08, height * 0.18 - travel * 0.14);
       context.lineTo(width * 0.26, height * 0.34 - travel * 0.08);
       context.lineTo(width * 0.18, height * 0.72 + travel * 0.08);
       context.lineTo(width * 0.42, height * 0.9 + travel * 0.05);
       context.stroke();
+      context.setLineDash([]);
+    }
+
+    function drawScrollScanner(progress: number, velocity: number) {
+      const y = height * (0.16 + progress * 0.68);
+      const speed = Math.min(Math.abs(velocity) / 2600, 1);
+      const alpha = 0.16 + speed * 0.22;
+
+      context.lineWidth = 1;
+      context.strokeStyle = `rgba(20, 92, 207, ${alpha})`;
+      context.setLineDash([32, 18, 8, 18]);
+      context.lineDashOffset = -progress * 360;
+      context.beginPath();
+      context.moveTo(width * 0.06, y);
+      context.lineTo(width * 0.34, y + Math.sin(progress * Math.PI * 2) * 18);
+      context.stroke();
+
+      context.strokeStyle = `rgba(218, 48, 48, ${alpha * 0.72})`;
+      context.beginPath();
+      context.moveTo(width * 0.68, y + 24);
+      context.lineTo(width * 0.94, y - Math.cos(progress * Math.PI * 2) * 16);
+      context.stroke();
+      context.setLineDash([]);
+
+      context.fillStyle = `rgba(20, 92, 207, ${alpha + 0.08})`;
+      context.beginPath();
+      context.arc(width * (0.12 + progress * 0.76), y, 3.2 + speed * 2, 0, Math.PI * 2);
+      context.fill();
     }
 
     function drawNodes(time: number, progress: number) {
@@ -155,13 +188,13 @@ export function IndustrialMotionBackground() {
     function render(time = 0) {
       frame += 1;
       const progress = scrollProgressRef.current;
+      const velocity = scrollVelocityRef.current;
 
       context.clearRect(0, 0, width, height);
-      context.fillStyle = "oklch(0.985 0.006 248)";
-      context.fillRect(0, 0, width, height);
       drawGrid(progress);
       drawRails(progress);
       drawNodes(time, progress);
+      drawScrollScanner(progress, velocity);
 
       if (!reduceMotion) {
         animationFrame = window.requestAnimationFrame(render);
@@ -183,6 +216,7 @@ export function IndustrialMotionBackground() {
           end: "max",
           onUpdate: (self) => {
             scrollProgressRef.current = self.progress;
+            scrollVelocityRef.current = self.getVelocity();
           },
         });
       });
