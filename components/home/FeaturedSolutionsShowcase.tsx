@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type FeaturedShowcaseItem = {
   id: string;
@@ -19,57 +19,74 @@ type FeaturedSolutionsShowcaseProps = {
 };
 
 const ROTATE_DELAY = 7800;
+const FADE_DURATION = 360;
+const LIST_ITEM_HEIGHT = 120;
 
 export function FeaturedSolutionsShowcase({ items }: FeaturedSolutionsShowcaseProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [displayIndex, setDisplayIndex] = useState(0);
+  const [listOffset, setListOffset] = useState(items.length);
+  const [isFading, setIsFading] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [listTransitionOn, setListTransitionOn] = useState(true);
 
-  const activeItem = items[activeIndex] ?? items[0];
-  const visibleItems = useMemo(() => {
-    if (items.length <= 1) {
-      return items.map((item, itemIndex) => ({ item, itemIndex }));
-    }
+  const activeItem = items[displayIndex] ?? items[0];
+  const loopItems = useMemo(() => [...items, ...items, ...items], [items]);
 
-    return Array.from({ length: Math.min(items.length, 6) }, (_, index) => {
-      const itemIndex = (activeIndex + index) % items.length;
-      return {
-        item: items[itemIndex],
-        itemIndex,
-      };
-    });
-  }, [activeIndex, items]);
+  const changeTo = useCallback((nextIndex: number) => {
+    if (!items.length || nextIndex === displayIndex || isFading) return;
+
+    setIsFading(true);
+    window.setTimeout(() => {
+      setDisplayIndex(nextIndex);
+      setIsFading(false);
+    }, FADE_DURATION);
+  }, [displayIndex, isFading, items.length]);
+
+  const advance = useCallback(() => {
+    if (items.length <= 1) return;
+    const nextOffset = listOffset + 1;
+    setListTransitionOn(true);
+    setListOffset(nextOffset);
+    changeTo(nextOffset % items.length);
+  }, [changeTo, items.length, listOffset]);
+
+  const jumpTo = useCallback((itemIndex: number) => {
+    if (itemIndex === displayIndex || isFading) return;
+
+    setListTransitionOn(true);
+    setListOffset(items.length + itemIndex);
+    changeTo(itemIndex);
+  }, [changeTo, displayIndex, isFading, items.length]);
 
   useEffect(() => {
     if (items.length <= 1 || isPaused) return;
 
-    const timer = window.setInterval(() => {
-      setActiveIndex((value) => (value + 1) % items.length);
-    }, ROTATE_DELAY);
+    const timer = window.setInterval(advance, ROTATE_DELAY);
 
     return () => window.clearInterval(timer);
-  }, [isPaused, items.length]);
+  }, [advance, isPaused, items.length]);
 
   if (!activeItem) return null;
 
   return (
     <div
-      className="grid overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm lg:grid-cols-[0.9fr_1.15fr_0.7fr]"
+      className="grid overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm lg:grid-cols-[360px_minmax(0,1fr)_310px]"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
       <Link
-        key={`image-${activeItem.id}`}
         href={activeItem.href}
-        className="group relative min-h-[240px] animate-[featured-fade_0.55s_ease-out] overflow-hidden bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 lg:min-h-[390px]"
+        className={`group relative aspect-square overflow-hidden bg-slate-100 transition-opacity duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
+          isFading ? "opacity-0" : "opacity-100"
+        }`}
       >
         <Image
-          key={activeItem.image}
           src={activeItem.image}
           alt={activeItem.title}
           fill
           className="object-cover transition duration-700 group-hover:scale-105"
           sizes="(max-width: 1024px) 100vw, 38vw"
-          priority={activeIndex === 0}
+          priority={displayIndex === 0}
         />
         <div className="absolute left-4 top-4 rounded-full border border-white/70 bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
           Nổi bật
@@ -77,8 +94,9 @@ export function FeaturedSolutionsShowcase({ items }: FeaturedSolutionsShowcasePr
       </Link>
 
       <div
-        key={`copy-${activeItem.id}`}
-        className="grid animate-[featured-fade-up_0.55s_ease-out] content-center gap-4 border-y border-slate-200 p-6 lg:border-x lg:border-y-0 lg:p-8"
+        className={`grid min-h-[320px] content-center gap-4 border-y border-slate-200 p-6 transition-all duration-300 lg:min-h-[360px] lg:border-x lg:border-y-0 lg:p-8 ${
+          isFading ? "translate-y-2 opacity-0" : "translate-y-0 opacity-100"
+        }`}
       >
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-blue-700">
@@ -106,17 +124,32 @@ export function FeaturedSolutionsShowcase({ items }: FeaturedSolutionsShowcasePr
         </Link>
       </div>
 
-      <div className="h-[300px] overflow-hidden border-slate-200 bg-slate-50/80 p-3 lg:h-[390px] lg:p-4">
-        <div key={activeIndex} className="grid animate-[featured-list-slide_0.55s_ease-out] gap-2">
-          {visibleItems.map(({ item, itemIndex }, index) => {
-            const isActive = itemIndex === activeIndex;
+      <div className="h-[360px] overflow-hidden border-slate-200 bg-slate-50/80 p-3">
+        <div
+          className={`grid gap-2 ${listTransitionOn ? "transition-transform duration-700 ease-out" : ""}`}
+          style={{ transform: `translateY(-${Math.max(listOffset - 1, 0) * LIST_ITEM_HEIGHT}px)` }}
+          onTransitionEnd={() => {
+            if (items.length <= 1) return;
+
+            if (listOffset >= items.length * 2) {
+              setListTransitionOn(false);
+              setListOffset(items.length + (listOffset % items.length));
+              window.requestAnimationFrame(() => {
+                window.requestAnimationFrame(() => setListTransitionOn(true));
+              });
+            }
+          }}
+        >
+          {loopItems.map((item, index) => {
+            const itemIndex = index % items.length;
+            const isActive = itemIndex === displayIndex;
 
             return (
               <button
-                key={`${item.id}-${itemIndex}-${index}`}
+                key={`${item.id}-${index}`}
                 type="button"
-                onClick={() => setActiveIndex(itemIndex)}
-                className={`group rounded-lg border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
+                onClick={() => jumpTo(itemIndex)}
+                className={`group h-28 rounded-lg border p-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
                   isActive
                     ? "border-blue-300 bg-white shadow-sm"
                     : "border-transparent bg-transparent hover:border-slate-200 hover:bg-white/80"
@@ -142,7 +175,7 @@ export function FeaturedSolutionsShowcase({ items }: FeaturedSolutionsShowcasePr
                 {isActive && (
                   <div className="mt-3 h-1 overflow-hidden rounded-full bg-blue-100">
                     <div
-                      key={activeIndex}
+                      key={displayIndex}
                       className="h-full rounded-full bg-blue-700 motion-safe:animate-[featured-progress_7.8s_linear]"
                     />
                   </div>
