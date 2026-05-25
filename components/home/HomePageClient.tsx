@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { SiteAnnouncementModal } from "@/components/announcements/SiteAnnouncementModal";
+import { FeaturedSolutionsShowcase } from "@/components/home/FeaturedSolutionsShowcase";
 
 type HeroSlide = {
   image: string;
@@ -662,17 +663,8 @@ export default function HomePageClient() {
           </div>
 
           {highlightSolutions.length > 0 ? (
-            <div className="grid gap-5 lg:grid-cols-[1.08fr_1.42fr]">
-              <div data-reveal>
-                <FeaturedContentCard item={highlightSolutions[0]} />
-              </div>
-              <div className="grid gap-5 sm:grid-cols-2">
-                {highlightSolutions.slice(1).map((item) => (
-                  <div key={item.id} data-reveal>
-                    <FeaturedContentCard item={item} compact />
-                  </div>
-                ))}
-              </div>
+            <div data-reveal>
+              <FeaturedSolutionsShowcase items={highlightSolutions} />
             </div>
           ) : (
             <EmptyShowcase label="giải pháp" />

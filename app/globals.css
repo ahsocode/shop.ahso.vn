@@ -15,3 +15,15 @@ body {
   font-family: var(--font-be-vietnam), system-ui, sans-serif;
 }
 
+@keyframes featured-progress {
+  from {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  to {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
