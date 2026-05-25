@@ -240,7 +240,7 @@ export function IndustrialMotionBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-30 opacity-90 mix-blend-multiply"
+      className="pointer-events-none fixed inset-0 z-0 opacity-100"
       aria-hidden="true"
     />
   );
