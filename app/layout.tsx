@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import AppShell from "@/components/app-shell";
 import { Toaster } from "sonner";
@@ -11,15 +11,11 @@ import {
   SITE_URL,
 } from "@/lib/metadata";
 
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const beVietnam = Be_Vietnam_Pro({
+  variable: "--font-be-vietnam",
+  subsets: ["vietnamese", "latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -30,10 +26,9 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   icons: {
-  icon: "/favicon.ico",
-  shortcut: "/favicon.ico",
-},
-
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+  },
   openGraph: {
     title: `${SITE_NAME} - ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
@@ -50,18 +45,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="vi">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {/* ✅ Bọc toàn app trong CartProvider */}
+      <body className={`${beVietnam.variable} antialiased`}>
         <CartProvider>
           <AppShell>{children}</AppShell>
-          <Toaster
-            richColors
-            expand
-            position="top-right"
-            duration={3500}
-          />
+          <Toaster richColors expand position="top-right" duration={3500} />
         </CartProvider>
       </body>
     </html>
