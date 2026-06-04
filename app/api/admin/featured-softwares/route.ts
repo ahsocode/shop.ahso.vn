@@ -107,10 +107,13 @@ export async function POST(req: NextRequest) {
 
     const software = await prisma.software.findUnique({
       where: { id: softwareId },
-      select: { id: true, title: true },
+      select: { id: true, title: true, status: true },
     });
     if (!software) {
       return jsonError("Software not found", 404);
+    }
+    if (software.status !== "PUBLISHED") {
+      return jsonError("Only published software can be featured", 400);
     }
 
     const featuredModel = getFeaturedSoftwareModel();

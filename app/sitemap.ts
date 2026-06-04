@@ -9,13 +9,10 @@ const staticRoutes = [
   "/about",
   "/contact",
   "/policy",
-  "/shop/products",
   "/solutions",
   "/software",
   "/login",
   "/register",
-  "/cart",
-  "/checkout",
 ];
 
 function absolute(path: string) {
@@ -39,11 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   try {
-    const [products, solutions, softwares] = await Promise.all([
-      prisma.product.findMany({
-        where: { status: "PUBLISHED" },
-        select: { slug: true, updatedAt: true, publishAt: true },
-      }),
+    const [solutions, softwares] = await Promise.all([
       prisma.solution.findMany({
         where: { status: "PUBLISHED" },
         select: { slug: true, updatedAt: true, publishedAt: true },
@@ -56,10 +49,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     return [
       ...baseEntries,
-      ...products.map((p) => ({
-        url: absolute(`/shop/products/${p.slug}`),
-        lastModified: p.updatedAt ?? p.publishAt ?? new Date(),
-      })),
       ...solutions.map((s) => ({
         url: absolute(`/solutions/${s.slug}`),
         lastModified: s.updatedAt ?? s.publishedAt ?? new Date(),

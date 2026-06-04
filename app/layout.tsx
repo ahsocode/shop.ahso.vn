@@ -3,7 +3,6 @@ import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import AppShell from "@/components/app-shell";
 import { Toaster } from "sonner";
-import { CartProvider } from "@/lib/hooks/useCart";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import {
   SITE_DESCRIPTION,
@@ -48,10 +47,8 @@ export default function RootLayout({
     <html lang="vi">
       <body className={`${beVietnam.variable} antialiased`}>
         <GoogleAnalytics />
-        <CartProvider>
-          <AppShell>{children}</AppShell>
-          <Toaster richColors expand position="top-right" duration={3500} />
-        </CartProvider>
+        <AppShell>{children}</AppShell>
+        <Toaster richColors expand position="top-right" duration={3500} />
       </body>
     </html>
   );

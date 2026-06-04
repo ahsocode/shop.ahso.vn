@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -23,16 +23,23 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { getUser, setUser, useAuthStore } from "@/lib/auth-store";
 
+type NavItem = {
+  href: string;
+  label: string;
+  icon: typeof Home;
+  external?: boolean;
+};
+
 const SHOP_URL = "https://shop.ahso.vn";
 
-const navItems = [
+const navItems: NavItem[] = [
   { href: "/", label: "Trang chủ", icon: Home },
   { href: "/solutions", label: "Giải pháp", icon: Layers },
   { href: "/software", label: "Phần mềm", icon: Laptop },
+  { href: SHOP_URL, label: "Shop AHSO", icon: Package, external: true },
   { href: "/about", label: "Về AHSO", icon: Info },
   { href: "/policy", label: "Chính sách", icon: FileText },
   { href: "/contact", label: "Liên hệ", icon: Phone },
-  { href: SHOP_URL, label: "Sản phẩm", icon: Package, external: true },
 ];
 
 export function Navbar() {

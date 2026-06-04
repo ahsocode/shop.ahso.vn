@@ -92,31 +92,6 @@ async function signJwt(payload: object, expiresIn = "7d") {
     .sign(encoder.encode(secret));
 }
 
-/**
- * ⭐ Merge guest cart vào user mới tạo
- */
-async function mergeGuestCartToNewUser(guestCartId: string, userId: string) {
-  try {
-    const guestCart = await prisma.cart.findUnique({
-      where: { id: guestCartId },
-    });
-
-    if (!guestCart || guestCart.userId) {
-      return;
-    }
-
-    // Gán cart này cho user mới
-    await prisma.cart.update({
-      where: { id: guestCartId },
-      data: { userId, updatedAt: new Date() },
-    });
-
-    console.log(`✅ Assigned guest cart ${guestCartId} to new user ${userId}`);
-  } catch (error) {
-    console.error("❌ Error merging guest cart to new user:", error);
-  }
-}
-
 // ===== Route =====
 export async function POST(req: Request) {
   try {
@@ -219,12 +194,6 @@ export async function POST(req: Request) {
       });
     });
 
-    // ⭐ Merge guest cart nếu có
-    const guestCartId = req.headers.get("cookie")?.match(/cart_id=([^;]+)/)?.[1];
-    if (guestCartId) {
-      await mergeGuestCartToNewUser(decodeURIComponent(guestCartId), user.id);
-    }
-
     const token = await signJwt(
       { sub: user.id, username: user.username, email: user.email, role: user.role },
       "7d"
@@ -238,8 +207,8 @@ export async function POST(req: Request) {
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
             <h2 style="color: #1a56db; margin-bottom: 12px;">Chào mừng ${user.fullName || user.username || "bạn"}!</h2>
-            <p>Cảm ơn bạn đã quan tâm đến <strong>shop.ahso.vn</strong>. Chúng tôi rất hân hạnh được phục vụ bạn.</p>
-            <p>Bạn có thể đăng nhập và bắt đầu mua sắm ngay:</p>
+            <p>Cảm ơn bạn đã quan tâm đến <strong>AHSO Industrial</strong>. Chúng tôi rất hân hạnh được hỗ trợ bạn.</p>
+            <p>Bạn có thể đăng nhập để quản lý hồ sơ và gửi yêu cầu:</p>
             <div style="text-align: center; margin: 24px 0;">
               <a href="${process.env.NEXT_PUBLIC_APP_URL ?? "/"}"
                  style="background: #1a56db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
@@ -248,7 +217,7 @@ export async function POST(req: Request) {
             </div>
             <p style="color: #555;">Nếu bạn không tự đăng ký tài khoản, vui lòng liên hệ với chúng tôi để được hỗ trợ.</p>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 24px 0;">
-            <p style="color: #666; font-size: 12px;">AHSO Industrial - <a href="https://shop.ahso.vn">shop.ahso.vn</a></p>
+            <p style="color: #666; font-size: 12px;">AHSO Industrial</p>
           </div>
         `,
       };
@@ -274,9 +243,6 @@ export async function POST(req: Request) {
       path: "/",
       maxAge: 7 * 24 * 60 * 60,
     });
-
-    // ⭐ Clear guest cart cookie
-    res.cookies.delete("cart_id");
 
     return res;
   } catch (error) {

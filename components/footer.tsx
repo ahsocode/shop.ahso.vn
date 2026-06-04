@@ -5,13 +5,16 @@ import {
   Building2,
   Mail,
   MapPin,
-  Package,
   Phone,
 } from "lucide-react";
 
-const SHOP_URL = "https://shop.ahso.vn";
+type FooterLink = {
+  label: string;
+  href: string;
+  external?: boolean;
+};
 
-const footerLinks = [
+const footerLinks: Array<{ title: string; links: FooterLink[] }> = [
   {
     title: "Khám phá",
     links: [
@@ -26,7 +29,6 @@ const footerLinks = [
     links: [
       { label: "Liên hệ tư vấn", href: "/contact" },
       { label: "Chính sách", href: "/policy" },
-      { label: "Sản phẩm", href: SHOP_URL, external: true },
     ],
   },
 ];
@@ -113,18 +115,6 @@ export function Footer() {
                 <a href="mailto:sales@ahso.vn" className="transition hover:text-white">
                   sales@ahso.vn
                 </a>
-              </li>
-              <li className="flex items-center gap-3">
-                <Package className="h-5 w-5 shrink-0 text-blue-300" />
-                <Link
-                  href={SHOP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 transition hover:text-white"
-                >
-                  Mua sản phẩm tại shop.ahso.vn
-                  <ArrowUpRight className="h-3.5 w-3.5" />
-                </Link>
               </li>
             </ul>
           </div>

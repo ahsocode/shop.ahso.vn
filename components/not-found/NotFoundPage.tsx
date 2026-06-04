@@ -15,8 +15,8 @@ export default function NotFoundPage({
   description = "Liên kết bạn truy cập không còn tồn tại hoặc đã được chuyển sang nơi khác.",
   primaryHref = "/",
   primaryLabel = "Về trang chủ",
-  secondaryHref = "/shop/products",
-  secondaryLabel = "Xem sản phẩm",
+  secondaryHref = "/contact",
+  secondaryLabel = "Liên hệ AHSO",
 }: NotFoundPageProps) {
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50">

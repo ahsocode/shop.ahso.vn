@@ -47,17 +47,6 @@ const quoteSelect = {
   createdAt: true,
   updatedAt: true,
   expiresAt: true,
-  productId: true,
-  product: {
-    select: {
-      id: true,
-      name: true,
-      sku: true,
-      slug: true,
-      price: true,
-      currency: true,
-    },
-  },
 } as const;
 
 //

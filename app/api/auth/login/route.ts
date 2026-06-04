@@ -1,5 +1,4 @@
 // app/api/auth/login/route.ts
-import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
@@ -35,108 +34,6 @@ async function signJwt(payload: object, expiresIn = "7d") {
     .setIssuedAt(now)
     .setExpirationTime(exp)
     .sign(encoder.encode(secret));
-}
-
-/**
- * Merge guest cart vào user cart khi login
- */
-async function mergeGuestCartToUser(guestCartId: string, userId: string) {
-  try {
-    const guestCart = await prisma.cart.findUnique({
-      where: { id: guestCartId },
-      include: { cartitem: true },
-    });
-
-    // Không merge nếu cart không tồn tại hoặc đã thuộc user khác
-    if (!guestCart || guestCart.userId) {
-      return;
-    }
-
-    // Tìm hoặc tạo user cart
-    let userCart = await prisma.cart.findFirst({
-      where: { userId, status: "ACTIVE" },
-      include: { cartitem: true },
-    });
-
-    if (!userCart) {
-      userCart = await prisma.cart.create({
-        data: {
-          id: randomUUID(),
-          userId,
-          status: "ACTIVE",
-          updatedAt: new Date(),
-        },
-        include: { cartitem: true },
-      });
-    }
-    userCart.cartitem = userCart.cartitem ?? [];
-
-    // Merge items
-    for (const guestItem of guestCart.cartitem) {
-      const existingUserItem = userCart.cartitem.find(
-        (ui: (typeof userCart.cartitem)[number]) => ui.productId === guestItem.productId
-      );
-
-      if (existingUserItem) {
-        // Cộng dồn số lượng
-        const newQty = existingUserItem.quantity + guestItem.quantity;
-        await prisma.cartitem.update({
-          where: { id: existingUserItem.id },
-          data: {
-            quantity: newQty,
-            lineTotal: Number(existingUserItem.unitPrice) * newQty,
-          },
-        });
-      } else {
-        // Tạo item mới
-        const createdItem = await prisma.cartitem.create({
-          data: {
-            id: randomUUID(),
-            cartId: userCart.id,
-            productId: guestItem.productId,
-            productName: guestItem.productName,
-            productSku: guestItem.productSku,
-            productSlug: guestItem.productSlug,
-            productImage: guestItem.productImage,
-            brandName: guestItem.brandName,
-            unitLabel: guestItem.unitLabel,
-            quantityLabel: guestItem.quantityLabel,
-            unitPrice: guestItem.unitPrice,
-            currency: guestItem.currency,
-            taxIncluded: guestItem.taxIncluded,
-            quantity: guestItem.quantity,
-            lineTotal: guestItem.lineTotal,
-          },
-        });
-        userCart.cartitem.push(createdItem);
-      }
-    }
-
-    // Tính lại tổng
-    const updatedItems = await prisma.cartitem.findMany({
-      where: { cartId: userCart.id },
-    });
-    const subtotal = updatedItems.reduce(
-      (sum: number, item: (typeof updatedItems)[number]) => sum + Number(item.lineTotal ?? 0),
-      0,
-    );
-
-    await prisma.cart.update({
-      where: { id: userCart.id },
-      data: {
-        subtotal,
-        grandTotal: subtotal,
-      },
-    });
-
-    // Xóa guest cart
-    await prisma.cart.delete({ where: { id: guestCartId } });
-
-    console.log(`✅ Merged guest cart ${guestCartId} to user ${userId}`);
-  } catch (error) {
-    console.error("❌ Error merging cart:", error);
-    // Không throw error để không làm fail login
-  }
 }
 
 export async function POST(req: Request) {
@@ -196,12 +93,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // ⭐ Merge guest cart nếu có
-    const guestCartId = req.headers.get("cookie")?.match(/cart_id=([^;]+)/)?.[1];
-    if (guestCartId) {
-      await mergeGuestCartToUser(decodeURIComponent(guestCartId), user.id);
-    }
-
     // Tạo JWT token
     const token = await signJwt(
       {
@@ -236,9 +127,6 @@ export async function POST(req: Request) {
       path: "/",
       maxAge: 7 * 24 * 60 * 60,
     });
-
-    // ⭐ Clear guest cart cookie
-    res.cookies.delete("cart_id");
 
     return res;
   } catch (error) {

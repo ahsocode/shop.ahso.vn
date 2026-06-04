@@ -89,6 +89,7 @@ export async function GET(req: NextRequest) {
           summary: true,
           status: true,
           coverImage: true,
+          isFeatured: true,
           industry: true,
           usecase: true,
           categoryId: true,

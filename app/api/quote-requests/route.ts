@@ -5,8 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { jsonOk, jsonError, toHttpError } from "@/lib/http";
 import { QuoteRequestCreateSchema } from "@/app/api/admin/quote-requests/utils";
 import { quote_status, contact_priority } from "@prisma/client";
-import { EMAIL_CONFIG } from "@/lib/email-config";
 import { sendMail } from "@/lib/mailer";
+import { getContactNotificationEmail } from "@/lib/system-settings";
 
 const generatePublicQuoteCode = () => {
   const now = new Date();
@@ -25,7 +25,6 @@ export async function POST(req: NextRequest) {
       phone: true,
       email: true,
       company: true,
-      productId: true,
       productName: true,
       quantity: true,
       message: true,
@@ -46,7 +45,6 @@ export async function POST(req: NextRequest) {
         phone: payload.phone,
         email: payload.email ?? null,
         company: payload.company ?? null,
-        productId: payload.productId ?? null,
         productName: payload.productName ?? null,
         quantity: payload.quantity ?? 1,
         message: payload.message ?? null,
@@ -57,7 +55,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Fire-and-forget notifications
-    const adminEmail = EMAIL_CONFIG.ADMIN_EMAIL;
+    const adminEmail = await getContactNotificationEmail();
     const adminText = `
 YÊU CẦU BÁO GIÁ MỚI
 
@@ -65,7 +63,7 @@ Mã: ${created.code}
 Khách hàng: ${payload.fullName}
 Điện thoại: ${payload.phone}
 ${payload.email ? `Email: ${payload.email}` : ""}
-Sản phẩm: ${payload.productName ?? payload.productId ?? "Chưa rõ"}
+Nội dung cần báo giá: ${payload.productName ?? "Chưa rõ"}
 
 ${payload.message ? `Ghi chú: ${payload.message}` : ""}
 `;
@@ -73,7 +71,7 @@ ${payload.message ? `Ghi chú: ${payload.message}` : ""}
     const userText = `
 Xin chào ${payload.fullName},
 
-Chúng tôi đã nhận được yêu cầu báo giá của bạn${payload.productName ? ` cho sản phẩm ${payload.productName}` : ""}.
+Chúng tôi đã nhận được yêu cầu báo giá của bạn${payload.productName ? ` cho ${payload.productName}` : ""}.
 Mã yêu cầu: ${created.code}
 
 Chúng tôi sẽ liên hệ sớm qua số ${payload.phone}${payload.email ? ` hoặc email ${payload.email}` : ""}.

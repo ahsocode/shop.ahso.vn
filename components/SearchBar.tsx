@@ -6,7 +6,6 @@ import {
   Search,
   X,
   TrendingUp,
-  Package,
   Award,
   Grid,
   Clock,
@@ -15,7 +14,7 @@ import {
 import Image from "next/image";
 
 type Suggestion = {
-  type: "product" | "brand" | "category" | "search" | "popular" | "history";
+  type: "software" | "solution" | "category" | "search" | "popular" | "history";
   text: string;
   subtext?: string;
   url?: string;
@@ -34,7 +33,7 @@ const SEARCH_HISTORY_KEY = "search_history";
 const MAX_HISTORY = 5;
 
 export default function SearchBar({
-  placeholder = "Tìm kiếm sản phẩm, thương hiệu...",
+  placeholder = "Tìm kiếm phần mềm, giải pháp...",
   className = "",
   autoFocus = false,
   onSearch,
@@ -90,7 +89,7 @@ export default function SearchBar({
             type: "history",
             text: h,
             icon: "clock",
-            url: `/shop/products?q=${encodeURIComponent(h)}`,
+            url: `/software?q=${encodeURIComponent(h)}`,
           }))
         );
       } else {
@@ -176,7 +175,7 @@ export default function SearchBar({
     if (onSearch) {
       onSearch(query);
     } else {
-      router.push(`/shop/products?q=${encodeURIComponent(query)}`);
+      router.push(`/software?q=${encodeURIComponent(query)}`);
     }
   };
 
@@ -215,8 +214,6 @@ export default function SearchBar({
     switch (iconName) {
       case "trending":
         return <TrendingUp {...iconProps} />;
-      case "package":
-        return <Package {...iconProps} />;
       case "award":
         return <Award {...iconProps} />;
       case "grid":
@@ -328,10 +325,10 @@ export default function SearchBar({
                   suggestion.type !== "history" && (
                     <div className="shrink-0">
                       <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
-                        {suggestion.type === "product"
-                          ? "Sản phẩm"
-                          : suggestion.type === "brand"
-                          ? "Thương hiệu"
+                        {suggestion.type === "software"
+                          ? "Phần mềm"
+                          : suggestion.type === "solution"
+                          ? "Giải pháp"
                           : "Danh mục"}
                       </span>
                     </div>

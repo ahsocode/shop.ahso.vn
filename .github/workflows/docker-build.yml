@@ -52,7 +52,6 @@ jobs:
           build-args: |
             NEXT_PUBLIC_SITE_URL=${{ steps.vars.outputs.site_url }}
             NEXT_PUBLIC_APP_URL=${{ steps.vars.outputs.app_url }}
-            NEXT_PUBLIC_TINYMCE_API_KEY=${{ secrets.NEXT_PUBLIC_TINYMCE_API_KEY }}
             NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ steps.vars.outputs.ga_measurement_id }}
           tags: |
             ghcr.io/${{ steps.vars.outputs.owner_lc }}/ahsovn:latest

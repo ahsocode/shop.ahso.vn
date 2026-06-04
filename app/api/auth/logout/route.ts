@@ -4,7 +4,7 @@ import { shouldUseSecureAuthCookie } from "@/lib/auth";
 
 /**
  * POST /api/auth/logout
- * Xóa auth token và KHÔNG xóa cart_id (guest cart vẫn giữ)
+ * Xóa auth token.
  */
 export async function POST() {
   const res = NextResponse.json({ ok: true, message: "Logged out successfully" });
@@ -18,10 +18,6 @@ export async function POST() {
     path: "/",
     maxAge: 0,
   });
-
-  // ⭐ KHÔNG xóa cart_id - để user tiếp tục dùng guest cart
-  // Nếu muốn xóa cart khi logout (reset về trống), uncomment dòng dưới:
-  // res.cookies.delete("cart_id");
 
   return res;
 }

@@ -107,10 +107,13 @@ export async function POST(req: NextRequest) {
 
     const solution = await prisma.solution.findUnique({
       where: { id: solutionId },
-      select: { id: true, title: true },
+      select: { id: true, title: true, status: true },
     });
     if (!solution) {
       return jsonError("Solution not found", 404);
+    }
+    if (solution.status !== "PUBLISHED") {
+      return jsonError("Only published solution can be featured", 400);
     }
 
     const featuredModel = getFeaturedSolutionModel();

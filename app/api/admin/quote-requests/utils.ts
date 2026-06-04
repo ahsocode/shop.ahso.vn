@@ -41,7 +41,6 @@ export const QuoteRequestCreateSchema = z.object({
   email: z.string().email().nullable().optional(),
   company: z.string().max(191).nullable().optional(),
   taxCode: z.string().regex(/^\d{10}(\d{3})?$/).nullable().optional(),
-  productId: z.string().nullable().optional(),
   productName: z.string().max(191).nullable().optional(),
   quantity: z.coerce.number().int().min(1).default(1),
   message: z.string().max(10_000).nullable().optional(),
@@ -73,7 +72,6 @@ export const quoteRequestSelect = {
   email: true,
   company: true,
   taxCode: true,
-  productId: true,
   productName: true,
   quantity: true,
   message: true,
@@ -92,51 +90,18 @@ export const quoteRequestSelect = {
   createdAt: true,
   updatedAt: true,
   expiresAt: true,
-  product: {
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      sku: true,
-      price: true,
-      currency: true,
-      coverImage: true,
-    },
-  },
 } as const satisfies Prisma.quoterequestSelect;
 
 export type QuoteRequestRow = Prisma.quoterequestGetPayload<{
   select: typeof quoteRequestSelect;
 }>;
 
-type QuoteRequestProduct = {
-  id: string;
-  name: string;
-  slug: string;
-  sku: string | null;
-  price: Prisma.Decimal | number;
-  currency: string;
-  coverImage: string | null;
-};
 export const mapQuoteRequestRow = (row: QuoteRequestRow) => {
-  const { product, quotedPrice, quotedTotal, ...rest } = row;
-
-  const p = product as QuoteRequestProduct | null; // 👈 ép kiểu rõ ràng
+  const { quotedPrice, quotedTotal, ...rest } = row;
 
   return {
     ...rest,
     quotedPrice: quotedPrice !== null ? Number(quotedPrice) : null,
     quotedTotal: quotedTotal !== null ? Number(quotedTotal) : null,
-    product: p
-      ? {
-          id: p.id,
-          name: p.name,
-          slug: p.slug,
-          sku: p.sku,
-          currency: p.currency,
-          coverImage: p.coverImage,
-          price: Number(p.price),
-        }
-      : null,
   };
 };

@@ -1,9 +1,8 @@
-// app/api/search/autocomplete/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 type Suggestion = {
-  type: "product" | "brand" | "category" | "popular" | "search";
+  type: "software" | "solution" | "category" | "popular" | "search";
   text: string;
   subtext?: string;
   url?: string;
@@ -13,30 +12,15 @@ type Suggestion = {
 
 export const dynamic = "force-dynamic";
 
-// Cache popular searches (in production, use Redis)
-const popularSearches = [
-  "PLC Siemens",
-  "Cảm biến Omron",
-  "Biến tần Schneider",
-  "Động cơ servo",
-  "HMI",
-  "Relay",
-  "Contactor",
-  "MCB",
-];
+const popularSearches = ["ERP", "CRM", "Quản lý kho", "Bán hàng", "Sản xuất", "Tự động hóa"];
 
-/**
- * GET /api/search/autocomplete?q=keyword&limit=10
- * Fast autocomplete suggestions (MySQL compatible - no mode: "insensitive")
- */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const query = searchParams.get("q")?.trim() || "";
-    const limit = Math.min(parseInt(searchParams.get("limit") || "10"), 20);
+    const limit = Math.min(Number(searchParams.get("limit") || "10"), 20);
 
     if (!query || query.length < 2) {
-      // Return popular searches if no query
       return NextResponse.json({
         success: true,
         data: {
@@ -44,161 +28,113 @@ export async function GET(req: NextRequest) {
             type: "popular",
             text,
             icon: "trending",
+            url: `/software?q=${encodeURIComponent(text)}`,
           })),
         },
-        meta: {
-          query: "",
-          count: Math.min(popularSearches.length, limit),
-        },
+        meta: { query: "", count: Math.min(popularSearches.length, limit) },
       });
     }
 
-    const startTime = Date.now();
+    const [softwares, solutions, softwareCategories, solutionCategories] = await Promise.all([
+      prisma.software.findMany({
+        where: {
+          status: "PUBLISHED",
+          OR: [
+            { title: { contains: query, mode: "insensitive" } },
+            { summary: { contains: query, mode: "insensitive" } },
+          ],
+        },
+        take: 4,
+        select: { title: true, slug: true, summary: true, coverImage: true },
+        orderBy: { updatedAt: "desc" },
+      }),
+      prisma.solution.findMany({
+        where: {
+          status: "PUBLISHED",
+          OR: [
+            { title: { contains: query, mode: "insensitive" } },
+            { summary: { contains: query, mode: "insensitive" } },
+          ],
+        },
+        take: 4,
+        select: { title: true, slug: true, summary: true, coverImage: true },
+        orderBy: { updatedAt: "desc" },
+      }),
+      prisma.softwarecategory.findMany({
+        where: {
+          isActive: true,
+          OR: [
+            { name: { contains: query, mode: "insensitive" } },
+            { description: { contains: query, mode: "insensitive" } },
+          ],
+        },
+        take: 3,
+        select: { name: true, slug: true, image: true },
+        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      }),
+      prisma.solutioncategory.findMany({
+        where: {
+          isActive: true,
+          OR: [
+            { name: { contains: query, mode: "insensitive" } },
+            { description: { contains: query, mode: "insensitive" } },
+          ],
+        },
+        take: 3,
+        select: { name: true, slug: true, image: true },
+        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      }),
+    ]);
 
-    // Parallel queries for better performance
-    // Note: MySQL/SQLite default to case-insensitive for VARCHAR columns with *_ci collation
-    const [productSuggestions, brandSuggestions, categorySuggestions] =
-      await Promise.all([
-        // Product name suggestions
-        prisma.product.findMany({
-          where: {
-            AND: [
-              {
-                OR: [
-                  { name: { contains: query, mode: "insensitive" } },
-                  { sku: { contains: query, mode: "insensitive" } },
-                ],
-              },
-              { status: "PUBLISHED" },
-            ],
-          },
-          take: 5,
-          select: {
-            name: true,
-            sku: true,
-            slug: true,
-            coverImage: true,
-          },
-          orderBy: [{ purchaseCount: "desc" }, { ratingAvg: "desc" }],
-        }),
-
-        // Brand suggestions
-        prisma.brand.findMany({
-          where: {
-            OR: [
-              { name: { contains: query, mode: "insensitive" } },
-              { slug: { contains: query, mode: "insensitive" } },
-            ],
-          },
-          take: 3,
-          select: {
-            name: true,
-            slug: true,
-            logoUrl: true,
-          },
-          orderBy: { product: { _count: "desc" } },
-        }),
-
-        // Category suggestions
-        prisma.productcategory.findMany({
-          where: {
-            OR: [
-              { name: { contains: query, mode: "insensitive" } },
-              { slug: { contains: query, mode: "insensitive" } },
-            ],
-          },
-          take: 3,
-          select: {
-            name: true,
-            slug: true,
-            coverImage: true,
-          },
-          orderBy: { productcategorylink: { _count: "desc" } },
-        }),
-      ]);
-
-    // Build suggestions array
-    const suggestions: Suggestion[] = [];
-
-    // Add product suggestions
-    productSuggestions.forEach((p: (typeof productSuggestions)[number]) => {
-      suggestions.push({
-        type: "product",
-        text: p.name,
-        subtext: p.sku,
-        url: `/shop/products/${p.slug}`,
-        image: p.coverImage,
-        icon: "package",
-      });
-    });
-
-    // Add brand suggestions
-    brandSuggestions.forEach((b: (typeof brandSuggestions)[number]) => {
-      suggestions.push({
-        type: "brand",
-        text: b.name,
-        subtext: "Thương hiệu",
-        url: `/shop/products?brand=${b.slug}`,
-        image: b.logoUrl,
-        icon: "award",
-      });
-    });
-
-    // Add category suggestions
-    categorySuggestions.forEach((c: { name: string; slug: string; coverImage: string | null }) => {
-      suggestions.push({
-        type: "category",
-        text: c.name,
-        subtext: "Danh mục",
-        url: `/shop/products?category=${c.slug}`,
-        image: c.coverImage,
-        icon: "grid",
-      });
-    });
-
-    // Add "search all" option if we have results
-    if (suggestions.length > 0) {
-      suggestions.unshift({
+    const suggestions: Suggestion[] = [
+      {
         type: "search",
         text: query,
         subtext: `Tìm kiếm "${query}"`,
-        url: `/shop/products?q=${encodeURIComponent(query)}`,
+        url: `/software?q=${encodeURIComponent(query)}`,
         icon: "search",
-      });
-    }
-
-    // Limit results
-    const limitedSuggestions = suggestions.slice(0, limit);
-
-    const searchTime = Date.now() - startTime;
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: {
-          suggestions: limitedSuggestions,
-          query,
-        },
-        meta: {
-          count: limitedSuggestions.length,
-          searchTime,
-        },
       },
-      {
-        headers: {
-          "Cache-Control": "public, max-age=30, s-maxage=60",
-        },
-      }
-    );
+      ...softwares.map((item) => ({
+        type: "software" as const,
+        text: item.title,
+        subtext: item.summary ?? "Phần mềm",
+        url: `/software/${item.slug}`,
+        image: item.coverImage,
+        icon: "grid",
+      })),
+      ...solutions.map((item) => ({
+        type: "solution" as const,
+        text: item.title,
+        subtext: item.summary ?? "Giải pháp",
+        url: `/solutions/${item.slug}`,
+        image: item.coverImage,
+        icon: "award",
+      })),
+      ...softwareCategories.map((item) => ({
+        type: "category" as const,
+        text: item.name,
+        subtext: "Danh mục phần mềm",
+        url: `/software?category=${item.slug}`,
+        image: item.image,
+        icon: "grid",
+      })),
+      ...solutionCategories.map((item) => ({
+        type: "category" as const,
+        text: item.name,
+        subtext: "Danh mục giải pháp",
+        url: `/solutions?category=${item.slug}`,
+        image: item.image,
+        icon: "grid",
+      })),
+    ];
+
+    return NextResponse.json({
+      success: true,
+      data: { suggestions: suggestions.slice(0, limit), query },
+      meta: { count: Math.min(suggestions.length, limit) },
+    });
   } catch (error) {
     console.error("Autocomplete API error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Autocomplete failed",
-        data: { suggestions: [] },
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Autocomplete failed", data: { suggestions: [] } }, { status: 500 });
   }
 }

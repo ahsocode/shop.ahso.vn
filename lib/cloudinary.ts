@@ -8,13 +8,8 @@ type CloudinaryConfig = {
   apiKey: string;
   apiSecret: string;
   avatarPreset?: string | null;
-  productGalleryPreset?: string | null;
-  productCoverPreset?: string | null;
   softwareCoverPreset?: string | null;
   solutionCoverPreset?: string | null;
-  brandPreset?: string | null;
-  categoryPreset?: string | null;
-  productTypePreset?: string | null;
   heroBannerPreset?: string | null;
   popupBannerPreset?: string | null;
 };
@@ -40,16 +35,6 @@ function getConfig(): CloudinaryConfig {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
-  const avatarPreset = process.env.CLOUDINARY_AVATAR_PRESET;
-  const productGalleryPreset = process.env.CLOUDINARY_PRODUCT_PRESET;
-  const productCoverPreset = process.env.CLOUDINARY_PRODUCT_COVER_PRESET;
-  const brandPreset = process.env.CLOUDINARY_BRAND_PRESET;
-  const categoryPreset = process.env.CLOUDINARY_CATEGORY_PRESET;
-  const productTypePreset = process.env.CLOUDINARY_PRODUCT_TYPE_PRESET;
-  const heroBannerPreset = process.env.CLOUDINARY_HERO_BANNER_PRESET;
-  const popupBannerPreset = process.env.CLOUDINARY_POPUP_BANNER_PRESET;
-  const softwareCoverPreset = process.env.CLOUDINARY_SOFTWARE_COVER_PRESET;
-  const solutionCoverPreset = process.env.CLOUDINARY_SOLUTION_COVER_PRESET;
 
   if (!cloudName || !apiKey || !apiSecret) {
     throw new Error("Missing Cloudinary credentials");
@@ -59,16 +44,11 @@ function getConfig(): CloudinaryConfig {
     cloudName,
     apiKey,
     apiSecret,
-    avatarPreset: avatarPreset || null,
-    productGalleryPreset: productGalleryPreset || null,
-    productCoverPreset: productCoverPreset || null,
-    brandPreset: brandPreset || null,
-    categoryPreset: categoryPreset || null,
-    productTypePreset: productTypePreset || null,
-    heroBannerPreset: heroBannerPreset || null,
-    popupBannerPreset: popupBannerPreset || null,
-    softwareCoverPreset: softwareCoverPreset || null,
-    solutionCoverPreset: solutionCoverPreset || null,
+    avatarPreset: process.env.CLOUDINARY_AVATAR_PRESET || null,
+    heroBannerPreset: process.env.CLOUDINARY_HERO_BANNER_PRESET || null,
+    popupBannerPreset: process.env.CLOUDINARY_POPUP_BANNER_PRESET || null,
+    softwareCoverPreset: process.env.CLOUDINARY_SOFTWARE_COVER_PRESET || null,
+    solutionCoverPreset: process.env.CLOUDINARY_SOLUTION_COVER_PRESET || null,
   };
 
   return cachedConfig;
@@ -87,67 +67,12 @@ export async function uploadAvatarToCloudinary(options: {
   });
 }
 
-export async function uploadProductImageToCloudinary(options: {
-  buffer: Buffer;
-  productId: string;
-  sku: string;
-  categorySlug?: string | null;
-  productTypeSlug?: string | null;
-  fileName?: string;
-  type: "cover" | "gallery";
-  sequence?: number;
-}): Promise<UploadResult> {
-  const config = getConfig();
-
-  const categorySegment = sanitizeSegment(options.categorySlug, "uncategorized");
-  const typeSegment = sanitizeSegment(options.productTypeSlug, "general");
-
-  const baseFolder = `categories/${categorySegment}/${typeSegment}`;
-  const folder =
-    options.type === "cover" ? `${baseFolder}/cover` : `${baseFolder}/gallery`;
-  const fileBase = sanitizeSegment(
-    options.fileName?.replace(/\.[^.]+$/, ""),
-    "image",
-  );
-  const publicId =
-    options.type === "cover"
-      ? `cover-${sanitizeSegment(options.sku, options.productId)}`
-      : options.sequence !== undefined
-      ? `${fileBase}-${options.sequence}`
-      : `${fileBase}-${Date.now()}`;
-
-  return uploadBuffer({
-    buffer: options.buffer,
-    folder,
-    fileName: options.fileName,
-    publicId,
-    uploadPreset:
-      options.type === "cover" ? config.productCoverPreset : config.productGalleryPreset,
-  });
-}
-
-export async function uploadBrandLogoToCloudinary(options: {
-  buffer: Buffer;
-  brandId: string;
-}): Promise<UploadResult> {
-  const config = getConfig();
-  return uploadBuffer({
-    buffer: options.buffer,
-    folder: "brands/logos",
-    publicId: options.brandId,
-    uploadPreset: config.brandPreset,
-  });
-}
-
 export async function uploadSoftwareCoverToCloudinary(options: {
   buffer: Buffer;
   fileName?: string;
 }): Promise<UploadResult> {
   const config = getConfig();
-  const fileBase = sanitizeSegment(
-    options.fileName?.replace(/\.[^.]+$/, ""),
-    "software",
-  );
+  const fileBase = sanitizeSegment(options.fileName?.replace(/\.[^.]+$/, ""), "software");
   return uploadBuffer({
     buffer: options.buffer,
     folder: "software/cover",
@@ -162,10 +87,7 @@ export async function uploadSolutionCoverToCloudinary(options: {
   fileName?: string;
 }): Promise<UploadResult> {
   const config = getConfig();
-  const fileBase = sanitizeSegment(
-    options.fileName?.replace(/\.[^.]+$/, ""),
-    "solution",
-  );
+  const fileBase = sanitizeSegment(options.fileName?.replace(/\.[^.]+$/, ""), "solution");
   return uploadBuffer({
     buffer: options.buffer,
     folder: "solutions/cover",
@@ -179,10 +101,7 @@ export async function uploadSoftwareGalleryToCloudinary(options: {
   buffer: Buffer;
   fileName?: string;
 }): Promise<UploadResult> {
-  const fileBase = sanitizeSegment(
-    options.fileName?.replace(/\.[^.]+$/, ""),
-    "software",
-  );
+  const fileBase = sanitizeSegment(options.fileName?.replace(/\.[^.]+$/, ""), "software");
   return uploadBuffer({
     buffer: options.buffer,
     folder: "software/gallery",
@@ -195,13 +114,23 @@ export async function uploadSolutionGalleryToCloudinary(options: {
   buffer: Buffer;
   fileName?: string;
 }): Promise<UploadResult> {
-  const fileBase = sanitizeSegment(
-    options.fileName?.replace(/\.[^.]+$/, ""),
-    "solution",
-  );
+  const fileBase = sanitizeSegment(options.fileName?.replace(/\.[^.]+$/, ""), "solution");
   return uploadBuffer({
     buffer: options.buffer,
     folder: "solutions/gallery",
+    fileName: options.fileName,
+    publicId: `${fileBase}-${Date.now()}`,
+  });
+}
+
+export async function uploadContentEditorImageToCloudinary(options: {
+  buffer: Buffer;
+  fileName?: string;
+}): Promise<UploadResult> {
+  const fileBase = sanitizeSegment(options.fileName?.replace(/\.[^.]+$/, ""), "content-image");
+  return uploadBuffer({
+    buffer: options.buffer,
+    folder: "content/editor",
     fileName: options.fileName,
     publicId: `${fileBase}-${Date.now()}`,
   });
@@ -233,41 +162,8 @@ export async function uploadPopupBannerImage(options: {
   });
 }
 
-export async function uploadCategoryCoverToCloudinary(options: {
-  buffer: Buffer;
-  categoryId: string;
-  categorySlug?: string | null;
-}): Promise<UploadResult> {
-  const config = getConfig();
-  const categorySegment = sanitizeSegment(options.categorySlug, options.categoryId);
-  return uploadBuffer({
-    buffer: options.buffer,
-    folder: `categories/${categorySegment}/cover`,
-    publicId: `cover-${categorySegment}`,
-    uploadPreset: config.categoryPreset,
-  });
-}
-
-export async function uploadProductTypeCoverToCloudinary(options: {
-  buffer: Buffer;
-  productTypeId: string;
-  productTypeSlug?: string | null;
-  categorySlug?: string | null;
-}): Promise<UploadResult> {
-  const config = getConfig();
-  const categorySegment = sanitizeSegment(options.categorySlug, "uncategorized");
-  const typeSegment = sanitizeSegment(options.productTypeSlug, options.productTypeId);
-  return uploadBuffer({
-    buffer: options.buffer,
-    folder: `categories/${categorySegment}/${typeSegment}/cover`,
-    publicId: `cover-${typeSegment}`,
-    uploadPreset: config.productTypePreset,
-  });
-}
-
 async function uploadBuffer(options: UploadOptions): Promise<UploadResult> {
   const config = getConfig();
-
   const timestamp = Math.floor(Date.now() / 1000);
   const publicIdBase =
     options.publicId ??
@@ -287,26 +183,20 @@ async function uploadBuffer(options: UploadOptions): Promise<UploadResult> {
   }
 
   const signature = signParams(params, config.apiSecret);
-
   const formData = new FormData();
   const blob = new Blob([new Uint8Array(options.buffer)], {
     type: "image/webp",
   });
+
   formData.append("file", blob, `${publicIdBase}.webp`);
   formData.append("api_key", config.apiKey);
-
-  Object.entries(params).forEach(([key, value]) => {
-    formData.append(key, value);
-  });
-
+  Object.entries(params).forEach(([key, value]) => formData.append(key, value));
   formData.append("signature", signature);
 
-  const endpoint = `https://api.cloudinary.com/v1_1/${config.cloudName}/image/upload`;
-  const res = await fetch(endpoint, {
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${config.cloudName}/image/upload`, {
     method: "POST",
     body: formData,
   });
-
   const payload = await res.json().catch(() => null);
 
   if (!res.ok) {
@@ -317,7 +207,6 @@ async function uploadBuffer(options: UploadOptions): Promise<UploadResult> {
   }
 
   const data = payload as { public_id: string; secure_url: string };
-
   return {
     publicId: data.public_id,
     secureUrl: data.secure_url,
@@ -351,8 +240,6 @@ export type CloudinaryAsset = {
   createdAt: string;
 };
 
-export type BrandLogoAsset = CloudinaryAsset;
-
 type ListAssetsOptions = {
   nextCursor?: string | null;
   maxResults?: number;
@@ -364,25 +251,37 @@ type DestroyResult = {
   result: string;
 };
 
+type CloudinarySearchResponse = {
+  resources?: Array<{
+    asset_id: string;
+    public_id: string;
+    secure_url: string;
+    width: number;
+    height: number;
+    bytes: number;
+    created_at: string;
+  }>;
+  next_cursor?: string;
+  error?: { message?: string };
+};
 
 async function listAssetsByFolder(
   options: ListAssetsOptions,
 ): Promise<{ items: CloudinaryAsset[]; nextCursor: string | null }> {
   const config = getConfig();
-  const endpoint = `https://api.cloudinary.com/v1_1/${config.cloudName}/resources/search`;
-
-  const maxResults = Math.min(Math.max(options?.maxResults ?? 30, 1), 100);
+  const maxResults = Math.min(Math.max(options.maxResults ?? 30, 1), 100);
   const body: Record<string, unknown> = {
     expression: `folder:"${options.folder}"`,
     max_results: maxResults,
     sort_by: [{ created_at: "desc" }],
   };
-  if (options?.nextCursor) {
+
+  if (options.nextCursor) {
     body.next_cursor = options.nextCursor;
   }
 
   const auth = Buffer.from(`${config.apiKey}:${config.apiSecret}`).toString("base64");
-  const res = await fetch(endpoint, {
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${config.cloudName}/resources/search`, {
     method: "POST",
     headers: {
       Authorization: `Basic ${auth}`,
@@ -393,30 +292,25 @@ async function listAssetsByFolder(
 
   const payload = (await res.json().catch(() => null)) as CloudinarySearchResponse | null;
   if (!res.ok || !payload) {
-    const message = payload?.error?.message || "Failed to fetch Cloudinary resources";
-    throw new Error(message);
+    throw new Error(payload?.error?.message || "Failed to fetch Cloudinary resources");
   }
 
-  const resources = payload.resources ?? [];
-  const items: CloudinaryAsset[] = resources.map((item) => ({
-    assetId: item.asset_id,
-    publicId: item.public_id,
-    secureUrl: item.secure_url,
-    width: item.width,
-    height: item.height,
-    bytes: item.bytes,
-    createdAt: item.created_at,
-  }));
-
   return {
-    items,
+    items: (payload.resources ?? []).map((item) => ({
+      assetId: item.asset_id,
+      publicId: item.public_id,
+      secureUrl: item.secure_url,
+      width: item.width,
+      height: item.height,
+      bytes: item.bytes,
+      createdAt: item.created_at,
+    })),
     nextCursor: payload.next_cursor ?? null,
   };
 }
 
 async function destroyCloudinaryAsset(publicId: string, invalidate = true) {
   const config = getConfig();
-  const endpoint = `https://api.cloudinary.com/v1_1/${config.cloudName}/image/destroy`;
   const timestamp = Math.floor(Date.now() / 1000);
   const params: Record<string, string> = {
     public_id: publicId,
@@ -424,24 +318,27 @@ async function destroyCloudinaryAsset(publicId: string, invalidate = true) {
     invalidate: invalidate ? "true" : "false",
   };
   const signature = signParams(params, config.apiSecret);
-
   const formData = new FormData();
+
   formData.append("api_key", config.apiKey);
   Object.entries(params).forEach(([key, value]) => formData.append(key, value));
   formData.append("signature", signature);
 
-  const res = await fetch(endpoint, {
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${config.cloudName}/image/destroy`, {
     method: "POST",
     body: formData,
   });
-  const payload = (await res.json().catch(() => null)) as { result?: string; error?: { message?: string } } | null;
+  const payload = (await res.json().catch(() => null)) as {
+    result?: string;
+    error?: { message?: string };
+  } | null;
+
   if (!res.ok || !payload) {
-    const message = payload?.error?.message || "Failed to delete Cloudinary asset";
-    throw new Error(message);
+    throw new Error(payload?.error?.message || "Failed to delete Cloudinary asset");
   }
+
   return payload.result ?? "unknown";
 }
-
 
 export async function deleteCloudinaryAssets(options: {
   publicIds: string[];
@@ -453,18 +350,6 @@ export async function deleteCloudinaryAssets(options: {
     results.push({ publicId, result });
   }
   return { results };
-}
-
-
-export async function listBrandLogosFromCloudinary(options?: {
-  nextCursor?: string | null;
-  maxResults?: number;
-}) {
-  return listAssetsByFolder({
-    folder: "brands/logos",
-    nextCursor: options?.nextCursor ?? null,
-    maxResults: options?.maxResults,
-  });
 }
 
 export async function listHeroBannerAssets(options?: {
@@ -486,22 +371,6 @@ export async function listPopupBannerAssets(options?: {
     folder: "popup_banner",
     nextCursor: options?.nextCursor ?? null,
     maxResults: options?.maxResults,
-  });
-}
-
-export async function listProductGalleryAssets(options: {
-  categorySlug?: string | null;
-  productTypeSlug?: string | null;
-  nextCursor?: string | null;
-  maxResults?: number;
-}) {
-  const categorySegment = sanitizeSegment(options.categorySlug, "uncategorized");
-  const typeSegment = sanitizeSegment(options.productTypeSlug, "general");
-  const folder = `categories/${categorySegment}/${typeSegment}/gallery`;
-  return listAssetsByFolder({
-    folder,
-    nextCursor: options.nextCursor ?? null,
-    maxResults: options.maxResults,
   });
 }
 
@@ -527,16 +396,13 @@ export async function listSolutionGalleryAssets(options?: {
   });
 }
 
-type CloudinarySearchResponse = {
-  resources?: Array<{
-    asset_id: string;
-    public_id: string;
-    secure_url: string;
-    width: number;
-    height: number;
-    bytes: number;
-    created_at: string;
-  }>;
-  next_cursor?: string;
-  error?: { message?: string };
-};
+export async function listContentEditorAssets(options?: {
+  nextCursor?: string | null;
+  maxResults?: number;
+}) {
+  return listAssetsByFolder({
+    folder: "content/editor",
+    nextCursor: options?.nextCursor ?? null,
+    maxResults: options?.maxResults,
+  });
+}
