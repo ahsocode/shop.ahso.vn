@@ -10,7 +10,6 @@ import { Lock, Mail, User, AlertCircle, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import { setUser, useAuthStore } from "@/lib/auth-store";
 import { toast } from "sonner";
-import { useCart } from "@/lib/hooks/useCart";
 
 export default function LoginPage() {
   return (
@@ -33,7 +32,6 @@ function LoginClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentUser = useAuthStore();
-  const { refresh: refreshCart } = useCart(); // ⭐ Hook cart để refresh sau login
 
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -124,14 +122,6 @@ function LoginClient() {
         description: `Chào mừng trở lại, ${userData.fullName || userData.email}!`,
       });
 
-      // ⭐ Refresh cart để lấy cart mới sau khi merge
-      try {
-        await refreshCart();
-        console.log("✅ Cart refreshed after login");
-      } catch (error) {
-        console.error("❌ Failed to refresh cart:", error);
-      }
-
       // Delay nhỏ để đảm bảo cookie được set
       await new Promise((r) => setTimeout(r, 150));
 
@@ -199,7 +189,7 @@ function LoginClient() {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">Đăng nhập</CardTitle>
             <CardDescription className="text-center">
-              Đăng nhập để tiếp tục mua sắm
+              Đăng nhập để quản lý hồ sơ và yêu cầu của bạn
             </CardDescription>
           </CardHeader>
           <CardContent>

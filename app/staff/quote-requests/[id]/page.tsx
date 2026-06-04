@@ -47,7 +47,7 @@ const STATUS_OPTIONS: { value: QuoteStatus; label: string }[] = [
   { value: "accepted", label: "Khách đồng ý" },
   { value: "rejected", label: "Từ chối" },
   { value: "expired", label: "Hết hạn" },
-  { value: "converted", label: "Đã chuyển đơn" },
+  { value: "converted", label: "Đã hoàn tất" },
 ];
 
 const STATUS_CONFIG: Record<
@@ -59,7 +59,7 @@ const STATUS_CONFIG: Record<
   accepted: { label: "Khách đồng ý", color: "bg-green-100 text-green-700 border-green-200" },
   rejected: { label: "Từ chối", color: "bg-rose-100 text-rose-700 border-rose-200" },
   expired: { label: "Hết hạn", color: "bg-amber-100 text-amber-700 border-amber-200" },
-  converted: { label: "Đã chuyển đơn", color: "bg-purple-100 text-purple-700 border-purple-200" },
+  converted: { label: "Đã hoàn tất", color: "bg-purple-100 text-purple-700 border-purple-200" },
 };
 
 const PRIORITY_CONFIG: Record<QuotePriority, { label: string; color: string }> = {
@@ -287,7 +287,7 @@ export default function StaffQuoteDetailPage({
                 <div className="flex items-start gap-2">
                   <Package className="w-4 h-4 text-slate-400 mt-1" />
                   <div>
-                    <div className="text-sm text-slate-500 mb-1">Sản phẩm</div>
+                    <div className="text-sm text-slate-500 mb-1">Nội dung cần báo giá</div>
                     <div className="font-semibold text-slate-900">
                       {quote.productName}
                     </div>

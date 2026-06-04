@@ -6,6 +6,13 @@ import bcrypt from "bcrypt"
 import { prisma } from "@/lib/prisma"
 import { sendMail } from "@/lib/mailer"
 
+function getBaseUrl(req: Request) {
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL
+  if (envUrl) return envUrl.replace(/\/$/, "")
+  const url = new URL(req.url)
+  return `${url.protocol}//${url.host}`
+}
+
 const resetPasswordSchema = z.object({
   token: z.string().min(1, "Token bắt buộc"),
   password: z.string()
@@ -81,6 +88,7 @@ export async function POST(req: Request) {
         dateStyle: "medium",
         timeStyle: "short",
       }).format(new Date())
+      const baseUrl = getBaseUrl(req)
 
       const emailPayload = {
         to: user.email,
@@ -92,7 +100,7 @@ export async function POST(req: Request) {
             <p>Nếu không phải bạn thực hiện, vui lòng <strong>đặt lại mật khẩu</strong> ngay và liên hệ hỗ trợ.</p>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
             <p style="color: #666; font-size: 12px;">
-              AHSO Industrial - <a href="https://shop.ahso.vn">shop.ahso.vn</a>
+              AHSO Industrial - <a href="${baseUrl}">${baseUrl}</a>
             </p>
           </div>
         `,

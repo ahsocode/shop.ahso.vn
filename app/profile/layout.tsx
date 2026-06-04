@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/metadata";
 export const metadata: Metadata = buildMetadata({
   title: "Tài khoản của tôi",
   description:
-    "Quản lý thông tin cá nhân, địa chỉ và đơn hàng đã mua tại AHSO Industrial.",
+    "Quản lý thông tin cá nhân, địa chỉ và yêu cầu đã gửi tại AHSO Industrial.",
   path: "/profile",
 });
 

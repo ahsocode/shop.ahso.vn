@@ -14,34 +14,4 @@ export const EMAIL_CONFIG = {
   ADMIN_EMAIL,
   FROM_NAME,
   FROM_EMAIL,
-  TEMPLATES: {
-    ORDER_CREATED: {
-      subject: (orderCode: string) => `Xác nhận đơn hàng ${orderCode} - ${FROM_NAME}`,
-      adminSubject: (orderCode: string) => `🔔 Đơn hàng mới ${orderCode} cần xử lý`,
-    },
-    ORDER_PAID: {
-      subject: (orderCode: string) => `✅ Đơn hàng ${orderCode} đã được xác nhận thanh toán`,
-    },
-    ORDER_SHIPPED: {
-      subject: (orderCode: string) => `📦 Đơn hàng ${orderCode} đã được giao cho vận chuyển`,
-    },
-    ORDER_CANCELLED: {
-      subject: (orderCode: string) => `❌ Đơn hàng ${orderCode} đã bị hủy`,
-    },
-    ORDER_CANCEL_REJECTED: {
-      subject: (orderCode: string) => `❗ Yêu cầu hủy đơn ${orderCode} đã bị từ chối`,
-    },
-    PROMOTION: {
-      subject: "🎉 Chương trình khuyến mãi đặc biệt từ AHSO",
-    },
-  },
 } as const;
-
-// Helper format tiền VND
-export function formatVND(n: number) {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(Math.max(0, Math.round(n)));
-}

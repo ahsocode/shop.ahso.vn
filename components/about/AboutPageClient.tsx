@@ -97,7 +97,7 @@ export default function AboutPageClient() {
             {[
               { icon: Factory, number: "5+", label: "Năm kinh nghiệm" },
               { icon: Users, number: "5000+", label: "Khách hàng tin dùng" },
-              { icon: Package, number: "10000+", label: "Sản phẩm đa dạng" },
+              { icon: Package, number: "10000+", label: "Giải pháp triển khai" },
               { icon: Award, number: "99%", label: "Hài lòng" },
             ].map((stat, idx) => {
               const Icon = stat.icon;
@@ -438,7 +438,7 @@ export default function AboutPageClient() {
                 {[
                   { icon: Truck, title: "Vận chuyển chuyên nghiệp", desc: "Đội xe chuyên dụng, tài xế dày dặn kinh nghiệm" },
                   { icon: Shield, title: "Bảo hiểm 100%", desc: "Đảm bảo bồi thường nếu hư hỏng trong vận chuyển" },
-                  { icon: CheckCircle, title: "Theo dõi đơn hàng", desc: "Cập nhật real-time trạng thái giao hàng" },
+                  { icon: CheckCircle, title: "Theo dõi yêu cầu", desc: "Cập nhật tiến độ tư vấn và phản hồi" },
                 ].map((item, idx) => {
                   const Icon = item.icon;
                   return (

@@ -1,24 +1,30 @@
 "use client";
 
-import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
-import { withRevealDelay } from "@/lib/reveal";
+import { type ChangeEvent, type FormEvent, useState } from "react";
+import Link from "next/link";
+import { toast } from "sonner";
 import {
-  Mail,
-  Phone,
-  MapPin,
-  Clock,
-  Send,
-  User,
   Building2,
-  MessageSquare,
   CheckCircle,
-  Sparkles,
+  Clock,
   Facebook,
-  Linkedin,
-  Youtube,
   Globe,
   Headphones,
+  Linkedin,
+  Mail,
+  MapPin,
+  MessageSquare,
+  Phone,
+  Send,
+  User,
+  Youtube,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 type FormData = {
   fullName: string;
@@ -29,77 +35,132 @@ type FormData = {
   message: string;
 };
 
-export default function ContactPage() {
-  const [formData, setFormData] = useState<FormData>({
-    fullName: "",
-    email: "",
-    phone: "",
-    company: "",
-    subject: "",
-    message: "",
-  });
+const initialFormData: FormData = {
+  fullName: "",
+  email: "",
+  phone: "",
+  company: "",
+  subject: "",
+  message: "",
+};
 
+const subjectOptions = [
+  { value: "", label: "Chọn chủ đề" },
+  { value: "product", label: "Tư vấn giải pháp/phần mềm" },
+  { value: "quote", label: "Yêu cầu báo giá" },
+  { value: "support", label: "Hỗ trợ kỹ thuật" },
+  { value: "partnership", label: "Hợp tác kinh doanh" },
+  { value: "other", label: "Khác" },
+] as const;
+
+const contactInfo = [
+  {
+    icon: Phone,
+    title: "Điện thoại",
+    content: "0901 951 351",
+    subContent: "Thứ 2 - Thứ 7: 8:00 - 18:00",
+    href: "tel:+84901951351",
+  },
+  {
+    icon: Mail,
+    title: "Email",
+    content: "sales@ahso.vn",
+    subContent: "Phản hồi trong 24h",
+    href: "mailto:sales@ahso.vn",
+  },
+  {
+    icon: MapPin,
+    title: "Địa chỉ",
+    content: "39/15 Cao Bá Quát, Khu Phố Đông Tân, Dĩ An, TP.HCM",
+    subContent: "TP. Hồ Chí Minh, Việt Nam",
+    href: "https://maps.app.goo.gl/VteyBSCYdoptCoVk6",
+  },
+  {
+    icon: Clock,
+    title: "Giờ làm việc",
+    content: "Thứ 2 - Thứ 6: 8:00 - 17:30",
+    subContent: "Thứ 7: 8:00 - 12:00",
+    href: "#contact-form",
+  },
+] as const;
+
+const contactTones = [
+  {
+    card: "border-blue-200 bg-blue-50/70 hover:border-blue-400",
+    icon: "bg-blue-700 text-white",
+    bar: "bg-blue-700",
+  },
+  {
+    card: "border-emerald-200 bg-emerald-50/70 hover:border-emerald-400",
+    icon: "bg-emerald-700 text-white",
+    bar: "bg-emerald-700",
+  },
+  {
+    card: "border-amber-200 bg-amber-50/80 hover:border-amber-400",
+    icon: "bg-amber-600 text-white",
+    bar: "bg-amber-500",
+  },
+  {
+    card: "border-slate-200 bg-slate-50/80 hover:border-slate-400",
+    icon: "bg-slate-800 text-white",
+    bar: "bg-slate-800",
+  },
+] as const;
+
+const supportReasons = [
+  { icon: Headphones, text: "Tư vấn miễn phí từ chuyên gia" },
+  { icon: CheckCircle, text: "Báo giá nhanh trong 24h" },
+  { icon: MessageSquare, text: "Trao đổi rõ nhu cầu và phương án" },
+  { icon: Phone, text: "Hỗ trợ kỹ thuật theo từng trường hợp" },
+] as const;
+
+const socialLinks = [
+  { icon: Facebook, name: "Facebook", href: "https://www.facebook.com/profile.php?id=61576136387582" },
+  { icon: Linkedin, name: "LinkedIn", href: "#" },
+  { icon: Youtube, name: "YouTube", href: "#" },
+  { icon: Globe, name: "Website", href: "#" },
+] as const;
+
+const faqs = [
+  {
+    question: "Thời gian phản hồi là bao lâu?",
+    answer:
+      "Chúng tôi phản hồi trong vòng 24 giờ làm việc. Với yêu cầu khẩn cấp, vui lòng gọi hotline để được hỗ trợ nhanh hơn.",
+  },
+  {
+    question: "Tôi có thể yêu cầu báo giá trực tiếp không?",
+    answer:
+      "Có. Bạn chọn chủ đề “Yêu cầu báo giá” và mô tả rõ sản phẩm hoặc nhu cầu. AHSO sẽ liên hệ lại để xác nhận thông tin và gửi báo giá phù hợp.",
+  },
+  {
+    question: "AHSO có hỗ trợ tư vấn kỹ thuật không?",
+    answer:
+      "Có. Đội ngũ kỹ thuật của AHSO có thể tư vấn giải pháp, thiết bị và phương án triển khai phù hợp với nhu cầu vận hành.",
+  },
+  {
+    question: "Tôi muốn đến trực tiếp văn phòng, có cần hẹn trước không?",
+    answer:
+      "Bạn nên đặt lịch trước qua hotline hoặc email để AHSO sắp xếp người phụ trách phù hợp và chuẩn bị thông tin cần thiết.",
+  },
+] as const;
+
+const mapsAddress = "Công ty TNHH AHSO 39/15 Cao Bá Quát, Khu Phố Đông Tân, Dĩ An, TP.HCM";
+const mapsEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(mapsAddress)}&output=embed`;
+const mapsUrl = "https://maps.app.goo.gl/VteyBSCYdoptCoVk6";
+
+export default function ContactPage() {
+  const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [feedback, setFeedback] = useState<{ open: boolean; title: string; message: string }>({
-    open: false,
-    title: "",
-    message: "",
-  });
-
-  useEffect(() => {
-    // ---- Observer cho section lớn (.reveal) ----
-    const sectionObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("animate-in");
-            // Lặp lại khi ra/vào viewport? -> comment dòng dưới và dùng else để remove
-            // sectionObserver.unobserve(entry.target);
-          } else {
-            // Bật repeat-mode: bỏ comment nếu muốn lặp lại
-            // entry.target.classList.remove("animate-in");
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -10% 0px" }
-    );
-
-    document.querySelectorAll<HTMLElement>(".reveal").forEach((el) => sectionObserver.observe(el));
-
-    // ---- Observer cho item nhỏ ([data-reveal]) ----
-    const itemObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((ent) => {
-          const el = ent.target as HTMLElement;
-          if (ent.isIntersecting) {
-            el.classList.add("is-visible");
-            itemObserver.unobserve(el); // chạy 1 lần; muốn lặp lại thì comment dòng này và bật else để remove
-          } else {
-            // Repeat-mode (tuỳ chọn)
-            // el.classList.remove("is-visible");
-          }
-        });
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
-    );
-
-    document.querySelectorAll<HTMLElement>("[data-reveal]").forEach((el) => itemObserver.observe(el));
-
-    return () => {
-      sectionObserver.disconnect();
-      itemObserver.disconnect();
-    };
-  }, []);
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData((current) => ({ ...current, [event.target.name]: event.target.value }));
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setIsSubmitting(true);
     setIsSuccess(false);
 
@@ -118,24 +179,18 @@ export default function ContactPage() {
     };
 
     if (!payload.fullName) {
-      setFeedback({
-        open: true,
-        title: "Thiếu họ tên",
-        message: "Vui lòng nhập họ và tên.",
-      });
+      toast.warning("Vui lòng nhập họ và tên.");
       setIsSubmitting(false);
       return;
     }
 
     if (!payload.phone || payload.phone.replace(/[^0-9]/g, "").length < 9) {
-      setFeedback({
-        open: true,
-        title: "Số điện thoại chưa hợp lệ",
-        message: "Vui lòng nhập số điện thoại tối thiểu 9 chữ số để chúng tôi liên hệ.",
-      });
+      toast.warning("Vui lòng nhập số điện thoại tối thiểu 9 chữ số để chúng tôi liên hệ.");
       setIsSubmitting(false);
       return;
     }
+
+    const toastId = toast.loading("Đang gửi thông tin liên hệ...");
 
     try {
       const res = await fetch("/api/contacts", {
@@ -161,521 +216,339 @@ export default function ContactPage() {
       }
 
       setIsSuccess(true);
-      setFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-        company: "",
-        subject: "",
-        message: "",
-      });
-      setFeedback({
-        open: true,
-        title: "Đã gửi thành công",
-        message: "Cảm ơn bạn đã liên hệ. Chúng tôi sẽ phản hồi trong thời gian sớm nhất.",
-      });
-      setTimeout(() => setIsSuccess(false), 2500);
-    } catch (err) {
-      console.error("Send contact failed:", err);
-      setFeedback({
-        open: true,
-        title: "Gửi liên hệ thất bại",
-        message: err instanceof Error ? err.message : "Vui lòng thử lại sau.",
+      setFormData(initialFormData);
+      toast.success("Đã gửi thông tin. AHSO sẽ phản hồi trong thời gian sớm nhất.", { id: toastId });
+      window.setTimeout(() => setIsSuccess(false), 2500);
+    } catch (error) {
+      console.error("Send contact failed:", error);
+      toast.error(error instanceof Error ? error.message : "Không thể gửi liên hệ. Vui lòng thử lại sau.", {
+        id: toastId,
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const contactInfo = [
-    {
-      icon: Phone,
-      title: "Điện thoại",
-      content: "0901 951 351",
-      subContent: "Thứ 2 - Thứ 7: 8:00 - 18:00",
-      color: "from-blue-500 to-cyan-500",
-      link: "tel:+84901951351",
-    },
-    {
-      icon: Mail,
-      title: "Email",
-      content: "sales@ahso.vn",
-      subContent: "Phản hồi trong 24h",
-      color: "from-purple-500 to-pink-500",
-      link: "mailto:sales@ahso.vn",
-    },
-    {
-      icon: MapPin,
-      title: "Địa chỉ",
-      content: "39/15 Cao Bá Quát, Khu Phố Đông Tân, Dĩ An, TP.HCM",
-      subContent: "TP. Hồ Chí Minh, Việt Nam",
-      color: "from-orange-500 to-red-500",
-      link: "#",
-    },
-    {
-      icon: Clock,
-      title: "Giờ làm việc",
-      content: "Thứ 2 - Thứ 6: 8:00 - 17:30",
-      subContent: "Thứ 7: 8:00 - 12:00",
-      color: "from-green-500 to-emerald-500",
-      link: "#",
-    },
-  ] as const;
-
-  const socialLinks = [
-    { icon: Facebook, name: "Facebook", link: "https://www.facebook.com/profile.php?id=61576136387582", color: "hover:bg-blue-600" },
-    { icon: Linkedin, name: "LinkedIn", link: "#", color: "hover:bg-blue-700" },
-    { icon: Youtube, name: "YouTube", link: "#", color: "hover:bg-red-600" },
-    { icon: Globe, name: "Website", link: "#", color: "hover:bg-purple-600" },
-  ] as const;
-
-  const FeedbackModal = ({ open, title, message, onClose }: { open: boolean; title: string; message: string; onClose: () => void }) => {
-    if (!open) return null;
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-        <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-3 animate-in fade-in zoom-in">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h3 className="text-lg font-bold text-gray-900">{title}</h3>
-              <p className="text-sm text-gray-600 mt-1">{message}</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-              aria-label="Đóng"
-            >
-              ✕
-            </button>
-          </div>
-          <div className="flex justify-end">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
-            >
-              Đã hiểu
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // ==== Google Maps config ====
-  const mapsAddress = "Công ty TNHH AHSO 39/15 Cao Bá Quát, Khu Phố Đông Tân, Dĩ An, TP.HCM";
-  const mapsQuery = encodeURIComponent(mapsAddress);
-  const mapsUrl = `https://maps.app.goo.gl/VteyBSCYdoptCoVk6`;
-  const mapsEmbedUrl = `https://www.google.com/maps?q=${mapsQuery}&output=embed`;
-
   return (
-    <div className="min-h-screen bg-linear-to-b from-gray-50 to-white">
-      {/* Hero */}
-      <section className="relative bg-linear-to-br from-blue-600 via-blue-700 to-purple-700 text-white py-20 overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage:
-              'url("data:image/svg+xml,%3Csvg width=\\"60\\" height=\\"60\\" viewBox=\\"0 0 60 60\\" xmlns=\\"http://www.w3.org/2000/svg\\"%3E%3Cg fill=\\"none\\" fill-rule=\\"evenodd\\"%3E%3Cg fill=\\"%23ffffff\\" fill-opacity=\\"1\\"%3E%3Cpath d=\\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-          }}
-        />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-6" data-reveal>
-            <Headphones className="w-5 h-5" />
-            <span className="text-sm font-semibold">Hỗ trợ 24/7</span>
-          </div>
-
-          <h1 className="text-5xl md:text-6xl font-bold mb-6" data-reveal style={withRevealDelay("80ms")}>
-            Liên hệ với chúng tôi
-          </h1>
-
-          <p className="text-xl text-blue-100 max-w-2xl mx-auto" data-reveal style={withRevealDelay("160ms")}>
-            Đội ngũ chuyên gia của AHSO sẵn sàng tư vấn và hỗ trợ bạn tìm ra giải pháp tốt nhất
-          </p>
-        </div>
-
-        <div className="absolute top-10 right-10 w-72 h-72 bg-blue-400/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-10 left-10 w-96 h-96 bg-purple-400/30 rounded-full blur-3xl"></div>
-      </section>
-
-      {/* Contact Info Cards */}
-      <section className="py-16 -mt-16 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-            {contactInfo.map((info, idx) => {
-              const Icon = info.icon;
-              return (
-                <div key={idx} className="pt-2">
-                  <a
-                    href={info.link}
-                    className="reveal group block bg-white rounded-2xl p-6 shadow-xl transition-all duration-300 will-change-transform translate-y-0 hover:-translate-y-2 hover:shadow-2xl h-full"
-                    data-reveal
-                    style={withRevealDelay(`${idx * 100}ms`)}
-                    aria-label={info.title}
-                  >
-                    <div
-                      className={`w-14 h-14 bg-linear-to-br ${info.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}
-                    >
-                      <Icon className="w-7 h-7 text-white" />
-                    </div>
-                    <h3 className="font-bold text-lg text-gray-900 mb-2">{info.title}</h3>
-                    <p className="text-gray-700 font-semibold mb-1">{info.content}</p>
-                    <p className="text-sm text-gray-500">{info.subContent}</p>
-                  </a>
+    <main className="min-h-screen bg-[#f5f7f2] text-gray-950">
+      <section className="relative overflow-hidden border-b border-gray-200 bg-white">
+        <div className="absolute left-0 top-0 hidden h-full w-2 bg-emerald-700 md:block" />
+        <div className="absolute bottom-0 right-0 hidden h-20 w-80 bg-amber-100 lg:block" />
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:px-8">
+          <div className="relative">
+            <div className="inline-flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800">
+              <Headphones className="h-4 w-4" />
+              Hỗ trợ khách hàng
+            </div>
+            <h1 className="mt-5 max-w-3xl text-3xl font-bold tracking-tight text-gray-950 md:text-4xl">
+              Liên hệ với AHSO
+            </h1>
+            <p className="mt-4 max-w-3xl text-sm leading-6 text-gray-600 md:text-base">
+              Đội ngũ AHSO sẵn sàng tư vấn sản phẩm, hỗ trợ kỹ thuật và trao đổi phương án phù hợp với nhu cầu vận hành của bạn.
+            </p>
+            <div className="mt-6 grid max-w-2xl gap-3 sm:grid-cols-3">
+              {["Tư vấn rõ nhu cầu", "Báo giá trong 24h", "Hỗ trợ kỹ thuật"].map((item) => (
+                <div key={item} className="border-l-2 border-amber-500 bg-amber-50 px-3 py-2 text-sm font-semibold text-gray-800">
+                  {item}
                 </div>
-              );
-            })}
+              ))}
+            </div>
+          </div>
+
+          <div className="relative rounded-md border border-slate-800 bg-slate-900 p-5 text-white">
+            <div className="absolute left-0 top-0 h-1 w-full bg-amber-400" />
+            <p className="text-sm font-semibold">Cần trao đổi nhanh?</p>
+            <p className="mt-2 text-sm leading-6 text-slate-200">
+              Gọi hotline hoặc gửi form bên dưới. Những yêu cầu có đầy đủ số điện thoại và nội dung sẽ được xử lý nhanh hơn.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link
+                href="tel:+84901951351"
+                className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-300"
+              >
+                <Phone className="h-4 w-4" />
+                Gọi AHSO
+              </Link>
+              <Link
+                href="mailto:sales@ahso.vn"
+                className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-white/25 bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white"
+              >
+                <Mail className="h-4 w-4" />
+                Gửi email
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Main Contact Section */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
-            {/* Left - Form */}
-            <div className="reveal">
-              <div className="mb-8">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4" data-reveal>Gửi thông tin liên hệ</h2>
-                <p className="text-lg text-gray-600" data-reveal style={withRevealDelay("80ms")}>
-                  Điền thông tin bên dưới và chúng tôi sẽ liên hệ lại với bạn trong thời gian sớm nhất
-                </p>
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {contactInfo.map((info, index) => {
+            const Icon = info.icon;
+            const tone = contactTones[index % contactTones.length];
+            return (
+              <a
+                key={info.title}
+                href={info.href}
+                className={cn("relative overflow-hidden rounded-md border p-4 transition-colors", tone.card)}
+                target={info.href.startsWith("http") ? "_blank" : undefined}
+                rel={info.href.startsWith("http") ? "noopener noreferrer" : undefined}
+              >
+                <div className={cn("absolute left-0 top-0 h-full w-1", tone.bar)} />
+                <div className="flex items-start gap-3">
+                  <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-md", tone.icon)}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="text-sm font-bold text-gray-950">{info.title}</h2>
+                    <p className="mt-1 text-sm font-semibold leading-5 text-gray-800">{info.content}</p>
+                    <p className="mt-1 text-xs leading-5 text-gray-500">{info.subContent}</p>
+                  </div>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-7xl gap-6 px-4 pb-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_420px] lg:px-8">
+        <Card id="contact-form" className="overflow-hidden rounded-md border-gray-200 shadow-none">
+          <CardHeader className="border-b border-gray-200 bg-white">
+            <div className="mb-1 h-1.5 w-16 bg-blue-700" />
+            <CardTitle>Gửi thông tin liên hệ</CardTitle>
+            <p className="text-sm leading-6 text-gray-600">
+              Điền thông tin bên dưới để AHSO liên hệ lại và tư vấn chi tiết.
+            </p>
+          </CardHeader>
+          <CardContent className="p-6">
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label="Họ và tên" required icon={User}>
+                  <Input
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    placeholder="Nguyễn Văn A"
+                    autoComplete="name"
+                    required
+                  />
+                </Field>
+
+                <Field label="Số điện thoại" required icon={Phone}>
+                  <Input
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="0123 456 789"
+                    autoComplete="tel"
+                    inputMode="tel"
+                    required
+                    type="tel"
+                  />
+                </Field>
               </div>
 
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                {/* Name */}
-                <div className="group" data-reveal>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Họ và tên <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                      <User className="w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-                    </div>
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={formData.fullName}
-                      onChange={handleChange}
-                      required
-                      className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 outline-none"
-                      placeholder="Nguyễn Văn A"
-                      autoComplete="name"
-                    />
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div className="group" data-reveal style={withRevealDelay("60ms")}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Email
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                      <Mail className="w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-                    </div>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 outline-none"
-                      placeholder="email@example.com"
-                      autoComplete="email"
-                    />
-                  </div>
-                </div>
-
-                {/* Phone */}
-                <div className="group" data-reveal style={withRevealDelay("120ms")}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Số điện thoại <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                      <Phone className="w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-                    </div>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      required
-                      className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 outline-none"
-                      placeholder="0123 456 789"
-                      autoComplete="tel"
-                      inputMode="tel"
-                    />
-                  </div>
-                </div>
-
-                {/* Company */}
-                <div className="group" data-reveal style={withRevealDelay("180ms")}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Tên công ty</label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                      <Building2 className="w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-                    </div>
-                    <input
-                      type="text"
-                      name="company"
-                      value={formData.company}
-                      onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 outline-none"
-                      placeholder="Công ty TNHH..."
-                      autoComplete="organization"
-                    />
-                  </div>
-                </div>
-
-                {/* Subject */}
-                <div className="group" data-reveal style={withRevealDelay("240ms")}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Chủ đề</label>
-                  <select
-                    name="subject"
-                    value={formData.subject}
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label="Email" icon={Mail}>
+                  <Input
+                    name="email"
+                    value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 outline-none bg-white"
-                  >
-                    <option value="">Chọn chủ đề</option>
-                    <option value="product">Tư vấn sản phẩm</option>
-                    <option value="quote">Yêu cầu báo giá</option>
-                    <option value="support">Hỗ trợ kỹ thuật</option>
-                    <option value="partnership">Hợp tác kinh doanh</option>
-                    <option value="other">Khác</option>
-                  </select>
-                </div>
+                    placeholder="email@example.com"
+                    autoComplete="email"
+                    type="email"
+                  />
+                </Field>
 
-                {/* Message */}
-                <div className="group" data-reveal style={withRevealDelay("300ms")}>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Nội dung <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-4">
-                      <MessageSquare className="w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-                    </div>
-                    <textarea
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      rows={5}
-                      className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 outline-none resize-none"
-                      placeholder="Mô tả chi tiết yêu cầu của bạn..."
-                    />
-                  </div>
-                </div>
+                <Field label="Tên công ty" icon={Building2}>
+                  <Input
+                    name="company"
+                    value={formData.company}
+                    onChange={handleChange}
+                    placeholder="Công ty TNHH..."
+                    autoComplete="organization"
+                  />
+                </Field>
+              </div>
 
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting || isSuccess}
-                  className={`group w-full py-4 px-8 rounded-xl font-bold text-white shadow-lg transition-all duration-300 flex items-center justify-center gap-3 ${
-                    isSuccess
-                      ? "bg-green-500 hover:bg-green-600"
-                      : "bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl hover:scale-105"
-                  } disabled:opacity-70 disabled:cursor-not-allowed`}
-                  data-reveal
-                  style={withRevealDelay("360ms")}
+              <div className="grid gap-2">
+                <Label htmlFor="subject">Chủ đề</Label>
+                <select
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  className="flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-600"
                 >
+                  {subjectOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="message">Nội dung</Label>
+                <Textarea
+                  id="message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  rows={7}
+                  placeholder="Mô tả nhu cầu, sản phẩm cần tư vấn hoặc thông tin cần báo giá..."
+                />
+              </div>
+
+              <div className="flex flex-col gap-3 border-t border-gray-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs leading-5 text-gray-500">
+                  Bằng cách gửi thông tin, bạn đồng ý với{" "}
+                  <Link href="/policy" className="font-semibold text-blue-700 hover:underline">
+                    chính sách bảo mật
+                  </Link>{" "}
+                  của chúng tôi.
+                </p>
+                <Button type="submit" disabled={isSubmitting || isSuccess} className="shrink-0">
                   {isSubmitting ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Đang gửi...
-                    </>
+                    "Đang gửi..."
                   ) : isSuccess ? (
                     <>
-                      <CheckCircle className="w-5 h-5" />
-                      Đã gửi thành công!
+                      <CheckCircle className="h-4 w-4" />
+                      Đã gửi
                     </>
                   ) : (
                     <>
+                      <Send className="h-4 w-4" />
                       Gửi thông tin
-                      <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
-                </button>
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
 
-                <p className="text-sm text-gray-500 text-center" data-reveal style={withRevealDelay("420ms")}>
-                  Bằng cách gửi thông tin, bạn đồng ý với{" "}
-                  <span className="text-blue-600 cursor-pointer hover:underline">chính sách bảo mật</span> của chúng tôi
-                </p>
-              </form>
-            </div>
-
-            {/* Right - Info */}
-            <div className="reveal lg:sticky lg:top-24">
-              <div className="bg-linear-to-br from-blue-50 to-purple-50 rounded-3xl p-8 mb-8 shadow-lg">
-                <div className="flex items-center gap-3 mb-6" data-reveal>
-                  <div className="w-12 h-12 bg-linear-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-white" />
+        <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+          <Card className="rounded-md border-emerald-200 bg-emerald-50/60 shadow-none">
+            <CardHeader>
+              <CardTitle className="text-lg">Tại sao liên hệ với AHSO?</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {supportReasons.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.text} className="flex items-center gap-3 rounded-md border border-emerald-200 bg-white p-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-emerald-700 text-white">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">{item.text}</span>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900">Tại sao liên hệ với AHSO?</h3>
-                </div>
+                );
+              })}
+            </CardContent>
+          </Card>
 
-                <div className="space-y-4">
-                  {[
-                    { icon: Headphones, text: "Tư vấn miễn phí từ chuyên gia" },
-                    { icon: CheckCircle, text: "Báo giá nhanh chóng trong 24h" },
-                    { icon: Sparkles, text: "Giải pháp tối ưu cho nhu cầu của bạn" },
-                    { icon: Phone, text: "Hỗ trợ kỹ thuật 24/7" },
-                  ].map((item, idx) => {
-                    const Icon = item.icon;
-                    return (
-                      <div key={idx} className="flex items-center gap-3 p-4 bg-white rounded-xl" data-reveal style={withRevealDelay(`${idx * 80}ms`)}>
-                        <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shrink-0">
-                          <Icon className="w-5 h-5 text-white" />
-                        </div>
-                        <span className="text-gray-700 font-medium">{item.text}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Map (Google Maps embed + click-through) */}
-              <div className="bg-white rounded-3xl overflow-hidden shadow-lg" data-reveal>
-                <div className="relative aspect-video">
-                  <iframe
-                    src={mapsEmbedUrl}
-                    title="Bản đồ Google Maps - AHSO"
-                    className="absolute inset-0 w-full h-full border-0"
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    allowFullScreen
-                  />
-                  {/* Click overlay: open Maps in new tab */}
-                  <a
-                    href={mapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Mở vị trí trên Google Maps"
-                    className="absolute inset-0"
-                  />
-                </div>
-                <div className="p-4 text-sm text-gray-600 border-t">
-                  Nhấn vào bản đồ để mở Google Maps
-                </div>
-              </div>
-
-              {/* Social */}
-              <div className="bg-white rounded-3xl p-6 shadow-lg mt-8" data-reveal>
-                <h4 className="font-bold text-lg text-gray-900 mb-4">Kết nối với chúng tôi</h4>
-                <div className="flex gap-3">
-                  {socialLinks.map((social, idx) => {
-                    const Icon = social.icon;
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => window.open(social.link, "_blank")}
-                        className={`w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 ${social.color} group`}
-                        title={social.name}
-                        data-reveal
-                        style={withRevealDelay(`${idx * 70}ms`)}
-                        aria-label={social.name}
-                      >
-                        <Icon className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors" />
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+          <Card className="overflow-hidden rounded-md border-amber-200 bg-white shadow-none">
+            <div className="relative aspect-video">
+              <iframe
+                src={mapsEmbedUrl}
+                title="Bản đồ Google Maps - AHSO"
+                className="absolute inset-0 h-full w-full border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+              />
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Mở vị trí trên Google Maps"
+                className="absolute inset-0"
+              />
             </div>
-          </div>
-        </div>
+            <CardContent className="border-t border-amber-200 bg-amber-50 p-4 text-sm font-medium text-gray-700">
+              Nhấn vào bản đồ để mở Google Maps.
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-md border-slate-200 bg-white shadow-none">
+            <CardHeader>
+              <CardTitle className="text-lg">Kết nối với chúng tôi</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                {socialLinks.map((social) => {
+                  const Icon = social.icon;
+                  return (
+                    <a
+                      key={social.name}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-slate-700 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                      aria-label={social.name}
+                      title={social.name}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </a>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </aside>
       </section>
 
-      {/* FAQ */}
-      <section className="py-20 bg-linear-to-br from-gray-50 to-blue-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12" data-reveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Câu hỏi thường gặp</h2>
-            <p className="text-lg text-gray-600">Một số thông tin hữu ích trước khi bạn liên hệ</p>
+      <section className="border-t border-gray-200 bg-white">
+        <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="mb-6">
+            <div className="mb-3 h-1.5 w-14 bg-amber-500" />
+            <h2 className="text-2xl font-bold text-gray-950">Câu hỏi thường gặp</h2>
+            <p className="mt-2 text-sm leading-6 text-gray-600">
+              Một số thông tin hữu ích trước khi bạn liên hệ AHSO.
+            </p>
           </div>
-
-          <div className="space-y-4">
-            {[
-              {
-                q: "Thời gian phản hồi là bao lâu?",
-                a: "Chúng tôi cam kết phản hồi trong vòng 24 giờ làm việc. Đối với các yêu cầu khẩn cấp, vui lòng gọi hotline để được hỗ trợ ngay.",
-              },
-              {
-                q: "Tôi có thể yêu cầu báo giá trực tiếp không?",
-                a: "Có, bạn có thể chọn 'Yêu cầu báo giá' trong mục chủ đề và mô tả chi tiết sản phẩm cần báo giá. Chúng tôi sẽ gửi báo giá chi tiết trong 24-48h.",
-              },
-              {
-                q: "AHSO có hỗ trợ tư vấn kỹ thuật không?",
-                a: "Có, đội ngũ kỹ sư của chúng tôi sẵn sàng tư vấn miễn phí về giải pháp kỹ thuật phù hợp nhất cho doanh nghiệp bạn.",
-              },
-              {
-                q: "Tôi muốn đến trực tiếp văn phòng, có cần hẹn trước không?",
-                a: "Để phục vụ tốt nhất, chúng tôi khuyến khích bạn đặt lịch hẹn trước qua hotline hoặc email để được sắp xếp chuyên gia phù hợp.",
-              },
-            ].map((faq, idx) => (
-              <details
-                key={idx}
-                className="reveal group bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300"
-                data-reveal
-                style={withRevealDelay(`${idx * 90}ms`)}
-              >
-                <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
-                  <span className="font-semibold text-gray-900 pr-4">{faq.q}</span>
-                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center shrink-0 group-open:rotate-180 transition-transform duration-300">
-                    <svg
-                      className="w-5 h-5 text-blue-600"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
+          <div className="space-y-3">
+            {faqs.map((faq) => (
+              <details key={faq.question} className="rounded-md border border-gray-200 bg-[#fbfcf8]">
+                <summary className="cursor-pointer list-none px-4 py-4 text-sm font-semibold text-gray-950">
+                  {faq.question}
                 </summary>
-                <div className="px-6 pb-6 text-gray-600">{faq.a}</div>
+                <div className="border-t border-gray-200 px-4 py-4 text-sm leading-6 text-gray-600">
+                  {faq.answer}
+                </div>
               </details>
             ))}
           </div>
         </div>
       </section>
+    </main>
+  );
+}
 
-      {/* Styles */}
-      <style jsx>{`
-        .reveal {
-          opacity: 0;
-          transform: translateY(30px);
-          transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .reveal.animate-in {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        .animate-spin { animation: spin 1s linear infinite; }
-      `}</style>
-
-      {/* Global item reveal */}
-      <style jsx global>{`
-        @keyframes reveal-fade-up {
-          from { opacity: 0; transform: translateY(18px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        [data-reveal] {
-          opacity: 0;
-          transform: translateY(18px);
-          will-change: opacity, transform;
-        }
-        [data-reveal].is-visible {
-          animation: reveal-fade-up 0.7s ease-out both;
-          animation-delay: var(--d, 0ms);
-        }
-      `}</style>
-      <FeedbackModal
-        open={feedback.open}
-        title={feedback.title}
-        message={feedback.message}
-        onClose={() => setFeedback((prev) => ({ ...prev, open: false }))}
-      />
+function Field({
+  children,
+  icon: Icon,
+  label,
+  required = false,
+}: {
+  children: React.ReactNode;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  required?: boolean;
+}) {
+  return (
+    <div className="grid gap-2">
+      <Label>
+        {label}
+        {required ? <span className="text-red-600"> *</span> : null}
+      </Label>
+      <div className="grid gap-2">
+        <div className="relative">
+          <Icon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <div className="[&_input]:pl-9">{children}</div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -15,7 +15,6 @@ Can cau hinh repo variable/secret neu gia tri duoc dung luc build:
 - `vars.NEXT_PUBLIC_SITE_URL`
 - `vars.NEXT_PUBLIC_APP_URL`
 - `vars.NEXT_PUBLIC_GA_MEASUREMENT_ID`
-- `secrets.NEXT_PUBLIC_TINYMCE_API_KEY`
 
 ## VPS lan dau
 

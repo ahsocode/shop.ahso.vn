@@ -46,7 +46,7 @@ const STATUS_CONFIG: Record<
   accepted: { label: "Khách đồng ý", color: "bg-green-100 text-green-700 border-green-200", icon: CheckCircle },
   rejected: { label: "Từ chối", color: "bg-rose-100 text-rose-700 border-rose-200", icon: XCircle },
   expired: { label: "Hết hạn", color: "bg-amber-100 text-amber-700 border-amber-200", icon: Clock },
-  converted: { label: "Đã chuyển đơn", color: "bg-purple-100 text-purple-700 border-purple-200", icon: CheckCircle },
+  converted: { label: "Đã hoàn tất", color: "bg-purple-100 text-purple-700 border-purple-200", icon: CheckCircle },
 };
 
 const PRIORITY_CONFIG: Record<QuotePriority, { label: string; color: string }> = {

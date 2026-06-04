@@ -18,193 +18,8 @@ model address {
   country                              String   @default("VN") @db.Char(2)
   createdAt                            DateTime @default(now())
   updatedAt                            DateTime
-  order                                order[]
   user_user_billingAddressIdToaddress  user?    @relation("user_billingAddressIdToaddress")
   user_user_shippingAddressIdToaddress user?    @relation("user_shippingAddressIdToaddress")
-}
-
-model brand {
-  id           String    @id
-  name         String
-  slug         String    @unique(map: "Brand_slug_key")
-  logoUrl      String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime
-  productCount Int       @default(0)
-  summary      String?
-  product      product[]
-}
-
-model cart {
-  id            String      @id
-  userId        String?
-  status        cart_status @default(ACTIVE)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime
-  currency      String      @default("VND")
-  discountTotal Decimal     @default(0.00) @db.Decimal(12, 2)
-  grandTotal    Decimal     @default(0.00) @db.Decimal(12, 2)
-  shippingFee   Decimal     @default(0.00) @db.Decimal(12, 2)
-  subtotal      Decimal     @default(0.00) @db.Decimal(12, 2)
-  taxTotal      Decimal     @default(0.00) @db.Decimal(12, 2)
-  cartitem      cartitem[]
-
-  @@index([status], map: "Cart_status_idx")
-  @@index([userId], map: "Cart_userId_idx")
-}
-
-model cartitem {
-  id            String   @id
-  cartId        String
-  quantity      Int      @default(1)
-  unitPrice     Decimal  @db.Decimal(12, 2)
-  addedAt       DateTime @default(now())
-  brandName     String?
-  currency      String   @default("VND")
-  lineTotal     Decimal  @db.Decimal(12, 2)
-  productId     String?
-  productImage  String?
-  productName   String
-  productSku    String
-  productSlug   String
-  quantityLabel String?
-  taxIncluded   Boolean  @default(true)
-  unitLabel     String?
-  cart          cart     @relation(fields: [cartId], references: [id], onDelete: Cascade, map: "CartItem_cartId_fkey")
-  product       product? @relation(fields: [productId], references: [id], map: "CartItem_productId_fkey")
-
-  @@index([cartId], map: "CartItem_cartId_idx")
-  @@index([productId], map: "CartItem_productId_idx")
-}
-
-model order {
-  id                     String                 @id
-  code                   String                 @unique(map: "Order_code_key")
-  status                 order_status           @default(pending)
-  shippingMethod         String?
-  shippingFee            Decimal                @default(0.00) @db.Decimal(12, 2)
-  note                   String?
-  createdAt              DateTime               @default(now())
-  updatedAt              DateTime
-  addressId              String?
-  userId                 String?
-  billingCity            String?
-  billingCountry         String                 @default("VN") @db.Char(2)
-  billingLine1           String?
-  billingLine2           String?
-  billingPostalCode      String?
-  billingState           String?
-  currency               String                 @default("VND")
-  customerEmail          String
-  customerFullName       String
-  customerPhone          String
-  customerTaxCode        String?                @db.VarChar(13)
-  discountTotal          Decimal                @default(0.00) @db.Decimal(12, 2)
-  grandTotal             Decimal                @db.Decimal(12, 2)
-  shippingCity           String
-  shippingCountry        String                 @default("VN") @db.Char(2)
-  shippingLine1          String
-  shippingLine2          String?
-  shippingPostalCode     String?
-  shippingState          String?
-  subtotal               Decimal                @db.Decimal(12, 2)
-  taxTotal               Decimal                @default(0.00) @db.Decimal(12, 2)
-  cancelReason           String?
-  cancelRequestReason    String?
-  prevStatusBeforeCancel order_status?
-  cancelRejectReason     String?
-  cancelRejectAt         DateTime?
-  financialtransaction   financialtransaction[]
-  address                address?               @relation(fields: [addressId], references: [id], map: "Order_addressId_fkey")
-  user                   user?                  @relation(fields: [userId], references: [id], map: "Order_userId_fkey")
-  orderitem              orderitem[]
-  orderstatushistory     orderstatushistory[]
-  payment                payment?
-  stocktransaction       stocktransaction[]
-
-  @@index([addressId], map: "Order_addressId_idx")
-  @@index([status, createdAt], map: "Order_status_createdAt_idx")
-  @@index([userId], map: "Order_userId_idx")
-}
-
-model orderstatushistory {
-  id         String        @id @default(cuid())
-  orderId    String
-  fromStatus order_status?
-  toStatus   order_status
-  reason     String?
-  createdAt  DateTime      @default(now())
-  createdBy  String?
-  order      order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  @@index([orderId], map: "OrderStatusHistory_orderId_idx")
-  @@index([createdAt], map: "OrderStatusHistory_createdAt_idx")
-}
-
-model orderitem {
-  id            String   @id
-  orderId       String
-  sku           String
-  name          String
-  quantity      Int      @default(1)
-  image         String?
-  brandName     String?
-  createdAt     DateTime @default(now())
-  currency      String   @default("VND")
-  discount      Decimal  @default(0.00) @db.Decimal(12, 2)
-  lineTotal     Decimal  @db.Decimal(12, 2)
-  productId     String?
-  quantityLabel String?
-  slug          String
-  unitLabel     String?
-  unitPrice     Decimal  @db.Decimal(12, 2)
-  order         order    @relation(fields: [orderId], references: [id], map: "OrderItem_orderId_fkey")
-  product       product? @relation(fields: [productId], references: [id], map: "OrderItem_productId_fkey")
-
-  @@index([orderId], map: "OrderItem_orderId_idx")
-  @@index([productId], map: "OrderItem_productId_idx")
-  @@index([sku], map: "OrderItem_sku_idx")
-}
-
-model payment {
-  id                   String         @id
-  orderId              String         @unique(map: "Payment_orderId_key")
-  method               String
-  amount               Decimal        @db.Decimal(12, 2)
-  confirmedAt          DateTime?
-  customerMarkedPaidAt DateTime?
-  requestedAt          DateTime       @default(now())
-  status               payment_status @default(pending)
-  order                order          @relation(fields: [orderId], references: [id], map: "Payment_orderId_fkey")
-
-  @@index([orderId], map: "Payment_orderId_idx")
-  @@index([status], map: "Payment_status_idx")
-}
-
-model supplier {
-  id            String    @id @default(cuid())
-  name          String
-  slug          String    @unique
-  code          String?   @unique
-  contactPerson String?
-  email         String?
-  phone         String?
-  address       String?
-  taxCode       String?   @db.VarChar(13)
-  paymentTerms  String?   @default("COD")
-  minOrderValue Decimal?  @db.Decimal(12, 2)
-  shippingFee   Decimal?  @db.Decimal(12, 2)
-  rating        Float?    @default(0)
-  totalOrders   Int       @default(0)
-  notes         String?
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  product       product[]
-
-  @@index([name], map: "Supplier_name_idx")
-  @@index([isActive], map: "Supplier_isActive_idx")
-  @@index([rating], map: "Supplier_rating_idx")
 }
 
 model systemsetting {
@@ -252,277 +67,23 @@ model policysection {
   content String @default("")
 }
 
-model product {
-  id                                                    String                @id
-  sku                                                   String                @unique
-  saleCode                                              String?               @unique
-  slug                                                  String                @unique
-  name                                                  String
-  description                                           String?
-  supplierId                                            String?
-  supplierSku                                           String?
-  costPrice                                             Decimal?              @db.Decimal(12, 2)
-  price                                                 Decimal               @db.Decimal(12, 2)
-  listPrice                                             Decimal?              @db.Decimal(12, 2)
-  profitAmount                                          Decimal?              @db.Decimal(12, 2)
-  profitMargin                                          Decimal?              @db.Decimal(5, 2)
-  taxRate                                               Decimal               @default(0.10) @db.Decimal(5, 4)
-  taxIncluded                                           Boolean               @default(true)
-  currency                                              String                @default("VND")
-  requiresQuote                                         Boolean               @default(false)
-  quoteNote                                             String?
-  stockOnHand                                           Int                   @default(0)
-  stockReserved                                         Int                   @default(0)
-  reorderLevel                                          Int?                  @default(10)
-  reorderQty                                            Int?                  @default(50)
-  minOrderQty                                           Int?                  @default(1)
-  stepQty                                               Int?                  @default(1)
-  status                                                product_status        @default(DRAFT)
-  typeId                                                String
-  brandId                                               String?
-  coverImage                                            String?
-  weightGrams                                           Int?
-  lengthMm                                              Int?
-  widthMm                                               Int?
-  heightMm                                              Int?
-  unitId                                                String?
-  quantityValue                                         Decimal?              @db.Decimal(20, 6)
-  quantityUnitId                                        String?
-  quantityLabel                                         String?
-  metaTitle                                             String?
-  metaDescription                                       String?
-  ratingAvg                                             Float                 @default(0)
-  ratingCount                                           Int                   @default(0)
-  purchaseCount                                         Int                   @default(0)
-  viewCount                                             Int                   @default(0)
-  isFeatured                                            Boolean               @default(false)
-  createdAt                                             DateTime              @default(now())
-  updatedAt                                             DateTime              @updatedAt
-  publishAt                                             DateTime?
-  cartitem                                              cartitem[]
-  featuredproduct                                       featuredproduct?
-  orderitem                                             orderitem[]
-  brand                                                 brand?                @relation(fields: [brandId], references: [id], map: "Product_brandId_fkey")
-  unitdefinition_product_quantityUnitIdTounitdefinition unitdefinition?       @relation("product_quantityUnitIdTounitdefinition", fields: [quantityUnitId], references: [id], map: "Product_quantityUnitId_fkey")
-  supplier                                              supplier?             @relation(fields: [supplierId], references: [id], map: "Product_supplierId_fkey")
-  producttype                                           producttype           @relation(fields: [typeId], references: [id], map: "Product_typeId_fkey")
-  unitdefinition_product_unitIdTounitdefinition         unitdefinition?       @relation("product_unitIdTounitdefinition", fields: [unitId], references: [id], map: "Product_unitId_fkey")
-  productcategorylink                                   productcategorylink[]
-  productimage                                          productimage[]
-  productspecvalue                                      productspecvalue[]
-  quoterequest                                          quoterequest[]
-  review                                                review[]
-  stocktransaction                                      stocktransaction[]
-
-  @@index([saleCode], map: "Product_saleCode_idx")
-  @@index([sku], map: "Product_sku_idx")
-  @@index([supplierId], map: "Product_supplierId_idx")
-  @@index([price], map: "Product_price_idx")
-  @@index([costPrice], map: "Product_costPrice_idx")
-  @@index([profitMargin], map: "Product_profitMargin_idx")
-  @@index([requiresQuote], map: "Product_requiresQuote_idx")
-  @@index([status], map: "Product_status_idx")
-  @@index([typeId], map: "Product_typeId_idx")
-  @@index([brandId], map: "Product_brandId_idx")
-  @@index([stockOnHand], map: "Product_stockOnHand_idx")
-  @@index([reorderLevel], map: "Product_reorderLevel_idx")
-  @@index([name], map: "Product_name_idx")
-  @@index([purchaseCount], map: "Product_purchaseCount_idx")
-  @@index([ratingAvg], map: "Product_ratingAvg_idx")
-  @@index([ratingCount], map: "Product_ratingCount_idx")
-  @@index([status, publishAt], map: "Product_status_publishAt_idx")
-  @@index([quantityUnitId], map: "Product_quantityUnitId_idx")
-  @@index([quantityValue], map: "Product_quantityValue_idx")
-}
-
-model productcategory {
-  coverImage          String?
-  createdAt           DateTime              @default(now())
-  description         String?
-  id                  String                @id
-  name                String
-  productCount        Int                   @default(0)
-  slug                String                @unique(map: "ProductCategory_slug_key")
-  updatedAt           DateTime
-  productcategorylink productcategorylink[]
-  producttype         producttype[]
-
-  @@index([name], map: "ProductCategory_name_idx")
-  @@index([productCount], map: "ProductCategory_productCount_idx")
-}
-
-model productcategorylink {
-  productId       String
-  categoryId      String
-  productcategory productcategory @relation(fields: [categoryId], references: [id], onDelete: Cascade, map: "ProductCategoryLink_categoryId_fkey")
-  product         product         @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ProductCategoryLink_productId_fkey")
-
-  @@id([productId, categoryId])
-  @@index([categoryId], map: "ProductCategoryLink_categoryId_idx")
-}
-
-model productimage {
-  id        String   @id
-  productId String
-  url       String
-  alt       String?
-  sortOrder Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-  product   product  @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ProductImage_productId_fkey")
-
-  @@index([productId], map: "ProductImage_productId_idx")
-  @@index([sortOrder], map: "ProductImage_sortOrder_idx")
-}
-
-model productspecdefinition {
-  id               String             @id
-  name             String
-  slug             String             @unique(map: "ProductSpecDefinition_slug_key")
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime
-  productspecvalue productspecvalue[]
-
-  @@index([name], map: "ProductSpecDefinition_name_idx")
-}
-
-model productspecvalue {
-  id                    String                @id
-  productId             String
-  specDefinitionId      String
-  valueString           String?
-  valueNumber           Float?
-  valueBoolean          Boolean?
-  unitOverride          String?
-  note                  String?
-  sortOrder             Int                   @default(0)
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime
-  product               product               @relation(fields: [productId], references: [id], onDelete: Cascade, map: "ProductSpecValue_productId_fkey")
-  productspecdefinition productspecdefinition @relation(fields: [specDefinitionId], references: [id], map: "ProductSpecValue_specDefinitionId_fkey")
-
-  @@unique([productId, specDefinitionId], map: "ProductSpecValue_productId_specDefinitionId_key")
-  @@index([sortOrder], map: "ProductSpecValue_sortOrder_idx")
-  @@index([specDefinitionId], map: "ProductSpecValue_specDefinitionId_idx")
-}
-
-model producttype {
-  id              String          @id
-  slug            String
-  name            String
-  coverImage      String?
-  description     String?
-  categoryId      String
-  productCount    Int             @default(0)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime
-  product         product[]
-  productcategory productcategory @relation(fields: [categoryId], references: [id], map: "ProductType_categoryId_fkey")
-
-  @@unique([categoryId, slug], map: "ProductType_categoryId_slug_key")
-  @@index([categoryId], map: "ProductType_categoryId_idx")
-  @@index([name], map: "ProductType_name_idx")
-  @@index([productCount], map: "ProductType_productCount_idx")
-}
-
-model featuredproduct {
-  id          String    @id @default(cuid())
-  productId   String    @unique
-  title       String?
-  description String?
-  sortOrder   Int       @default(0)
-  isActive    Boolean   @default(true)
-  startDate   DateTime?
-  endDate     DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  product     product   @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@index([isActive, sortOrder], map: "FeaturedProduct_isActive_sortOrder_idx")
-  @@index([startDate, endDate], map: "FeaturedProduct_date_range_idx")
-}
-
-model featuredsolution {
-  id          String   @id @default(cuid())
-  solutionId  String   @unique
-  title       String?
-  description String?
-  sortOrder   Int      @default(0)
-  isActive    Boolean  @default(true)
-  startDate   DateTime?
-  endDate     DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  solution    solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
-
-  @@index([isActive, sortOrder], map: "FeaturedSolution_isActive_sortOrder_idx")
-  @@index([startDate, endDate], map: "FeaturedSolution_date_range_idx")
-}
-
-model featuredsoftware {
-  id          String   @id @default(cuid())
-  softwareId  String   @unique
-  title       String?
-  description String?
-  sortOrder   Int      @default(0)
-  isActive    Boolean  @default(true)
-  startDate   DateTime?
-  endDate     DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  software    software @relation(fields: [softwareId], references: [id], onDelete: Cascade)
-
-  @@index([isActive, sortOrder], map: "FeaturedSoftware_isActive_sortOrder_idx")
-  @@index([startDate, endDate], map: "FeaturedSoftware_date_range_idx")
-}
-
-model review {
-  id          String        @id
-  productId   String
-  userId      String?
-  rating      Int
-  feedback    String?
-  description String?
-  reply       String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime
-  product     product       @relation(fields: [productId], references: [id], onDelete: Cascade, map: "Review_productId_fkey")
-  user        user?         @relation(fields: [userId], references: [id], map: "Review_userId_fkey")
-  reviewimage reviewimage[]
-
-  @@index([productId], map: "Review_productId_idx")
-  @@index([userId], map: "Review_userId_idx")
-}
-
-model reviewimage {
-  id        String   @id
-  reviewId  String
-  url       String
-  alt       String?
-  sortOrder Int      @default(0)
-  createdAt DateTime @default(now())
-  review    review   @relation(fields: [reviewId], references: [id], onDelete: Cascade, map: "ReviewImage_reviewId_fkey")
-
-  @@index([reviewId], map: "ReviewImage_reviewId_idx")
-}
-
 model software {
-  id               String           @id
+  id               String            @id
   title            String
-  slug             String           @unique(map: "Software_slug_key")
+  slug             String            @unique(map: "Software_slug_key")
   summary          String?
   coverImage       String?
   bodyHtml         String
-  status           software_status  @default(DRAFT)
+  status           software_status   @default(DRAFT)
   publishedAt      DateTime?
   metaTitle        String?
   metaDescription  String?
   canonicalUrl     String?
   categoryId       String
-  isFeatured       Boolean          @default(false)
-  createdAt        DateTime         @default(now())
+  isFeatured       Boolean           @default(false)
+  createdAt        DateTime          @default(now())
   updatedAt        DateTime
-  softwarecategory softwarecategory @relation(fields: [categoryId], references: [id], map: "Software_categoryId_fkey")
+  softwarecategory softwarecategory  @relation(fields: [categoryId], references: [id], map: "Software_categoryId_fkey")
   featuredsoftware featuredsoftware?
 
   @@index([categoryId, status], map: "Software_categoryId_status_idx")
@@ -549,24 +110,24 @@ model softwarecategory {
 }
 
 model solution {
-  id               String           @id
+  id               String            @id
   title            String
-  slug             String           @unique(map: "Solution_slug_key")
+  slug             String            @unique(map: "Solution_slug_key")
   summary          String?
   coverImage       String?
   bodyHtml         String
   industry         String?
   usecase          String?
-  status           solution_status  @default(DRAFT)
+  status           solution_status   @default(DRAFT)
   publishedAt      DateTime?
   metaTitle        String?
   metaDescription  String?
   canonicalUrl     String?
   categoryId       String
-  isFeatured       Boolean          @default(false)
-  createdAt        DateTime         @default(now())
+  isFeatured       Boolean           @default(false)
+  createdAt        DateTime          @default(now())
   updatedAt        DateTime
-  solutioncategory solutioncategory @relation(fields: [categoryId], references: [id], map: "Solution_categoryId_fkey")
+  solutioncategory solutioncategory  @relation(fields: [categoryId], references: [id], map: "Solution_categoryId_fkey")
   solutionimage    solutionimage[]
   featuredsolution featuredsolution?
 
@@ -606,17 +167,38 @@ model solutionimage {
   @@index([solutionId, sortOrder], map: "SolutionImage_solutionId_sortOrder_idx")
 }
 
-model unitdefinition {
-  id                                             String    @id
-  name                                           String    @unique(map: "UnitDefinition_name_key")
-  symbol                                         String?
-  dimension                                      String?
-  baseName                                       String?
-  factorToBase                                   Decimal?  @db.Decimal(20, 8)
-  createdAt                                      DateTime  @default(now())
-  updatedAt                                      DateTime
-  product_product_quantityUnitIdTounitdefinition product[] @relation("product_quantityUnitIdTounitdefinition")
-  product_product_unitIdTounitdefinition         product[] @relation("product_unitIdTounitdefinition")
+model featuredsolution {
+  id          String    @id @default(cuid())
+  solutionId  String    @unique
+  title       String?
+  description String?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  solution    solution  @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+
+  @@index([isActive, sortOrder], map: "FeaturedSolution_isActive_sortOrder_idx")
+  @@index([startDate, endDate], map: "FeaturedSolution_date_range_idx")
+}
+
+model featuredsoftware {
+  id          String    @id @default(cuid())
+  softwareId  String    @unique
+  title       String?
+  description String?
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  software    software  @relation(fields: [softwareId], references: [id], onDelete: Cascade)
+
+  @@index([isActive, sortOrder], map: "FeaturedSoftware_isActive_sortOrder_idx")
+  @@index([startDate, endDate], map: "FeaturedSoftware_date_range_idx")
 }
 
 model user {
@@ -635,8 +217,6 @@ model user {
   role                                    user_role @default(USER)
   avatarUrl                               String?   @default("/logo.png")
   isBlocked                               Boolean   @default(false)
-  order                                   order[]
-  review                                  review[]
   address_user_billingAddressIdToaddress  address?  @relation("user_billingAddressIdToaddress", fields: [billingAddressId], references: [id], map: "User_billingAddressId_fkey")
   address_user_shippingAddressIdToaddress address   @relation("user_shippingAddressIdToaddress", fields: [shippingAddressId], references: [id], map: "User_shippingAddressId_fkey")
 }
@@ -704,7 +284,6 @@ model quoterequest {
   email         String?
   company       String?
   taxCode       String?          @db.VarChar(13)
-  productId     String?
   productName   String?
   quantity      Int              @default(1)
   message       String?
@@ -723,120 +302,18 @@ model quoterequest {
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   expiresAt     DateTime?
-  product       product?         @relation(fields: [productId], references: [id], map: "QuoteRequest_productId_fkey")
 
   @@index([code], map: "QuoteRequest_code_idx")
   @@index([status], map: "QuoteRequest_status_idx")
   @@index([priority], map: "QuoteRequest_priority_idx")
-  @@index([productId], map: "QuoteRequest_productId_idx")
   @@index([createdAt], map: "QuoteRequest_createdAt_idx")
   @@index([assignedTo], map: "QuoteRequest_assignedTo_idx")
-}
-
-model stocktransaction {
-  id             String                 @id @default(cuid())
-  productId      String
-  type           stock_transaction_type
-  quantity       Int
-  quantityBefore Int
-  quantityAfter  Int
-  orderId        String?
-  orderCode      String?
-  userId         String?
-  reason         String?
-  notes          String?
-  createdAt      DateTime               @default(now())
-  createdBy      String?
-  order          order?                 @relation(fields: [orderId], references: [id])
-  product        product                @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@index([productId, createdAt], map: "StockTransaction_product_date_idx")
-  @@index([orderId], map: "StockTransaction_orderId_idx")
-  @@index([type], map: "StockTransaction_type_idx")
-  @@index([createdAt], map: "StockTransaction_createdAt_idx")
-}
-
-model financialtransaction {
-  id           String                     @id @default(cuid())
-  code         String                     @unique
-  type         financial_transaction_type
-  category     String
-  amount       Decimal                    @db.Decimal(12, 2)
-  costAmount   Decimal                    @default(0) @db.Decimal(12, 2)
-  profitAmount Decimal                    @default(0) @db.Decimal(12, 2)
-  orderId      String?
-  orderCode    String?
-  paymentId    String?
-  userId       String?
-  description  String
-  notes        String?
-  status       String                     @default("completed")
-  createdAt    DateTime                   @default(now())
-  createdBy    String?
-  order        order?                     @relation(fields: [orderId], references: [id])
-
-  @@index([code], map: "FinancialTransaction_code_idx")
-  @@index([type], map: "FinancialTransaction_type_idx")
-  @@index([category], map: "FinancialTransaction_category_idx")
-  @@index([orderId], map: "FinancialTransaction_orderId_idx")
-  @@index([createdAt], map: "FinancialTransaction_createdAt_idx")
-  @@index([status], map: "FinancialTransaction_status_idx")
-}
-
-model dailysummary {
-  id                 String   @id @default(cuid())
-  date               DateTime @unique @db.Date
-  totalRevenue       Decimal  @default(0) @db.Decimal(12, 2)
-  totalCost          Decimal  @default(0) @db.Decimal(12, 2)
-  totalProfit        Decimal  @default(0) @db.Decimal(12, 2)
-  orderCount         Int      @default(0)
-  orderCompleted     Int      @default(0)
-  orderCancelled     Int      @default(0)
-  productsSold       Int      @default(0)
-  uniqueProducts     Int      @default(0)
-  newCustomers       Int      @default(0)
-  returningCustomers Int      @default(0)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  @@index([date], map: "DailySummary_date_idx")
-}
-
-enum cart_status {
-  ACTIVE
-  CHECKOUT
-  COMPLETED
-  ABANDONED
-}
-
-enum order_status {
-  pending
-  paid
-  processing
-  shipped
-  delivered
-  cancelled
-  cancel_requested
-}
-
-enum product_status {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-  OUT_OF_STOCK
 }
 
 enum software_status {
   DRAFT
   PUBLISHED
   ARCHIVED
-}
-
-enum payment_status {
-  pending
-  awaiting_confirmation
-  confirmed
-  failed
 }
 
 enum solution_status {
@@ -873,21 +350,4 @@ enum quote_status {
   rejected
   expired
   converted
-}
-
-enum stock_transaction_type {
-  ORDER_SHIPPED
-  ORDER_DELIVERED
-  ORDER_CANCELLED
-  MANUAL_ADJUSTMENT
-  RESTOCK
-  DAMAGED
-  RETURNED
-}
-
-enum financial_transaction_type {
-  INCOME
-  EXPENSE
-  REFUND
-  ADJUSTMENT
 }

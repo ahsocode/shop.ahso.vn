@@ -1,32 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { Edit, Loader2, Mail, MapPin, Phone, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Edit,
-  Package,
-  Heart,
-  ShoppingBag,
-  Loader2,
-} from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/lib/hooks/useAuth";
 
-/* ================== Types ================== */
-
 type Address = {
-  id: string;
   line1: string;
   line2: string | null;
   city: string;
@@ -36,108 +17,36 @@ type Address = {
 };
 
 type Profile = {
-  id: string;
   username: string | null;
   fullName: string | null;
   email: string;
   phoneE164: string | null;
-  taxCode: string | null;
-  emailVerified: boolean;
-  role: string;
   avatarUrl: string | null;
-  createdAt: string;
-  updatedAt: string;
   shippingAddress: Address | null;
   billingAddress: Address | null;
 };
 
-type OrderStatus =
-  | "pending"
-  | "paid"
-  | "processing"
-  | "shipped"
-  | "delivered"
-  | "cancelled";
-
-type RecentOrder = {
-  id: string;
-  code: string;
-  createdAt: string;
-  customerName: string;
-  total: number;
-  status: OrderStatus;
-};
-type RecentOrderResponse = { data: RecentOrder[]; meta?: { total?: number } };
-
-/* ================== Helpers ================== */
-
 function formatPhoneHuman(e164?: string | null) {
-  if (!e164) return "—";
+  if (!e164) return "-";
   const m = e164.match(/^\+?(\d{2})(\d{2})(\d{3})(\d{4})$/);
   if (m) return `+${m[1]} ${m[2]} ${m[3]} ${m[4]}`;
   return e164;
 }
 
-function addressToLine(a?: Address | null) {
-  if (!a) return "—";
-  const parts = [
-    a.line1,
-    a.line2 || undefined,
-    a.city,
-    a.state || undefined,
-    a.postalCode || undefined,
-    a.country,
-  ].filter(Boolean);
-  return parts.join(", ");
+function addressToLine(address?: Address | null) {
+  if (!address) return "-";
+  return [address.line1, address.line2, address.city, address.state, address.postalCode, address.country]
+    .filter(Boolean)
+    .join(", ");
 }
-
-const STATUS_LABEL: Record<OrderStatus, string> = {
-  pending: "Chờ thanh toán",
-  paid: "Đã thanh toán",
-  processing: "Đang xử lý",
-  shipped: "Đã gửi hàng",
-  delivered: "Đã giao",
-  cancelled: "Đã hủy",
-};
-
-const STATUS_CLASS: Record<OrderStatus, string> = {
-  pending: "bg-yellow-50 text-yellow-700 ring-yellow-200",
-  paid: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-  processing: "bg-blue-50 text-blue-700 ring-blue-200",
-  shipped: "bg-indigo-50 text-indigo-700 ring-indigo-200",
-  delivered: "bg-green-50 text-green-700 ring-green-200",
-  cancelled: "bg-rose-50 text-rose-700 ring-rose-200",
-};
-
-/* ================== Component ================== */
 
 export default function ProfilePage() {
   const { user: authUser, loading: authLoading, logout, verified } = useAuth(true);
-
   const [profileLoading, setProfileLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
-  const [ordersLoading, setOrdersLoading] = useState(true);
-  const [totalOrders, setTotalOrders] = useState<number>(0);
-
-  const stats = useMemo(
-    () => [
-      {
-        label: "Đơn hàng",
-        value: ordersLoading ? "…" : String(totalOrders),
-        icon: Package,
-      },
-      { label: "Yêu thích", value: "—", icon: Heart },
-      { label: "Giỏ hàng", value: "—", icon: ShoppingBag },
-    ],
-    [ordersLoading, totalOrders],
-  );
-
-  /* ========== Load profile ========== */
   useEffect(() => {
-    // Chỉ load profile khi auth đã verify xong VÀ có user
     if (!verified || authLoading) return;
     if (!authUser) {
       setProfileLoading(false);
@@ -153,7 +62,6 @@ export default function ProfilePage() {
       try {
         const token = localStorage.getItem("token");
         const res = await fetch("/api/profile", {
-          method: "GET",
           headers: {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -161,99 +69,28 @@ export default function ProfilePage() {
           cache: "no-store",
         });
 
-        if (!res.ok) {
-          throw new Error("Failed to load profile");
-        }
-
+        if (!res.ok) throw new Error("Failed to load profile");
         const data = await res.json();
-
-        if ("profile" in data && isMounted) {
-          setProfile(data.profile);
-        }
-      } catch (error) {
-        if (isMounted) {
-          console.error("Profile load error:", error);
-          const message = error instanceof Error ? error.message : "ERROR";
-          setError(message);
-        }
+        if (isMounted && "profile" in data) setProfile(data.profile);
+      } catch (loadError) {
+        console.error("Profile load error:", loadError);
+        if (isMounted) setError("Không tải được hồ sơ.");
       } finally {
-        if (isMounted) {
-          setProfileLoading(false);
-        }
+        if (isMounted) setProfileLoading(false);
       }
     }
 
-    loadProfile();
+    void loadProfile();
     return () => {
       isMounted = false;
     };
-  }, [authUser, authLoading, verified]);
-
-  /* ========== Load recent orders ========== */
-  useEffect(() => {
-    if (!verified || authLoading) return;
-    if (!authUser) {
-      setOrdersLoading(false);
-      return;
-    }
-
-    let isMounted = true;
-
-    async function loadRecentOrders() {
-      setOrdersLoading(true);
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch("/api/orders/recent?limit=3", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          cache: "no-store",
-          credentials: "include",
-        });
-
-        if (!res.ok) {
-          throw new Error("Failed to load recent orders");
-        }
-
-        const json = (await res.json()) as RecentOrderResponse | RecentOrder[];
-
-        if (!isMounted) return;
-
-        if (Array.isArray(json)) {
-          setRecentOrders(json);
-          setTotalOrders(json.length);
-        } else {
-          setRecentOrders(json.data || []);
-          setTotalOrders(json.meta?.total ?? json.data?.length ?? 0);
-        }
-      } catch (e) {
-        if (isMounted) {
-          console.error("Recent orders load error:", e);
-          setRecentOrders([]);
-          setTotalOrders(0);
-        }
-      } finally {
-        if (isMounted) {
-          setOrdersLoading(false);
-        }
-      }
-    }
-
-    loadRecentOrders();
-    return () => {
-      isMounted = false;
-    };
-  }, [authUser, authLoading, verified]);
-
-  /* ========== Auth loading UI ========== */
+  }, [authLoading, authUser, verified]);
 
   if (authLoading || !verified) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-blue-600" />
           <p className="text-gray-600">Đang kiểm tra đăng nhập...</p>
         </div>
       </div>
@@ -262,9 +99,9 @@ export default function ProfilePage() {
 
   if (!authUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 mb-4">Vui lòng đăng nhập</p>
+          <p className="mb-4 text-gray-600">Vui lòng đăng nhập</p>
           <Link href="/login">
             <Button>Đăng nhập</Button>
           </Link>
@@ -273,266 +110,97 @@ export default function ProfilePage() {
     );
   }
 
-  const displayName =
-    profile?.fullName || profile?.username || authUser.fullName || "Người dùng";
-
-  /* ========== Render ========== */
+  const displayName = profile?.fullName || profile?.username || authUser.fullName || "Người dùng";
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-linear-to-r from-blue-600 to-blue-800 text-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            {/* Avatar */}
-            <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-4 border-white/30 overflow-hidden">
+      <section className="border-b border-gray-200 bg-white">
+        <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center">
+            <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-blue-50 text-2xl font-bold text-blue-700">
               {profileLoading ? (
-                <Loader2 className="h-10 w-10 animate-spin" />
+                <Loader2 className="h-8 w-8 animate-spin" />
               ) : authUser.avatarUrl && authUser.avatarUrl !== "/logo.png" ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={authUser.avatarUrl}
-                  alt="avatar"
-                  className="w-full h-full object-cover"
-                />
+                <img src={authUser.avatarUrl} alt="avatar" className="h-full w-full object-cover" />
               ) : (
-                <span className="text-2xl font-bold">
-                  {displayName?.charAt(0)?.toUpperCase()}
-                </span>
+                displayName.charAt(0).toUpperCase()
               )}
             </div>
 
-            <div className="text-center md:text-left flex-1">
-              <h1 className="text-3xl font-bold mb-2">
-                {profileLoading ? "Đang tải..." : displayName}
-              </h1>
-
-              <p className="text-blue-100 mb-4">{authUser.email}</p>
-
-              <Link href="/profile/edit">
-                <Button
-                  variant="outline"
-                  className="border-black text-blue-600 hover:bg-white/10 hover:text-white hover:stroke-zinc-500"
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Chỉnh sửa hồ sơ
-                </Button>
-              </Link>
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-gray-950">{profileLoading ? "Đang tải..." : displayName}</h1>
+              <p className="mt-2 text-sm text-gray-600">{authUser.email}</p>
             </div>
+
+            <Link href="/profile/edit">
+              <Button variant="outline">
+                <Edit className="h-4 w-4" />
+                Chỉnh sửa hồ sơ
+              </Button>
+            </Link>
           </div>
         </div>
+      </section>
+
+      <div className="mx-auto grid max-w-5xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Thông tin cá nhân</CardTitle>
+            <CardDescription>Thông tin tài khoản dùng cho liên hệ và xử lý yêu cầu.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {error ? <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div> : null}
+            <InfoRow icon={User} label="Họ và tên" value={profileLoading ? "-" : displayName} />
+            <InfoRow icon={Mail} label="Email" value={profileLoading ? "-" : profile?.email ?? authUser.email ?? "-"} />
+            <InfoRow icon={Phone} label="Số điện thoại" value={profileLoading ? "-" : formatPhoneHuman(profile?.phoneE164)} />
+            <InfoRow icon={MapPin} label="Địa chỉ liên hệ" value={profileLoading ? "-" : addressToLine(profile?.shippingAddress)} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Hành động nhanh</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Link href="/contact" className="block">
+              <Button className="w-full">Gửi yêu cầu liên hệ</Button>
+            </Link>
+            <Link href="/solutions" className="block">
+              <Button className="w-full" variant="outline">Xem giải pháp</Button>
+            </Link>
+            <Link href="/software" className="block">
+              <Button className="w-full" variant="outline">Xem phần mềm</Button>
+            </Link>
+            <Button
+              className="w-full border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+              onClick={logout}
+              variant="outline"
+            >
+              Đăng xuất
+            </Button>
+          </CardContent>
+        </Card>
       </div>
+    </div>
+  );
+}
 
-      {/* Body */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Error bar */}
-        {error && (
-          <div className="mb-6 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-red-800">
-            Không tải được hồ sơ: {error}
-          </div>
-        )}
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 -mt-8 mb-8">
-          {stats.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={stat.label} className="shadow-lg">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Icon className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {stat.value}
-                    </p>
-                    <p className="text-sm text-gray-600">{stat.label}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Information */}
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle>Thông tin cá nhân</CardTitle>
-                <CardDescription>
-                  Thông tin chi tiết về tài khoản của bạn
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <User className="h-5 w-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-gray-500">Họ và tên</p>
-                    <p className="font-medium">
-                      {profileLoading ? "—" : displayName}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Mail className="h-5 w-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-gray-500">Email</p>
-                    <p className="font-medium">
-                      {profileLoading
-                        ? "—"
-                        : profile?.email ?? authUser.email ?? "—"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Phone className="h-5 w-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-gray-500">Số điện thoại</p>
-                    <p className="font-medium">
-                      {profileLoading
-                        ? "—"
-                        : formatPhoneHuman(profile?.phoneE164)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-gray-500">Địa chỉ giao hàng</p>
-                    <p className="font-medium text-sm">
-                      {profileLoading
-                        ? "—"
-                        : addressToLine(profile?.shippingAddress)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-gray-500">Địa chỉ nhận hóa đơn</p>
-                    <p className="font-medium text-sm">
-                      {profileLoading
-                        ? "—"
-                        : addressToLine(profile?.billingAddress)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    className="w-full border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
-                    onClick={logout}
-                  >
-                    Đăng xuất
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Recent Orders + Quick Actions */}
-          <div className="lg:col-span-2">
-            {/* Recent Orders */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Đơn hàng gần đây</CardTitle>
-                <CardDescription>
-                  Theo dõi trạng thái đơn hàng của bạn
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {ordersLoading ? (
-                  <div className="flex items-center justify-center py-8 text-sm text-gray-500">
-                    Đang tải đơn hàng...
-                  </div>
-                ) : recentOrders.length === 0 ? (
-                  <div className="flex items-center justify-center py-8 text-sm text-gray-500">
-                    Bạn chưa có đơn hàng đang xử lý.
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {recentOrders.map((o) => (
-                      <div
-                        key={o.id}
-                        className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-3"
-                      >
-                        <div>
-                          <Link
-                            href={`/order/${o.id}`}
-                            className="font-medium text-gray-900 hover:text-blue-600"
-                          >
-                            {o.code}
-                          </Link>
-                          <div className="text-xs text-gray-500">
-                            {new Date(o.createdAt).toLocaleString("vi-VN")}
-                          </div>
-                        </div>
-                        <div className="text-right space-y-1">
-                          <div className="text-sm font-semibold">
-                            {Number(o.total || 0).toLocaleString("vi-VN")} ₫
-                          </div>
-                          <span
-                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ${
-                              STATUS_CLASS[o.status]
-                            }`}
-                          >
-                            {STATUS_LABEL[o.status]}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <Link href="/order">
-                  <Button variant="outline" className="w-full mt-4">
-                    Xem tất cả đơn hàng
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card className="mt-8">
-              <CardHeader>
-                <CardTitle>Hành động nhanh</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <Link href="/wishlist">
-                    <Button
-                      variant="outline"
-                      className="h-20 w-full flex-col"
-                    >
-                      <Heart className="h-6 w-6 mb-2" />
-                      Danh sách yêu thích
-                    </Button>
-                  </Link>
-
-                  <Link href="/cart">
-                    <Button
-                      variant="outline"
-                      className="h-20 w-full flex-col"
-                    >
-                      <ShoppingBag className="h-6 w-6 mb-2" />
-                      Giỏ hàng
-                    </Button>
-                  </Link>
-
-                  <Link href="/shop" className="col-span-2">
-                    <Button className="w-full h-12">Tiếp tục mua sắm</Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+function InfoRow({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <Icon className="mt-0.5 h-5 w-5 text-gray-400" />
+      <div>
+        <p className="text-sm text-gray-500">{label}</p>
+        <p className="font-medium text-gray-900">{value}</p>
       </div>
     </div>
   );

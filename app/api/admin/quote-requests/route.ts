@@ -46,7 +46,6 @@ export async function GET(req: NextRequest) {
     const statusParam = getQueryParam(req, "status").toLowerCase();
     const priorityParam = getQueryParam(req, "priority").toLowerCase();
     const assignedTo = getQueryParam(req, "assignedTo");
-    const productId = getQueryParam(req, "productId");
     const dateFrom = parseDate(url.searchParams.get("dateFrom"));
     const dateTo = parseDate(url.searchParams.get("dateTo"));
     const overdue = getQueryParam(req, "overdue").toLowerCase() === "true";
@@ -70,7 +69,6 @@ export async function GET(req: NextRequest) {
         ? { priority: priorityParam as contact_priority }
         : {}),
       ...(assignedTo && { assignedTo }),
-      ...(productId && { productId }),
       ...((dateFrom || dateTo) && {
         createdAt: {
           ...(dateFrom ? { gte: dateFrom } : {}),
@@ -138,7 +136,6 @@ export async function POST(req: NextRequest) {
         email: payload.email ?? null,
         company: payload.company ?? null,
         taxCode: payload.taxCode ?? null,
-        productId: payload.productId ?? null,
         productName: payload.productName ?? null,
         quantity: payload.quantity ?? 1,
         message: payload.message ?? null,

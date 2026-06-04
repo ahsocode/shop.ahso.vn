@@ -24,8 +24,8 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
         description="Trang bạn truy cập không tồn tại hoặc đã được chuyển sang nơi khác."
         primaryHref="/"
         primaryLabel="Về trang chủ"
-        secondaryHref="/shop/products"
-        secondaryLabel="Xem sản phẩm"
+        secondaryHref="/contact"
+        secondaryLabel="Liên hệ AHSO"
       />
     )
   }

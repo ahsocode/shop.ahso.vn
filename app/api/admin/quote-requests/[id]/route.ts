@@ -58,11 +58,6 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     if (hasOwn(updates, "email")) data.email = updates.email ?? null;
     if (hasOwn(updates, "company")) data.company = updates.company ?? null;
     if (hasOwn(updates, "taxCode")) data.taxCode = updates.taxCode ?? null;
-    if (hasOwn(updates, "productId")) {
-      data.product = updates.productId
-        ? { connect: { id: updates.productId } }
-        : { disconnect: true };
-    }
     if (hasOwn(updates, "productName")) data.productName = updates.productName ?? null;
     if (hasOwn(updates, "quantity")) data.quantity = updates.quantity ?? existing.quantity;
     if (hasOwn(updates, "message")) data.message = updates.message ?? null;

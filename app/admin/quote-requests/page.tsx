@@ -50,7 +50,7 @@ const STATUS_OPTIONS = [
   { value: "accepted", label: "Khách chấp nhận" },
   { value: "rejected", label: "Từ chối" },
   { value: "expired", label: "Hết hạn" },
-  { value: "converted", label: "Đã chuyển đơn" },
+  { value: "converted", label: "Đã hoàn tất" },
 ] as const;
 
 const PRIORITY_OPTIONS = [
@@ -277,7 +277,7 @@ export default function QuoteRequestsPage() {
         <input
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          placeholder="Tìm theo mã, tên khách, sản phẩm..."
+          placeholder="Tìm theo mã, tên khách, nội dung..."
           className="border rounded px-3 py-2 min-w-[240px]"
         />
         <button onClick={applySearch} className="px-3 py-2 rounded bg-blue-600 text-white">
@@ -365,7 +365,7 @@ export default function QuoteRequestsPage() {
                 </th>
                 <th className="px-3 py-2">Mã</th>
                 <th className="px-3 py-2">Khách hàng</th>
-                <th className="px-3 py-2">Sản phẩm</th>
+                <th className="px-3 py-2">Nội dung</th>
                 <th className="px-3 py-2">Số lượng</th>
                 <th className="px-3 py-2">Ưu tiên</th>
                 <th className="px-3 py-2">Trạng thái</th>
@@ -483,7 +483,7 @@ export default function QuoteRequestsPage() {
               <div>{selected.phone}</div>
             </div>
             <div>
-              <div className="text-gray-500">Sản phẩm</div>
+              <div className="text-gray-500">Nội dung cần báo giá</div>
               <div>{selected.productName || "—"}</div>
             </div>
             <div>

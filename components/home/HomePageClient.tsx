@@ -6,7 +6,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   BadgeCheck,
-  Building2,
   Factory,
   Laptop,
   Phone,
@@ -89,7 +88,6 @@ type HomeFeedResponse = {
   };
 };
 
-const SHOP_URL = "https://shop.ahso.vn";
 const FALLBACK_IMAGE = "/logo.png";
 const DEFAULT_OVERLAY = "rgba(15, 23, 42, 0.28)";
 
@@ -780,11 +778,11 @@ export default function HomePageClient() {
                 Liên hệ tư vấn
               </Link>
               <Link
-                href={SHOP_URL}
+                href="/solutions"
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-950 transition hover:border-slate-400 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
               >
-                <Building2 className="h-4 w-4" />
-                Sang trang sản phẩm
+                <ArrowRight className="h-4 w-4" />
+                Xem giải pháp
               </Link>
             </div>
           </div>
