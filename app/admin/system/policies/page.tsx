@@ -1,155 +1,305 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Loader2, Save, FileText } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { FileText, Loader2, Plus, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import PolicyHtmlEditor from "@/components/admin/policies/PolicyHtmlEditor";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { makeHeaders } from "@/app/admin/_lib/fetcher";
+import { confirmToast } from "@/lib/confirm-toast";
 
 type PolicySection = {
   id: string;
-  slug: string;
-  title: string;
-  description?: string | null;
-  allowedText?: string | null;
-  deniedText?: string | null;
-  content?: string | null;
+  name: string;
+  content: string;
 };
 
-const fetchJSON = async <T,>(url: string): Promise<T> => {
+type PolicyFormValue = {
+  id?: string;
+  name: string;
+  content: string;
+};
+
+const EMPTY_FORM: PolicyFormValue = {
+  name: "",
+  content: "",
+};
+
+async function fetchJSON<T>(url: string): Promise<T> {
   const res = await fetch(url, { headers: makeHeaders() });
   if (!res.ok) throw new Error(await res.text());
   return (await res.json()) as T;
-};
+}
+
+function normalizeFormValue(formValue: PolicyFormValue) {
+  return {
+    name: formValue.name.trim(),
+    content: formValue.content.trim(),
+  };
+}
 
 export default function PoliciesPage() {
   const [pageLoading, setPageLoading] = useState(true);
-  const [policySections, setPolicySections] = useState<PolicySection[]>([]);
-  const [loadingMap, setLoadingMap] = useState<Record<string, boolean>>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [policies, setPolicies] = useState<PolicySection[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [formValue, setFormValue] = useState<PolicyFormValue>(EMPTY_FORM);
+
+  const selectedPolicy = useMemo(
+    () => policies.find((policy) => policy.id === selectedId) ?? null,
+    [policies, selectedId],
+  );
+
+  const isEditMode = Boolean(formValue.id);
 
   useEffect(() => {
     let ignore = false;
-    const load = async () => {
+
+    async function loadPolicies() {
       try {
         const policyData = await fetchJSON<{ data: PolicySection[] }>("/api/admin/policies");
         if (ignore) return;
-        setPolicySections(policyData.data);
+        setPolicies(policyData.data);
+        const firstPolicy = policyData.data[0];
+        if (firstPolicy) {
+          setSelectedId(firstPolicy.id);
+          setFormValue({
+            id: firstPolicy.id,
+            name: firstPolicy.name,
+            content: firstPolicy.content ?? "",
+          });
+        }
       } catch (error) {
         console.error("Failed to load policies", error);
         toast.error("Không tải được dữ liệu chính sách.");
       } finally {
         if (!ignore) setPageLoading(false);
       }
-    };
-    load();
+    }
+
+    void loadPolicies();
+
     return () => {
       ignore = true;
     };
   }, []);
 
-  const updateLoadingMap = (key: string, value: boolean) =>
-    setLoadingMap((prev) => ({ ...prev, [key]: value }));
+  function selectPolicy(policy: PolicySection) {
+    setSelectedId(policy.id);
+    setFormValue({
+      id: policy.id,
+      name: policy.name,
+      content: policy.content ?? "",
+    });
+  }
 
-  const updateLocalPolicy = (slug: string, changes: Partial<PolicySection>) => {
-    setPolicySections((prev) =>
-      prev.map((section) => (section.slug === slug ? { ...section, ...changes } : section)),
-    );
-  };
+  function startCreatePolicy() {
+    setSelectedId(null);
+    setFormValue(EMPTY_FORM);
+    toast.info("Đang tạo chính sách mới.");
+  }
 
-  async function handleSavePolicy(slug: string) {
-    const policy = policySections.find((section) => section.slug === slug);
-    if (!policy) return;
+  async function handleSavePolicy() {
+    const payload = normalizeFormValue(formValue);
 
-    updateLoadingMap(`policy-${slug}`, true);
+    if (!payload.name) {
+      toast.warning("Vui lòng nhập tên chính sách.");
+      return;
+    }
+
+    setIsSaving(true);
+    const toastId = toast.loading(isEditMode ? "Đang lưu chính sách..." : "Đang tạo chính sách...");
+
     try {
-      const res = await fetch(`/api/admin/policies/${slug}`, {
-        method: "PUT",
+      const res = await fetch(isEditMode ? `/api/admin/policies/${formValue.id}` : "/api/admin/policies", {
+        method: isEditMode ? "PUT" : "POST",
         headers: makeHeaders({ "Content-Type": "application/json" }),
-        body: JSON.stringify({
-          description: policy.description,
-          allowedText: policy.allowedText,
-          deniedText: policy.deniedText,
-          content: policy.content,
-        }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error(await res.text());
-      toast.success(`Đã lưu ${policy.title}.`);
+      const json = (await res.json()) as { data: PolicySection };
+      const savedPolicy = json.data;
+
+      setPolicies((current) => {
+        if (isEditMode) {
+          return current.map((policy) => (policy.id === savedPolicy.id ? savedPolicy : policy));
+        }
+        return [...current, savedPolicy].sort((a, b) => a.name.localeCompare(b.name, "vi"));
+      });
+      setSelectedId(savedPolicy.id);
+      setFormValue({
+        id: savedPolicy.id,
+        name: savedPolicy.name,
+        content: savedPolicy.content ?? "",
+      });
+      toast.success(isEditMode ? "Đã cập nhật chính sách." : "Đã tạo chính sách.", { id: toastId });
     } catch (error) {
       console.error("Failed to save policy", error);
-      toast.error("Không thể cập nhật chính sách.");
+      toast.error("Không thể lưu chính sách.", { id: toastId });
     } finally {
-      updateLoadingMap(`policy-${slug}`, false);
+      setIsSaving(false);
+    }
+  }
+
+  async function handleDeletePolicy() {
+    if (!formValue.id) {
+      toast.warning("Vui lòng chọn chính sách cần xóa.");
+      return;
+    }
+
+    const policyName = formValue.name.trim() || "chính sách này";
+    const confirmed = await confirmToast(`Xóa ${policyName}?`, {
+      description: "Nội dung chính sách sẽ bị xóa khỏi trang hiển thị. Hành động này không thể hoàn tác.",
+      confirmText: "Xóa chính sách",
+      cancelText: "Hủy",
+      variant: "modal",
+    });
+
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    const toastId = toast.loading("Đang xóa chính sách...");
+
+    try {
+      const res = await fetch(`/api/admin/policies/${formValue.id}`, {
+        method: "DELETE",
+        headers: makeHeaders(),
+      });
+      if (!res.ok) throw new Error(await res.text());
+
+      setPolicies((current) => {
+        const nextPolicies = current.filter((policy) => policy.id !== formValue.id);
+        const nextSelected = nextPolicies[0] ?? null;
+        setSelectedId(nextSelected?.id ?? null);
+        setFormValue(
+          nextSelected
+            ? {
+                id: nextSelected.id,
+                name: nextSelected.name,
+                content: nextSelected.content ?? "",
+              }
+            : EMPTY_FORM,
+        );
+        return nextPolicies;
+      });
+      toast.success("Đã xóa chính sách.", { id: toastId });
+    } catch (error) {
+      console.error("Failed to delete policy", error);
+      toast.error("Không thể xóa chính sách.", { id: toastId });
+    } finally {
+      setIsDeleting(false);
     }
   }
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold text-gray-900">Chính sách</h1>
-        <p className="text-gray-600">Quản lý nội dung hiển thị trên trang Chính sách.</p>
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Chính sách</h1>
+          <p className="mt-1 text-sm text-gray-600">
+            Quản lý tên và nội dung HTML hiển thị trên trang chính sách.
+          </p>
+        </div>
+        <Button type="button" onClick={startCreatePolicy}>
+          <Plus className="h-4 w-4" />
+          Tạo chính sách
+        </Button>
       </header>
 
       {pageLoading ? (
-        <div className="flex items-center gap-2 text-gray-500">
-          <Loader2 className="h-4 w-4 animate-spin" /> Đang tải dữ liệu...
+        <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
+          <div className="h-64 animate-pulse rounded-md border border-gray-200 bg-gray-100" />
+          <div className="h-96 animate-pulse rounded-md border border-gray-200 bg-gray-100" />
         </div>
       ) : (
-        <section className="rounded-2xl border bg-white p-6 shadow-sm space-y-6">
-          <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-blue-500" />
-            <h2 className="text-lg font-semibold text-gray-900">Nội dung chính sách</h2>
-          </div>
-          <p className="text-sm text-gray-500">
-            Mỗi mục sẽ hiển thị trên trang Chính sách. Bạn có thể thêm nhiều dòng bằng cách xuống hàng.
-          </p>
-          <div className="space-y-6">
-            {policySections.map((section) => (
-              <div key={section.slug} className="rounded-2xl border border-gray-200 p-4 space-y-3">
-                <div className="font-semibold text-gray-900">{section.title}</div>
-                <textarea
-                  placeholder="Mô tả ngắn"
-                  value={section.description ?? ""}
-                  onChange={(e) => updateLocalPolicy(section.slug, { description: e.target.value })}
-                  className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm"
-                />
-                <div className="grid gap-4 lg:grid-cols-2">
-                  <textarea
-                    placeholder="Điều kiện được áp dụng (mỗi dòng một điều kiện)"
-                    value={section.allowedText ?? ""}
-                    onChange={(e) => updateLocalPolicy(section.slug, { allowedText: e.target.value })}
-                    className="rounded-xl border border-gray-300 px-3 py-2 text-sm min-h-[140px]"
-                  />
-                  <textarea
-                    placeholder="Trường hợp không áp dụng"
-                    value={section.deniedText ?? ""}
-                    onChange={(e) => updateLocalPolicy(section.slug, { deniedText: e.target.value })}
-                    className="rounded-xl border border-gray-300 px-3 py-2 text-sm min-h-[140px]"
-                  />
+        <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
+          <Card className="rounded-md shadow-none">
+            <CardHeader className="p-4">
+              <CardTitle className="text-base">Danh sách chính sách</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 p-4 pt-0">
+              {policies.length === 0 ? (
+                <div className="rounded-md border border-dashed border-gray-300 p-4 text-sm text-gray-600">
+                  Chưa có chính sách nào. Chọn “Tạo chính sách” để thêm nội dung đầu tiên.
                 </div>
-                <textarea
-                  placeholder="Nội dung chung / hướng dẫn thêm"
-                  value={section.content ?? ""}
-                  onChange={(e) => updateLocalPolicy(section.slug, { content: e.target.value })}
-                  className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm min-h-[120px]"
-                />
-                <div className="flex justify-end">
+              ) : (
+                policies.map((policy) => (
                   <button
+                    key={policy.id}
+                    className={[
+                      "flex w-full items-start gap-3 rounded-md border px-3 py-3 text-left transition-colors",
+                      policy.id === selectedId
+                        ? "border-blue-600 bg-blue-50 text-blue-950"
+                        : "border-gray-200 bg-white text-gray-800 hover:border-blue-300",
+                    ].join(" ")}
+                    onClick={() => selectPolicy(policy)}
                     type="button"
-                    onClick={() => handleSavePolicy(section.slug)}
-                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
-                    disabled={loadingMap[`policy-${section.slug}`]}
                   >
-                    {loadingMap[`policy-${section.slug}`] ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Save className="h-4 w-4" />
-                    )}
-                    Lưu {section.title}
+                    <FileText className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold">{policy.name}</span>
+                      <span className="mt-1 block text-xs text-gray-500">
+                        {policy.content?.trim() ? "Đã có nội dung HTML" : "Chưa có nội dung"}
+                      </span>
+                    </span>
                   </button>
-                </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-md shadow-none">
+            <CardHeader className="border-b border-gray-200 p-4">
+              <CardTitle className="text-base">
+                {isEditMode ? `Chỉnh sửa: ${selectedPolicy?.name ?? formValue.name}` : "Tạo chính sách mới"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-5 p-4">
+              <div className="grid gap-2">
+                <Label htmlFor="policy-name">Tên chính sách</Label>
+                <Input
+                  id="policy-name"
+                  placeholder="Ví dụ: Chính sách bảo hành"
+                  value={formValue.name}
+                  onChange={(event) => setFormValue((current) => ({ ...current, name: event.target.value }))}
+                />
               </div>
-            ))}
-          </div>
-        </section>
+
+              <div className="grid gap-2">
+                <Label>Nội dung HTML</Label>
+                <PolicyHtmlEditor
+                  value={formValue.content}
+                  onChange={(content) => setFormValue((current) => ({ ...current, content }))}
+                />
+              </div>
+
+              <div className="flex flex-col-reverse gap-2 border-t border-gray-200 pt-4 sm:flex-row sm:justify-between">
+                {isEditMode ? (
+                  <Button
+                    className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
+                    type="button"
+                    onClick={handleDeletePolicy}
+                    disabled={isSaving || isDeleting}
+                    variant="outline"
+                  >
+                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    {isDeleting ? "Đang xóa..." : "Xóa chính sách"}
+                  </Button>
+                ) : (
+                  <span />
+                )}
+                <Button type="button" onClick={handleSavePolicy} disabled={isSaving || isDeleting}>
+                  {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  {isSaving ? "Đang lưu..." : isEditMode ? "Lưu thay đổi" : "Tạo chính sách"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
     </div>
   );

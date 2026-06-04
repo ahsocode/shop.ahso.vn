@@ -4,6 +4,7 @@ import "./globals.css";
 import AppShell from "@/components/app-shell";
 import { Toaster } from "sonner";
 import { CartProvider } from "@/lib/hooks/useCart";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import {
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -46,6 +47,7 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className={`${beVietnam.variable} antialiased`}>
+        <GoogleAnalytics />
         <CartProvider>
           <AppShell>{children}</AppShell>
           <Toaster richColors expand position="top-right" duration={3500} />
