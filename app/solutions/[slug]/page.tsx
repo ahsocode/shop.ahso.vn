@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import { draftMode } from "next/headers";
-import { prisma } from "@/lib/prisma";
-import { buildMetadata } from "@/lib/metadata";
-import type { solutionInclude as SolutionInclude, solutionGetPayload } from "@/lib/prisma-types";
+import { notFound } from "next/navigation";
 
-// Chạy động, tránh build fail khi không có DB
+import ShowcaseDetailPage from "@/components/catalog/showcase-detail-page";
+import { buildMetadata } from "@/lib/metadata";
+import { prisma } from "@/lib/prisma";
+import type {
+  solutionGetPayload,
+  solutionInclude as SolutionInclude,
+} from "@/lib/prisma-types";
+
+// Chạy động, tránh build fail khi không có DB.
 export const dynamic = "force-dynamic";
 const SKIP_BUILD_DB = process.env.SKIP_BUILD_DB === "true";
 
@@ -34,13 +37,21 @@ function transformSolution(record: SolutionRecord) {
   };
 }
 
-async function getSolution(slug: string, preview = false): Promise<SolutionWithRelations | null> {
+async function getSolution(
+  slug: string,
+  preview = false
+): Promise<SolutionWithRelations | null> {
   if (!slug) return null;
   const record = await prisma.solution.findUnique({
     where: preview ? { slug } : { slug, status: "PUBLISHED" },
     include: solutionInclude,
   });
   return record ? transformSolution(record) : null;
+}
+
+function stripHtml(value?: string | null) {
+  if (!value) return "";
+  return value.replace(/<[^>]+>/g, "").trim();
 }
 
 export async function generateMetadata({
@@ -50,10 +61,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const { isEnabled: isPreview } = await draftMode();
+
   if (SKIP_BUILD_DB) {
     return buildMetadata({
       title: "Giải pháp | AHSO",
-      description: "Chi tiết giải pháp sẽ được tải ở môi trường chạy thật.",
+      description:
+        "Chi tiết giải pháp sẽ được tải ở môi trường chạy thật.",
       path: `/solutions/${slug}`,
     });
   }
@@ -62,10 +75,12 @@ export async function generateMetadata({
     console.error("[solution metadata] DB error:", err);
     return null;
   });
+
   if (!solution) {
     return buildMetadata({
       title: "Giải pháp không tồn tại",
-      description: "Nội dung bạn yêu cầu hiện không khả dụng trên AHSO Industrial.",
+      description:
+        "Nội dung bạn yêu cầu hiện không khả dụng trên AHSO Industrial.",
       path: `/solutions/${slug}`,
     });
   }
@@ -74,8 +89,7 @@ export async function generateMetadata({
   const description =
     solution.metaDescription ||
     solution.summary ||
-    solution.bodyHtml?.replace(/<[^>]+>/g, "").slice(0, 160) ||
-    "";
+    stripHtml(solution.bodyHtml).slice(0, 160);
   const image = solution.coverImage || solution.images[0]?.url || "/logo.png";
   const keywords = [
     solution.title,
@@ -93,20 +107,22 @@ export async function generateMetadata({
   });
 }
 
-function stripHtml(value?: string | null) {
-  if (!value) return "";
-  return value.replace(/<[^>]+>/g, "").trim();
-}
-
 function SolutionFallback() {
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-10 text-gray-700">
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-        Thông tin giải pháp
-      </h1>
-      <p className="text-gray-600">
-        Dữ liệu sẽ được tải ở môi trường chạy thật. (CI đang skip DB khi build.)
-      </p>
+    <div className="min-h-screen bg-[oklch(0.985_0.006_250)]">
+      <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="rounded-lg border border-slate-200 bg-[oklch(0.998_0.003_250)] p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
+            Giải pháp công nghiệp
+          </p>
+          <h1 className="mt-3 text-3xl font-semibold text-slate-950">
+            Dữ liệu giải pháp sẽ được tải ở môi trường chạy thật.
+          </h1>
+          <p className="mt-3 max-w-2xl text-slate-600">
+            Chế độ build đang bỏ qua kết nối cơ sở dữ liệu, giao diện sẽ hiển thị đầy đủ khi chạy với cấu hình DB hợp lệ.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -127,6 +143,7 @@ export default async function SolutionDetailPage({
     console.error("[solution page] DB error:", err);
     return <SolutionFallback />;
   }
+
   if (!solution) notFound();
 
   const cover = solution.coverImage || solution.images[0]?.url || "/logo.png";
@@ -143,7 +160,7 @@ export default async function SolutionDetailPage({
     author: {
       "@type": "Organization",
       name: "AHSO Industrial",
-      url: "https://shop.ahso.vn",
+      url: "https://ahso.vn",
     },
     inLanguage: "vi-VN",
     keywords: [
@@ -154,139 +171,43 @@ export default async function SolutionDetailPage({
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-
-      <nav className="text-sm text-gray-600 mb-6 flex flex-wrap items-center gap-2">
-        <Link href="/" className="hover:text-gray-900">
-          Trang chủ
-        </Link>
-        <span className="text-gray-400">/</span>
-        <Link href="/solutions" className="hover:text-gray-900">
-          Giải pháp
-        </Link>
-        {solution.category && (
-          <>
-            <span className="text-gray-400">/</span>
-            <span className="text-gray-900">{solution.category.name}</span>
-          </>
-        )}
-        <span className="text-gray-400">/</span>
-        <span className="font-medium text-gray-900">{solution.title}</span>
-      </nav>
-
-      <div className="mt-6 grid gap-8 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <header className="space-y-4">
-        <p className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600">
-          Giải pháp công nghiệp
-        </p>
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 wrap-break-word">
-          {solution.title}
-        </h1>
-        {solution.summary && (
-          <p className="text-lg text-gray-600 max-w-3xl wrap-break-word">{solution.summary}</p>
-        )}
-      </header>
-
-          <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
-            <div className="relative aspect-4/3 w-full bg-gray-50">
-              <Image
-                src={cover}
-                alt={solution.title}
-                fill
-                className="object-contain"
-                sizes="(min-width: 1024px) 720px, 100vw"
-              />
-            </div>
-          </div>
-
-          {solution.images.length > 1 && (
-            <div className="grid gap-3 sm:grid-cols-2">
-              {solution.images
-                .slice(1)
-                .map((img: SolutionWithRelations["images"][number]) => (
-                  <div
-                    key={img.id}
-                    className="relative aspect-4/3 overflow-hidden rounded-xl border bg-gray-50"
-                  >
-                    <Image
-                      src={img.url}
-                      alt={img.alt || solution.title}
-                      fill
-                      className="object-contain"
-                      sizes="(min-width: 1024px) 560px, 50vw"
-                    />
-                  </div>
-                ))}
-            </div>
-          )}
-
-          <section className="rounded-2xl border bg-white p-6 shadow-sm space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900">
-              Mô tả giải pháp
-            </h2>
-            {solution.bodyHtml ? (
-              <div
-                className="prose max-w-none prose-blue wrap-break-word [&>img]:w-full [&>img]:h-auto [&>img]:rounded-xl [&>img]:border [&>img]:bg-gray-50 [&>img]:mx-auto"
-                dangerouslySetInnerHTML={{ __html: solution.bodyHtml }}
-              />
-            ) : (
-              <p className="text-gray-600">
-                Nội dung đang được cập nhật. Vui lòng liên hệ đội ngũ AHSO để nhận
-                tài liệu chi tiết.
-              </p>
-            )}
-          </section>
-        </div>
-
-        <aside className="space-y-4 lg:sticky lg:top-24 self-start">
-          <div className="rounded-2xl border bg-white p-6 shadow-sm space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Thông tin nhanh
-            </h2>
-            <dl className="space-y-3 text-sm text-gray-700">
-              {solution.category && (
-                <div className="flex justify-between gap-4">
-                  <dt className="text-gray-500">Danh mục</dt>
-                  <dd className="text-right">{solution.category.name}</dd>
-                </div>
-              )}
-              {solution.industry && (
-                <div className="flex justify-between gap-4">
-                  <dt className="text-gray-500">Ngành</dt>
-                  <dd className="text-right">{solution.industry}</dd>
-                </div>
-              )}
-              {solution.usecase && (
-                <div className="flex justify-between gap-4">
-                  <dt className="text-gray-500">Use case</dt>
-                  <dd className="text-right">{solution.usecase}</dd>
-                </div>
-              )}
-              {publishedAt && (
-                <div className="flex justify-between gap-4">
-                  <dt className="text-gray-500">Cập nhật</dt>
-                  <dd className="text-right">
-                    {publishedAt.toLocaleDateString("vi-VN")}
-                  </dd>
-                </div>
-              )}
-            </dl>
-            <div className="pt-2">
-              <Link
-                href="/contact"
-                className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700"
-              >
-                Nhận tư vấn triển khai
-              </Link>
-            </div>
-          </div>
-        </aside>
-      </div>
-    </div>
+      <ShowcaseDetailPage
+        kind="solutions"
+        eyebrow="Giải pháp công nghiệp"
+        title={solution.title}
+        summary={solution.summary}
+        cover={cover}
+        category={solution.category?.name}
+        isFeatured={solution.isFeatured}
+        publishedAt={publishedAt}
+        bodyHtml={solution.bodyHtml}
+        gallery={solution.images}
+        breadcrumbs={[
+          { href: "/", label: "Trang chủ" },
+          { href: "/solutions", label: "Giải pháp" },
+          ...(solution.category
+            ? [{ label: solution.category.name }]
+            : []),
+          { label: solution.title },
+        ]}
+        backHref="/solutions"
+        backLabel="Quay lại danh sách giải pháp"
+        contentTitle="Mô tả giải pháp"
+        emptyContent="Nội dung đang được cập nhật. Vui lòng liên hệ đội ngũ AHSO để nhận tài liệu chi tiết và phương án tư vấn phù hợp."
+        ctaLabel="Nhận tư vấn triển khai"
+        supportTitle="Cần làm rõ bài toán?"
+        supportDescription="AHSO có thể trao đổi nhanh để xác định phạm vi, hiện trạng dây chuyền và hướng triển khai phù hợp trước khi báo giá."
+        facts={[
+          { label: "Danh mục", value: solution.category?.name },
+          { label: "Ngành ứng dụng", value: solution.industry },
+          { label: "Bài toán", value: solution.usecase },
+        ]}
+      />
+    </>
   );
 }

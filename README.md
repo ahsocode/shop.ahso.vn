@@ -246,12 +246,21 @@ npm run lint
 
 ## Docker
 
-Build production image:
+Build production image local:
 
 ```bash
 docker build -t ahso-shop .
 docker run --env-file .env -p 3000:3000 ahso-shop
 ```
+
+Production deploy qua GHCR/Docker Compose:
+
+```bash
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+```
+
+Xem chi tiet trong [DEPLOY.md](./DEPLOY.md).
 
 Dev/lint image:
 

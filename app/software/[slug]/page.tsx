@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import { notFound } from "next/navigation";
 import { draftMode } from "next/headers";
-import { prisma } from "@/lib/prisma";
-import { buildMetadata } from "@/lib/metadata";
-import type { softwareInclude as SoftwareInclude, softwareGetPayload } from "@/lib/prisma-types";
+import { notFound } from "next/navigation";
 
-// Chạy động, tránh build fail khi không có DB
+import ShowcaseDetailPage from "@/components/catalog/showcase-detail-page";
+import { buildMetadata } from "@/lib/metadata";
+import { prisma } from "@/lib/prisma";
+import type {
+  softwareGetPayload,
+  softwareInclude as SoftwareInclude,
+} from "@/lib/prisma-types";
+
+// Chạy động, tránh build fail khi không có DB.
 export const dynamic = "force-dynamic";
 const SKIP_BUILD_DB = process.env.SKIP_BUILD_DB === "true";
 
@@ -29,7 +32,10 @@ function transformSoftware(record: SoftwareRecord) {
   };
 }
 
-async function getSoftware(slug: string, preview = false): Promise<SoftwareWithRelations | null> {
+async function getSoftware(
+  slug: string,
+  preview = false
+): Promise<SoftwareWithRelations | null> {
   if (!slug) return null;
   const record = await prisma.software.findUnique({
     where: preview ? { slug } : { slug, status: "PUBLISHED" },
@@ -38,15 +44,27 @@ async function getSoftware(slug: string, preview = false): Promise<SoftwareWithR
   return record ? transformSoftware(record) : null;
 }
 
+function stripHtml(value?: string | null) {
+  if (!value) return "";
+  return value.replace(/<[^>]+>/g, "").trim();
+}
+
 function SoftwareFallback() {
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-10 text-gray-700">
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-        Thông tin phần mềm
-      </h1>
-      <p className="text-gray-600">
-        Dữ liệu sẽ được tải ở môi trường chạy thật. (CI đang skip DB khi build.)
-      </p>
+    <div className="min-h-screen bg-[oklch(0.985_0.006_250)]">
+      <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="rounded-lg border border-slate-200 bg-[oklch(0.998_0.003_250)] p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
+            Phần mềm công nghiệp
+          </p>
+          <h1 className="mt-3 text-3xl font-semibold text-slate-950">
+            Dữ liệu phần mềm sẽ được tải ở môi trường chạy thật.
+          </h1>
+          <p className="mt-3 max-w-2xl text-slate-600">
+            Chế độ build đang bỏ qua kết nối cơ sở dữ liệu, giao diện sẽ hiển thị đầy đủ khi chạy với cấu hình DB hợp lệ.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -58,10 +76,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const { isEnabled: isPreview } = await draftMode();
+
   if (SKIP_BUILD_DB) {
     return buildMetadata({
       title: "Phần mềm | AHSO",
-      description: "Chi tiết phần mềm sẽ được tải ở môi trường chạy thật.",
+      description:
+        "Chi tiết phần mềm sẽ được tải ở môi trường chạy thật.",
       path: `/software/${slug}`,
     });
   }
@@ -70,6 +90,7 @@ export async function generateMetadata({
     console.error("[software metadata] DB error:", err);
     return null;
   });
+
   if (!software) {
     return buildMetadata({
       title: "Phần mềm không tồn tại",
@@ -82,13 +103,11 @@ export async function generateMetadata({
   const description =
     software.metaDescription ||
     software.summary ||
-    software.bodyHtml?.replace(/<[^>]+>/g, "").slice(0, 160) ||
-    "";
+    stripHtml(software.bodyHtml).slice(0, 160);
   const image = software.coverImage || "/logo.png";
-  const keywords = [
-    software.title,
-    software.category?.name,
-  ].filter(Boolean) as string[];
+  const keywords = [software.title, software.category?.name].filter(
+    Boolean
+  ) as string[];
 
   return buildMetadata({
     title,
@@ -115,6 +134,7 @@ export default async function SoftwareDetailPage({
     console.error("[software page] DB error:", err);
     return <SoftwareFallback />;
   }
+
   if (!software) notFound();
 
   const cover = software.coverImage || "/logo.png";
@@ -126,7 +146,7 @@ export default async function SoftwareDetailPage({
     name: software.title,
     applicationCategory: software.category?.name,
     operatingSystem: "Cloud",
-    description: software.summary,
+    description: software.summary || stripHtml(software.bodyHtml).slice(0, 160),
     image: cover,
     inLanguage: "vi-VN",
     datePublished: publishedAt?.toISOString(),
@@ -140,111 +160,46 @@ export default async function SoftwareDetailPage({
     provider: {
       "@type": "Organization",
       name: "AHSO Industrial",
-      url: "https://shop.ahso.vn",
+      url: "https://ahso.vn",
     },
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-
-      <nav className="text-sm text-gray-600 mb-6 flex flex-wrap items-center gap-2">
-        <Link href="/" className="hover:text-gray-900">
-          Trang chủ
-        </Link>
-        <span className="text-gray-400">/</span>
-        <Link href="/software" className="hover:text-gray-900">
-          Phần mềm & dịch vụ
-        </Link>
-        {software.category && (
-          <>
-            <span className="text-gray-400">/</span>
-            <span className="text-gray-900">{software.category.name}</span>
-          </>
-        )}
-        <span className="text-gray-400">/</span>
-        <span className="font-medium text-gray-900">{software.title}</span>
-      </nav>
-
-      <div className="mt-6 grid gap-8 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <header className="space-y-3">
-        <p className="text-sm font-semibold text-blue-600">
-          Giải pháp phần mềm
-        </p>
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 break-words">
-          {software.title}
-        </h1>
-        {software.summary && (
-          <p className="text-lg text-gray-600 max-w-3xl break-words">{software.summary}</p>
-        )}
-      </header>
-
-          <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
-            <div className="relative aspect-[4/3] w-full bg-gray-50">
-              <Image
-                src={cover}
-                alt={software.title}
-                fill
-                className="object-contain"
-                sizes="(min-width: 1024px) 720px, 100vw"
-              />
-            </div>
-          </div>
-
-          <section className="rounded-2xl border bg-white p-6 shadow-sm space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900">
-              Thông tin chi tiết
-            </h2>
-            {software.bodyHtml ? (
-              <div
-                className="prose max-w-none prose-blue break-words [&>img]:w-full [&>img]:h-auto [&>img]:rounded-xl [&>img]:border [&>img]:bg-gray-50 [&>img]:mx-auto"
-                dangerouslySetInnerHTML={{ __html: software.bodyHtml }}
-              />
-            ) : (
-              <p className="text-gray-600">
-                Nội dung đang được cập nhật. Vui lòng liên hệ đội ngũ AHSO để nhận
-                tài liệu chi tiết và lộ trình triển khai.
-              </p>
-            )}
-          </section>
-        </div>
-
-        <aside className="space-y-4 lg:sticky lg:top-24 self-start">
-          <div className="rounded-2xl border bg-white p-6 shadow-sm space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Thông tin triển khai
-            </h2>
-            <dl className="space-y-3 text-sm text-gray-700">
-              {software.category && (
-                <div className="flex justify-between gap-4">
-                  <dt className="text-gray-500">Danh mục</dt>
-                  <dd className="text-right">{software.category.name}</dd>
-                </div>
-              )}
-              {publishedAt && (
-                <div className="flex justify-between gap-4">
-                  <dt className="text-gray-500">Cập nhật</dt>
-                  <dd className="text-right">
-                    {publishedAt.toLocaleDateString("vi-VN")}
-                  </dd>
-                </div>
-              )}
-            </dl>
-            <div className="pt-2">
-              <Link
-                href="/contact"
-                className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700"
-              >
-                Nhận tư vấn demo
-              </Link>
-            </div>
-          </div>
-        </aside>
-      </div>
-    </div>
+      <ShowcaseDetailPage
+        kind="software"
+        eyebrow="Phần mềm công nghiệp"
+        title={software.title}
+        summary={software.summary}
+        cover={cover}
+        category={software.category?.name}
+        isFeatured={software.isFeatured}
+        publishedAt={publishedAt}
+        bodyHtml={software.bodyHtml}
+        breadcrumbs={[
+          { href: "/", label: "Trang chủ" },
+          { href: "/software", label: "Phần mềm" },
+          ...(software.category
+            ? [{ label: software.category.name }]
+            : []),
+          { label: software.title },
+        ]}
+        backHref="/software"
+        backLabel="Quay lại danh sách phần mềm"
+        contentTitle="Thông tin chi tiết"
+        emptyContent="Nội dung đang được cập nhật. Vui lòng liên hệ đội ngũ AHSO để nhận tài liệu chi tiết và lộ trình triển khai."
+        ctaLabel="Nhận tư vấn demo"
+        supportTitle="Cần đánh giá khả năng áp dụng?"
+        supportDescription="AHSO có thể trao đổi nhanh về quy trình hiện tại, dữ liệu đầu vào và yêu cầu vận hành trước khi đề xuất phần mềm phù hợp."
+        facts={[
+          { label: "Danh mục", value: software.category?.name },
+          { label: "Phạm vi", value: "Tư vấn, triển khai và hỗ trợ vận hành" },
+        ]}
+      />
+    </>
   );
 }
