@@ -1,49 +1,38 @@
 import { prisma } from "@/lib/prisma";
 
-export const POLICY_SECTIONS = [
-  { slug: "return", title: "Chính sách đổi trả" },
-  { slug: "warranty", title: "Chính sách bảo hành" },
-  { slug: "payment-security", title: "Chính sách bảo mật thanh toán" },
-  { slug: "shipping", title: "Chính sách vận chuyển & nhận hàng" },
-  { slug: "cancellation", title: "Chính sách hủy đơn & thay đổi thông tin" },
-] as const;
+export type PolicyInput = {
+  name: string;
+  content: string;
+};
 
-export type PolicySlug = (typeof POLICY_SECTIONS)[number]["slug"];
-
-export async function ensurePolicySections() {
-  await Promise.all(
-    POLICY_SECTIONS.map((section) =>
-      prisma.policysection.upsert({
-        where: { slug: section.slug },
-        update: {},
-        create: {
-          slug: section.slug,
-          title: section.title,
-        },
-      }),
-    ),
-  );
+export function normalizePolicyInput(input: PolicyInput): PolicyInput {
+  return {
+    name: input.name.trim(),
+    content: input.content.trim(),
+  };
 }
 
 export async function getPolicySections() {
-  await ensurePolicySections();
   return prisma.policysection.findMany({
-    orderBy: { createdAt: "asc" },
+    orderBy: { name: "asc" },
   });
 }
 
-export async function updatePolicySection(
-  slug: PolicySlug,
-  data: { description?: string | null; allowedText?: string | null; deniedText?: string | null; content?: string | null },
-) {
-  await ensurePolicySections();
+export async function createPolicySection(input: PolicyInput) {
+  const data = normalizePolicyInput(input);
+  return prisma.policysection.create({ data });
+}
+
+export async function updatePolicySection(id: string, input: PolicyInput) {
+  const data = normalizePolicyInput(input);
   return prisma.policysection.update({
-    where: { slug },
-    data: {
-      description: data.description ?? null,
-      allowedText: data.allowedText ?? null,
-      deniedText: data.deniedText ?? null,
-      content: data.content ?? null,
-    },
+    where: { id },
+    data,
+  });
+}
+
+export async function deletePolicySection(id: string) {
+  return prisma.policysection.delete({
+    where: { id },
   });
 }
